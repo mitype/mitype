@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
+import { calculateCompatibility, getCompatibilityColor } from '../lib/utils';
 
 const ALL_CATEGORIES = [
   '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
@@ -32,10 +33,21 @@ const ALL_CATEGORIES = [
   '✈️ Traveler', '🌍 Expat', '🗺️ Adventurer',
   '♟️ Chess Player', '🎲 Board Gamer', '📚 Book Lover',
   '🔭 Astronomer', '🪴 Plant Parent', '🧶 Knitter', '🪵 Woodworker',
+  '🌐 Free Thinker', '📡 Alternative Media', '🔍 Truth Seeker',
+  '🧘 Spiritual Seeker', '🌱 Minimalist', '💡 Visionary',
+  '🎙️ Motivational Speaker', '📻 Radio Personality',
+  '🏡 Homesteader', '🌾 Farmer', '🐝 Beekeeper',
+  '🎨 Tattoo Artist', '💇 Hair Stylist', '💅 Nail Artist',
+  '🎤 Comedian', '🎪 Entertainer', '🃏 Magician',
+  '🏋️ Personal Trainer', '🥗 Nutritionist', '🌿 Herbalist',
+  '🔧 Mechanic', '🔨 Contractor', '⚡ Electrician',
+  '🚒 Firefighter', '👮 Law Enforcement', '🪖 Military',
+  '✝️ Faith Based', '☮️ Activist', '🌍 Environmentalist',
 ];
 
 export default function DiscoverPage() {
   const [user, setUser] = useState<any>(null);
+  const [myCategories, setMyCategories] = useState<string[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
   const [filteredProfiles, setFilteredProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +64,30 @@ export default function DiscoverPage() {
         return;
       }
       setUser(user);
+
+      // Check subscription
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .single();
+
+      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!isSubscribed) {
+        router.push('/subscription');
+        return;
+      }
+
+      // Get current user's profile and categories
+      const { data: myProfile } = await supabase
+        .from('profiles')
+        .select('categories')
+        .eq('user_id', user.id)
+        .single();
+
+      if (myProfile?.categories) {
+        setMyCategories(myProfile.categories);
+      }
 
       // Get already swiped profiles
       const { data: matches } = await supabase
@@ -72,8 +108,15 @@ export default function DiscoverPage() {
         (p: any) => !swiped.includes(p.user_id)
       );
 
-      setProfiles(filtered);
-      setFilteredProfiles(filtered);
+      // Sort by compatibility score highest first
+      const sorted = filtered.sort((a: any, b: any) => {
+        const scoreA = calculateCompatibility(myProfile?.categories ?? [], a.categories ?? []);
+        const scoreB = calculateCompatibility(myProfile?.categories ?? [], b.categories ?? []);
+        return scoreB - scoreA;
+      });
+
+      setProfiles(sorted);
+      setFilteredProfiles(sorted);
       setLoading(false);
     };
     getData();
@@ -177,8 +220,12 @@ export default function DiscoverPage() {
           mitype
         </Link>
         <div style={{ display: 'flex', gap: 12 }}>
-          <Link href="/dashboard" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Dashboard</Link>
-          <Link href="/messages" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Messages</Link>
+          <Link href="/dashboard" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+            Dashboard
+          </Link>
+          <Link href="/messages" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+            Messages
+          </Link>
         </div>
       </nav>
 
@@ -204,7 +251,7 @@ export default function DiscoverPage() {
               Discover
             </h1>
             <p style={{ color: '#a89278', fontSize: 16 }}>
-              {filteredProfiles.length} creative{filteredProfiles.length !== 1 ? 's' : ''} to explore
+              {filteredProfiles.length} creative{filteredProfiles.length !== 1 ? 's' : ''} — sorted by compatibility
             </p>
           </div>
 
@@ -363,132 +410,157 @@ export default function DiscoverPage() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
             gap: 24,
           }}>
-            {filteredProfiles.map((profile) => (
-              <div
-                key={profile.id}
-                style={{
-                  background: 'white',
-                  border: '1px solid rgba(200,149,108,0.15)',
-                  borderRadius: 24,
-                  overflow: 'hidden',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-                }}
-              >
-                {/* Photo */}
-                <div style={{
-                  width: '100%',
-                  aspectRatio: '3/4',
-                  background: '#f0e8df',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}>
-                  {profile.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt={profile.username}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <span style={{ fontSize: 64 }}>👤</span>
-                  )}
+            {filteredProfiles.map((profile) => {
+              const score = calculateCompatibility(myCategories, profile.categories ?? []);
+              const scoreColor = getCompatibilityColor(score);
+
+              return (
+                <div
+                  key={profile.id}
+                  style={{
+                    background: 'white',
+                    border: '1px solid rgba(200,149,108,0.15)',
+                    borderRadius: 24,
+                    overflow: 'hidden',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+                  }}
+                >
+                  {/* Photo */}
                   <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
-                    padding: '16px 12px 12px',
+                    width: '100%',
+                    aspectRatio: '3/4',
+                    background: '#f0e8df',
                     display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 4,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    position: 'relative',
                   }}>
-                    {profile.categories?.slice(0, 2).map((cat: string) => (
-                      <span key={cat} style={{
-                        background: 'rgba(200,149,108,0.85)',
+                    {profile.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        alt={profile.username}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: 64 }}>👤</span>
+                    )}
+
+                    {/* Compatibility Score Badge */}
+                    {score > 0 && (
+                      <div style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        background: scoreColor,
                         color: 'white',
-                        padding: '3px 10px',
+                        padding: '4px 10px',
                         borderRadius: 100,
-                        fontSize: 11,
-                        fontWeight: 600,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                       }}>
-                        {cat}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                        {score}% Match
+                      </div>
+                    )}
 
-                {/* Info */}
-                <div style={{ padding: '16px' }}>
-                  <Link
-                    href={`/profile/${profile.username}`}
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: '#1a1208',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    @{profile.username}
-                  </Link>
-                  {profile.zip_code && (
-                    <p style={{ color: '#a89278', fontSize: 12, marginTop: 2 }}>
-                      📍 {profile.zip_code}
-                    </p>
-                  )}
-                  {profile.bio && (
-                    <p style={{
-                      color: '#8a7560',
-                      fontSize: 13,
-                      lineHeight: 1.5,
-                      margin: '8px 0 16px',
-                      overflow: 'hidden',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
+                    {/* Categories overlay */}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
+                      padding: '16px 12px 12px',
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 4,
                     }}>
-                      {profile.bio}
-                    </p>
-                  )}
+                      {profile.categories?.slice(0, 2).map((cat: string) => (
+                        <span key={cat} style={{
+                          background: 'rgba(200,149,108,0.85)',
+                          color: 'white',
+                          padding: '3px 10px',
+                          borderRadius: 100,
+                          fontSize: 11,
+                          fontWeight: 600,
+                        }}>
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
 
-                  {/* Swipe Buttons */}
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button
-                      onClick={() => handleSwipe(profile.user_id, 'left')}
+                  {/* Info */}
+                  <div style={{ padding: '16px' }}>
+                    <Link
+                      href={`/profile/${profile.username}`}
                       style={{
-                        flex: 1,
-                        padding: '10px',
-                        background: '#fff0f0',
-                        border: '1px solid rgba(220,100,100,0.2)',
-                        borderRadius: 12,
-                        color: '#c07070',
-                        fontSize: 20,
-                        cursor: 'pointer',
+                        fontSize: 16,
+                        fontWeight: 700,
+                        color: '#1a1208',
+                        textDecoration: 'none',
                       }}
                     >
-                      ✕
-                    </button>
-                    <button
-                      onClick={() => handleSwipe(profile.user_id, 'right')}
-                      style={{
-                        flex: 1,
-                        padding: '10px',
-                        background: '#c8956c',
-                        border: 'none',
-                        borderRadius: 12,
-                        color: 'white',
-                        fontSize: 20,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      ♥
-                    </button>
+                      @{profile.username}
+                    </Link>
+                    {profile.zip_code && (
+                      <p style={{ color: '#a89278', fontSize: 12, marginTop: 2 }}>
+                        📍 {profile.zip_code}
+                      </p>
+                    )}
+                    {profile.bio && (
+                      <p style={{
+                        color: '#8a7560',
+                        fontSize: 13,
+                        lineHeight: 1.5,
+                        margin: '8px 0 16px',
+                        overflow: 'hidden',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                      }}>
+                        {profile.bio}
+                      </p>
+                    )}
+
+                    {/* Swipe Buttons */}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => handleSwipe(profile.user_id, 'left')}
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          background: '#fff0f0',
+                          border: '1px solid rgba(220,100,100,0.2)',
+                          borderRadius: 12,
+                          color: '#c07070',
+                          fontSize: 20,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        ✕
+                      </button>
+                      <button
+                        onClick={() => handleSwipe(profile.user_id, 'right')}
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          background: '#c8956c',
+                          border: 'none',
+                          borderRadius: 12,
+                          color: 'white',
+                          fontSize: 20,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        ♥
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
