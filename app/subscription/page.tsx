@@ -258,7 +258,7 @@ export default function SubscriptionPage() {
                   marginBottom: 16,
                 }}
               >
-                {checkoutLoading ? 'Redirecting...' : 'Start Free Trial'}
+                {checkoutLoading ? 'Redirecting...' : 'Start Now'}
               </button>
 
               <p style={{

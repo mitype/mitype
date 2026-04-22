@@ -53,7 +53,7 @@ export default function HomePage() {
             borderRadius: 100,
             boxShadow: '0 4px 20px rgba(200,149,108,0.3)',
           }}>
-            Join Free
+            Join now
           </Link>
         </div>
       </nav>
@@ -471,7 +471,7 @@ export default function HomePage() {
             Start Free Trial
           </Link>
           <p style={{ color: '#b0967e', fontSize: 13, marginTop: 16 }}>
-            No credit card required to start
+            
           </p>
         </div>
       </section>
@@ -511,7 +511,7 @@ export default function HomePage() {
           boxShadow: '0 8px 32px rgba(200,149,108,0.35)',
           display: 'inline-block',
         }}>
-          Find Your Type — It's Free →
+          Find Your Type →
         </Link>
       </section>
 
