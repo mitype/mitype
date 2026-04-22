@@ -55,7 +55,18 @@ export default function EditProfilePage() {
         return;
       }
       setUser(user);
+// Check subscription — redirect if not subscribed
+const { data: sub } = await supabase
+  .from('subscriptions')
+  .select('status')
+  .eq('user_id', user.id)
+  .single();
 
+const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+if (!isSubscribed) {
+  router.push('/subscription');
+  return;
+}
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
