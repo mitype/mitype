@@ -189,9 +189,18 @@ export default function SubscriptionPage() {
                 fontWeight: 700,
                 fontSize: 16,
                 textAlign: 'center',
-                marginBottom: 40,
+                marginBottom: 8,
               }}>
                 🎉 First month completely FREE
+              </p>
+
+              <p style={{
+                color: '#a89278',
+                fontSize: 13,
+                textAlign: 'center',
+                marginBottom: 40,
+              }}>
+                Card required to start · You will not be charged for 30 days
               </p>
 
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: 40 }}>
@@ -257,8 +266,9 @@ export default function SubscriptionPage() {
                 color: '#b0967e',
                 fontSize: 13,
               }}>
-                No credit card required to start · Cancel anytime
+                Your card will not be charged during your 30 day free trial · Cancel anytime
               </p>
+
             </div>
           </div>
         )}
