@@ -32,7 +32,36 @@ const ALL_CATEGORIES = [
   '✈️ Traveler', '🌍 Expat', '🗺️ Adventurer',
   '♟️ Chess Player', '🎲 Board Gamer', '📚 Book Lover',
   '🔭 Astronomer', '🪴 Plant Parent', '🧶 Knitter', '🪵 Woodworker',
+  '🌐 Free Thinker', '📡 Alternative Media', '🔍 Truth Seeker',
+  '🧘 Spiritual Seeker', '🌱 Minimalist', '💡 Visionary',
+  '🎙️ Motivational Speaker', '📻 Radio Personality',
+  '🏡 Homesteader', '🌾 Farmer', '🐝 Beekeeper',
+  '🎨 Tattoo Artist', '💇 Hair Stylist', '💅 Nail Artist',
+  '🎤 Comedian', '🎪 Entertainer', '🃏 Magician',
+  '🏋️ Personal Trainer', '🥗 Nutritionist', '🌿 Herbalist',
+  '🔧 Mechanic', '🔨 Contractor', '⚡ Electrician',
+  '🚒 Firefighter', '👮 Law Enforcement', '🪖 Military',
+  '✝️ Faith Based', '☮️ Activist', '🌍 Environmentalist',
 ];
+
+const PORTFOLIO_TYPES = [
+  { value: 'music',     label: '🎵 Music',       placeholder: 'SoundCloud, Spotify, Apple Music...' },
+  { value: 'video',     label: '🎬 Video',        placeholder: 'YouTube, Vimeo, TikTok...' },
+  { value: 'photo',     label: '📸 Photography',  placeholder: 'Instagram, Flickr, 500px...' },
+  { value: 'writing',   label: '✍️ Writing',      placeholder: 'Blog, Medium, Substack...' },
+  { value: 'art',       label: '🎨 Art',          placeholder: 'Behance, DeviantArt, ArtStation...' },
+  { value: 'gaming',    label: '🎮 Gaming',       placeholder: 'Twitch, Steam, YouTube Gaming...' },
+  { value: 'podcast',   label: '🎙️ Podcast',     placeholder: 'Spotify, Apple Podcasts...' },
+  { value: 'business',  label: '💼 Business',     placeholder: 'LinkedIn, company website...' },
+  { value: 'social',    label: '📱 Social',       placeholder: 'Any social media link...' },
+  { value: 'other',     label: '🔗 Other',        placeholder: 'Any other link...' },
+];
+
+interface PortfolioLink {
+  type: string;
+  url: string;
+  title: string;
+}
 
 export default function EditProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -45,6 +74,7 @@ export default function EditProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [portfolioLinks, setPortfolioLinks] = useState<PortfolioLink[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -55,18 +85,7 @@ export default function EditProfilePage() {
         return;
       }
       setUser(user);
-// Check subscription — redirect if not subscribed
-const { data: sub } = await supabase
-  .from('subscriptions')
-  .select('status')
-  .eq('user_id', user.id)
-  .single();
 
-const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
-if (!isSubscribed) {
-  router.push('/subscription');
-  return;
-}
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -80,6 +99,7 @@ if (!isSubscribed) {
         setWebsiteUrl(profile.website_url || '');
         setSelectedCategories(profile.categories || []);
         setAvatarUrl(profile.avatar_url || '');
+        setPortfolioLinks(profile.portfolio_links || []);
       }
 
       setLoading(false);
@@ -130,6 +150,20 @@ if (!isSubscribed) {
     setUploading(false);
   }
 
+  function addPortfolioLink() {
+    setPortfolioLinks([...portfolioLinks, { type: 'music', url: '', title: '' }]);
+  }
+
+  function removePortfolioLink(index: number) {
+    setPortfolioLinks(portfolioLinks.filter((_, i) => i !== index));
+  }
+
+  function updatePortfolioLink(index: number, field: keyof PortfolioLink, value: string) {
+    setPortfolioLinks(portfolioLinks.map((link, i) =>
+      i === index ? { ...link, [field]: value } : link
+    ));
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!username.trim()) {
@@ -146,6 +180,7 @@ if (!isSubscribed) {
       zip_code: zipCode.trim(),
       website_url: websiteUrl.trim(),
       avatar_url: avatarUrl,
+      portfolio_links: portfolioLinks.filter((p) => p.url.trim()),
     }, { onConflict: 'user_id' });
 
     if (error) {
@@ -176,7 +211,7 @@ if (!isSubscribed) {
       minHeight: '100vh',
       background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
-      padding: '0 0 80px 0',
+      paddingBottom: 80,
     }}>
 
       {/* Nav */}
@@ -207,7 +242,7 @@ if (!isSubscribed) {
           fontSize: 14,
           fontWeight: 600,
         }}>
-          ← Back to Dashboard
+          Back to Dashboard
         </Link>
       </nav>
 
@@ -222,7 +257,7 @@ if (!isSubscribed) {
           Edit Profile
         </h1>
         <p style={{ color: '#a89278', fontSize: 16, marginBottom: 40 }}>
-          Update your info, photo, and categories.
+          Update your info, photo, categories and creative portfolio.
         </p>
 
         <form onSubmit={handleSave}>
@@ -271,9 +306,6 @@ if (!isSubscribed) {
                 disabled={uploading}
               />
             </label>
-            <p style={{ color: '#b0967e', fontSize: 12, marginTop: 8 }}>
-              JPEG, PNG or WebP · Max 5MB
-            </p>
           </div>
 
           {/* Username */}
@@ -435,7 +467,7 @@ if (!isSubscribed) {
           </div>
 
           {/* Website */}
-          <div style={{ marginBottom: 40 }}>
+          <div style={{ marginBottom: 32 }}>
             <label style={{
               display: 'block',
               fontSize: 13,
@@ -445,7 +477,7 @@ if (!isSubscribed) {
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}>
-              Website or Portfolio
+              Website or Portfolio URL
             </label>
             <input
               type="url"
@@ -464,6 +496,194 @@ if (!isSubscribed) {
                 boxSizing: 'border-box',
               }}
             />
+          </div>
+
+          {/* Creative Portfolio Section */}
+          <div style={{ marginBottom: 40 }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 8,
+            }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#6b5744',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}>
+                  Creative Portfolio
+                </label>
+                <p style={{ color: '#b0967e', fontSize: 13, marginTop: 4 }}>
+                  Share your music, art, writing, videos and more
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={addPortfolioLink}
+                style={{
+                  padding: '8px 18px',
+                  background: '#c8956c',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 100,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                + Add Link
+              </button>
+            </div>
+
+            {portfolioLinks.length === 0 && (
+              <div style={{
+                background: 'white',
+                border: '1px dashed rgba(200,149,108,0.3)',
+                borderRadius: 16,
+                padding: '32px',
+                textAlign: 'center',
+                color: '#a89278',
+              }}>
+                <div style={{ fontSize: 32, marginBottom: 8 }}>🎨</div>
+                <p style={{ fontSize: 14 }}>No portfolio links yet.</p>
+                <p style={{ fontSize: 13, marginTop: 4 }}>Click Add Link to share your creative work!</p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+              {portfolioLinks.map((link, index) => (
+                <div
+                  key={index}
+                  style={{
+                    background: 'white',
+                    border: '1px solid rgba(200,149,108,0.2)',
+                    borderRadius: 16,
+                    padding: '20px',
+                  }}
+                >
+                  {/* Type selector */}
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{
+                      display: 'block',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: '#6b5744',
+                      marginBottom: 6,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}>
+                      Type
+                    </label>
+                    <select
+                      value={link.type}
+                      onChange={(e) => updatePortfolioLink(index, 'type', e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: 10,
+                        border: '1px solid rgba(200,149,108,0.25)',
+                        background: '#faf6f0',
+                        fontSize: 14,
+                        color: '#1a1208',
+                        outline: 'none',
+                      }}
+                    >
+                      {PORTFOLIO_TYPES.map((t) => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Title */}
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{
+                      display: 'block',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: '#6b5744',
+                      marginBottom: 6,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}>
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. My SoundCloud, Photography Portfolio..."
+                      value={link.title}
+                      onChange={(e) => updatePortfolioLink(index, 'title', e.target.value)}
+                      maxLength={50}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: 10,
+                        border: '1px solid rgba(200,149,108,0.25)',
+                        background: '#faf6f0',
+                        fontSize: 14,
+                        color: '#1a1208',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  {/* URL */}
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{
+                      display: 'block',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: '#6b5744',
+                      marginBottom: 6,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}>
+                      Link URL
+                    </label>
+                    <input
+                      type="url"
+                      placeholder={PORTFOLIO_TYPES.find(t => t.value === link.type)?.placeholder ?? 'https://...'}
+                      value={link.url}
+                      onChange={(e) => updatePortfolioLink(index, 'url', e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: 10,
+                        border: '1px solid rgba(200,149,108,0.25)',
+                        background: '#faf6f0',
+                        fontSize: 14,
+                        color: '#1a1208',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  {/* Remove button */}
+                  <button
+                    type="button"
+                    onClick={() => removePortfolioLink(index)}
+                    style={{
+                      padding: '6px 16px',
+                      background: '#fff0f0',
+                      border: '1px solid rgba(220,100,100,0.2)',
+                      borderRadius: 100,
+                      color: '#c07070',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Save Button */}
