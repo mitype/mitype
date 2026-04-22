@@ -92,7 +92,7 @@ export default function CreateProfilePage() {
       return;
     }
 
-    router.push('/dashboard');
+    router.push('/subscription');
   };
 
   return (
