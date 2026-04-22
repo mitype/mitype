@@ -13,7 +13,6 @@ export default function ContactPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    // Simulate sending — in production connect to an email service
     await new Promise((r) => setTimeout(r, 1000));
     setSent(true);
     setLoading(false);
@@ -27,7 +26,6 @@ export default function ContactPage() {
       paddingBottom: 80,
     }}>
 
-      {/* Nav */}
       <nav style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -70,10 +68,9 @@ export default function ContactPage() {
           Contact & Support
         </h1>
         <p style={{ color: '#a89278', fontSize: 16, marginBottom: 48 }}>
-          We're here to help! Send us a message and we'll get back to you within 24 hours.
+          We are here to help! Send us a message and we will get back to you within 24 hours.
         </p>
 
-        {/* Contact info cards */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -87,13 +84,12 @@ export default function ContactPage() {
             padding: '20px',
           }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>📧</div>
-            <p style={{ fontWeight: 700, color: '#1a1208', fontSize: 14, marginBottom: 4 }}>Email Support</p>
-            
-              href="mailto:support.mitypeapp@gmail.com"
-              style={{ color: '#c8956c', fontSize: 13, textDecoration: 'none' }}
-            >
+            <p style={{ fontWeight: 700, color: '#1a1208', fontSize: 14, marginBottom: 4 }}>
+              Email Support
+            </p>
+            <p style={{ color: '#c8956c', fontSize: 13 }}>
               support.mitypeapp@gmail.com
-            </a>
+            </p>
           </div>
           <div style={{
             background: 'white',
@@ -102,12 +98,13 @@ export default function ContactPage() {
             padding: '20px',
           }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>⏰</div>
-            <p style={{ fontWeight: 700, color: '#1a1208', fontSize: 14, marginBottom: 4 }}>Response Time</p>
+            <p style={{ fontWeight: 700, color: '#1a1208', fontSize: 14, marginBottom: 4 }}>
+              Response Time
+            </p>
             <p style={{ color: '#a89278', fontSize: 13 }}>Usually within 24 hours</p>
           </div>
         </div>
 
-        {/* Contact form */}
         {sent ? (
           <div style={{
             background: 'white',
@@ -126,7 +123,7 @@ export default function ContactPage() {
               Message received!
             </h2>
             <p style={{ color: '#a89278', fontSize: 15, marginBottom: 24 }}>
-              Thank you for reaching out! We'll get back to you at <strong>{email}</strong> within 24 hours.
+              Thank you! We will get back to you at {email} within 24 hours.
             </p>
             <Link href="/" style={{
               display: 'inline-block',
@@ -150,8 +147,6 @@ export default function ContactPage() {
             boxShadow: '0 20px 60px rgba(200,149,108,0.08)',
           }}>
             <form onSubmit={handleSubmit}>
-
-              {/* Name & Email */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -222,7 +217,6 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* Subject */}
               <div style={{ marginBottom: 20 }}>
                 <label style={{
                   display: 'block',
@@ -253,7 +247,7 @@ export default function ContactPage() {
                 >
                   <option value="">Select a topic...</option>
                   <option value="account">Account issues</option>
-                  <option value="billing">Billing & subscription</option>
+                  <option value="billing">Billing and subscription</option>
                   <option value="safety">Safety concern or report</option>
                   <option value="technical">Technical problem</option>
                   <option value="feedback">Feedback or suggestion</option>
@@ -261,7 +255,6 @@ export default function ContactPage() {
                 </select>
               </div>
 
-              {/* Message */}
               <div style={{ marginBottom: 32 }}>
                 <label style={{
                   display: 'block',
@@ -314,12 +307,10 @@ export default function ContactPage() {
               >
                 {loading ? 'Sending...' : 'Send Message'}
               </button>
-
             </form>
           </div>
         )}
 
-        {/* Footer links */}
         <div style={{
           marginTop: 40,
           display: 'flex',
