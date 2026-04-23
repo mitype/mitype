@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { supabaseAdmin } from '../../../lib/supabaseAdmin';
+import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 
 // Stripe client — same API version as the rest of the app.
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -59,6 +59,8 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+
+  const supabaseAdmin = getSupabaseAdmin();
 
   try {
     switch (event.type) {
