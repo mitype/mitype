@@ -57,6 +57,24 @@ const PORTFOLIO_TYPES = [
   { value: 'other',     label: '🔗 Other',        placeholder: 'Any other link...' },
 ];
 
+const STATUS_SUGGESTIONS = [
+  '🎵 Recording my first album',
+  '📸 Shooting a wedding this weekend',
+  '✍️ Writing my first novel',
+  '🎨 Working on a new art series',
+  '🎬 Editing my latest film project',
+  '🎮 Streaming every night this week',
+  '🏋️ Training for my first marathon',
+  '💡 Building a new startup',
+  '🎤 Preparing for an open mic night',
+  '📚 Reading everything I can get my hands on',
+  '🌍 Planning my next big trip',
+  '🍕 Experimenting with new recipes',
+  '🚀 Launching something exciting soon',
+  '🎹 Learning a new song',
+  '📱 Growing my content channel',
+];
+
 interface PortfolioLink {
   type: string;
   url: string;
@@ -69,12 +87,14 @@ export default function EditProfilePage() {
   const [bio, setBio] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
+  const [creativeStatus, setCreativeStatus] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [portfolioLinks, setPortfolioLinks] = useState<PortfolioLink[]>([]);
+  const [showStatusSuggestions, setShowStatusSuggestions] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -97,6 +117,7 @@ export default function EditProfilePage() {
         setBio(profile.bio || '');
         setZipCode(profile.zip_code || '');
         setWebsiteUrl(profile.website_url || '');
+        setCreativeStatus(profile.creative_status || '');
         setSelectedCategories(profile.categories || []);
         setAvatarUrl(profile.avatar_url || '');
         setPortfolioLinks(profile.portfolio_links || []);
@@ -179,6 +200,7 @@ export default function EditProfilePage() {
       categories: selectedCategories,
       zip_code: zipCode.trim(),
       website_url: websiteUrl.trim(),
+      creative_status: creativeStatus.trim(),
       avatar_url: avatarUrl,
       portfolio_links: portfolioLinks.filter((p) => p.url.trim()),
     }, { onConflict: 'user_id' });
@@ -389,6 +411,115 @@ export default function EditProfilePage() {
             </p>
           </div>
 
+          {/* Creative Status */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={{
+              display: 'block',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#6b5744',
+              marginBottom: 4,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>
+              Creative Status
+            </label>
+            <p style={{ color: '#b0967e', fontSize: 13, marginBottom: 10 }}>
+              What are you currently working on or excited about?
+            </p>
+            <input
+              type="text"
+              placeholder="e.g. Recording my first album 🎵"
+              value={creativeStatus}
+              onChange={(e) => setCreativeStatus(e.target.value)}
+              maxLength={100}
+              style={{
+                width: '100%',
+                padding: '13px 16px',
+                borderRadius: 12,
+                border: '1px solid rgba(200,149,108,0.25)',
+                background: 'white',
+                fontSize: 15,
+                color: '#1a1208',
+                outline: 'none',
+                boxSizing: 'border-box',
+                marginBottom: 8,
+              }}
+            />
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: showStatusSuggestions ? 12 : 0,
+            }}>
+              <p style={{ color: '#b0967e', fontSize: 12 }}>
+                {creativeStatus.length}/100
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowStatusSuggestions(!showStatusSuggestions)}
+                style={{
+                  padding: '4px 14px',
+                  background: 'transparent',
+                  border: '1px solid rgba(200,149,108,0.3)',
+                  borderRadius: 100,
+                  color: '#c8956c',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {showStatusSuggestions ? 'Hide ideas' : '💡 Get ideas'}
+              </button>
+            </div>
+
+            {/* Status suggestions */}
+            {showStatusSuggestions && (
+              <div style={{
+                background: 'white',
+                border: '1px solid rgba(200,149,108,0.2)',
+                borderRadius: 14,
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+              }}>
+                <p style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#a89278',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  marginBottom: 4,
+                }}>
+                  Tap to use
+                </p>
+                {STATUS_SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => {
+                      setCreativeStatus(suggestion);
+                      setShowStatusSuggestions(false);
+                    }}
+                    style={{
+                      padding: '10px 14px',
+                      background: '#faf6f0',
+                      border: '1px solid rgba(200,149,108,0.15)',
+                      borderRadius: 10,
+                      color: '#6b5744',
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Categories */}
           <div style={{ marginBottom: 24 }}>
             <label style={{
@@ -566,7 +697,6 @@ export default function EditProfilePage() {
                     padding: '20px',
                   }}
                 >
-                  {/* Type selector */}
                   <div style={{ marginBottom: 12 }}>
                     <label style={{
                       display: 'block',
@@ -599,7 +729,6 @@ export default function EditProfilePage() {
                     </select>
                   </div>
 
-                  {/* Title */}
                   <div style={{ marginBottom: 12 }}>
                     <label style={{
                       display: 'block',
@@ -632,7 +761,6 @@ export default function EditProfilePage() {
                     />
                   </div>
 
-                  {/* URL */}
                   <div style={{ marginBottom: 12 }}>
                     <label style={{
                       display: 'block',
@@ -664,7 +792,6 @@ export default function EditProfilePage() {
                     />
                   </div>
 
-                  {/* Remove button */}
                   <button
                     type="button"
                     onClick={() => removePortfolioLink(index)}

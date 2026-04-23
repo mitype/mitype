@@ -34,6 +34,7 @@ type PublicProfile = {
   bio?: string | null;
   website_url?: string | null;
   portfolio_links?: PortfolioLink[] | null;
+  creative_status?: string | null;
 };
 
 export default function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -114,9 +115,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
       router.push('/login');
       return;
     }
-    if (!profile) {
-      return;
-    }
+    if (!profile) return;
 
     const { data: existing } = await supabase
       .from('conversations')
@@ -341,14 +340,44 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               </div>
             </div>
 
-            <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1a1208', letterSpacing: '-0.5px', marginBottom: 4 }}>
+            {/* Username */}
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1a1208', letterSpacing: '-0.5px', marginBottom: 8 }}>
               @{profile.username}
             </h1>
 
-            {profile.zip_code && (
-              <p style={{ color: '#a89278', fontSize: 14, marginBottom: 16 }}>📍 {profile.zip_code}</p>
+            {/* Creative Status */}
+            {profile.creative_status && (
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                background: 'rgba(200,149,108,0.08)',
+                border: '1px solid rgba(200,149,108,0.2)',
+                borderRadius: 100,
+                padding: '6px 14px',
+                marginBottom: 12,
+              }}>
+                <div style={{
+                  width: 8,
+                  height: 8,
+                  background: '#c8956c',
+                  borderRadius: '50%',
+                  flexShrink: 0,
+                }} />
+                <span style={{ color: '#6b5744', fontSize: 13, fontWeight: 600 }}>
+                  {profile.creative_status}
+                </span>
+              </div>
             )}
 
+            {/* ZIP */}
+            {profile.zip_code && (
+              <p style={{ color: '#a89278', fontSize: 14, marginBottom: 16 }}>
+                📍 {profile.zip_code}
+              </p>
+            )}
+
+            {/* Bio */}
             {profile.bio && (
               <p style={{ color: '#6b5744', fontSize: 15, lineHeight: 1.7, marginBottom: 20 }}>
                 {profile.bio}
@@ -529,7 +558,6 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     border: '1px solid rgba(200,149,108,0.15)',
                     borderRadius: 14,
                     textDecoration: 'none',
-                    transition: 'all 0.15s',
                   }}
                 >
                   <div style={{
@@ -599,4 +627,4 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
       </div>
     </main>
   );
-} 
+}
