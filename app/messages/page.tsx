@@ -4,6 +4,35 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 
+const ICEBREAKERS = [
+  // General
+  "What song describes your life right now? 🎵",
+  "What's your cure for boredom? 😄",
+  "What creative project are you most proud of? ✨",
+  "If you could master any skill overnight, what would it be? 🔥",
+  "What's the best thing that happened to you this week? 🌟",
+  "What are you currently obsessed with? 👀",
+  "What's your go-to comfort activity? 🛋️",
+  "If your life had a soundtrack, what genre would it be? 🎶",
+  "What's a hidden talent you have? 🎯",
+  "What's the most interesting thing you've learned recently? 🧠",
+  "What's your favorite way to spend a Sunday? ☀️",
+  "What's something on your bucket list? 🌍",
+  "What would your perfect day look like? 💭",
+  "What's a passion project you're working on? 🚀",
+  "What's the last thing that genuinely excited you? ⚡",
+  "Coffee or tea person — and what does your order say about you? ☕",
+  "What's a place you've been that changed your perspective? 🗺️",
+  "What's something most people don't know about you? 🤫",
+  "What kind of creative work do you wish more people appreciated? 🎨",
+  "What's your favorite way to recharge after a long day? 🌙",
+];
+
+function getRandomIcebreakers(count = 3): string[] {
+  const shuffled = [...ICEBREAKERS].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
 export default function MessagesPage() {
   const [user, setUser] = useState<any>(null);
   const [conversations, setConversations] = useState<any[]>([]);
@@ -13,6 +42,8 @@ export default function MessagesPage() {
   const [profiles, setProfiles] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [icebreakers, setIcebreakers] = useState<string[]>([]);
+  const [showIcebreakers, setShowIcebreakers] = useState(false);
   const bottomRef = useRef<any>(null);
   const router = useRouter();
 
@@ -24,18 +55,20 @@ export default function MessagesPage() {
         return;
       }
       setUser(user);
-      // Check subscription — redirect if not subscribed
-const { data: sub } = await supabase
-.from('subscriptions')
-.select('status')
-.eq('user_id', user.id)
-.single();
 
-const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
-if (!isSubscribed) {
-router.push('/subscription');
-return;
-}
+      // Check subscription
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .single();
+
+      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!isSubscribed) {
+        router.push('/subscription');
+        return;
+      }
+
       await loadConversations(user);
       setLoading(false);
     };
@@ -46,6 +79,21 @@ return;
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Show icebreakers when opening a new pending conversation
+  useEffect(() => {
+    if (
+      selectedConvo &&
+      selectedConvo.status === 'pending' &&
+      selectedConvo.initiated_by === user?.id &&
+      messages.length === 0
+    ) {
+      setIcebreakers(getRandomIcebreakers(3));
+      setShowIcebreakers(true);
+    } else {
+      setShowIcebreakers(false);
+    }
+  }, [selectedConvo, messages, user]);
+
   async function loadConversations(u: any) {
     const { data: convos } = await supabase
       .from('conversations')
@@ -55,7 +103,6 @@ return;
 
     setConversations(convos ?? []);
 
-    // Load profiles for all participants
     const allIds = [...new Set(
       (convos ?? []).flatMap((c: any) => c.participant_ids)
     )].filter((id) => id !== u.id);
@@ -88,10 +135,18 @@ return;
     await loadMessages(convo.id);
   }
 
+  function useIcebreaker(text: string) {
+    setNewMessage(text);
+    setShowIcebreakers(false);
+  }
+
+  function refreshIcebreakers() {
+    setIcebreakers(getRandomIcebreakers(3));
+  }
+
   async function sendMessage() {
     if (!newMessage.trim() || !selectedConvo || !user) return;
 
-    // Check message limits for pending convos
     if (selectedConvo.status === 'pending') {
       const myMessages = messages.filter((m) => m.sender_id === user.id);
       if (myMessages.length >= 1) {
@@ -114,6 +169,7 @@ return;
     if (!error && data) {
       setMessages((prev) => [...prev, data]);
       setNewMessage('');
+      setShowIcebreakers(false);
     }
     setSending(false);
   }
@@ -482,7 +538,6 @@ return;
                   </div>
                 </div>
 
-                {/* Approve/Deny buttons for recipients */}
                 {selectedConvo.status === 'pending' &&
                   selectedConvo.initiated_by !== user?.id && (
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -530,7 +585,91 @@ return;
                 gap: 12,
                 background: '#faf6f0',
               }}>
-                {messages.length === 0 && (
+
+                {/* Icebreaker Suggestions */}
+                {showIcebreakers && messages.length === 0 && (
+                  <div style={{
+                    background: 'white',
+                    border: '1px solid rgba(200,149,108,0.2)',
+                    borderRadius: 20,
+                    padding: '20px',
+                    marginBottom: 8,
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 14,
+                    }}>
+                      <div>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
+                          ❄️ Need an icebreaker?
+                        </p>
+                        <p style={{ fontSize: 12, color: '#a89278' }}>
+                          Pick a prompt or write your own message below
+                        </p>
+                      </div>
+                      <button
+                        onClick={refreshIcebreakers}
+                        style={{
+                          padding: '6px 14px',
+                          background: 'transparent',
+                          border: '1px solid rgba(200,149,108,0.3)',
+                          borderRadius: 100,
+                          color: '#c8956c',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                        }}
+                      >
+                        🔄 New ideas
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {icebreakers.map((prompt, i) => (
+                        <button
+                          key={i}
+                          onClick={() => useIcebreaker(prompt)}
+                          style={{
+                            padding: '12px 16px',
+                            background: '#faf6f0',
+                            border: '1px solid rgba(200,149,108,0.2)',
+                            borderRadius: 12,
+                            color: '#6b5744',
+                            fontSize: 13,
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            lineHeight: 1.5,
+                            transition: 'all 0.15s',
+                          }}
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setShowIcebreakers(false)}
+                      style={{
+                        marginTop: 12,
+                        padding: '6px 0',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#a89278',
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      No thanks, I'll write my own
+                    </button>
+                  </div>
+                )}
+
+                {messages.length === 0 && !showIcebreakers && (
                   <div style={{ textAlign: 'center', padding: '40px', color: '#a89278' }}>
                     <p style={{ fontSize: 14 }}>
                       {selectedConvo.status === 'pending' && selectedConvo.initiated_by === user?.id
@@ -586,47 +725,72 @@ return;
                   padding: '16px 24px',
                   borderTop: '1px solid rgba(200,149,108,0.15)',
                   background: 'white',
-                  display: 'flex',
-                  gap: 12,
                   flexShrink: 0,
                 }}>
-                  <input
-                    type="text"
-                    placeholder={
-                      selectedConvo.status === 'pending'
-                        ? 'Send your first message...'
-                        : 'Type a message...'
-                    }
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                    style={{
-                      flex: 1,
-                      padding: '12px 16px',
-                      borderRadius: 100,
-                      border: '1px solid rgba(200,149,108,0.25)',
-                      background: '#faf6f0',
-                      fontSize: 14,
-                      color: '#1a1208',
-                      outline: 'none',
-                    }}
-                  />
-                  <button
-                    onClick={sendMessage}
-                    disabled={sending || !newMessage.trim()}
-                    style={{
-                      padding: '12px 24px',
-                      background: sending || !newMessage.trim() ? '#d4a882' : '#c8956c',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 100,
-                      fontSize: 14,
-                      fontWeight: 700,
-                      cursor: sending || !newMessage.trim() ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    Send
-                  </button>
+                  {/* Show icebreaker toggle if hidden */}
+                  {!showIcebreakers && messages.length === 0 &&
+                    selectedConvo.status === 'pending' &&
+                    selectedConvo.initiated_by === user?.id && (
+                    <button
+                      onClick={() => {
+                        setIcebreakers(getRandomIcebreakers(3));
+                        setShowIcebreakers(true);
+                      }}
+                      style={{
+                        marginBottom: 10,
+                        padding: '6px 16px',
+                        background: 'rgba(200,149,108,0.1)',
+                        border: '1px solid rgba(200,149,108,0.2)',
+                        borderRadius: 100,
+                        color: '#c8956c',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ❄️ Show icebreaker ideas
+                    </button>
+                  )}
+
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <input
+                      type="text"
+                      placeholder={
+                        selectedConvo.status === 'pending'
+                          ? 'Send your first message...'
+                          : 'Type a message...'
+                      }
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                      style={{
+                        flex: 1,
+                        padding: '12px 16px',
+                        borderRadius: 100,
+                        border: '1px solid rgba(200,149,108,0.25)',
+                        background: '#faf6f0',
+                        fontSize: 14,
+                        color: '#1a1208',
+                        outline: 'none',
+                      }}
+                    />
+                    <button
+                      onClick={sendMessage}
+                      disabled={sending || !newMessage.trim()}
+                      style={{
+                        padding: '12px 24px',
+                        background: sending || !newMessage.trim() ? '#d4a882' : '#c8956c',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 100,
+                        fontSize: 14,
+                        fontWeight: 700,
+                        cursor: sending || !newMessage.trim() ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      Send
+                    </button>
+                  </div>
                 </div>
               )}
 
