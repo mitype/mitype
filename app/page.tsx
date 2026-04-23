@@ -103,7 +103,7 @@ export default function HomePage() {
             borderRadius: '50%',
             display: 'inline-block',
           }} />
-          First month completely free · Card required · No charge for 30 days 
+          
         </div>
 
         {/* Headline */}
