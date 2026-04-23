@@ -104,7 +104,7 @@ export default function HomePage() {
             display: 'inline-block',
           }} />
           
-        </div>
+        
 
         {/* Headline */}
         <h1 style={{
