@@ -45,10 +45,24 @@ const ALL_CATEGORIES = [
   '✝️ Faith Based', '☮️ Activist', '🌍 Environmentalist',
 ];
 
+// Get 3 random spotlight profiles that rotate daily
+function getSpotlightProfiles(profiles: any[]): any[] {
+  if (profiles.length === 0) return [];
+  const today = new Date().toDateString();
+  const seed = today.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+  const shuffled = [...profiles].sort((a, b) => {
+    const hashA = (seed + a.user_id.charCodeAt(0)) % profiles.length;
+    const hashB = (seed + b.user_id.charCodeAt(0)) % profiles.length;
+    return hashA - hashB;
+  });
+  return shuffled.slice(0, Math.min(3, shuffled.length));
+}
+
 export default function DiscoverPage() {
   const [user, setUser] = useState<any>(null);
   const [myCategories, setMyCategories] = useState<string[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
+  const [spotlightProfiles, setSpotlightProfiles] = useState<any[]>([]);
   const [filteredProfiles, setFilteredProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -104,7 +118,14 @@ export default function DiscoverPage() {
         .neq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      const filtered = (profileData ?? []).filter(
+      const allProfiles = profileData ?? [];
+
+      // Get spotlight profiles from ALL profiles (including swiped)
+      const spotlight = getSpotlightProfiles(allProfiles);
+      setSpotlightProfiles(spotlight);
+
+      // Filter out swiped for main grid
+      const filtered = allProfiles.filter(
         (p: any) => !swiped.includes(p.user_id)
       );
 
@@ -230,6 +251,221 @@ export default function DiscoverPage() {
       </nav>
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 24px' }}>
+
+        {/* Spotlight Section */}
+        {spotlightProfiles.length > 0 && (
+          <div style={{ marginBottom: 56 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              marginBottom: 20,
+            }}>
+              <span style={{ fontSize: 20 }}>✨</span>
+              <div>
+                <h2 style={{
+                  fontSize: 22,
+                  fontWeight: 800,
+                  color: '#1a1208',
+                  letterSpacing: '-0.5px',
+                }}>
+                  Spotlight Profiles
+                </h2>
+                <p style={{ color: '#a89278', fontSize: 13 }}>
+                  Featured creatives today — refreshes daily
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: 20,
+            }}>
+              {spotlightProfiles.map((profile) => {
+                const score = calculateCompatibility(myCategories, profile.categories ?? []);
+                const scoreColor = getCompatibilityColor(score);
+
+                return (
+                  <div
+                    key={profile.id}
+                    style={{
+                      background: 'white',
+                      border: '2px solid rgba(200,149,108,0.3)',
+                      borderRadius: 24,
+                      overflow: 'hidden',
+                      boxShadow: '0 8px 32px rgba(200,149,108,0.12)',
+                      position: 'relative',
+                    }}
+                  >
+                    {/* Spotlight banner */}
+                    <div style={{
+                      background: 'linear-gradient(135deg, #c8956c, #e8b490)',
+                      padding: '8px 16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}>
+                      <span style={{ fontSize: 14 }}>✨</span>
+                      <span style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: 'white',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                      }}>
+                        Spotlight Profile
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 0 }}>
+                      {/* Photo */}
+                      <div style={{
+                        width: 110,
+                        flexShrink: 0,
+                        background: '#f0e8df',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        minHeight: 140,
+                      }}>
+                        {profile.avatar_url ? (
+                          <img
+                            src={profile.avatar_url}
+                            alt={profile.username}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: 48 }}>👤</span>
+                        )}
+                        {score > 0 && (
+                          <div style={{
+                            position: 'absolute',
+                            bottom: 6,
+                            left: 6,
+                            background: scoreColor,
+                            color: 'white',
+                            padding: '3px 8px',
+                            borderRadius: 100,
+                            fontSize: 11,
+                            fontWeight: 700,
+                          }}>
+                            {score}%
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div style={{ padding: '16px', flex: 1, minWidth: 0 }}>
+                        <Link
+                          href={`/profile/${profile.username}`}
+                          style={{
+                            fontSize: 16,
+                            fontWeight: 800,
+                            color: '#1a1208',
+                            textDecoration: 'none',
+                            display: 'block',
+                            marginBottom: 4,
+                          }}
+                        >
+                          @{profile.username}
+                        </Link>
+
+                        {profile.zip_code && (
+                          <p style={{ color: '#a89278', fontSize: 12, marginBottom: 8 }}>
+                            📍 {profile.zip_code}
+                          </p>
+                        )}
+
+                        {profile.bio && (
+                          <p style={{
+                            color: '#6b5744',
+                            fontSize: 13,
+                            lineHeight: 1.5,
+                            marginBottom: 10,
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                          }}>
+                            {profile.bio}
+                          </p>
+                        )}
+
+                        {/* Categories */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 12 }}>
+                          {profile.categories?.slice(0, 2).map((cat: string) => (
+                            <span key={cat} style={{
+                              background: 'rgba(200,149,108,0.1)',
+                              border: '1px solid rgba(200,149,108,0.2)',
+                              color: '#c8956c',
+                              padding: '3px 10px',
+                              borderRadius: 100,
+                              fontSize: 11,
+                              fontWeight: 600,
+                            }}>
+                              {cat}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Buttons */}
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <Link
+                            href={`/profile/${profile.username}`}
+                            style={{
+                              flex: 1,
+                              padding: '8px',
+                              background: 'white',
+                              border: '1px solid rgba(200,149,108,0.3)',
+                              borderRadius: 10,
+                              color: '#c8956c',
+                              fontSize: 12,
+                              fontWeight: 700,
+                              textDecoration: 'none',
+                              textAlign: 'center',
+                            }}
+                          >
+                            View
+                          </Link>
+                          <button
+                            onClick={() => handleSwipe(profile.user_id, 'right')}
+                            style={{
+                              flex: 1,
+                              padding: '8px',
+                              background: '#c8956c',
+                              border: 'none',
+                              borderRadius: 10,
+                              color: 'white',
+                              fontSize: 16,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            ♥
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Divider */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              marginTop: 40,
+            }}>
+              <div style={{ flex: 1, height: 1, background: 'rgba(200,149,108,0.15)' }} />
+              <span style={{ color: '#a89278', fontSize: 13, fontWeight: 600 }}>All Profiles</span>
+              <div style={{ flex: 1, height: 1, background: 'rgba(200,149,108,0.15)' }} />
+            </div>
+          </div>
+        )}
 
         {/* Header */}
         <div style={{
@@ -446,7 +682,6 @@ export default function DiscoverPage() {
                       <span style={{ fontSize: 64 }}>👤</span>
                     )}
 
-                    {/* Compatibility Score Badge */}
                     {score > 0 && (
                       <div style={{
                         position: 'absolute',
@@ -464,7 +699,6 @@ export default function DiscoverPage() {
                       </div>
                     )}
 
-                    {/* Categories overlay */}
                     <div style={{
                       position: 'absolute',
                       bottom: 0,
@@ -524,7 +758,6 @@ export default function DiscoverPage() {
                       </p>
                     )}
 
-                    {/* Swipe Buttons */}
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button
                         onClick={() => handleSwipe(profile.user_id, 'left')}
