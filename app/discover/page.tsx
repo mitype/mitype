@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { calculateCompatibility, getCompatibilityColor } from '../lib/utils';
+import { Avatar } from '../components/Avatar';
+import { DiscoverSkeleton } from '../components/Skeleton';
+import { sanitizeText } from '../lib/sanitize';
 
 const ALL_CATEGORIES = [
   '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
@@ -197,18 +200,7 @@ export default function DiscoverPage() {
     );
   }
 
-  if (loading) return (
-    <main style={{
-      minHeight: '100vh',
-      background: '#faf6f0',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: "'Helvetica Neue', Arial, sans-serif",
-    }}>
-      <p style={{ color: '#c8956c', fontSize: 18 }}>Loading profiles...</p>
-    </main>
-  );
+  if (loading) return <DiscoverSkeleton />;
 
   return (
     <main style={{
@@ -331,15 +323,15 @@ export default function DiscoverPage() {
                         position: 'relative',
                         minHeight: 140,
                       }}>
-                        {profile.avatar_url ? (
-                          <img
-                            src={profile.avatar_url}
-                            alt={profile.username}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          />
-                        ) : (
-                          <span style={{ fontSize: 48 }}>👤</span>
-                        )}
+                        <Avatar
+                          src={profile.avatar_url}
+                          alt={`${profile.username} profile photo`}
+                          width={110}
+                          height={140}
+                          fallbackFontSize={48}
+                          sizes="110px"
+                        />
+
                         {score > 0 && (
                           <div style={{
                             position: 'absolute',
@@ -390,7 +382,7 @@ export default function DiscoverPage() {
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
                           }}>
-                            {profile.bio}
+                            {sanitizeText(profile.bio)}
                           </p>
                         )}
 
@@ -432,6 +424,7 @@ export default function DiscoverPage() {
                           </Link>
                           <button
                             onClick={() => handleSwipe(profile.user_id, 'right')}
+                            aria-label={`Like ${profile.username}`}
                             style={{
                               flex: 1,
                               padding: '8px',
@@ -443,7 +436,7 @@ export default function DiscoverPage() {
                               cursor: 'pointer',
                             }}
                           >
-                            ♥
+                            <span aria-hidden="true">♥</span>
                           </button>
                         </div>
                       </div>
@@ -493,6 +486,8 @@ export default function DiscoverPage() {
 
           <button
             onClick={() => setShowFilters(!showFilters)}
+            aria-label={showFilters ? 'Hide filters' : 'Show filters'}
+            aria-expanded={showFilters}
             style={{
               padding: '12px 24px',
               background: showFilters ? '#c8956c' : 'white',
@@ -504,7 +499,7 @@ export default function DiscoverPage() {
               cursor: 'pointer',
             }}
           >
-            🔍 {showFilters ? 'Hide Filters' : 'Filter'}
+            <span aria-hidden="true">🔍</span> {showFilters ? 'Hide Filters' : 'Filter'}
           </button>
         </div>
 
@@ -672,15 +667,15 @@ export default function DiscoverPage() {
                     overflow: 'hidden',
                     position: 'relative',
                   }}>
-                    {profile.avatar_url ? (
-                      <img
-                        src={profile.avatar_url}
-                        alt={profile.username}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <span style={{ fontSize: 64 }}>👤</span>
-                    )}
+                    <Avatar
+                      src={profile.avatar_url}
+                      alt={`${profile.username} profile photo`}
+                      width={360}
+                      height={480}
+                      fallbackFontSize={64}
+                      sizes="(max-width: 700px) 100vw, 240px"
+                    />
+
 
                     {score > 0 && (
                       <div style={{
@@ -754,13 +749,14 @@ export default function DiscoverPage() {
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                       }}>
-                        {profile.bio}
+                        {sanitizeText(profile.bio)}
                       </p>
                     )}
 
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button
                         onClick={() => handleSwipe(profile.user_id, 'left')}
+                        aria-label={`Pass on ${profile.username}`}
                         style={{
                           flex: 1,
                           padding: '10px',
@@ -772,10 +768,11 @@ export default function DiscoverPage() {
                           cursor: 'pointer',
                         }}
                       >
-                        ✕
+                        <span aria-hidden="true">✕</span>
                       </button>
                       <button
                         onClick={() => handleSwipe(profile.user_id, 'right')}
+                        aria-label={`Like ${profile.username}`}
                         style={{
                           flex: 1,
                           padding: '10px',
@@ -787,7 +784,7 @@ export default function DiscoverPage() {
                           cursor: 'pointer',
                         }}
                       >
-                        ♥
+                        <span aria-hidden="true">♥</span>
                       </button>
                     </div>
                   </div>

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { DashboardSkeleton } from '../components/Skeleton';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -43,18 +44,7 @@ export default function Dashboard() {
     router.push('/');
   };
 
-  if (loading) return (
-    <main style={{
-      minHeight: '100vh',
-      background: '#faf6f0',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: "'Helvetica Neue', Arial, sans-serif",
-    }}>
-      <p style={{ color: '#c8956c', fontSize: 18 }}>Loading...</p>
-    </main>
-  );
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <main style={{

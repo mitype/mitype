@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
+import { toast } from '../lib/toast';
 
 export default function SubscriptionPage() {
   const [user, setUser] = useState<any>(null);
@@ -50,7 +51,7 @@ export default function SubscriptionPage() {
       if (error) throw new Error(error);
       window.location.href = url;
     } catch (err: any) {
-      alert(err.message ?? 'Something went wrong. Please try again.');
+      toast.error(err.message ?? 'Something went wrong. Please try again.');
       setCheckoutLoading(false);
     }
   }

@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
+import { Avatar } from '../components/Avatar';
+import { toast } from '../lib/toast';
 
 const ALL_CATEGORIES = [
   '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
@@ -134,7 +136,7 @@ export default function EditProfilePage() {
     } else if (selectedCategories.length < 5) {
       setSelectedCategories([...selectedCategories, cat]);
     } else {
-      alert('You can select up to 5 categories');
+      toast.info('You can select up to 5 categories');
     }
   }
 
@@ -143,31 +145,37 @@ export default function EditProfilePage() {
     if (!file || !user) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+      toast.error('Please upload an image file.');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image must be under 5MB');
+      toast.error('Image must be under 5MB.');
       return;
     }
 
     setUploading(true);
-    const ext = file.name.split('.').pop();
-    const path = `${user.id}/avatar.${ext}`;
+    const ext = (file.name.split('.').pop() ?? 'jpg').toLowerCase();
+    // Version the filename instead of using `?t=<timestamp>` as a cache-bust.
+    // The timestamp approach defeats both the browser cache AND the
+    // Next.js Image optimizer. Using a unique filename keeps each upload
+    // cacheable-forever, while older uploads stay addressable (for any
+    // stale references). The filename pattern stays inside the user's
+    // own storage folder so RLS policies continue to apply.
+    const version = Date.now();
+    const path = `${user.id}/avatar-${version}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(path, file, { upsert: true });
 
     if (uploadError) {
-      alert(uploadError.message);
+      toast.error(uploadError.message);
       setUploading(false);
       return;
     }
 
     const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-    const url = `${data.publicUrl}?t=${Date.now()}`;
-    setAvatarUrl(url);
+    setAvatarUrl(data.publicUrl);
     setUploading(false);
   }
 
@@ -188,7 +196,7 @@ export default function EditProfilePage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!username.trim()) {
-      alert('Username is required');
+      toast.error('Username is required.');
       return;
     }
     setSaving(true);
@@ -206,12 +214,12 @@ export default function EditProfilePage() {
     }, { onConflict: 'user_id' });
 
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
       setSaving(false);
       return;
     }
 
-    alert('Profile saved!');
+    toast.success('Profile saved!');
     router.push('/dashboard');
   }
 
@@ -298,15 +306,15 @@ export default function EditProfilePage() {
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt="Profile"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                <span style={{ fontSize: 48 }}>👤</span>
-              )}
+              <Avatar
+                src={avatarUrl}
+                alt="Your profile photo"
+                width={120}
+                height={150}
+                fallbackFontSize={48}
+                sizes="120px"
+              />
+
             </div>
             <label style={{
               display: 'inline-block',

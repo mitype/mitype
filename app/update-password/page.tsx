@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
+import { toast } from '../lib/toast';
 
 export default function UpdatePasswordPage() {
   const [password, setPassword] = useState('');
@@ -14,11 +15,11 @@ export default function UpdatePasswordPage() {
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
     if (password !== confirm) {
-      alert('Passwords do not match!');
+      toast.error('Passwords do not match.');
       return;
     }
     if (password.length < 8) {
-      alert('Password must be at least 8 characters');
+      toast.error('Password must be at least 8 characters.');
       return;
     }
     setLoading(true);
@@ -28,7 +29,7 @@ export default function UpdatePasswordPage() {
       setDone(true);
       setTimeout(() => router.push('/login'), 3000);
     } catch (err: any) {
-      alert(err.message ?? 'Something went wrong. Please try again.');
+      toast.error(err.message ?? 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }

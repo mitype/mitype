@@ -5,6 +5,10 @@ import Link from 'next/link';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabaseClient';
 import { calculateCompatibility, getCompatibilityColor, getCompatibilityLabel, getSharedCategories } from '../../lib/utils';
+import { Avatar } from '../../components/Avatar';
+import { ProfileSkeleton } from '../../components/Skeleton';
+import { toast } from '../../lib/toast';
+import { sanitizeText, safeUrl } from '../../lib/sanitize';
 
 const PORTFOLIO_ICONS: Record<string, string> = {
   music:    '🎵',
@@ -79,14 +83,22 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         if (!profileData) { router.push('/discover'); return; }
         setProfile(profileData as PublicProfile);
 
-        // Check if already blocked
+        // Check if already blocked.
+        //
+        // The `blocked_users` table may not exist in every environment
+        // (it's not in the base supabase-schema.sql). If Supabase returns
+        // an error for a missing relation we swallow it and treat the
+        // state as "not blocked" instead of letting the profile page crash.
         if (user) {
-          const { data: blockData } = await supabase
+          const { data: blockData, error: blockErr } = await supabase
             .from('blocked_users')
             .select('id')
             .eq('user_id', user.id)
             .eq('blocked_user_id', profileData.user_id)
             .maybeSingle();
+          if (blockErr) {
+            console.warn('[profile] blocked_users lookup failed:', blockErr.message);
+          }
           if (!cancelled) setBlocked(!!blockData);
         }
       } catch (e) {
@@ -112,7 +124,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         setCopied(true);
         copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
       } catch {
-        window.alert("Couldn't copy the link.");
+        toast.error("Couldn't copy the link.");
       }
     })();
   }
@@ -148,35 +160,49 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     if (!currentUser || !profile) return;
 
     if (blocked) {
-      await supabase
+      const { error } = await supabase
         .from('blocked_users')
         .delete()
         .eq('user_id', currentUser.id)
         .eq('blocked_user_id', profile.user_id);
+      if (error) {
+        toast.error('Block feature is not available yet.');
+        return;
+      }
       setBlocked(false);
-      alert('User unblocked.');
+      toast.success('User unblocked.');
     } else {
       const confirmed = window.confirm(
         `Are you sure you want to block @${profile.username}? They will no longer be able to contact you.`
       );
       if (!confirmed) return;
-      await supabase.from('blocked_users').insert({
+      const { error } = await supabase.from('blocked_users').insert({
         user_id: currentUser.id,
         blocked_user_id: profile.user_id,
       });
+      if (error) {
+        toast.error('Block feature is not available yet.');
+        return;
+      }
       setBlocked(true);
-      alert(`@${profile.username} has been blocked.`);
+      toast.success(`@${profile.username} has been blocked.`);
     }
   }
 
   async function handleReport() {
     if (!currentUser || !profile || !reportReason.trim()) return;
 
-    await supabase.from('blocked_users').upsert({
+    const { error } = await supabase.from('blocked_users').upsert({
       user_id: currentUser.id,
       blocked_user_id: profile.user_id,
       reason: reportReason.trim(),
     });
+
+    if (error) {
+      // Report storage not available — still thank the user so they
+      // aren't stuck; follow up by logging for manual review.
+      console.warn('[profile] report upsert failed:', error.message);
+    }
 
     setReportSent(true);
     setTimeout(() => {
@@ -186,15 +212,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     }, 2000);
   }
 
-  if (loading) return (
-    <main style={{
-      minHeight: '100vh', background: '#faf6f0', display: 'flex',
-      alignItems: 'center', justifyContent: 'center',
-      fontFamily: "'Helvetica Neue', Arial, sans-serif",
-    }}>
-      <p style={{ color: '#c8956c', fontSize: 18 }}>Loading profile...</p>
-    </main>
-  );
+  if (loading) return <ProfileSkeleton />;
 
   if (!profile) return (
     <main style={{
@@ -359,11 +377,15 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
               }}>
-                {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt={profile.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <span style={{ fontSize: 48 }}>👤</span>
-                )}
+                <Avatar
+                  src={profile.avatar_url}
+                  alt={`${profile.username} profile photo`}
+                  width={100}
+                  height={125}
+                  fallbackFontSize={48}
+                  sizes="100px"
+                />
+
               </div>
 
               <div style={{ display: 'flex', gap: 8, paddingBottom: 4, flexWrap: 'wrap' }}>
@@ -391,19 +413,27 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     }}>
                       Message
                     </button>
-                    <button onClick={handleBlock} style={{
-                      padding: '10px 16px', background: blocked ? '#fff0f0' : 'white',
-                      border: blocked ? '1px solid rgba(220,100,100,0.3)' : '1px solid rgba(200,149,108,0.3)',
-                      borderRadius: 100, color: blocked ? '#c07070' : '#8a7560',
-                      fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                    }}>
+                    <button
+                      onClick={handleBlock}
+                      aria-label={blocked ? `Unblock ${profile.username}` : `Block ${profile.username}`}
+                      style={{
+                        padding: '10px 16px', background: blocked ? '#fff0f0' : 'white',
+                        border: blocked ? '1px solid rgba(220,100,100,0.3)' : '1px solid rgba(200,149,108,0.3)',
+                        borderRadius: 100, color: blocked ? '#c07070' : '#8a7560',
+                        fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                      }}
+                    >
                       {blocked ? 'Unblock' : '🚫 Block'}
                     </button>
-                    <button onClick={() => setShowReportModal(true)} style={{
-                      padding: '10px 16px', background: 'white',
-                      border: '1px solid rgba(200,149,108,0.3)', borderRadius: 100,
-                      color: '#8a7560', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                    }}>
+                    <button
+                      onClick={() => setShowReportModal(true)}
+                      aria-label={`Report ${profile.username}`}
+                      style={{
+                        padding: '10px 16px', background: 'white',
+                        border: '1px solid rgba(200,149,108,0.3)', borderRadius: 100,
+                        color: '#8a7560', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                      }}
+                    >
                       ⚠️ Report
                     </button>
                   </>
@@ -438,7 +468,12 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             )}
 
             {profile.bio && (
-              <p style={{ color: '#6b5744', fontSize: 15, lineHeight: 1.7, marginBottom: 20 }}>{profile.bio}</p>
+              <p style={{
+                color: '#6b5744', fontSize: 15, lineHeight: 1.7, marginBottom: 20,
+                whiteSpace: 'pre-wrap', // preserve line breaks from user input
+              }}>
+                {sanitizeText(profile.bio)}
+              </p>
             )}
 
             {(profile.categories?.length ?? 0) > 0 && (
@@ -466,20 +501,24 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               </div>
             )}
 
-            {profile.website_url && (
-              <div>
-                <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>
-                  Website
-                </p>
-                <a
-                  href={profile.website_url.startsWith('http') ? profile.website_url : `https://${profile.website_url}`}
-                  target="_blank" rel="noopener noreferrer"
-                  style={{ color: '#c8956c', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}
-                >
-                  {profile.website_url}
-                </a>
-              </div>
-            )}
+            {(() => {
+              const websiteHref = safeUrl(profile.website_url);
+              if (!websiteHref) return null;
+              return (
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>
+                    Website
+                  </p>
+                  <a
+                    href={websiteHref}
+                    target="_blank" rel="noopener noreferrer"
+                    style={{ color: '#c8956c', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}
+                  >
+                    {sanitizeText(profile.website_url)}
+                  </a>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -520,22 +559,29 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           <div style={{ background: 'white', border: '1px solid rgba(200,149,108,0.2)', borderRadius: 24, padding: '28px 32px', marginBottom: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 16 }}>Creative Portfolio</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {portfolioLinks.map((link, index) => (
-                <a key={index}
-                  href={link.url.startsWith('http') ? link.url : `https://${link.url}`}
-                  target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', background: '#faf6f0', border: '1px solid rgba(200,149,108,0.15)', borderRadius: 14, textDecoration: 'none' }}
-                >
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(200,149,108,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                    {PORTFOLIO_ICONS[link.type] ?? '🔗'}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>{link.title || link.type}</p>
-                    <p style={{ fontSize: 12, color: '#c8956c', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{link.url}</p>
-                  </div>
-                  <span style={{ color: '#c8956c', fontSize: 18, flexShrink: 0 }}>→</span>
-                </a>
-              ))}
+              {portfolioLinks.map((link, index) => {
+                const href = safeUrl(link.url);
+                if (!href) return null;
+                const title = sanitizeText(link.title) || link.type;
+                return (
+                  <a
+                    key={index}
+                    href={href}
+                    target="_blank" rel="noopener noreferrer"
+                    aria-label={`Open ${title} in a new tab`}
+                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', background: '#faf6f0', border: '1px solid rgba(200,149,108,0.15)', borderRadius: 14, textDecoration: 'none' }}
+                  >
+                    <div aria-hidden="true" style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(200,149,108,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                      {PORTFOLIO_ICONS[link.type] ?? '🔗'}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>{title}</p>
+                      <p style={{ fontSize: 12, color: '#c8956c', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sanitizeText(link.url)}</p>
+                    </div>
+                    <span aria-hidden="true" style={{ color: '#c8956c', fontSize: 18, flexShrink: 0 }}>→</span>
+                  </a>
+                );
+              })}
             </div>
           </div>
         )}

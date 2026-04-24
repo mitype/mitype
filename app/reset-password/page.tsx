@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
+import { toast } from '../lib/toast';
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
@@ -18,7 +19,7 @@ export default function ResetPasswordPage() {
       if (error) throw error;
       setSent(true);
     } catch (err: any) {
-      alert(err.message ?? 'Something went wrong. Please try again.');
+      toast.error(err.message ?? 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }

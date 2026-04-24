@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
+import { toast } from '../lib/toast';
 
 const ALL_CATEGORIES = [
   '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
@@ -49,18 +50,18 @@ export default function CreateProfilePage() {
     } else if (selectedCategories.length < 5) {
       setSelectedCategories([...selectedCategories, cat]);
     } else {
-      alert('You can select up to 5 categories');
+      toast.info('You can select up to 5 categories.');
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim()) {
-      alert('Please enter a username');
+      toast.error('Please enter a username.');
       return;
     }
     if (selectedCategories.length === 0) {
-      alert('Please select at least one category');
+      toast.error('Please select at least one category.');
       return;
     }
 
@@ -84,9 +85,9 @@ export default function CreateProfilePage() {
 
     if (error) {
       if (error.code === '23505') {
-        alert('That username is already taken. Please choose another.');
+        toast.error('That username is already taken. Please choose another.');
       } else {
-        alert(error.message);
+        toast.error(error.message);
       }
       setLoading(false);
       return;

@@ -3,6 +3,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
+import { Avatar } from '../components/Avatar';
+import { MessagesSkeleton } from '../components/Skeleton';
+import { toast } from '../lib/toast';
+import { sanitizeText } from '../lib/sanitize';
 
 const ICEBREAKERS = [
   // General
@@ -150,7 +154,7 @@ export default function MessagesPage() {
     if (selectedConvo.status === 'pending') {
       const myMessages = messages.filter((m) => m.sender_id === user.id);
       if (myMessages.length >= 1) {
-        alert('Wait for the recipient to approve your request before sending more messages.');
+        toast.info('Wait for the recipient to approve your request before sending more messages.');
         return;
       }
     }
@@ -205,18 +209,7 @@ export default function MessagesPage() {
     return `${Math.floor(hours / 24)}d ago`;
   }
 
-  if (loading) return (
-    <main style={{
-      minHeight: '100vh',
-      background: '#faf6f0',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: "'Helvetica Neue', Arial, sans-serif",
-    }}>
-      <p style={{ color: '#c8956c', fontSize: 18 }}>Loading messages...</p>
-    </main>
-  );
+  if (loading) return <MessagesSkeleton />;
 
   const pending = conversations.filter(
     (c) => c.status === 'pending' && c.initiated_by !== user?.id
@@ -265,15 +258,18 @@ export default function MessagesPage() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
         {/* Sidebar */}
-        <div style={{
-          width: 300,
-          borderRight: '1px solid rgba(200,149,108,0.15)',
-          background: 'white',
-          display: 'flex',
-          flexDirection: 'column',
-          flexShrink: 0,
-          overflowY: 'auto',
-        }}>
+        <div
+          className={`mitype-messages-sidebar${selectedConvo ? ' mitype-messages-sidebar--hidden-mobile' : ''}`}
+          style={{
+            width: 300,
+            borderRight: '1px solid rgba(200,149,108,0.15)',
+            background: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            flexShrink: 0,
+            overflowY: 'auto',
+          }}
+        >
           <div style={{ padding: '20px 20px 12px' }}>
             <h1 style={{
               fontSize: 22,
@@ -322,17 +318,17 @@ export default function MessagesPage() {
                       height: 40,
                       borderRadius: '50%',
                       background: '#f0e8df',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                       overflow: 'hidden',
                       flexShrink: 0,
                     }}>
-                      {other?.avatar_url ? (
-                        <img src={other.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <span style={{ fontSize: 18 }}>👤</span>
-                      )}
+                      <Avatar
+                        src={other?.avatar_url}
+                        alt={other?.username ? `@${other.username}` : 'User'}
+                        width={40}
+                        height={40}
+                        fallbackFontSize={18}
+                        sizes="40px"
+                      />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
@@ -383,17 +379,17 @@ export default function MessagesPage() {
                       height: 40,
                       borderRadius: '50%',
                       background: '#f0e8df',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                       overflow: 'hidden',
                       flexShrink: 0,
                     }}>
-                      {other?.avatar_url ? (
-                        <img src={other.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <span style={{ fontSize: 18 }}>👤</span>
-                      )}
+                      <Avatar
+                        src={other?.avatar_url}
+                        alt={other?.username ? `@${other.username}` : 'User'}
+                        width={40}
+                        height={40}
+                        fallbackFontSize={18}
+                        sizes="40px"
+                      />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
@@ -444,17 +440,17 @@ export default function MessagesPage() {
                       height: 40,
                       borderRadius: '50%',
                       background: '#f0e8df',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                       overflow: 'hidden',
                       flexShrink: 0,
                     }}>
-                      {other?.avatar_url ? (
-                        <img src={other.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <span style={{ fontSize: 18 }}>👤</span>
-                      )}
+                      <Avatar
+                        src={other?.avatar_url}
+                        alt={other?.username ? `@${other.username}` : 'User'}
+                        width={40}
+                        height={40}
+                        fallbackFontSize={18}
+                        sizes="40px"
+                      />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
@@ -495,7 +491,10 @@ export default function MessagesPage() {
         </div>
 
         {/* Chat Area */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div
+          className={`mitype-messages-chat${!selectedConvo ? ' mitype-messages-chat--hidden-mobile' : ''}`}
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+        >
           {selectedConvo ? (
             <>
               {/* Chat Header */}
@@ -509,24 +508,43 @@ export default function MessagesPage() {
                 flexShrink: 0,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedConvo(null)}
+                    aria-label="Back to conversations"
+                    className="mitype-messages-back-button"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      padding: '4px 8px',
+                      fontSize: 22,
+                      color: '#c8956c',
+                      cursor: 'pointer',
+                      marginRight: 4,
+                    }}
+                  >
+                    <span aria-hidden="true">←</span>
+                  </button>
                   <div style={{
                     width: 40,
                     height: 40,
                     borderRadius: '50%',
                     background: '#f0e8df',
                     overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    flexShrink: 0,
                   }}>
-                    {getOtherUser(selectedConvo)?.avatar_url ? (
-                      <img
-                        src={getOtherUser(selectedConvo).avatar_url}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <span>👤</span>
-                    )}
+                    <Avatar
+                      src={getOtherUser(selectedConvo)?.avatar_url}
+                      alt={
+                        getOtherUser(selectedConvo)?.username
+                          ? `@${getOtherUser(selectedConvo).username}`
+                          : 'User'
+                      }
+                      width={40}
+                      height={40}
+                      fallbackFontSize={18}
+                      sizes="40px"
+                    />
                   </div>
                   <div>
                     <p style={{ fontWeight: 700, color: '#1a1208', fontSize: 15 }}>
@@ -543,6 +561,7 @@ export default function MessagesPage() {
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button
                       onClick={() => respondToRequest('denied')}
+                      aria-label="Decline message request"
                       style={{
                         padding: '8px 18px',
                         background: '#fff0f0',
@@ -558,6 +577,7 @@ export default function MessagesPage() {
                     </button>
                     <button
                       onClick={() => respondToRequest('approved')}
+                      aria-label="Approve message request"
                       style={{
                         padding: '8px 18px',
                         background: '#c8956c',
@@ -569,7 +589,7 @@ export default function MessagesPage() {
                         cursor: 'pointer',
                       }}
                     >
-                      Approve ✓
+                      Approve <span aria-hidden="true">✓</span>
                     </button>
                   </div>
                 )}
@@ -611,6 +631,7 @@ export default function MessagesPage() {
                       </div>
                       <button
                         onClick={refreshIcebreakers}
+                        aria-label="Refresh icebreaker suggestions"
                         style={{
                           padding: '6px 14px',
                           background: 'transparent',
@@ -623,7 +644,7 @@ export default function MessagesPage() {
                           flexShrink: 0,
                         }}
                       >
-                        🔄 New ideas
+                        <span aria-hidden="true">🔄</span> New ideas
                       </button>
                     </div>
 
@@ -653,6 +674,7 @@ export default function MessagesPage() {
 
                     <button
                       onClick={() => setShowIcebreakers(false)}
+                      aria-label="Dismiss icebreaker suggestions"
                       style={{
                         marginTop: 12,
                         padding: '6px 0',
@@ -701,7 +723,9 @@ export default function MessagesPage() {
                       lineHeight: 1.5,
                       boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                     }}>
-                      <p style={{ margin: 0 }}>{msg.content}</p>
+                      <p style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                        {sanitizeText(msg.content)}
+                      </p>
                       <p style={{
                         fontSize: 11,
                         margin: '4px 0 0',
@@ -736,6 +760,7 @@ export default function MessagesPage() {
                         setIcebreakers(getRandomIcebreakers(3));
                         setShowIcebreakers(true);
                       }}
+                      aria-label="Show icebreaker suggestions"
                       style={{
                         marginBottom: 10,
                         padding: '6px 16px',
@@ -748,7 +773,7 @@ export default function MessagesPage() {
                         cursor: 'pointer',
                       }}
                     >
-                      ❄️ Show icebreaker ideas
+                      <span aria-hidden="true">❄️</span> Show icebreaker ideas
                     </button>
                   )}
 
@@ -777,6 +802,7 @@ export default function MessagesPage() {
                     <button
                       onClick={sendMessage}
                       disabled={sending || !newMessage.trim()}
+                      aria-label="Send message"
                       style={{
                         padding: '12px 24px',
                         background: sending || !newMessage.trim() ? '#d4a882' : '#c8956c',

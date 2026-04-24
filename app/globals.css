@@ -24,3 +24,37 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Shared shimmer used by <Skeleton /> placeholders. */
+@keyframes mitype-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Mobile-responsive overrides for the /messages layout.
+ * Desktop renders the sidebar + chat side-by-side. On narrow screens
+ * the sidebar becomes full-width until a conversation is selected,
+ * at which point it hides and the chat fills the screen. */
+@media (max-width: 700px) {
+  .mitype-messages-sidebar {
+    width: 100% !important;
+    border-right: none !important;
+  }
+  .mitype-messages-sidebar--hidden-mobile {
+    display: none !important;
+  }
+  .mitype-messages-chat {
+    width: 100% !important;
+  }
+  .mitype-messages-chat--hidden-mobile {
+    display: none !important;
+  }
+  .mitype-messages-back-button {
+    display: inline-flex !important;
+  }
+}
+
+/* Desktop hides the mobile-only back button. */
+.mitype-messages-back-button {
+  display: none;
+}

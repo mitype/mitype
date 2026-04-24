@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
+import { toast } from '../lib/toast';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -14,11 +15,11 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert('Passwords do not match!');
+      toast.error('Passwords do not match.');
       return;
     }
     if (password.length < 8) {
-      alert('Password must be at least 8 characters');
+      toast.error('Password must be at least 8 characters.');
       return;
     }
     setLoading(true);
@@ -27,7 +28,7 @@ export default function SignupPage() {
       password,
     });
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
       setLoading(false);
       return;
     }
