@@ -8,6 +8,7 @@ import { DailySparkCard } from '../components/DailySparkCard';
 import { WeeklyPromptCard } from '../components/WeeklyPromptCard';
 import { Coachmark } from '../components/Coachmark';
 import { ProfileCompleteness } from '../components/ProfileCompleteness';
+import { ShareMitypeButton } from '../components/ShareMitypeButton';
 import { UnreadBadge } from '../components/UnreadBadge';
 import { useUnreadCounts } from '../lib/useUnreadCounts';
 
@@ -181,6 +182,10 @@ export default function Dashboard() {
 
         {/* Profile completeness — nudge users to fill in the gaps */}
         <ProfileCompleteness profile={profile} />
+
+        {/* Share-with-friends invite. The link includes ?ref=username so we
+            can attribute referrals later if/when a reward system goes in. */}
+        <ShareMitypeButton username={profile?.username} />
 
         {/* Daily Spark — one hand-picked profile per day with a tailored opener */}
         {user?.id && <DailySparkCard userId={user.id} />}
