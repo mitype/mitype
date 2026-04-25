@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
-import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
+import { PhotoManager } from '../components/PhotoManager';
 import { toast } from '../lib/toast';
 import { isAtLeast18, maxDobIso, minDobIso } from '../lib/age';
+import { normalizePhotos, type ProfilePhoto } from '../lib/photos';
 import {
   PROFILE_PROMPTS,
   MAX_PROMPTS,
@@ -103,7 +104,7 @@ export default function EditProfilePage() {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState('');
-  const [uploading, setUploading] = useState(false);
+  const [photos, setPhotos] = useState<ProfilePhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [portfolioLinks, setPortfolioLinks] = useState<PortfolioLink[]>([]);
@@ -135,6 +136,7 @@ export default function EditProfilePage() {
         setDateOfBirth(profile.date_of_birth || '');
         setSelectedCategories(profile.categories || []);
         setAvatarUrl(profile.avatar_url || '');
+        setPhotos(normalizePhotos(profile.photos));
         setPortfolioLinks(profile.portfolio_links || []);
         setProfilePrompts(normalizePrompts(profile.profile_prompts));
       }
@@ -152,45 +154,6 @@ export default function EditProfilePage() {
     } else {
       toast.info('You can select up to 5 categories');
     }
-  }
-
-  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file.');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be under 5MB.');
-      return;
-    }
-
-    setUploading(true);
-    const ext = (file.name.split('.').pop() ?? 'jpg').toLowerCase();
-    // Version the filename instead of using `?t=<timestamp>` as a cache-bust.
-    // The timestamp approach defeats both the browser cache AND the
-    // Next.js Image optimizer. Using a unique filename keeps each upload
-    // cacheable-forever, while older uploads stay addressable (for any
-    // stale references). The filename pattern stays inside the user's
-    // own storage folder so RLS policies continue to apply.
-    const version = Date.now();
-    const path = `${user.id}/avatar-${version}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(path, file, { upsert: true });
-
-    if (uploadError) {
-      toast.error(uploadError.message);
-      setUploading(false);
-      return;
-    }
-
-    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-    setAvatarUrl(data.publicUrl);
-    setUploading(false);
   }
 
   function addPortfolioLink() {
@@ -240,6 +203,12 @@ export default function EditProfilePage() {
     }
     setSaving(true);
 
+    // Mirror the first photo into avatar_url so legacy code paths
+    // (Discover cards, Daily Spark, conversation header, etc.) keep working
+    // without any changes. If the user has no photos but had an old avatar,
+    // we keep the old avatar around.
+    const primaryAvatar = photos[0]?.url ?? avatarUrl;
+
     const { error } = await supabase.from('profiles').upsert({
       user_id: user.id,
       username: username.trim().toLowerCase(),
@@ -249,7 +218,8 @@ export default function EditProfilePage() {
       website_url: websiteUrl.trim(),
       creative_status: creativeStatus.trim(),
       date_of_birth: dateOfBirth || null,
-      avatar_url: avatarUrl,
+      avatar_url: primaryAvatar,
+      photos,
       portfolio_links: portfolioLinks.filter((p) => p.url.trim()),
       profile_prompts: profilePrompts
         .filter((p) => p.prompt.trim() && p.answer.trim())
@@ -341,51 +311,10 @@ export default function EditProfilePage() {
 
         <form onSubmit={handleSave}>
 
-          {/* Avatar */}
-          <div style={{ marginBottom: 32, textAlign: 'center' }}>
-            <div style={{
-              width: 120,
-              height: 150,
-              borderRadius: 20,
-              background: '#f0e8df',
-              border: '2px solid rgba(200,149,108,0.25)',
-              margin: '0 auto 16px',
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <Avatar
-                src={avatarUrl}
-                alt="Your profile photo"
-                width={120}
-                height={150}
-                fallbackFontSize={48}
-                sizes="120px"
-              />
-
-            </div>
-            <label style={{
-              display: 'inline-block',
-              padding: '10px 24px',
-              background: 'white',
-              border: '1px solid rgba(200,149,108,0.3)',
-              borderRadius: 100,
-              color: '#c8956c',
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: 'pointer',
-            }}>
-              {uploading ? 'Uploading...' : '📷 Upload Photo'}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                style={{ display: 'none' }}
-                disabled={uploading}
-              />
-            </label>
-          </div>
+          {/* Photos */}
+          {user && (
+            <PhotoManager userId={user.id} photos={photos} onChange={setPhotos} />
+          )}
 
           {/* Username */}
           <div style={{ marginBottom: 24 }}>

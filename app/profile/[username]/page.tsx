@@ -11,6 +11,8 @@ import { toast } from '../../lib/toast';
 import { sanitizeText, safeUrl } from '../../lib/sanitize';
 import { normalizePrompts, type ProfilePrompt } from '../../lib/profilePrompts';
 import { calculateAge } from '../../lib/age';
+import { normalizePhotos, type ProfilePhoto } from '../../lib/photos';
+import { PhotoGallery } from '../../components/PhotoGallery';
 
 const PORTFOLIO_ICONS: Record<string, string> = {
   music:    '🎵',
@@ -43,6 +45,7 @@ type PublicProfile = {
   profile_prompts?: ProfilePrompt[] | null;
   creative_status?: string | null;
   date_of_birth?: string | null;
+  photos?: ProfilePhoto[] | null;
 };
 
 export default function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -254,6 +257,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const sharedCats = getSharedCategories(myCategories, profile.categories ?? []);
   const portfolioLinks = (profile.portfolio_links ?? []).filter((p) => p.url?.trim());
   const profilePrompts = normalizePrompts(profile.profile_prompts);
+  // The first photo is mirrored into avatar_url at save time, so the
+  // gallery here is intentionally just the *additional* photos to avoid
+  // duplicating the big avatar that's already shown at the top of the page.
+  const galleryPhotos = normalizePhotos(profile.photos).slice(1);
 
   return (
     <main style={{
@@ -552,6 +559,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             })()}
           </div>
         </div>
+
+        {/* Photo Gallery */}
+        <PhotoGallery photos={galleryPhotos} altPrefix={profile.username} />
 
         {/* Compatibility Score Card */}
         {!isOwnProfile && currentUser && score > 0 && (
