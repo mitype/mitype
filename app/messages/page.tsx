@@ -5,6 +5,9 @@ import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { Avatar } from '../components/Avatar';
 import { MessagesSkeleton } from '../components/Skeleton';
+import { MatchCard } from '../components/MatchCard';
+import { GameCard, isGameMessage } from '../components/GameCard';
+import { GamePicker } from '../components/GamePicker';
 import { toast } from '../lib/toast';
 import { sanitizeText } from '../lib/sanitize';
 
@@ -44,10 +47,13 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [profiles, setProfiles] = useState<any>({});
+  const [myProfile, setMyProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [icebreakers, setIcebreakers] = useState<string[]>([]);
   const [showIcebreakers, setShowIcebreakers] = useState(false);
+  const [showMatchCard, setShowMatchCard] = useState(false);
+  const [showGamePicker, setShowGamePicker] = useState(false);
   const bottomRef = useRef<any>(null);
   const router = useRouter();
 
@@ -72,6 +78,14 @@ export default function MessagesPage() {
         router.push('/subscription');
         return;
       }
+
+      // Load my own profile in parallel so the MatchCard has my avatar/username.
+      const { data: myRow } = await supabase
+        .from('profiles')
+        .select('user_id, username, avatar_url')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (myRow) setMyProfile(myRow);
 
       await loadConversations(user);
       setLoading(false);
@@ -178,6 +192,38 @@ export default function MessagesPage() {
     setSending(false);
   }
 
+  /**
+   * Send an already-formatted message (bypasses the input box).
+   * Used by mini-game flow, where the payload is a JSON blob, not free text.
+   */
+  async function sendRawMessage(content: string) {
+    if (!content || !selectedConvo || !user) return;
+
+    if (selectedConvo.status === 'pending') {
+      const myMessages = messages.filter((m) => m.sender_id === user.id);
+      if (myMessages.length >= 1) {
+        toast.info('Wait for the recipient to approve your request before sending more messages.');
+        return;
+      }
+    }
+
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        conversation_id: selectedConvo.id,
+        sender_id: user.id,
+        content,
+      })
+      .select()
+      .single();
+
+    if (!error && data) {
+      setMessages((prev) => [...prev, data]);
+    } else if (error) {
+      toast.error("Couldn't send. Try again.");
+    }
+  }
+
   async function respondToRequest(status: 'approved' | 'denied') {
     if (!selectedConvo) return;
     const { error } = await supabase
@@ -251,6 +297,7 @@ export default function MessagesPage() {
         <div style={{ display: 'flex', gap: 12 }}>
           <Link href="/dashboard" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Dashboard</Link>
           <Link href="/discover" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Discover</Link>
+          <Link href="/spotlight" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Spotlight</Link>
         </div>
       </nav>
 
@@ -556,6 +603,31 @@ export default function MessagesPage() {
                   </div>
                 </div>
 
+                {/* Match card button — only after the match is approved. */}
+                {selectedConvo.status === 'approved' && (
+                  <button
+                    type="button"
+                    onClick={() => setShowMatchCard(true)}
+                    aria-label="Show match card"
+                    title="View match card"
+                    style={{
+                      padding: '8px 14px',
+                      background: 'rgba(200,149,108,0.1)',
+                      border: '1px solid rgba(200,149,108,0.25)',
+                      borderRadius: 100,
+                      color: '#c8956c',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <span aria-hidden="true">✨</span> Match
+                  </button>
+                )}
+
                 {selectedConvo.status === 'pending' &&
                   selectedConvo.initiated_by !== user?.id && (
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -703,40 +775,72 @@ export default function MessagesPage() {
                   </div>
                 )}
 
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: msg.sender_id === user?.id ? 'flex-end' : 'flex-start',
-                    }}
-                  >
-                    <div style={{
-                      maxWidth: '70%',
-                      padding: '12px 16px',
-                      borderRadius: msg.sender_id === user?.id
-                        ? '18px 18px 4px 18px'
-                        : '18px 18px 18px 4px',
-                      background: msg.sender_id === user?.id ? '#c8956c' : 'white',
-                      color: msg.sender_id === user?.id ? 'white' : '#1a1208',
-                      fontSize: 14,
-                      lineHeight: 1.5,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                    }}>
-                      <p style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                        {sanitizeText(msg.content)}
-                      </p>
-                      <p style={{
-                        fontSize: 11,
-                        margin: '4px 0 0',
-                        opacity: 0.6,
-                        textAlign: 'right',
-                      }}>
-                        {timeAgo(msg.created_at)}
-                      </p>
+                {messages.map((msg, idx) => {
+                  const isMine = msg.sender_id === user?.id;
+                  const isGame = isGameMessage(msg.content);
+                  // A game is "answered" when the very next message is a
+                  // game-reply — we don't need to match by id because the
+                  // reply is always the immediately-following message in
+                  // this simple flow.
+                  const next = messages[idx + 1];
+                  const answered = isGame && !!next && isGameMessage(next.content) &&
+                    (next.content.includes('"t":"reply"'));
+
+                  return (
+                    <div
+                      key={msg.id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: isMine ? 'flex-end' : 'flex-start',
+                      }}
+                    >
+                      {isGame ? (
+                        <div style={{ maxWidth: '85%' }}>
+                          <GameCard
+                            content={msg.content}
+                            isOwnMessage={isMine}
+                            answered={answered}
+                            onReply={(encoded) => sendRawMessage(encoded)}
+                          />
+                          <p style={{
+                            fontSize: 11,
+                            margin: '4px 6px 0',
+                            opacity: 0.55,
+                            color: '#8a7560',
+                            textAlign: isMine ? 'right' : 'left',
+                          }}>
+                            {timeAgo(msg.created_at)}
+                          </p>
+                        </div>
+                      ) : (
+                        <div style={{
+                          maxWidth: '70%',
+                          padding: '12px 16px',
+                          borderRadius: isMine
+                            ? '18px 18px 4px 18px'
+                            : '18px 18px 18px 4px',
+                          background: isMine ? '#c8956c' : 'white',
+                          color: isMine ? 'white' : '#1a1208',
+                          fontSize: 14,
+                          lineHeight: 1.5,
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                        }}>
+                          <p style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                            {sanitizeText(msg.content)}
+                          </p>
+                          <p style={{
+                            fontSize: 11,
+                            margin: '4px 0 0',
+                            opacity: 0.6,
+                            textAlign: 'right',
+                          }}>
+                            {timeAgo(msg.created_at)}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div ref={bottomRef} />
               </div>
 
@@ -777,7 +881,34 @@ export default function MessagesPage() {
                     </button>
                   )}
 
-                  <div style={{ display: 'flex', gap: 12 }}>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {/* Mini-game launcher — only when the chat is fully
+                        approved, since pending senders are rate-limited
+                        to one message until approved. */}
+                    {selectedConvo.status === 'approved' && (
+                      <button
+                        type="button"
+                        onClick={() => setShowGamePicker(true)}
+                        aria-label="Send a mini-game"
+                        title="Send a mini-game"
+                        style={{
+                          width: 44,
+                          height: 44,
+                          flexShrink: 0,
+                          background: 'rgba(200,149,108,0.1)',
+                          border: '1px solid rgba(200,149,108,0.25)',
+                          borderRadius: '50%',
+                          color: '#c8956c',
+                          fontSize: 20,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <span aria-hidden="true">🎮</span>
+                      </button>
+                    )}
                     <input
                       type="text"
                       placeholder={
@@ -871,6 +1002,29 @@ export default function MessagesPage() {
           )}
         </div>
       </div>
+
+      {/* Shareable match card modal */}
+      {showMatchCard && selectedConvo && myProfile && getOtherUser(selectedConvo) && (
+        <MatchCard
+          me={{
+            username: myProfile.username,
+            avatar_url: myProfile.avatar_url,
+          }}
+          them={{
+            username: getOtherUser(selectedConvo).username,
+            avatar_url: getOtherUser(selectedConvo).avatar_url,
+          }}
+          matchedOn={new Date(selectedConvo.created_at)}
+          onClose={() => setShowMatchCard(false)}
+        />
+      )}
+
+      {/* Mini-game composer */}
+      <GamePicker
+        open={showGamePicker}
+        onClose={() => setShowGamePicker(false)}
+        onSend={(encoded) => sendRawMessage(encoded)}
+      />
     </main>
   );
 }

@@ -86,6 +86,16 @@ export default function Dashboard() {
           }}>
             Discover
           </Link>
+          <Link href="/spotlight" style={{
+            color: '#8a7560',
+            textDecoration: 'none',
+            fontSize: 14,
+            fontWeight: 600,
+            padding: '8px 16px',
+            borderRadius: 100,
+          }}>
+            Spotlight
+          </Link>
           <Link href="/messages" style={{
             color: '#8a7560',
             textDecoration: 'none',
@@ -152,6 +162,7 @@ export default function Dashboard() {
         }}>
           {[
             { icon: '🔍', label: 'Discover People', desc: 'Browse and swipe on profiles', href: '/discover', color: '#fff3ec' },
+            { icon: '✨', label: 'Spotlight', desc: 'Explore portfolio work from the community', href: '/spotlight', color: '#fff8ec' },
             { icon: '💬', label: 'Messages', desc: 'View your conversations', href: '/messages', color: '#f5f5ec' },
             { icon: '👤', label: 'My Profile', desc: 'See how others see you', href: `/profile/${profile?.username}`, color: '#ecf5f0' },
             { icon: '✏️', label: 'Edit Profile', desc: 'Update your info and photo', href: '/edit-profile', color: '#f0ecf5' },

@@ -236,6 +236,9 @@ export default function DiscoverPage() {
           <Link href="/dashboard" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
             Dashboard
           </Link>
+          <Link href="/spotlight" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+            Spotlight
+          </Link>
           <Link href="/messages" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
             Messages
           </Link>

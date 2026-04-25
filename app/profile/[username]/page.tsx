@@ -9,6 +9,7 @@ import { Avatar } from '../../components/Avatar';
 import { ProfileSkeleton } from '../../components/Skeleton';
 import { toast } from '../../lib/toast';
 import { sanitizeText, safeUrl } from '../../lib/sanitize';
+import { normalizePrompts, type ProfilePrompt } from '../../lib/profilePrompts';
 
 const PORTFOLIO_ICONS: Record<string, string> = {
   music:    '🎵',
@@ -38,6 +39,7 @@ type PublicProfile = {
   bio?: string | null;
   website_url?: string | null;
   portfolio_links?: PortfolioLink[] | null;
+  profile_prompts?: ProfilePrompt[] | null;
   creative_status?: string | null;
 };
 
@@ -232,6 +234,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const scoreLabel = getCompatibilityLabel(score);
   const sharedCats = getSharedCategories(myCategories, profile.categories ?? []);
   const portfolioLinks = (profile.portfolio_links ?? []).filter((p) => p.url?.trim());
+  const profilePrompts = normalizePrompts(profile.profile_prompts);
 
   return (
     <main style={{
@@ -551,6 +554,61 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Profile Prompts */}
+        {profilePrompts.length > 0 && (
+          <div style={{
+            background: 'white',
+            border: '1px solid rgba(200,149,108,0.2)',
+            borderRadius: 24,
+            padding: '28px 32px',
+            marginBottom: 24,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.04)',
+          }}>
+            <p style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#a89278',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              marginBottom: 16,
+            }}>
+              About me
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {profilePrompts.map((p, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: '#faf6f0',
+                    border: '1px solid rgba(200,149,108,0.15)',
+                    borderRadius: 16,
+                    padding: '16px 18px',
+                  }}
+                >
+                  <p style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: '#c8956c',
+                    marginBottom: 6,
+                  }}>
+                    {sanitizeText(p.prompt)}
+                  </p>
+                  <p style={{
+                    fontSize: 15,
+                    color: '#1a1208',
+                    lineHeight: 1.5,
+                    margin: 0,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                  }}>
+                    {sanitizeText(p.answer)}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

@@ -5,6 +5,13 @@ import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { Avatar } from '../components/Avatar';
 import { toast } from '../lib/toast';
+import {
+  PROFILE_PROMPTS,
+  MAX_PROMPTS,
+  MAX_ANSWER_LENGTH,
+  normalizePrompts,
+  type ProfilePrompt,
+} from '../lib/profilePrompts';
 
 const ALL_CATEGORIES = [
   '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
@@ -96,6 +103,7 @@ export default function EditProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [portfolioLinks, setPortfolioLinks] = useState<PortfolioLink[]>([]);
+  const [profilePrompts, setProfilePrompts] = useState<ProfilePrompt[]>([]);
   const [showStatusSuggestions, setShowStatusSuggestions] = useState(false);
   const router = useRouter();
 
@@ -123,6 +131,7 @@ export default function EditProfilePage() {
         setSelectedCategories(profile.categories || []);
         setAvatarUrl(profile.avatar_url || '');
         setPortfolioLinks(profile.portfolio_links || []);
+        setProfilePrompts(normalizePrompts(profile.profile_prompts));
       }
 
       setLoading(false);
@@ -193,6 +202,27 @@ export default function EditProfilePage() {
     ));
   }
 
+  function addProfilePrompt() {
+    if (profilePrompts.length >= MAX_PROMPTS) {
+      toast.info(`You can pick up to ${MAX_PROMPTS} prompts.`);
+      return;
+    }
+    // Default to the first prompt that's not already taken.
+    const taken = new Set(profilePrompts.map((p) => p.prompt));
+    const fallback = PROFILE_PROMPTS.find((p) => !taken.has(p)) ?? PROFILE_PROMPTS[0];
+    setProfilePrompts([...profilePrompts, { prompt: fallback, answer: '' }]);
+  }
+
+  function removeProfilePrompt(index: number) {
+    setProfilePrompts(profilePrompts.filter((_, i) => i !== index));
+  }
+
+  function updateProfilePrompt(index: number, field: keyof ProfilePrompt, value: string) {
+    setProfilePrompts(
+      profilePrompts.map((p, i) => (i === index ? { ...p, [field]: value } : p)),
+    );
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!username.trim()) {
@@ -211,6 +241,9 @@ export default function EditProfilePage() {
       creative_status: creativeStatus.trim(),
       avatar_url: avatarUrl,
       portfolio_links: portfolioLinks.filter((p) => p.url.trim()),
+      profile_prompts: profilePrompts
+        .filter((p) => p.prompt.trim() && p.answer.trim())
+        .slice(0, MAX_PROMPTS),
     }, { onConflict: 'user_id' });
 
     if (error) {
@@ -818,6 +851,178 @@ export default function EditProfilePage() {
                   </button>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Profile Prompts Section */}
+          <div style={{ marginBottom: 40 }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 8,
+            }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#6b5744',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}>
+                  Profile Prompts
+                </label>
+                <p style={{ color: '#b0967e', fontSize: 13, marginTop: 4 }}>
+                  Pick up to {MAX_PROMPTS} prompts. Short, fun answers work best.
+                </p>
+              </div>
+              {profilePrompts.length < MAX_PROMPTS && (
+                <button
+                  type="button"
+                  onClick={addProfilePrompt}
+                  style={{
+                    padding: '8px 18px',
+                    background: '#c8956c',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 100,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                >
+                  + Add Prompt
+                </button>
+              )}
+            </div>
+
+            {profilePrompts.length === 0 && (
+              <div style={{
+                background: 'white',
+                border: '1px dashed rgba(200,149,108,0.3)',
+                borderRadius: 16,
+                padding: '32px',
+                textAlign: 'center',
+                color: '#a89278',
+              }}>
+                <div style={{ fontSize: 32, marginBottom: 8 }}>💬</div>
+                <p style={{ fontSize: 14 }}>No prompts yet.</p>
+                <p style={{ fontSize: 13, marginTop: 4 }}>Pick a prompt to give people a fun way in.</p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+              {profilePrompts.map((p, index) => {
+                // Show the user every prompt, but disable any that are
+                // already taken in another row to prevent duplicates.
+                const taken = new Set(
+                  profilePrompts.map((x, i) => (i === index ? null : x.prompt)).filter(Boolean) as string[],
+                );
+                const remaining = MAX_ANSWER_LENGTH - p.answer.length;
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      background: 'white',
+                      border: '1px solid rgba(200,149,108,0.2)',
+                      borderRadius: 16,
+                      padding: '20px',
+                    }}
+                  >
+                    <div style={{ marginBottom: 12 }}>
+                      <label style={{
+                        display: 'block',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: '#6b5744',
+                        marginBottom: 6,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                      }}>
+                        Prompt
+                      </label>
+                      <select
+                        value={p.prompt}
+                        onChange={(e) => updateProfilePrompt(index, 'prompt', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          borderRadius: 10,
+                          border: '1px solid rgba(200,149,108,0.25)',
+                          background: '#faf6f0',
+                          fontSize: 14,
+                          color: '#1a1208',
+                          outline: 'none',
+                        }}
+                      >
+                        {PROFILE_PROMPTS.map((opt) => (
+                          <option key={opt} value={opt} disabled={taken.has(opt)}>
+                            {opt}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div style={{ marginBottom: 12 }}>
+                      <label style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: '#6b5744',
+                        marginBottom: 6,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                      }}>
+                        <span>Your answer</span>
+                        <span style={{ color: remaining < 20 ? '#c07070' : '#a89278', fontWeight: 600 }}>
+                          {remaining}
+                        </span>
+                      </label>
+                      <textarea
+                        value={p.answer}
+                        onChange={(e) => updateProfilePrompt(index, 'answer', e.target.value.slice(0, MAX_ANSWER_LENGTH))}
+                        maxLength={MAX_ANSWER_LENGTH}
+                        rows={2}
+                        placeholder="Keep it short and you — one or two sentences."
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          borderRadius: 10,
+                          border: '1px solid rgba(200,149,108,0.25)',
+                          background: '#faf6f0',
+                          fontSize: 14,
+                          color: '#1a1208',
+                          outline: 'none',
+                          fontFamily: 'inherit',
+                          resize: 'vertical',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => removeProfilePrompt(index)}
+                      style={{
+                        padding: '6px 16px',
+                        background: '#fff0f0',
+                        border: '1px solid rgba(220,100,100,0.2)',
+                        borderRadius: 100,
+                        color: '#c07070',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
