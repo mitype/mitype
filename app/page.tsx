@@ -104,7 +104,7 @@ export default function HomePage() {
             borderRadius: '50%',
             display: 'inline-block',
           }} />
-          
+          Connect with people who share your world
         </div>
 
         {/* Headline */}
