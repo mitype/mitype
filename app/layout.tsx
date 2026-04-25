@@ -4,7 +4,7 @@ import { Toaster } from "./lib/toast";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
-  title: "Mitype — A cure for boredom",
+  title: "Mitype — Find Your Type",
   description:
     "Friendships & Dating for creative professionals. Connect with musicians, writers, artists, photographers and more who share your world.",
   manifest: "/manifest.json",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     title: "Mitype",
   },
   openGraph: {
-    title: "Mitype — A cure for boredom",
+    title: "Mitype — Find Your Type",
     description:
       "Friendships & Dating for creative professionals — musicians, writers, artists, photographers and more.",
     type: "website",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mitype — A cure for boredom",
+    title: "Mitype — Find Your Type",
     description:
       "Friendships & Dating for creative professionals — musicians, writers, artists, photographers and more.",
   },
