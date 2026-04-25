@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { calculateCompatibility, getCompatibilityColor } from '../lib/utils';
 import { Avatar } from '../components/Avatar';
+import { Coachmark } from '../components/Coachmark';
 import { DiscoverSkeleton } from '../components/Skeleton';
 import { sanitizeText } from '../lib/sanitize';
 
@@ -209,6 +210,11 @@ export default function DiscoverPage() {
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
+
+      <Coachmark storageKey="mitype-coachmark-discover-v1" title="How discover works">
+        Tap the heart on someone you&rsquo;d like to connect with — your message
+        request lands in their <strong>Messages</strong> for them to approve.
+      </Coachmark>
 
       {/* Nav */}
       <nav style={{

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { toast } from '../lib/toast';
 
 const ALL_CATEGORIES = [
+  '♾️ Oddcast',
   '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
   '💃 Dancer', '🎬 Filmmaker', '🖌️ Illustrator', '🗿 Sculptor',
   '📖 Poet', '🎙️ Storyteller', '✏️ Graphic Designer', '🖼️ Art Director',

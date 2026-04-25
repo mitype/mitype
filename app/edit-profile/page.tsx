@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { Avatar } from '../components/Avatar';
+import { Coachmark } from '../components/Coachmark';
 import { toast } from '../lib/toast';
 import {
   PROFILE_PROMPTS,
@@ -14,6 +15,7 @@ import {
 } from '../lib/profilePrompts';
 
 const ALL_CATEGORIES = [
+  '♾️ Oddcast',
   '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
   '💃 Dancer', '🎬 Filmmaker', '🖌️ Illustrator', '🗿 Sculptor',
   '📖 Poet', '🎙️ Storyteller', '✏️ Graphic Designer', '🖼️ Art Director',
@@ -276,6 +278,12 @@ export default function EditProfilePage() {
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
+
+      <Coachmark storageKey="mitype-coachmark-edit-profile-v1" title="Make your profile shine">
+        Strong <strong>prompts</strong>, a real <strong>bio</strong>, and a
+        <strong> portfolio link</strong> all feed into the personalized openers
+        people send through your Daily Spark — fill them in to get noticed.
+      </Coachmark>
 
       {/* Nav */}
       <nav style={{

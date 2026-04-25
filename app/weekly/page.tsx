@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { Avatar } from '../components/Avatar';
+import { Coachmark } from '../components/Coachmark';
 import { Skeleton } from '../components/Skeleton';
 import { sanitizeText } from '../lib/sanitize';
 import { toast } from '../lib/toast';
@@ -269,6 +270,13 @@ export default function WeeklyPromptPage() {
         paddingBottom: 80,
       }}
     >
+
+      <Coachmark storageKey="mitype-coachmark-weekly-v1" title="The Weekly prompt">
+        Each week we drop a creative prompt. Post <strong>one answer</strong> —
+        upvote the ones you love, and the highest-voted rises to the top.
+        Fresh prompt every Monday.
+      </Coachmark>
+
       {/* Nav */}
       <nav
         style={{

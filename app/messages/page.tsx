@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { Avatar } from '../components/Avatar';
+import { Coachmark } from '../components/Coachmark';
 import { MessagesSkeleton } from '../components/Skeleton';
 import { MatchCard } from '../components/MatchCard';
 import { GameCard, isGameMessage } from '../components/GameCard';
@@ -273,6 +274,12 @@ export default function MessagesPage() {
       display: 'flex',
       flexDirection: 'column',
     }}>
+
+      <Coachmark storageKey="mitype-coachmark-messages-v1" title="Your inbox">
+        New connection requests show up here. Tap a request to approve or
+        decline — once approved, you can chat freely and even start
+        <strong> mini-games</strong> together.
+      </Coachmark>
 
       {/* Nav */}
       <nav style={{

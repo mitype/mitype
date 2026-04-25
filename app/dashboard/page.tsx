@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { DashboardSkeleton } from '../components/Skeleton';
 import { DailySparkCard } from '../components/DailySparkCard';
 import { WeeklyPromptCard } from '../components/WeeklyPromptCard';
+import { Coachmark } from '../components/Coachmark';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -55,6 +56,12 @@ export default function Dashboard() {
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       padding: '0 0 80px 0',
     }}>
+
+      <Coachmark storageKey="mitype-coachmark-dashboard-v1" title="Welcome to Mitype">
+        This is your home base. Your <strong>Daily Spark</strong> and the
+        <strong> Weekly Prompt</strong> live here — explore the nav above to
+        discover people, browse Spotlight, or check Messages.
+      </Coachmark>
 
       {/* Top Nav */}
       <nav style={{

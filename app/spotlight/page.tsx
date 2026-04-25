@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { Avatar } from '../components/Avatar';
+import { Coachmark } from '../components/Coachmark';
 import { Skeleton } from '../components/Skeleton';
 import { sanitizeText, safeUrl } from '../lib/sanitize';
 
@@ -159,6 +160,13 @@ export default function SpotlightPage() {
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
+
+      <Coachmark storageKey="mitype-coachmark-spotlight-v1" title="The Spotlight feed">
+        Browse the actual <strong>work</strong> the community is making —
+        music, video, photos, writing, more. Tap a card to open a creator&rsquo;s
+        portfolio link, or filter the chips up top.
+      </Coachmark>
+
       {/* Top nav — mirrors /dashboard so it feels like part of the app. */}
       <nav style={{
         display: 'flex',
