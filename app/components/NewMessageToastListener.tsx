@@ -21,6 +21,39 @@ interface MessageRow {
   created_at: string;
 }
 
+// A short two-tone chime via Web Audio. Lazy-init the AudioContext on
+// first call (browsers block creation before a user gesture in some
+// circumstances; if it fails, we just stay silent — better than crashing).
+let audioCtx: AudioContext | null = null;
+function playChime() {
+  if (typeof window === 'undefined') return;
+  try {
+    type WindowWithWebkitAudio = Window & { webkitAudioContext?: typeof AudioContext };
+    const w = window as WindowWithWebkitAudio;
+    const Ctor = window.AudioContext ?? w.webkitAudioContext;
+    if (!Ctor) return;
+    if (!audioCtx) audioCtx = new Ctor();
+    const ctx = audioCtx;
+    const now = ctx.currentTime;
+    const beep = (freq: number, start: number, dur: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, now + start);
+      gain.gain.linearRampToValueAtTime(0.08, now + start + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now + start);
+      osc.stop(now + start + dur);
+    };
+    beep(880, 0, 0.12);
+    beep(1175, 0.09, 0.16);
+  } catch {
+    // Silent fail — chime is non-essential.
+  }
+}
+
 export function NewMessageToastListener() {
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const pathname = usePathname();
@@ -64,6 +97,7 @@ export function NewMessageToastListener() {
 
           const handle = sender?.username ? `@${sender.username}` : 'someone';
           toast.info(`💬 New message from ${handle}`);
+          playChime();
         },
       )
       .subscribe();

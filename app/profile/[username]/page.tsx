@@ -13,6 +13,8 @@ import { normalizePrompts, type ProfilePrompt } from '../../lib/profilePrompts';
 import { calculateAge } from '../../lib/age';
 import { normalizePhotos, type ProfilePhoto } from '../../lib/photos';
 import { PhotoGallery } from '../../components/PhotoGallery';
+import { OnlineDot } from '../../components/OnlineDot';
+import { usePresence } from '../../lib/usePresence';
 
 const PORTFOLIO_ICONS: Record<string, string> = {
   music:    '🎵',
@@ -46,6 +48,7 @@ type PublicProfile = {
   creative_status?: string | null;
   date_of_birth?: string | null;
   photos?: ProfilePhoto[] | null;
+  last_active_at?: string | null;
 };
 
 export default function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -61,6 +64,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const [reportSent, setReportSent] = useState(false);
   const router = useRouter();
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onlineUsers = usePresence();
 
   useEffect(() => {
     let cancelled = false;
@@ -489,6 +493,15 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 );
               })()}
             </h1>
+
+            <div style={{ marginBottom: 12 }}>
+              <OnlineDot
+                userId={profile.user_id}
+                lastActiveAt={profile.last_active_at}
+                online={onlineUsers}
+                size="md"
+              />
+            </div>
 
             {profile.creative_status && (
               <div style={{

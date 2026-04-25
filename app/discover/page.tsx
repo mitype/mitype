@@ -7,8 +7,10 @@ import { calculateCompatibility, getCompatibilityColor, getSharedCategories } fr
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { DiscoverSkeleton } from '../components/Skeleton';
+import { OnlineDot } from '../components/OnlineDot';
 import { sanitizeText } from '../lib/sanitize';
 import { calculateAge } from '../lib/age';
+import { usePresence } from '../lib/usePresence';
 
 const ALL_CATEGORIES = [
   '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
@@ -74,6 +76,7 @@ export default function DiscoverPage() {
   const [zipFilter, setZipFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const router = useRouter();
+  const onlineUsers = usePresence();
 
   useEffect(() => {
     const getData = async () => {
@@ -386,10 +389,18 @@ export default function DiscoverPage() {
                         </Link>
 
                         {profile.zip_code && (
-                          <p style={{ color: '#a89278', fontSize: 12, marginBottom: 8 }}>
+                          <p style={{ color: '#a89278', fontSize: 12, marginBottom: 4 }}>
                             📍 {profile.zip_code}
                           </p>
                         )}
+
+                        <div style={{ marginBottom: 8 }}>
+                          <OnlineDot
+                            userId={profile.user_id}
+                            lastActiveAt={profile.last_active_at}
+                            online={onlineUsers}
+                          />
+                        </div>
 
                         {profile.bio && (
                           <p style={{
@@ -777,6 +788,13 @@ export default function DiscoverPage() {
                         📍 {profile.zip_code}
                       </p>
                     )}
+                    <div style={{ marginTop: 6 }}>
+                      <OnlineDot
+                        userId={profile.user_id}
+                        lastActiveAt={profile.last_active_at}
+                        online={onlineUsers}
+                      />
+                    </div>
                     {profile.bio && (
                       <p style={{
                         color: '#8a7560',

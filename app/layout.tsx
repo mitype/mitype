@@ -4,6 +4,7 @@ import { Toaster } from "./lib/toast";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { UnreadTitleSync } from "./components/UnreadTitleSync";
 import { NewMessageToastListener } from "./components/NewMessageToastListener";
+import { PresenceTracker } from "./components/PresenceTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
@@ -58,6 +59,7 @@ export default function RootLayout({
         <InstallPrompt />
         <UnreadTitleSync />
         <NewMessageToastListener />
+        <PresenceTracker />
       </body>
     </html>
   );
