@@ -4,9 +4,9 @@ import { Toaster } from "./lib/toast";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
-  title: "Mitype — Find Your Type",
+  title: "Mitype — A cure for boredom",
   description:
-    "A dating platform for creative professionals. Connect with musicians, artists, writers, photographers and more who share your passions.",
+    "Friendships & Dating for creative professionals. Connect with musicians, writers, artists, photographers and more who share your world.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -14,18 +14,18 @@ export const metadata: Metadata = {
     title: "Mitype",
   },
   openGraph: {
-    title: "Mitype — Find Your Type",
+    title: "Mitype — A cure for boredom",
     description:
-      "Connect with creative professionals who share your passions — musicians, writers, artists, photographers and more.",
+      "Friendships & Dating for creative professionals — musicians, writers, artists, photographers and more.",
     type: "website",
     url: "https://www.mitypeapp.com",
     siteName: "Mitype",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mitype — Find Your Type",
+    title: "Mitype — A cure for boredom",
     description:
-      "Connect with creative professionals who share your passions.",
+      "Friendships & Dating for creative professionals — musicians, writers, artists, photographers and more.",
   },
 };
 
