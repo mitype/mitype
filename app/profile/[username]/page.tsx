@@ -131,31 +131,48 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     })();
   }
 
-  async function sendMessage() {
-    if (!currentUser) { router.push('/login'); return; }
-    if (!profile) return;
-
+  async function ensureConversationWithProfile(): Promise<boolean> {
+    if (!currentUser || !profile) return false;
     const { data: existing } = await supabase
       .from('conversations')
       .select('id')
       .contains('participant_ids', [currentUser.id, profile.user_id])
       .maybeSingle();
 
-    if (existing) { router.push('/messages'); return; }
+    if (!existing) {
+      await supabase.from('conversations').insert({
+        participant_ids: [currentUser.id, profile.user_id],
+        initiated_by: currentUser.id,
+        status: 'pending',
+      });
+      await supabase.from('matches').upsert({
+        user_id: currentUser.id,
+        target_user_id: profile.user_id,
+        direction: 'right',
+      });
+    }
+    return true;
+  }
 
-    await supabase.from('conversations').insert({
-      participant_ids: [currentUser.id, profile.user_id],
-      initiated_by: currentUser.id,
-      status: 'pending',
-    });
+  async function sendMessage() {
+    if (!currentUser) { router.push('/login'); return; }
+    if (!profile) return;
+    await ensureConversationWithProfile();
+    router.push(`/messages?user=${profile.user_id}`);
+  }
 
-    await supabase.from('matches').upsert({
-      user_id: currentUser.id,
-      target_user_id: profile.user_id,
-      direction: 'right',
-    });
-
-    router.push('/messages');
+  // "Reply to a prompt" — pre-fills the chat compose with the prompt the
+  // user is responding to so they don't have to think about an opener.
+  async function replyToPrompt(prompt: string, answer: string) {
+    if (!currentUser) { router.push('/login'); return; }
+    if (!profile) return;
+    await ensureConversationWithProfile();
+    // Truncate the answer for the prefill — long answers blow out the
+    // compose box. The "About" framing reads naturally in chat.
+    const trimmed = answer.length > 140 ? answer.slice(0, 137) + '…' : answer;
+    const prefill = `About "${trimmed}" — `;
+    const url = `/messages?user=${profile.user_id}&prefill=${encodeURIComponent(prefill)}`;
+    router.push(url);
   }
 
   async function handleBlock() {
@@ -586,6 +603,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     border: '1px solid rgba(200,149,108,0.15)',
                     borderRadius: 16,
                     padding: '16px 18px',
+                    position: 'relative',
                   }}
                 >
                   <p style={{
@@ -606,6 +624,27 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   }}>
                     {sanitizeText(p.answer)}
                   </p>
+                  {!isOwnProfile && currentUser && (
+                    <button
+                      type="button"
+                      onClick={() => replyToPrompt(p.prompt, p.answer)}
+                      aria-label={`Reply to "${p.prompt}"`}
+                      style={{
+                        marginTop: 12,
+                        padding: '8px 16px',
+                        background: 'white',
+                        border: '1px solid rgba(200,149,108,0.35)',
+                        borderRadius: 100,
+                        color: '#c8956c',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      💬 Reply to this →
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

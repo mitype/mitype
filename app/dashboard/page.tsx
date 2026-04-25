@@ -7,6 +7,7 @@ import { DashboardSkeleton } from '../components/Skeleton';
 import { DailySparkCard } from '../components/DailySparkCard';
 import { WeeklyPromptCard } from '../components/WeeklyPromptCard';
 import { Coachmark } from '../components/Coachmark';
+import { ProfileCompleteness } from '../components/ProfileCompleteness';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -171,6 +172,9 @@ export default function Dashboard() {
             Here's what's happening on your Mitype profile.
           </p>
         </div>
+
+        {/* Profile completeness — nudge users to fill in the gaps */}
+        <ProfileCompleteness profile={profile} />
 
         {/* Daily Spark — one hand-picked profile per day with a tailored opener */}
         {user?.id && <DailySparkCard userId={user.id} />}

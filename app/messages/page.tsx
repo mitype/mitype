@@ -113,6 +113,34 @@ export default function MessagesPage() {
     }
   }, [selectedConvo, messages, user]);
 
+  // Deep-link from /profile/[username] — `?user=<id>` auto-selects that
+  // person's conversation, and `?prefill=…` pre-loads the compose box (used
+  // by the "Reply to a prompt" feature). We strip the params after applying
+  // so a refresh doesn't trigger again.
+  useEffect(() => {
+    if (!user || conversations.length === 0) return;
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const targetUser = params.get('user');
+    const prefill = params.get('prefill');
+    if (!targetUser && !prefill) return;
+
+    if (targetUser) {
+      const target = conversations.find((c: any) =>
+        Array.isArray(c.participant_ids) && c.participant_ids.includes(targetUser)
+      );
+      if (target) {
+        void selectConvo(target);
+      }
+    }
+    if (prefill) {
+      setNewMessage(prefill);
+    }
+    // Drop the params so a refresh / back-nav doesn't re-trigger.
+    router.replace('/messages', { scroll: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, conversations]);
+
   async function loadConversations(u: any) {
     const { data: convos } = await supabase
       .from('conversations')
@@ -580,35 +608,54 @@ export default function MessagesPage() {
                   >
                     <span aria-hidden="true">←</span>
                   </button>
-                  <div style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    background: '#f0e8df',
-                    overflow: 'hidden',
-                    flexShrink: 0,
-                  }}>
-                    <Avatar
-                      src={getOtherUser(selectedConvo)?.avatar_url}
-                      alt={
-                        getOtherUser(selectedConvo)?.username
-                          ? `@${getOtherUser(selectedConvo).username}`
-                          : 'User'
-                      }
-                      width={40}
-                      height={40}
-                      fallbackFontSize={18}
-                      sizes="40px"
-                    />
-                  </div>
-                  <div>
-                    <p style={{ fontWeight: 700, color: '#1a1208', fontSize: 15 }}>
-                      @{getOtherUser(selectedConvo)?.username ?? 'Unknown'}
-                    </p>
-                    <p style={{ fontSize: 12, color: '#a89278' }}>
-                      {selectedConvo.status === 'pending' ? '⏳ Pending approval' : '✅ Active conversation'}
-                    </p>
-                  </div>
+                  {/* Tapping the avatar/username opens their profile, which is
+                      where Block + Report live. Lets users escape an active
+                      conversation safely without digging through settings. */}
+                  <Link
+                    href={
+                      getOtherUser(selectedConvo)?.username
+                        ? `/profile/${getOtherUser(selectedConvo).username}`
+                        : '/messages'
+                    }
+                    aria-label={`View profile of @${getOtherUser(selectedConvo)?.username ?? 'user'}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      textDecoration: 'none',
+                      color: 'inherit',
+                    }}
+                  >
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      background: '#f0e8df',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                    }}>
+                      <Avatar
+                        src={getOtherUser(selectedConvo)?.avatar_url}
+                        alt={
+                          getOtherUser(selectedConvo)?.username
+                            ? `@${getOtherUser(selectedConvo).username}`
+                            : 'User'
+                        }
+                        width={40}
+                        height={40}
+                        fallbackFontSize={18}
+                        sizes="40px"
+                      />
+                    </div>
+                    <div>
+                      <p style={{ fontWeight: 700, color: '#1a1208', fontSize: 15 }}>
+                        @{getOtherUser(selectedConvo)?.username ?? 'Unknown'}
+                      </p>
+                      <p style={{ fontSize: 12, color: '#a89278' }}>
+                        {selectedConvo.status === 'pending' ? '⏳ Pending approval' : 'Tap to view profile'}
+                      </p>
+                    </div>
+                  </Link>
                 </div>
 
                 {/* Match card button — only after the match is approved. */}
