@@ -46,17 +46,19 @@ export function OddcastPill() {
           aria-haspopup="dialog"
           aria-expanded={open}
           style={{
+            // Match the size of the regular category pills (padding + fontSize)
+            // but keep the gradient, border, shadow, and hover lift so this
+            // one still reads as the "featured" pill.
             background: 'linear-gradient(135deg, #fff3ec 0%, #ffe1c8 100%)',
             border: '1.5px solid rgba(200,149,108,0.45)',
             borderRadius: 100,
-            padding: '14px 30px',
-            fontSize: 17,
+            padding: '9px 18px',
+            fontSize: 13,
             color: '#1a1208',
             fontWeight: 800,
-            letterSpacing: '-0.2px',
             boxShadow: hover
-              ? '0 6px 22px rgba(200,149,108,0.28)'
-              : '0 4px 16px rgba(200,149,108,0.18)',
+              ? '0 4px 14px rgba(200,149,108,0.25)'
+              : '0 2px 8px rgba(200,149,108,0.15)',
             cursor: 'pointer',
             transform: hover ? 'translateY(-1px)' : 'none',
             transition:
