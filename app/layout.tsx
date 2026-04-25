@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "./lib/toast";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { UnreadTitleSync } from "./components/UnreadTitleSync";
+import { NewMessageToastListener } from "./components/NewMessageToastListener";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
@@ -56,6 +57,7 @@ export default function RootLayout({
         <Toaster />
         <InstallPrompt />
         <UnreadTitleSync />
+        <NewMessageToastListener />
       </body>
     </html>
   );
