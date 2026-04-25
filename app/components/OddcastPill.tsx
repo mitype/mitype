@@ -144,32 +144,18 @@ export function OddcastPill() {
               ♾️ Oddcast
             </p>
 
-            <h2
+            <p
               id="oddcast-modal-title"
               style={{
-                fontSize: 30,
-                fontWeight: 900,
-                color: '#1a1208',
-                letterSpacing: '-0.5px',
-                lineHeight: 1.15,
-                margin: '0 0 20px',
-              }}
-            >
-              Black Sheep University
-            </h2>
-
-            <p
-              style={{
                 color: '#3d2e1f',
-                fontSize: 14,
-                lineHeight: 1.65,
+                fontSize: 18,
+                lineHeight: 1.5,
                 margin: '0 0 14px',
                 fontStyle: 'italic',
+                fontWeight: 600,
               }}
             >
-              &ldquo;The world is not messed up — it&rsquo;s just the people
-              that&rsquo;s in it. Become who you needed when you needed
-              somebody.&rdquo;
+              &ldquo;Become who you needed when you needed somebody.&rdquo;
             </p>
 
             <p
