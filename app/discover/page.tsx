@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
-import { calculateCompatibility, getCompatibilityColor } from '../lib/utils';
+import { calculateCompatibility, getCompatibilityColor, getSharedCategories } from '../lib/utils';
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { DiscoverSkeleton } from '../components/Skeleton';
@@ -290,6 +290,7 @@ export default function DiscoverPage() {
               {spotlightProfiles.map((profile) => {
                 const score = calculateCompatibility(myCategories, profile.categories ?? []);
                 const scoreColor = getCompatibilityColor(score);
+                const shared = getSharedCategories(myCategories, profile.categories ?? []);
 
                 return (
                   <div
@@ -402,6 +403,18 @@ export default function DiscoverPage() {
                             WebkitBoxOrient: 'vertical',
                           }}>
                             {sanitizeText(profile.bio)}
+                          </p>
+                        )}
+
+                        {shared.length > 0 && (
+                          <p style={{
+                            color: '#16a34a',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            marginBottom: 8,
+                          }}>
+                            ✓ You both love {shared.slice(0, 2).join(' · ')}
+                            {shared.length > 2 && ` +${shared.length - 2}`}
                           </p>
                         )}
 
@@ -663,6 +676,7 @@ export default function DiscoverPage() {
             {filteredProfiles.map((profile) => {
               const score = calculateCompatibility(myCategories, profile.categories ?? []);
               const scoreColor = getCompatibilityColor(score);
+              const shared = getSharedCategories(myCategories, profile.categories ?? []);
 
               return (
                 <div
@@ -775,6 +789,18 @@ export default function DiscoverPage() {
                         WebkitBoxOrient: 'vertical',
                       }}>
                         {sanitizeText(profile.bio)}
+                      </p>
+                    )}
+
+                    {shared.length > 0 && (
+                      <p style={{
+                        color: '#16a34a',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        margin: '0 0 12px',
+                      }}>
+                        ✓ You both love {shared.slice(0, 2).join(' · ')}
+                        {shared.length > 2 && ` +${shared.length - 2}`}
                       </p>
                     )}
 
