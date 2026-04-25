@@ -8,12 +8,15 @@ import { DailySparkCard } from '../components/DailySparkCard';
 import { WeeklyPromptCard } from '../components/WeeklyPromptCard';
 import { Coachmark } from '../components/Coachmark';
 import { ProfileCompleteness } from '../components/ProfileCompleteness';
+import { UnreadBadge } from '../components/UnreadBadge';
+import { useUnreadCounts } from '../lib/useUnreadCounts';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { unread } = useUnreadCounts(user?.id);
 
   useEffect(() => {
     const getData = async () => {
@@ -123,8 +126,11 @@ export default function Dashboard() {
             fontWeight: 600,
             padding: '8px 16px',
             borderRadius: 100,
+            display: 'inline-flex',
+            alignItems: 'center',
           }}>
             Messages
+            <UnreadBadge count={unread.total} />
           </Link>
           <Link href="/edit-profile" style={{
             color: '#8a7560',
@@ -216,8 +222,13 @@ export default function Dashboard() {
                 fontWeight: 700,
                 color: '#1a1208',
                 marginBottom: 6,
+                display: 'inline-flex',
+                alignItems: 'center',
               }}>
                 {action.label}
+                {action.href === '/messages' && (
+                  <UnreadBadge count={unread.total} size="md" />
+                )}
               </h3>
               <p style={{ color: '#a89278', fontSize: 13 }}>{action.desc}</p>
             </Link>

@@ -9,6 +9,8 @@ import { MessagesSkeleton } from '../components/Skeleton';
 import { MatchCard } from '../components/MatchCard';
 import { GameCard, isGameMessage } from '../components/GameCard';
 import { GamePicker } from '../components/GamePicker';
+import { UnreadBadge } from '../components/UnreadBadge';
+import { useUnreadCounts } from '../lib/useUnreadCounts';
 import { toast } from '../lib/toast';
 import { sanitizeText } from '../lib/sanitize';
 
@@ -65,6 +67,7 @@ export default function MessagesPage() {
   // Throttle outbound typing broadcasts to one per 1.5s while typing.
   const lastTypingSentRef = useRef<number>(0);
   const router = useRouter();
+  const { unread, refresh: refreshUnread } = useUnreadCounts(user?.id);
 
   useEffect(() => {
     const getData = async () => {
@@ -192,10 +195,12 @@ export default function MessagesPage() {
           .filter((m: any) => m.sender_id !== me.id && !m.read_at)
           .map((m: any) => m.id);
         if (unreadIds.length > 0) {
-          void supabase
+          await supabase
             .from('messages')
             .update({ read_at: new Date().toISOString(), read: true })
             .in('id', unreadIds);
+          // Refresh nav/list badges now that we've cleared this convo's unreads.
+          void refreshUnread();
         }
       }
     }
@@ -262,12 +267,16 @@ export default function MessagesPage() {
               clearTimeout(typingTimersRef.current[newMsg.sender_id]);
               delete typingTimersRef.current[newMsg.sender_id];
             }
-            // Mark as read since the conversation is open.
+            // Mark as read since the conversation is open. We then refresh
+            // unread counts so the badge in the nav stays in sync.
             if (!newMsg.read_at) {
               void supabase
                 .from('messages')
                 .update({ read_at: new Date().toISOString(), read: true })
-                .eq('id', newMsg.id);
+                .eq('id', newMsg.id)
+                .then(() => { void refreshUnread(); });
+            } else {
+              void refreshUnread();
             }
           }
         },
@@ -549,11 +558,14 @@ export default function MessagesPage() {
                         sizes="40px"
                       />
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
-                        @{other?.username ?? 'Unknown'}
-                      </p>
-                      <p style={{ fontSize: 12, color: '#c8956c', fontWeight: 600 }}>New request</p>
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
+                          @{other?.username ?? 'Unknown'}
+                        </p>
+                        <p style={{ fontSize: 12, color: '#c8956c', fontWeight: 600 }}>New request</p>
+                      </div>
+                      <UnreadBadge count={unread.perConvo[convo.id] ?? 0} />
                     </div>
                   </button>
                 );
@@ -610,11 +622,14 @@ export default function MessagesPage() {
                         sizes="40px"
                       />
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
-                        @{other?.username ?? 'Unknown'}
-                      </p>
-                      <p style={{ fontSize: 12, color: '#a89278' }}>Pending approval</p>
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
+                          @{other?.username ?? 'Unknown'}
+                        </p>
+                        <p style={{ fontSize: 12, color: '#a89278' }}>Pending approval</p>
+                      </div>
+                      <UnreadBadge count={unread.perConvo[convo.id] ?? 0} />
                     </div>
                   </button>
                 );
@@ -671,13 +686,16 @@ export default function MessagesPage() {
                         sizes="40px"
                       />
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
-                        @{other?.username ?? 'Unknown'}
-                      </p>
-                      <p style={{ fontSize: 12, color: '#a89278' }}>
-                        {timeAgo(convo.updated_at)}
-                      </p>
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
+                          @{other?.username ?? 'Unknown'}
+                        </p>
+                        <p style={{ fontSize: 12, color: '#a89278' }}>
+                          {timeAgo(convo.updated_at)}
+                        </p>
+                      </div>
+                      <UnreadBadge count={unread.perConvo[convo.id] ?? 0} />
                     </div>
                   </button>
                 );
