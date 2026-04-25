@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { toast } from '../lib/toast';
+import { isAtLeast18, maxDobIso, minDobIso } from '../lib/age';
 
 const ALL_CATEGORIES = [
   '♾️ Oddcast',
@@ -40,6 +41,7 @@ export default function CreateProfilePage() {
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [zipCode, setZipCode] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -65,6 +67,14 @@ export default function CreateProfilePage() {
       toast.error('Please select at least one category.');
       return;
     }
+    if (!dateOfBirth) {
+      toast.error('Please enter your date of birth.');
+      return;
+    }
+    if (!isAtLeast18(dateOfBirth)) {
+      toast.error('You must be at least 18 to use Mitype.');
+      return;
+    }
 
     setLoading(true);
 
@@ -80,6 +90,7 @@ export default function CreateProfilePage() {
       bio: bio.trim(),
       categories: selectedCategories,
       zip_code: zipCode.trim(),
+      date_of_birth: dateOfBirth,
       website_url: websiteUrl.trim(),
       social_links: [],
     });
@@ -271,6 +282,44 @@ export default function CreateProfilePage() {
                 );
               })}
             </div>
+          </div>
+
+          {/* Date of Birth */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={{
+              display: 'block',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#6b5744',
+              marginBottom: 8,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>
+              Date of Birth *
+            </label>
+            <input
+              type="date"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+              required
+              min={minDobIso()}
+              max={maxDobIso()}
+              style={{
+                width: '100%',
+                padding: '13px 16px',
+                borderRadius: 12,
+                border: '1px solid rgba(200,149,108,0.25)',
+                background: 'white',
+                fontSize: 15,
+                color: '#1a1208',
+                outline: 'none',
+                boxSizing: 'border-box',
+                fontFamily: 'inherit',
+              }}
+            />
+            <p style={{ color: '#b0967e', fontSize: 12, marginTop: 6 }}>
+              You must be 18+ to join Mitype.
+            </p>
           </div>
 
           {/* ZIP Code */}

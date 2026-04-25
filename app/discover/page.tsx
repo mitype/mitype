@@ -8,6 +8,7 @@ import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { DiscoverSkeleton } from '../components/Skeleton';
 import { sanitizeText } from '../lib/sanitize';
+import { calculateAge } from '../lib/age';
 
 const ALL_CATEGORIES = [
   '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
@@ -375,6 +376,12 @@ export default function DiscoverPage() {
                           }}
                         >
                           @{profile.username}
+                          {(() => {
+                            const age = calculateAge(profile.date_of_birth);
+                            return age !== null ? (
+                              <span style={{ color: '#a89278', fontWeight: 600 }}> · {age}</span>
+                            ) : null;
+                          })()}
                         </Link>
 
                         {profile.zip_code && (
@@ -744,6 +751,12 @@ export default function DiscoverPage() {
                       }}
                     >
                       @{profile.username}
+                      {(() => {
+                        const age = calculateAge(profile.date_of_birth);
+                        return age !== null ? (
+                          <span style={{ color: '#a89278', fontWeight: 600 }}> · {age}</span>
+                        ) : null;
+                      })()}
                     </Link>
                     {profile.zip_code && (
                       <p style={{ color: '#a89278', fontSize: 12, marginTop: 2 }}>

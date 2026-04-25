@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { toast } from '../lib/toast';
+import { isAtLeast18, maxDobIso, minDobIso } from '../lib/age';
 import {
   PROFILE_PROMPTS,
   MAX_PROMPTS,
@@ -99,6 +100,7 @@ export default function EditProfilePage() {
   const [zipCode, setZipCode] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [creativeStatus, setCreativeStatus] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -130,6 +132,7 @@ export default function EditProfilePage() {
         setZipCode(profile.zip_code || '');
         setWebsiteUrl(profile.website_url || '');
         setCreativeStatus(profile.creative_status || '');
+        setDateOfBirth(profile.date_of_birth || '');
         setSelectedCategories(profile.categories || []);
         setAvatarUrl(profile.avatar_url || '');
         setPortfolioLinks(profile.portfolio_links || []);
@@ -231,6 +234,10 @@ export default function EditProfilePage() {
       toast.error('Username is required.');
       return;
     }
+    if (dateOfBirth && !isAtLeast18(dateOfBirth)) {
+      toast.error('You must be at least 18 to use Mitype.');
+      return;
+    }
     setSaving(true);
 
     const { error } = await supabase.from('profiles').upsert({
@@ -241,6 +248,7 @@ export default function EditProfilePage() {
       zip_code: zipCode.trim(),
       website_url: websiteUrl.trim(),
       creative_status: creativeStatus.trim(),
+      date_of_birth: dateOfBirth || null,
       avatar_url: avatarUrl,
       portfolio_links: portfolioLinks.filter((p) => p.url.trim()),
       profile_prompts: profilePrompts
@@ -611,6 +619,43 @@ export default function EditProfilePage() {
                 );
               })}
             </div>
+          </div>
+
+          {/* Date of Birth */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={{
+              display: 'block',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#6b5744',
+              marginBottom: 8,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>
+              Date of Birth
+            </label>
+            <input
+              type="date"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+              min={minDobIso()}
+              max={maxDobIso()}
+              style={{
+                width: '100%',
+                padding: '13px 16px',
+                borderRadius: 12,
+                border: '1px solid rgba(200,149,108,0.25)',
+                background: 'white',
+                fontSize: 15,
+                color: '#1a1208',
+                outline: 'none',
+                boxSizing: 'border-box',
+                fontFamily: 'inherit',
+              }}
+            />
+            <p style={{ color: '#b0967e', fontSize: 12, marginTop: 6 }}>
+              Used to show your age. You must be 18+.
+            </p>
           </div>
 
           {/* ZIP Code */}

@@ -10,6 +10,7 @@ import { ProfileSkeleton } from '../../components/Skeleton';
 import { toast } from '../../lib/toast';
 import { sanitizeText, safeUrl } from '../../lib/sanitize';
 import { normalizePrompts, type ProfilePrompt } from '../../lib/profilePrompts';
+import { calculateAge } from '../../lib/age';
 
 const PORTFOLIO_ICONS: Record<string, string> = {
   music:    '🎵',
@@ -41,6 +42,7 @@ type PublicProfile = {
   portfolio_links?: PortfolioLink[] | null;
   profile_prompts?: ProfilePrompt[] | null;
   creative_status?: string | null;
+  date_of_birth?: string | null;
 };
 
 export default function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -470,6 +472,15 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
             <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1a1208', letterSpacing: '-0.5px', marginBottom: 8 }}>
               @{profile.username}
+              {(() => {
+                const age = calculateAge(profile.date_of_birth);
+                if (age === null) return null;
+                return (
+                  <span style={{ color: '#a89278', fontWeight: 600, fontSize: 22, marginLeft: 10 }}>
+                    · {age}
+                  </span>
+                );
+              })()}
             </h1>
 
             {profile.creative_status && (
