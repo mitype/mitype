@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { DashboardSkeleton } from '../components/Skeleton';
 import { DailySparkCard } from '../components/DailySparkCard';
+import { WeeklyPromptCard } from '../components/WeeklyPromptCard';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -97,6 +98,16 @@ export default function Dashboard() {
           }}>
             Spotlight
           </Link>
+          <Link href="/weekly" style={{
+            color: '#8a7560',
+            textDecoration: 'none',
+            fontSize: 14,
+            fontWeight: 600,
+            padding: '8px 16px',
+            borderRadius: 100,
+          }}>
+            Weekly
+          </Link>
           <Link href="/messages" style={{
             color: '#8a7560',
             textDecoration: 'none',
@@ -156,6 +167,9 @@ export default function Dashboard() {
 
         {/* Daily Spark — one hand-picked profile per day with a tailored opener */}
         {user?.id && <DailySparkCard userId={user.id} />}
+
+        {/* Weekly Creative Prompt — community thread of the week */}
+        <WeeklyPromptCard />
 
         {/* Quick Actions */}
         <div style={{

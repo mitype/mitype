@@ -183,6 +183,7 @@ export default function SpotlightPage() {
         <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
           <Link href="/discover" style={navLinkStyle}>Discover</Link>
           <Link href="/spotlight" style={{ ...navLinkStyle, color: '#c8956c', background: 'rgba(200,149,108,0.1)' }}>Spotlight</Link>
+          <Link href="/weekly" style={navLinkStyle}>Weekly</Link>
           <Link href="/messages" style={navLinkStyle}>Messages</Link>
           <Link href="/dashboard" style={navLinkStyle}>Dashboard</Link>
         </div>
