@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "./lib/toast";
 import { InstallPrompt } from "./components/InstallPrompt";
+import { UnreadTitleSync } from "./components/UnreadTitleSync";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
@@ -54,6 +55,7 @@ export default function RootLayout({
         {children}
         <Toaster />
         <InstallPrompt />
+        <UnreadTitleSync />
       </body>
     </html>
   );
