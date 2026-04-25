@@ -55,7 +55,15 @@ export default function MessagesPage() {
   const [showIcebreakers, setShowIcebreakers] = useState(false);
   const [showMatchCard, setShowMatchCard] = useState(false);
   const [showGamePicker, setShowGamePicker] = useState(false);
+  // Realtime: ids of other participants currently typing.
+  const [typingUserIds, setTypingUserIds] = useState<Set<string>>(new Set());
   const bottomRef = useRef<any>(null);
+  const channelRef = useRef<any>(null);
+  // Per-typing-user timers so a stale "is typing" indicator
+  // disappears 3s after the last broadcast.
+  const typingTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  // Throttle outbound typing broadcasts to one per 1.5s while typing.
+  const lastTypingSentRef = useRef<number>(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -96,7 +104,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, typingUserIds]);
 
   // Show icebreakers when opening a new pending conversation
   useEffect(() => {
@@ -175,6 +183,134 @@ export default function MessagesPage() {
       .eq('conversation_id', convoId)
       .order('created_at', { ascending: true });
     setMessages(data ?? []);
+    // Mark any of the partner's messages we haven't read yet as read.
+    // RLS only lets a non-sender flip these, so this is safe to fire-and-forget.
+    if (data && data.length > 0) {
+      const me = (await supabase.auth.getUser()).data.user;
+      if (me) {
+        const unreadIds = data
+          .filter((m: any) => m.sender_id !== me.id && !m.read_at)
+          .map((m: any) => m.id);
+        if (unreadIds.length > 0) {
+          void supabase
+            .from('messages')
+            .update({ read_at: new Date().toISOString(), read: true })
+            .in('id', unreadIds);
+        }
+      }
+    }
+  }
+
+  // Realtime: typing indicators (broadcast) + live message INSERT/UPDATE
+  // (postgres_changes). Subscribes per-conversation.
+  useEffect(() => {
+    if (!selectedConvo || !user) return;
+    const convoId = selectedConvo.id;
+    const myId = user.id;
+
+    const channel = supabase.channel(`chat:${convoId}`, {
+      config: { broadcast: { self: false } },
+    });
+
+    channel
+      .on('broadcast', { event: 'typing' }, (payload: any) => {
+        const fromId: string | undefined = payload?.payload?.userId;
+        if (!fromId || fromId === myId) return;
+        setTypingUserIds((prev) => {
+          if (prev.has(fromId)) return prev;
+          const next = new Set(prev);
+          next.add(fromId);
+          return next;
+        });
+        if (typingTimersRef.current[fromId]) {
+          clearTimeout(typingTimersRef.current[fromId]);
+        }
+        typingTimersRef.current[fromId] = setTimeout(() => {
+          setTypingUserIds((prev) => {
+            if (!prev.has(fromId)) return prev;
+            const next = new Set(prev);
+            next.delete(fromId);
+            return next;
+          });
+          delete typingTimersRef.current[fromId];
+        }, 3000);
+      })
+      .on(
+        'postgres_changes' as any,
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${convoId}`,
+        },
+        (payload: any) => {
+          const newMsg = payload.new;
+          if (!newMsg) return;
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
+          // Partner's typing should clear once their message arrives.
+          if (newMsg.sender_id !== myId) {
+            setTypingUserIds((prev) => {
+              if (!prev.has(newMsg.sender_id)) return prev;
+              const next = new Set(prev);
+              next.delete(newMsg.sender_id);
+              return next;
+            });
+            if (typingTimersRef.current[newMsg.sender_id]) {
+              clearTimeout(typingTimersRef.current[newMsg.sender_id]);
+              delete typingTimersRef.current[newMsg.sender_id];
+            }
+            // Mark as read since the conversation is open.
+            if (!newMsg.read_at) {
+              void supabase
+                .from('messages')
+                .update({ read_at: new Date().toISOString(), read: true })
+                .eq('id', newMsg.id);
+            }
+          }
+        },
+      )
+      .on(
+        'postgres_changes' as any,
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${convoId}`,
+        },
+        (payload: any) => {
+          const updated = payload.new;
+          if (!updated) return;
+          setMessages((prev) => prev.map((m) => (m.id === updated.id ? { ...m, ...updated } : m)));
+        },
+      )
+      .subscribe();
+
+    channelRef.current = channel;
+
+    return () => {
+      Object.values(typingTimersRef.current).forEach(clearTimeout);
+      typingTimersRef.current = {};
+      setTypingUserIds(new Set());
+      void supabase.removeChannel(channel);
+      channelRef.current = null;
+    };
+  }, [selectedConvo?.id, user?.id]);
+
+  function handleNewMessageChange(value: string) {
+    setNewMessage(value);
+    // Broadcast a typing event no more than once per 1.5s while typing.
+    if (!channelRef.current || !user) return;
+    const now = Date.now();
+    if (now - lastTypingSentRef.current < 1500) return;
+    lastTypingSentRef.current = now;
+    void channelRef.current.send({
+      type: 'broadcast',
+      event: 'typing',
+      payload: { userId: user.id },
+    });
   }
 
   async function selectConvo(convo: any) {
@@ -830,9 +966,21 @@ export default function MessagesPage() {
                   </div>
                 )}
 
-                {messages.map((msg, idx) => {
+                {/* "Read" indicator is shown only on my most recent
+                    message that the partner has read. */}
+                {messages.map((msg, idx, arr) => {
                   const isMine = msg.sender_id === user?.id;
                   const isGame = isGameMessage(msg.content);
+                  // Walk back from the end, but only on the iteration where
+                  // it could matter (the current msg is mine).
+                  let isMyLast = false;
+                  if (isMine) {
+                    isMyLast = true;
+                    for (let i = idx + 1; i < arr.length; i++) {
+                      if (arr[i].sender_id === user?.id) { isMyLast = false; break; }
+                    }
+                  }
+                  const showReadReceipt = isMyLast && !!msg.read_at;
                   // A game is "answered" when the very next message is a
                   // game-reply — we don't need to match by id because the
                   // reply is always the immediately-following message in
@@ -865,6 +1013,11 @@ export default function MessagesPage() {
                             textAlign: isMine ? 'right' : 'left',
                           }}>
                             {timeAgo(msg.created_at)}
+                            {showReadReceipt && (
+                              <span style={{ marginLeft: 6, color: '#16a34a', fontWeight: 600 }}>
+                                ✓ Read
+                              </span>
+                            )}
                           </p>
                         </div>
                       ) : (
@@ -890,12 +1043,43 @@ export default function MessagesPage() {
                             textAlign: 'right',
                           }}>
                             {timeAgo(msg.created_at)}
+                            {showReadReceipt && (
+                              <span style={{ marginLeft: 6, fontWeight: 700 }}>
+                                ✓ Read
+                              </span>
+                            )}
                           </p>
                         </div>
                       )}
                     </div>
                   );
                 })}
+
+                {/* Typing indicator — visible while a partner has sent a
+                    typing broadcast within the last 3s. */}
+                {typingUserIds.size > 0 && (
+                  <div
+                    aria-live="polite"
+                    style={{ display: 'flex', justifyContent: 'flex-start' }}
+                  >
+                    <div style={{
+                      padding: '10px 14px',
+                      borderRadius: '18px 18px 18px 4px',
+                      background: 'white',
+                      color: '#a89278',
+                      fontSize: 13,
+                      fontStyle: 'italic',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}>
+                      <span aria-hidden="true">💬</span>
+                      <span>typing…</span>
+                    </div>
+                  </div>
+                )}
+
                 <div ref={bottomRef} />
               </div>
 
@@ -972,7 +1156,7 @@ export default function MessagesPage() {
                           : 'Type a message...'
                       }
                       value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
+                      onChange={(e) => handleNewMessageChange(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                       style={{
                         flex: 1,
