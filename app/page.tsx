@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OddcastPill } from './components/OddcastPill';
 
 export default function HomePage() {
   return (
@@ -218,6 +219,10 @@ export default function HomePage() {
           }}>
             Every type of person. One place.
           </h2>
+
+          {/* Featured: Oddcast — solo at the top. Clickable pill that opens
+              a modal explaining the category. */}
+          <OddcastPill />
 
           <div style={{
             display: 'flex',
