@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { DashboardSkeleton } from '../components/Skeleton';
+import { DailySparkCard } from '../components/DailySparkCard';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -152,6 +153,9 @@ export default function Dashboard() {
             Here's what's happening on your Mitype profile.
           </p>
         </div>
+
+        {/* Daily Spark — one hand-picked profile per day with a tailored opener */}
+        {user?.id && <DailySparkCard userId={user.id} />}
 
         {/* Quick Actions */}
         <div style={{
