@@ -57,6 +57,11 @@ export default function MessagesPage() {
   const [showIcebreakers, setShowIcebreakers] = useState(false);
   const [showMatchCard, setShowMatchCard] = useState(false);
   const [showGamePicker, setShowGamePicker] = useState(false);
+  // Conversations silent for >30 days collapse behind a toggle so the inbox
+  // doesn't feel like a graveyard. Unread chats are never hidden — even if
+  // their updated_at is old, an unread message from the partner pulls them
+  // back into the active list.
+  const [showStale, setShowStale] = useState(false);
   // Realtime: ids of other participants currently typing.
   const [typingUserIds, setTypingUserIds] = useState<Set<string>>(new Set());
   const bottomRef = useRef<any>(null);
@@ -439,6 +444,20 @@ export default function MessagesPage() {
     (c) => c.status === 'pending' && c.initiated_by === user?.id
   );
 
+  // Split approved into "active" (recent activity OR has unread) and "stale"
+  // (silent for 30+ days AND nothing unread). Stale chats collapse behind a
+  // toggle so the inbox doesn't feel like a graveyard. We deliberately keep
+  // unread chats visible regardless of age — silencing those would be bad UX.
+  const STALE_THRESHOLD_MS = 30 * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const isStale = (c: any) => {
+    if (!c.updated_at) return false;
+    if ((unread.perConvo[c.id] ?? 0) > 0) return false;
+    return now - new Date(c.updated_at).getTime() >= STALE_THRESHOLD_MS;
+  };
+  const approvedStale = approved.filter(isStale);
+  const approvedActive = approved.filter((c) => !isStale(c));
+
   return (
     <main style={{
       height: '100vh',
@@ -638,7 +657,7 @@ export default function MessagesPage() {
           )}
 
           {/* Approved Conversations */}
-          {approved.length > 0 && (
+          {approvedActive.length > 0 && (
             <div>
               <p style={{
                 padding: '8px 20px 6px',
@@ -648,9 +667,9 @@ export default function MessagesPage() {
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
               }}>
-                Conversations ({approved.length})
+                Conversations ({approvedActive.length})
               </p>
-              {approved.map((convo) => {
+              {approvedActive.map((convo) => {
                 const other = getOtherUser(convo);
                 return (
                   <button
@@ -700,6 +719,113 @@ export default function MessagesPage() {
                   </button>
                 );
               })}
+            </div>
+          )}
+
+          {/* Stale conversations — silent for 30+ days, no unreads. Hidden
+              behind a toggle so the inbox stays clean but the threads aren't
+              actually deleted. */}
+          {approvedStale.length > 0 && (
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowStale((s) => !s)}
+                style={{
+                  width: '100%',
+                  padding: '10px 20px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#a89278',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  fontFamily: 'inherit',
+                }}
+                aria-expanded={showStale}
+              >
+                <span>Older ({approvedStale.length})</span>
+                <span aria-hidden="true" style={{ fontSize: 10 }}>
+                  {showStale ? '▾' : '▸'}
+                </span>
+              </button>
+              {showStale &&
+                approvedStale.map((convo) => {
+                  const other = getOtherUser(convo);
+                  return (
+                    <button
+                      key={convo.id}
+                      onClick={() => selectConvo(convo)}
+                      style={{
+                        width: '100%',
+                        padding: '12px 20px',
+                        background:
+                          selectedConvo?.id === convo.id ? '#fff3ec' : 'transparent',
+                        border: 'none',
+                        borderLeft:
+                          selectedConvo?.id === convo.id
+                            ? '3px solid #c8956c'
+                            : '3px solid transparent',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        textAlign: 'left',
+                        opacity: 0.65,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: '50%',
+                          background: '#f0e8df',
+                          overflow: 'hidden',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Avatar
+                          src={other?.avatar_url}
+                          alt={other?.username ? `@${other.username}` : 'User'}
+                          width={40}
+                          height={40}
+                          fallbackFontSize={18}
+                          sizes="40px"
+                        />
+                      </div>
+                      <div
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 8,
+                        }}
+                      >
+                        <div style={{ minWidth: 0 }}>
+                          <p
+                            style={{
+                              fontSize: 14,
+                              fontWeight: 700,
+                              color: '#1a1208',
+                              marginBottom: 2,
+                            }}
+                          >
+                            @{other?.username ?? 'Unknown'}
+                          </p>
+                          <p style={{ fontSize: 12, color: '#a89278' }}>
+                            {timeAgo(convo.updated_at)}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
             </div>
           )}
 
