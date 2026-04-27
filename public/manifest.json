@@ -1,7 +1,7 @@
 {
-    "name": "Mitype - Find Your Type",
+    "name": "Mitype - Find Your Type of Creator",
     "short_name": "Mitype",
-    "description": "A dating platform for creative professionals",
+    "description": "A creative networking platform for friendships and collaboration among creators, professionals, and hobbyists.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#faf6f0",

@@ -834,7 +834,7 @@ export default function MessagesPage() {
             <div style={{ padding: '40px 20px', textAlign: 'center' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>💬</div>
               <p style={{ color: '#a89278', fontSize: 14, lineHeight: 1.6 }}>
-                No messages yet. Start by swiping on profiles in Discover!
+                No messages yet. Start by connecting with creators in Discover!
               </p>
               <Link href="/discover" style={{
                 display: 'inline-block',
@@ -943,8 +943,8 @@ export default function MessagesPage() {
                   <button
                     type="button"
                     onClick={() => setShowMatchCard(true)}
-                    aria-label="Show match card"
-                    title="View match card"
+                    aria-label="Show connection card"
+                    title="View connection card"
                     style={{
                       padding: '8px 14px',
                       background: 'rgba(200,149,108,0.1)',
@@ -959,7 +959,7 @@ export default function MessagesPage() {
                       gap: 6,
                     }}
                   >
-                    <span aria-hidden="true">✨</span> Match
+                    <span aria-hidden="true">✨</span> Connected
                   </button>
                 )}
 

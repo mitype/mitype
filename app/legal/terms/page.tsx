@@ -58,7 +58,7 @@ export default function TermsOfServicePage() {
         {[
           {
             title: '1. Acceptance of Terms',
-            content: `By accessing or using Mitype ("the Platform") you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree do not use the Platform. These terms constitute a legally binding agreement between you and Mitype.`,
+            content: `Mitype is a creative networking platform that connects creators, professionals, and hobbyists for friendship, collaboration, and community around shared crafts. By accessing or using Mitype ("the Platform") you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree do not use the Platform. These terms constitute a legally binding agreement between you and Mitype.`,
           },
           {
             title: '2. Eligibility',
@@ -119,8 +119,8 @@ export default function TermsOfServicePage() {
             content: `To the maximum extent permitted by applicable law Mitype and its founders, employees, and affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Platform. Our total liability to you for any claim shall not exceed the amount you paid us in the 3 months preceding the claim.`,
           },
           {
-            title: '11. Safety When Meeting in Person',
-            content: `Mitype facilitates online connections but has no control over in-person meetings. Always exercise caution when meeting someone in person. We strongly recommend meeting in public places and informing a trusted person of your plans. Mitype is not responsible for any interactions or outcomes that occur outside the Platform.`,
+            title: '11. Safety for Collaborations and In-Person Meetings',
+            content: `Mitype facilitates online connections between creators for the purposes of collaboration, networking, and friendship. The Platform has no control over interactions or meetings that occur outside of the Platform. Always exercise caution when meeting collaborators in person — we recommend meeting in public places, in professional settings such as studios or workshops, and informing a trusted person of your plans. Mitype is not responsible for any interactions or outcomes that occur outside the Platform.`,
           },
           {
             title: '12. Governing Law',

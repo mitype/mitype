@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
         {[
           {
             title: '1. Introduction',
-            content: `Mitype ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform at mitypeapp.com. By creating an account or using Mitype, you agree to the practices described in this policy.`,
+            content: `Mitype ("we," "our," or "us") is a creative networking platform for friendships and collaboration among creators. We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform at mitypeapp.com. By creating an account or using Mitype, you agree to the practices described in this policy.`,
           },
           {
             title: '2. Information We Collect',
@@ -66,7 +66,7 @@ export default function PrivacyPolicyPage() {
 
 - Account information: Email address and password when you register.
 - Profile information: Username, bio, profile photo, creative categories, ZIP code, social media links, and website URL that you provide.
-- Usage data: Swipe activity, conversation history, and messages exchanged on the platform.
+- Usage data: Browsing activity, connection history, and messages exchanged on the platform.
 - Payment information: Payment details are processed directly by Stripe and are never stored on our servers. We only retain your subscription status and Stripe customer ID.
 - Technical data: IP address, browser type, device information, and cookies used to maintain your session.`,
           },
@@ -75,7 +75,7 @@ export default function PrivacyPolicyPage() {
             content: `We use your information to:
 
 - Create and manage your account and profile.
-- Power the discovery, matching, and messaging features.
+- Power the creator discovery, connection, and messaging features.
 - Process subscription payments through Stripe.
 - Send transactional emails such as email verification and billing notices.
 - Improve platform features and analyze usage patterns.
@@ -101,7 +101,7 @@ Each provider operates under its own privacy policy.`,
           },
           {
             title: '7. Data Sharing',
-            content: `We do not sell, rent, or trade your personal information to third parties. Your profile information such as username, bio, categories, and photo is visible to other registered users. Your email address, payment details, and swipe history are never shared with other users.`,
+            content: `We do not sell, rent, or trade your personal information to third parties. Your profile information such as username, bio, categories, and photo is visible to other registered users. Your email address, payment details, and browsing history are never shared with other users.`,
           },
           {
             title: '8. Your Rights',

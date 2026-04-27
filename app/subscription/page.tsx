@@ -207,7 +207,7 @@ export default function SubscriptionPage() {
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: 40 }}>
                 {[
                   'Unlimited profile browsing',
-                  'Swipe and match with anyone',
+                  'Connect with any creator on the platform',
                   'Full messaging after approval',
                   'Filter by category and ZIP code',
                   'Share your public profile link',

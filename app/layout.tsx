@@ -8,9 +8,9 @@ import { PresenceTracker } from "./components/PresenceTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
-  title: "Mitype — Find Your Type",
+  title: "Mitype — Find Your Type of Creator",
   description:
-    "Friendships & Dating for creative professionals. Connect with musicians, writers, artists, photographers and more who share your world.",
+    "A creative networking platform where musicians, writers, artists, photographers, chefs and other creators connect, collaborate, and build friendships around shared crafts.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -18,18 +18,18 @@ export const metadata: Metadata = {
     title: "Mitype",
   },
   openGraph: {
-    title: "Mitype — Find Your Type",
+    title: "Mitype — Find Your Type of Creator",
     description:
-      "Friendships & Dating for creative professionals — musicians, writers, artists, photographers and more.",
+      "A creative networking platform for musicians, writers, artists, photographers, chefs, and creators of every kind to connect, collaborate, and build friendships.",
     type: "website",
     url: "https://www.mitypeapp.com",
     siteName: "Mitype",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mitype — Find Your Type",
+    title: "Mitype — Find Your Type of Creator",
     description:
-      "Friendships & Dating for creative professionals — musicians, writers, artists, photographers and more.",
+      "A creative networking platform for musicians, writers, artists, photographers, chefs, and creators of every kind to connect, collaborate, and build friendships.",
   },
 };
 

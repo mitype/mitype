@@ -53,15 +53,15 @@ export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `mitype-match-${me.username}-${them.username}.png`;
+      a.download = `mitype-connected-${me.username}-${them.username}.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       // Give the browser a tick to start the download before revoking.
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      toast.success('Match card saved!');
+      toast.success('Connection card saved!');
     } catch (err) {
-      console.error('Match card render failed', err);
+      console.error('Connection card render failed', err);
       toast.error("Couldn't generate image. Try again in a moment.");
     } finally {
       setDownloading(false);
@@ -72,7 +72,7 @@ export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`You matched with @${them.username}`}
+      aria-label={`You connected with @${them.username}`}
       onClick={onClose}
       style={{
         position: 'fixed',
@@ -104,7 +104,7 @@ export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close match card"
+          aria-label="Close connection card"
           style={{
             position: 'absolute',
             top: 12,
@@ -143,7 +143,7 @@ export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
             textTransform: 'uppercase',
             marginBottom: 6,
           }}>
-            mitype · match
+            mitype · connected
           </div>
           <div style={{
             fontSize: 26,
@@ -152,7 +152,7 @@ export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
             letterSpacing: '-0.5px',
             marginBottom: 20,
           }}>
-            It&apos;s a match! <span aria-hidden="true">✨</span>
+            You&apos;re connected! <span aria-hidden="true">✨</span>
           </div>
 
           <div style={{
@@ -180,7 +180,7 @@ export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
             @{me.username} <span style={{ color: PEACH }}>&amp;</span> @{them.username}
           </div>
           <div style={{ fontSize: 12, color: MUTED, marginBottom: 0 }}>
-            matched on {dateLabel}
+            connected on {dateLabel}
           </div>
         </div>
 
@@ -325,12 +325,12 @@ async function renderMatchCardPng({
   ctx.textAlign = 'center';
   // Spaced caps for eyebrow — use explicit separators since canvas
   // letterSpacing is non-standard and not in TS's DOM lib.
-  ctx.fillText('M I T Y P E  ·  M A T C H', SIZE / 2, 200);
+  ctx.fillText('M I T Y P E  ·  C O N N E C T E D', SIZE / 2, 200);
 
   // Big title
   ctx.fillStyle = INK;
   ctx.font = '900 88px "Helvetica Neue", Arial, sans-serif';
-  ctx.fillText("It's a match! ✨", SIZE / 2, 320);
+  ctx.fillText("You're connected! ✨", SIZE / 2, 320);
 
   // Avatars
   const avatarRadius = 140;
@@ -360,7 +360,7 @@ async function renderMatchCardPng({
   });
   ctx.fillStyle = MUTED;
   ctx.font = '500 30px "Helvetica Neue", Arial, sans-serif';
-  ctx.fillText(`matched on ${dateLabel}`, SIZE / 2, avatarY + avatarRadius + 140);
+  ctx.fillText(`connected on ${dateLabel}`, SIZE / 2, avatarY + avatarRadius + 140);
 
   // Footer brand
   ctx.fillStyle = PEACH;

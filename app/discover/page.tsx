@@ -215,9 +215,9 @@ export default function DiscoverPage() {
       paddingBottom: 80,
     }}>
 
-      <Coachmark storageKey="mitype-coachmark-discover-v1" title="How discover works">
-        Tap the heart on someone you&rsquo;d like to connect with — your message
-        request lands in their <strong>Messages</strong> for them to approve.
+      <Coachmark storageKey="mitype-coachmark-discover-v2" title="How discover works">
+        Tap to connect with a creator you&rsquo;d like to collaborate with — your
+        connection request lands in their <strong>Messages</strong> for them to approve.
       </Coachmark>
 
       {/* Nav */}
@@ -424,7 +424,7 @@ export default function DiscoverPage() {
                             fontWeight: 600,
                             marginBottom: 8,
                           }}>
-                            ✓ You both love {shared.slice(0, 2).join(' · ')}
+                            ✓ You both create {shared.slice(0, 2).join(' · ')}
                             {shared.length > 2 && ` +${shared.length - 2}`}
                           </p>
                         )}
@@ -467,7 +467,7 @@ export default function DiscoverPage() {
                           </Link>
                           <button
                             onClick={() => handleSwipe(profile.user_id, 'right')}
-                            aria-label={`Like ${profile.username}`}
+                            aria-label={`Connect with ${profile.username}`}
                             style={{
                               flex: 1,
                               padding: '8px',
@@ -734,7 +734,7 @@ export default function DiscoverPage() {
                         fontWeight: 700,
                         boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                       }}>
-                        {score}% Match
+                        {score}% Compatible
                       </div>
                     )}
 
@@ -817,7 +817,7 @@ export default function DiscoverPage() {
                         fontWeight: 600,
                         margin: '0 0 12px',
                       }}>
-                        ✓ You both love {shared.slice(0, 2).join(' · ')}
+                        ✓ You both create {shared.slice(0, 2).join(' · ')}
                         {shared.length > 2 && ` +${shared.length - 2}`}
                       </p>
                     )}
@@ -841,7 +841,7 @@ export default function DiscoverPage() {
                       </button>
                       <button
                         onClick={() => handleSwipe(profile.user_id, 'right')}
-                        aria-label={`Like ${profile.username}`}
+                        aria-label={`Connect with ${profile.username}`}
                         style={{
                           flex: 1,
                           padding: '10px',

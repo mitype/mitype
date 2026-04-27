@@ -586,7 +586,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: sharedCats.length > 0 ? 20 : 0 }}>
               <div>
                 <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Your Compatibility</p>
-                <h2 style={{ fontSize: 28, fontWeight: 900, color: scoreColor, letterSpacing: '-0.5px' }}>{score}% Match</h2>
+                <h2 style={{ fontSize: 28, fontWeight: 900, color: scoreColor, letterSpacing: '-0.5px' }}>{score}% Compatible</h2>
                 <p style={{ color: '#a89278', fontSize: 14, fontWeight: 600 }}>{scoreLabel}</p>
               </div>
               <div style={{ width: 80, height: 80, borderRadius: '50%', background: `${scoreColor}15`, border: `3px solid ${scoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -595,7 +595,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             </div>
             {sharedCats.length > 0 && (
               <div>
-                <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>You both love</p>
+                <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>You both create</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {sharedCats.map((cat) => (
                     <span key={cat} style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#16a34a', padding: '6px 14px', borderRadius: 100, fontSize: 13, fontWeight: 600 }}>

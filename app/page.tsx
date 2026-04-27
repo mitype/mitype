@@ -104,7 +104,7 @@ export default function HomePage() {
             borderRadius: '50%',
             display: 'inline-block',
           }} />
-          Connect with people who share your world
+          A creative networking platform for friendships & collaboration
         </div>
 
         {/* Headline */}
@@ -117,10 +117,10 @@ export default function HomePage() {
           maxWidth: 820,
           color: '#1a1208',
         }}>
-          Meet people who
+          Meet creators who
           <br />
           <span style={{ color: '#c8956c' }}>
-            match your vibe
+            share your craft
           </span>
         </h1>
 
@@ -131,7 +131,7 @@ export default function HomePage() {
           lineHeight: 1.8,
           marginBottom: 48,
         }}>
-          Mitype connects creative professionals, hobbyists, and passionate people based on what they actually love doing — not just how they look.
+          Mitype is a creative networking platform connecting professionals, hobbyists, and passionate creators based on the craft they actually practice — for friendship, collaboration, and community around shared work.
         </p>
 
         {/* CTA */}
@@ -146,7 +146,7 @@ export default function HomePage() {
             borderRadius: 100,
             boxShadow: '0 8px 32px rgba(200,149,108,0.35)',
           }}>
-            Find Your Type →
+            Find Your Creator Type →
           </Link>
           <Link href="/login" style={{
             border: '1px solid rgba(138,117,96,0.3)',
@@ -188,7 +188,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <span>Thousands of creatives already connecting</span>
+          <span>Thousands of creatives already collaborating</span>
         </div>
       </section>
 
@@ -208,7 +208,7 @@ export default function HomePage() {
             fontWeight: 700,
             marginBottom: 16,
           }}>
-            Who you'll meet
+            Who you'll connect with
           </p>
           <h2 style={{
             fontSize: 'clamp(28px, 4vw, 44px)',
@@ -217,7 +217,7 @@ export default function HomePage() {
             marginBottom: 48,
             color: '#1a1208',
           }}>
-            Every type of person. One place.
+            Every type of creator. One platform.
           </h2>
 
           {/* Featured: Oddcast — solo at the top. Clickable pill that opens
@@ -321,9 +321,9 @@ export default function HomePage() {
         }}>
           {[
             {
-              icon: '💘',
-              title: 'Swipe With Purpose',
-              desc: 'Browse real profiles of people who share your passions. Swipe right to show interest, left to pass.',
+              icon: '🤝',
+              title: 'Connect With Purpose',
+              desc: 'Browse real profiles of creators who share your craft. Tap to show interest in collaboration, or skip to keep browsing.',
               bg: '#fff3ec',
               border: 'rgba(200,149,108,0.2)',
             },
@@ -430,7 +430,7 @@ export default function HomePage() {
           <ul style={{ listStyle: 'none', padding: 0, marginBottom: 40, textAlign: 'left' }}>
             {[
               'Unlimited profile browsing',
-              'Swipe & match with anyone',
+              'Connect with any creator on the platform',
               'Full messaging after approval',
               'Filter by category & ZIP code',
               'Share your public profile link',
@@ -494,7 +494,7 @@ export default function HomePage() {
           marginBottom: 16,
           color: '#1a1208',
         }}>
-          Your type is out there.
+          Your creator community is out there.
         </h2>
         <p style={{
           color: '#8a7560',
@@ -503,7 +503,7 @@ export default function HomePage() {
           maxWidth: 400,
           margin: '0 auto 48px',
         }}>
-          Stop swiping on strangers. Start connecting with people who share your world.
+          Stop scrolling alone. Start collaborating with creators who share your craft.
         </p>
         <Link href="/signup" style={{
           background: '#c8956c',
