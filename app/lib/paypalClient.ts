@@ -22,12 +22,17 @@ function getApiBase(): string {
 }
 
 function getCredentials(): { clientId: string; clientSecret: string } {
-  const clientId = process.env.PAYPAL_CLIENT_ID;
+  // The Client ID is the same value used by the frontend SDK, so we
+  // accept either the server-only PAYPAL_CLIENT_ID or the public-prefixed
+  // NEXT_PUBLIC_PAYPAL_CLIENT_ID — saves the user from setting it twice.
+  // The Secret is always server-only.
+  const clientId =
+    process.env.PAYPAL_CLIENT_ID ?? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
   const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
     throw new Error(
-      'PayPal credentials missing. Required env vars: PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET. Optional: PAYPAL_ENVIRONMENT (Sandbox | Live, default Sandbox).'
+      'PayPal credentials missing. Required env vars: PAYPAL_CLIENT_ID (or NEXT_PUBLIC_PAYPAL_CLIENT_ID), PAYPAL_CLIENT_SECRET. Optional: PAYPAL_ENVIRONMENT (Sandbox | Live, default Sandbox).'
     );
   }
 
