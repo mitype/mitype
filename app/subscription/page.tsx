@@ -5,14 +5,16 @@ import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { toast } from '../lib/toast';
 import { BraintreeCheckout } from '../components/BraintreeCheckout';
+import { PayPalCheckout } from '../components/PayPalCheckout';
 
 // Switch the active payment provider via env var.
 //
 //   NEXT_PUBLIC_PAYMENT_PROVIDER=stripe    → Stripe Checkout (legacy)
-//   NEXT_PUBLIC_PAYMENT_PROVIDER=braintree → Braintree Drop-in (new)
+//   NEXT_PUBLIC_PAYMENT_PROVIDER=braintree → Braintree Drop-in (built but unused)
+//   NEXT_PUBLIC_PAYMENT_PROVIDER=paypal    → PayPal Subscriptions (active path)
 //
-// Default is 'stripe' so existing flow keeps working until Braintree
-// production keys are approved and we flip the switch.
+// Default is 'stripe' so existing flow keeps working until PayPal
+// production credentials are wired up and we flip the switch.
 const PAYMENT_PROVIDER =
   (process.env.NEXT_PUBLIC_PAYMENT_PROVIDER ?? 'stripe').toLowerCase();
 
@@ -71,6 +73,12 @@ export default function SubscriptionPage() {
   // create. Optimistically flip the page to the "subscribed" state —
   // the webhook will keep the row authoritative.
   function handleBraintreeSuccess() {
+    setSubscription({ ...(subscription ?? {}), status: 'active' });
+  }
+
+  // Same idea, called by the PayPal Buttons after a successful
+  // subscription approval.
+  function handlePayPalSuccess() {
     setSubscription({ ...(subscription ?? {}), status: 'active' });
   }
 
@@ -260,10 +268,16 @@ export default function SubscriptionPage() {
                 ))}
               </ul>
 
-              {/* Conditional checkout: Braintree Drop-in (new) or
-                  Stripe Checkout redirect (legacy). Switch via the
-                  NEXT_PUBLIC_PAYMENT_PROVIDER env var. */}
-              {PAYMENT_PROVIDER === 'braintree' && user ? (
+              {/* Conditional checkout: PayPal Subscriptions, Braintree
+                  Drop-in, or Stripe Checkout redirect (legacy). Switch
+                  via the NEXT_PUBLIC_PAYMENT_PROVIDER env var. */}
+              {PAYMENT_PROVIDER === 'paypal' && user ? (
+                <PayPalCheckout
+                  userId={user.id}
+                  email={user.email}
+                  onSuccess={handlePayPalSuccess}
+                />
+              ) : PAYMENT_PROVIDER === 'braintree' && user ? (
                 <BraintreeCheckout
                   userId={user.id}
                   email={user.email}
