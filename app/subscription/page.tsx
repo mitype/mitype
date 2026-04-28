@@ -4,6 +4,17 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { toast } from '../lib/toast';
+import { BraintreeCheckout } from '../components/BraintreeCheckout';
+
+// Switch the active payment provider via env var.
+//
+//   NEXT_PUBLIC_PAYMENT_PROVIDER=stripe    → Stripe Checkout (legacy)
+//   NEXT_PUBLIC_PAYMENT_PROVIDER=braintree → Braintree Drop-in (new)
+//
+// Default is 'stripe' so existing flow keeps working until Braintree
+// production keys are approved and we flip the switch.
+const PAYMENT_PROVIDER =
+  (process.env.NEXT_PUBLIC_PAYMENT_PROVIDER ?? 'stripe').toLowerCase();
 
 export default function SubscriptionPage() {
   const [user, setUser] = useState<any>(null);
@@ -54,6 +65,13 @@ export default function SubscriptionPage() {
       toast.error(err.message ?? 'Something went wrong. Please try again.');
       setCheckoutLoading(false);
     }
+  }
+
+  // Called by the Braintree Drop-in after a successful subscription
+  // create. Optimistically flip the page to the "subscribed" state —
+  // the webhook will keep the row authoritative.
+  function handleBraintreeSuccess() {
+    setSubscription({ ...(subscription ?? {}), status: 'active' });
   }
 
   const isActive = subscription?.status === 'active' || subscription?.status === 'trialing';
@@ -242,33 +260,46 @@ export default function SubscriptionPage() {
                 ))}
               </ul>
 
-              <button
-                onClick={handleCheckout}
-                disabled={checkoutLoading}
-                style={{
-                  width: '100%',
-                  padding: '17px',
-                  background: checkoutLoading ? '#d4a882' : '#c8956c',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 100,
-                  fontSize: 17,
-                  fontWeight: 700,
-                  cursor: checkoutLoading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 8px 24px rgba(200,149,108,0.3)',
-                  marginBottom: 16,
-                }}
-              >
-                {checkoutLoading ? 'Redirecting...' : 'Start Now'}
-              </button>
+              {/* Conditional checkout: Braintree Drop-in (new) or
+                  Stripe Checkout redirect (legacy). Switch via the
+                  NEXT_PUBLIC_PAYMENT_PROVIDER env var. */}
+              {PAYMENT_PROVIDER === 'braintree' && user ? (
+                <BraintreeCheckout
+                  userId={user.id}
+                  email={user.email}
+                  onSuccess={handleBraintreeSuccess}
+                />
+              ) : (
+                <>
+                  <button
+                    onClick={handleCheckout}
+                    disabled={checkoutLoading}
+                    style={{
+                      width: '100%',
+                      padding: '17px',
+                      background: checkoutLoading ? '#d4a882' : '#c8956c',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 100,
+                      fontSize: 17,
+                      fontWeight: 700,
+                      cursor: checkoutLoading ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 8px 24px rgba(200,149,108,0.3)',
+                      marginBottom: 16,
+                    }}
+                  >
+                    {checkoutLoading ? 'Redirecting...' : 'Start Now'}
+                  </button>
 
-              <p style={{
-                textAlign: 'center',
-                color: '#b0967e',
-                fontSize: 13,
-              }}>
-                Your card will not be charged during your 30 day free trial · Cancel anytime
-              </p>
+                  <p style={{
+                    textAlign: 'center',
+                    color: '#b0967e',
+                    fontSize: 13,
+                  }}>
+                    Your card will not be charged during your 30 day free trial · Cancel anytime
+                  </p>
+                </>
+              )}
 
             </div>
           </div>
