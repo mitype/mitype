@@ -494,7 +494,7 @@ export default function HomePage() {
           marginBottom: 16,
           color: '#1a1208',
         }}>
-          Your creator community is out there.
+          Your type of people are out there.
         </h2>
         <p style={{
           color: '#8a7560',
@@ -503,7 +503,7 @@ export default function HomePage() {
           maxWidth: 400,
           margin: '0 auto 48px',
         }}>
-          Stop scrolling alone. Start collaborating with creators who share your craft.
+          Connect with people who share your world.
         </p>
         <Link href="/signup" style={{
           background: '#c8956c',
