@@ -104,7 +104,7 @@ export default function HomePage() {
             borderRadius: '50%',
             display: 'inline-block',
           }} />
-          A creative networking platform for friendships & collaboration
+          Connect with people who share your world
         </div>
 
         {/* Headline */}
@@ -131,7 +131,7 @@ export default function HomePage() {
           lineHeight: 1.8,
           marginBottom: 48,
         }}>
-          Mitype is a creative networking platform connecting professionals, hobbyists, and passionate creators based on the craft they actually practice — for friendship, collaboration, and community around shared work.
+          Mitype connects creative professionals, hobbyists, and passionate people based on what they actually love doing — not just how they look.
         </p>
 
         {/* CTA */}
