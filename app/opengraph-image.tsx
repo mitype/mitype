@@ -6,7 +6,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'Mitype — Find Your Type of Creator. A creative networking platform for collaboration and friendships.';
+export const alt = 'Mitype — Find Your Type. For both creative and professional musicians, writers, artists, photographers, and more.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -63,7 +63,7 @@ export default function OpenGraphImage() {
             marginBottom: 12,
           }}
         >
-          Find Your Type of Creator
+          Find Your Type
         </div>
         <div
           style={{
@@ -89,7 +89,7 @@ export default function OpenGraphImage() {
             marginBottom: 36,
           }}
         >
-          A creative networking platform for musicians, writers, artists, photographers, chefs, and creators of every kind — to connect, collaborate, and build friendships.
+          For both creative and professional musicians, writers, artists, photographers, and more.
         </div>
         {/* Emoji row — flows in-document so it never overlaps the description */}
         <div
