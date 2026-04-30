@@ -235,6 +235,8 @@ export default function HomePage() {
               '🎨 Painters', '✍️ Writers', '📸 Photographers', '🎭 Actors',
               '💃 Dancers', '🎬 Filmmakers', '🖌️ Illustrators', '🗿 Sculptors',
               '📖 Poets', '🎙️ Storytellers', '✏️ Graphic Designers', '🖼️ Art Directors',
+              '🪶 Tattoo Artists', '🎚️ Music Producers', '🎬 Film Producers',
+              '🎤 Comedians', '🎪 Entertainers', '🃏 Magicians',
               // 🎵 Music
               '🎵 Musicians', '🎹 Pianists', '🎸 Guitarists', '🎤 Singers',
               '🥁 Drummers', '🎻 Violinists', '🎺 Brass Players', '🎧 DJs',
@@ -243,9 +245,11 @@ export default function HomePage() {
               '📱 Content Creators', '🎮 Gamers', '📺 YouTubers', '🤳 Influencers',
               '💻 Bloggers', '🎙️ Podcasters', '📡 Streamers', '👾 Esports Players',
               '🖥️ Web Developers', '📲 App Developers', '🤖 AI Enthusiasts',
+              '🎙️ Motivational Speakers', '📻 Radio Personalities',
               // 🏥 Healthcare
               '🩺 Doctors', '👩‍⚕️ Nurses', '🦷 Dentists', '🧠 Therapists',
               '💊 Pharmacists', '🏃 Physical Therapists', '🧬 Scientists',
+              '🥗 Nutritionists', '🌿 Herbalists',
               // 📚 Education
               '👩‍🏫 Teachers', '👨‍🎓 Professors', '📚 Tutors', '🏫 School Counselors',
               '🔬 Researchers', '📜 Historians',
@@ -253,12 +257,14 @@ export default function HomePage() {
               '🏋️ Athletes', '🧘 Yoga Instructors', '🚴 Cyclists', '🏊 Swimmers',
               '⛷️ Skiers', '🏄 Surfers', '🧗 Rock Climbers', '🥊 Boxers',
               '🏇 Equestrians', '🎾 Tennis Players', '⚽ Soccer Players',
+              '🏋️ Personal Trainers', '🎣 Anglers', '🏕️ Campers', '🏔️ Hikers',
               // 🍳 Food & Lifestyle
               '👨‍🍳 Chefs', '🧁 Bakers', '🍷 Sommeliers', '🌿 Foodies',
               '🌱 Vegans', '☕ Baristas', '🍕 Food Bloggers',
               // 🐾 Animals & Nature
               '🐶 Dog Walkers', '🐱 Cat Lovers', '🐾 Pet Trainers',
               '🌿 Gardeners', '🦋 Nature Lovers', '🐠 Marine Biologists',
+              '🏡 Homesteaders', '🌾 Farmers', '🐝 Beekeepers',
               // 🚗 Enthusiasts
               '🏎️ Car Enthusiasts', '🏍️ Motorcyclists', '✈️ Pilots',
               '⛵ Sailors', '🚀 Space Enthusiasts', '📷 Film Photographers',
@@ -266,13 +272,31 @@ export default function HomePage() {
               '👔 Entrepreneurs', '⚖️ Lawyers', '🏛️ Architects',
               '🏗️ Engineers', '📊 Finance Professionals', '🎯 Marketing Creatives',
               '🏠 Real Estate Agents', '👗 Fashion Designers', '💈 Stylists',
+              '💇 Hair Stylists', '💅 Nail Artists', '🔧 Mechanics',
+              '🔨 Contractors', '⚡ Electricians', '🚒 Firefighters',
+              '👮 Law Enforcement', '🪖 Military',
+              '🎫 Event Organizers', '👟 Sneaker Resellers',
               // ✈️ Travel & Culture
               '✈️ Travelers', '🌍 Expats', '🗺️ Adventurers',
               '📿 Cultural Enthusiasts', '🛕 Spiritual Seekers',
+              // 🎬 Pop Culture & Fandoms
+              '🐉 Anime Fans', '🎴 Pokémon Fans', '🎬 Movie Buffs', '📺 TV Show Fans',
+              '🦸 Marvel Fans', '🦇 DC Fans', '⭐ Star Wars Fans', '🏰 Disney Adults',
+              '🎤 K-Pop Fans', '📚 Comic Book Fans',
+              // 🏈 Sports Fans
+              '🏈 Football Fans', '⚾ Baseball Fans', '🏀 Basketball Fans',
+              '⚽ Soccer Fans', '🏒 Hockey Fans', '🥊 MMA Fans', '🏎️ Racing Fans',
               // 🎲 Hobbies
               '♟️ Chess Players', '🎲 Board Gamers', '📚 Book Lovers',
+              '📖 Book Club Members',
               '🔭 Astronomers', '🎯 Collectors', '🧩 Puzzle Enthusiasts',
               '🪴 Plant Parents', '🧶 Knitters', '🪵 Woodworkers',
+              '🎴 Card Collectors', '🎴 Pokémon Collectors', '🧱 Lego Collectors',
+              '👟 Sneakerheads', '💿 Vinyl Collectors', '⌚ Watch Collectors',
+              // 🌟 Mindset & Lifestyle
+              '🌐 Free Thinkers', '📡 Alternative Media', '🔍 Truth Seekers',
+              '🌱 Minimalists', '💡 Visionaries',
+              '✝️ Faith Based', '☮️ Activists', '🌍 Environmentalists',
             ].map((cat) => (
               <div key={cat} style={{
                 background: 'white',
