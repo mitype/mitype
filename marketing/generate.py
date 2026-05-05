@@ -677,6 +677,52 @@ def make_business_card():
     return "05_business_card_front.png"
 
 
+def make_business_card_back():
+    """3.5"x2" at 300 DPI = 1050x600. Back of card.
+    Layout: large 'mitype' wordmark centered, descriptive blurb below,
+    website URL across the bottom. Mirrors the warm gradient and
+    typographic system of the front."""
+    w, h = 1050, 600
+    img = gradient_bg(w, h, 135)
+    # Centered spotlight to lift the wordmark off the gradient
+    img = add_spotlight(img, center=(w // 2, h // 2 - 30), radius_ratio=0.55, intensity=55)
+    img = grain(img, 2)
+    draw = ImageDraw.Draw(img)
+
+    # Top decorative hairline divider
+    draw.rectangle([w / 2 - 80, 80, w / 2 + 80, 81], fill=AMBER)
+
+    # Wordmark — slightly larger than front since this side has more room
+    wf = load_font(FONT_SANS_MED, 168)
+    draw_text_centered(draw, (w / 2, 130), WORDMARK, wf, CREAM, letter_spacing=-7)
+
+    # Small accent under the wordmark
+    line_y = 320
+    draw.rectangle([w / 2 - 35, line_y, w / 2 + 35, line_y + 2], fill=AMBER)
+
+    # Description blurb (small print, wrapped, centered)
+    blurb = (
+        "Mitype connects creative professionals, hobbyists, and passionate "
+        "people based on what they actually love doing — not just how they look."
+    )
+    bf = load_font(FONT_SANS_REG, 22)
+    blurb_lines = wrap_text(blurb, bf, draw, w - 220)
+    base_y = line_y + 30
+    line_height = 30
+    for i, line in enumerate(blurb_lines):
+        draw_text_centered(draw, (w / 2, base_y + i * line_height), line, bf, CREAM)
+
+    # Bottom hairline divider
+    draw.rectangle([w / 2 - 80, h - 88, w / 2 + 80, h - 87], fill=AMBER)
+
+    # URL across bottom — letter-spaced to match the typographic feel
+    uf = load_font(FONT_SANS_REG, 24)
+    draw_text_centered(draw, (w / 2, h - 60), URL_DISPLAY, uf, AMBER_LIGHT, letter_spacing=4)
+
+    img.save(os.path.join(OUT_DIR, "06_business_card_back.png"), "PNG", optimize=True, dpi=(300, 300))
+    return "06_business_card_back.png"
+
+
 # ==============================================================
 # Run
 # ==============================================================
@@ -692,8 +738,10 @@ if __name__ == "__main__":
     files.append(make_vertical_ad())
     print("Generating landscape ad...")
     files.append(make_landscape_ad())
-    print("Generating business card...")
+    print("Generating business card front...")
     files.append(make_business_card())
+    print("Generating business card back...")
+    files.append(make_business_card_back())
     print()
     print("Done. Files in:", OUT_DIR)
     for f in files:

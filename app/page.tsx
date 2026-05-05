@@ -579,7 +579,7 @@ export default function HomePage() {
           ))}
         </div>
         <p style={{ color: '#c4aa90', fontSize: 13 }}>
-          © {new Date().getFullYear()} Mitype · www.mitype.com
+          © {new Date().getFullYear()} Mitype · www.mitypeapp.com
         </p>
       </footer>
 
