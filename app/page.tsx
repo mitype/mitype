@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { OddcastPill } from './components/OddcastPill';
+import { ScrollIndicator } from './components/ScrollIndicator';
 
 export default function HomePage() {
   return (
@@ -190,6 +191,9 @@ export default function HomePage() {
           </div>
           <span>Thousands of creatives already collaborating</span>
         </div>
+
+        {/* Scroll-down hint — bounces gently, fades out on first scroll */}
+        <ScrollIndicator />
       </section>
 
       {/* Categories Section */}
