@@ -84,30 +84,6 @@ export default function HomePage() {
           pointerEvents: 'none',
         }} />
 
-        {/* Badge */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          background: 'rgba(200,149,108,0.12)',
-          border: '1px solid rgba(200,149,108,0.3)',
-          borderRadius: 100,
-          padding: '7px 18px',
-          marginBottom: 36,
-          fontSize: 13,
-          color: '#c8956c',
-          fontWeight: 600,
-        }}>
-          <span style={{
-            width: 7,
-            height: 7,
-            background: '#c8956c',
-            borderRadius: '50%',
-            display: 'inline-block',
-          }} />
-          Connect with people who share your world
-        </div>
-
         {/* Headline */}
         <h1 style={{
           fontSize: 'clamp(44px, 8vw, 90px)',
@@ -118,10 +94,10 @@ export default function HomePage() {
           maxWidth: 820,
           color: '#1a1208',
         }}>
-          Meet creators who
+          Connect with people who
           <br />
           <span style={{ color: '#c8956c' }}>
-            share your craft
+            share your world
           </span>
         </h1>
 
@@ -147,7 +123,7 @@ export default function HomePage() {
             borderRadius: 100,
             boxShadow: '0 8px 32px rgba(200,149,108,0.35)',
           }}>
-            Find Your Creator Type →
+            Find Your Type →
           </Link>
           <Link href="/login" style={{
             border: '1px solid rgba(138,117,96,0.3)',
