@@ -21,7 +21,7 @@ import { toast } from '../../lib/toast';
 import { WaveEditorTutorial } from '../../components/WaveEditorTutorial';
 
 const MAX_DURATION = 60;
-const MAX_SIZE_MB = 80;
+const MAX_SIZE_MB = 500;
 const MAX_CAPTION = 80;
 
 interface FilterOption {
