@@ -328,6 +328,7 @@ export default function Dashboard() {
           marginBottom: 48,
         }}>
           {[
+            { icon: '🌊', label: 'The Wave Feed', desc: 'Jump straight into the scrolling feed — watch, like, and post your own', href: '/wave', color: '#ecf0f5' },
             { icon: '🔍', label: 'Discover Creators', desc: 'Browse profiles and connect with creators who share your craft', href: '/discover', color: '#fff3ec' },
             { icon: '✨', label: 'Spotlight', desc: 'Explore portfolio work from the community', href: '/spotlight', color: '#fff8ec' },
             { icon: '💬', label: 'Messages', desc: 'View your conversations', href: '/messages', color: '#f5f5ec' },

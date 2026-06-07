@@ -63,12 +63,13 @@ export async function GET(req: NextRequest) {
     const likedIds = new Set((likes ?? []).map((l: any) => l.video_id));
 
     // Pull a candidate pool larger than the page so we can filter and sort.
+    // We DO include the viewer's own videos — it's good feedback to see your
+    // post sitting in the same feed, and helps when the feed is still small.
     let query = supabaseAdmin
       .from('wave_videos')
       .select('id, user_id, storage_path, caption, category, duration_seconds, width, height, created_at, expires_at, like_count, view_count')
       .eq('is_removed', false)
       .gt('expires_at', new Date().toISOString())
-      .neq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(PAGE_SIZE * 4);
 

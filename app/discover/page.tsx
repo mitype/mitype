@@ -288,6 +288,68 @@ export default function DiscoverPage() {
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 24px' }}>
 
+        {/* Wave Feed entry point — jump straight to the scrolling video feed */}
+        <Link
+          href="/wave"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 18,
+            background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 60%, #c8956c 100%)',
+            border: '1px solid rgba(200,149,108,0.35)',
+            borderRadius: 24,
+            padding: '24px 28px',
+            marginBottom: 40,
+            textDecoration: 'none',
+            boxShadow: '0 10px 32px rgba(30,58,95,0.22)',
+          }}
+        >
+          <div
+            aria-hidden="true"
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 18,
+              background: 'rgba(255,255,255,0.18)',
+              backdropFilter: 'blur(6px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 30,
+              flexShrink: 0,
+            }}
+          >
+            🌊
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h2 style={{
+              fontSize: 20,
+              fontWeight: 800,
+              color: 'white',
+              letterSpacing: '-0.4px',
+              margin: '0 0 4px',
+            }}>
+              The Wave Feed
+            </h2>
+            <p style={{
+              color: 'rgba(255,255,255,0.85)',
+              fontSize: 14,
+              margin: 0,
+              lineHeight: 1.4,
+            }}>
+              Scroll, watch, and post quick videos — fresh creative moments from the community.
+            </p>
+          </div>
+          <div aria-hidden="true" style={{
+            color: 'white',
+            fontSize: 22,
+            fontWeight: 800,
+            flexShrink: 0,
+          }}>
+            →
+          </div>
+        </Link>
+
         {/* Spotlight Section */}
         {spotlightProfiles.length > 0 && (
           <div style={{ marginBottom: 56 }}>
