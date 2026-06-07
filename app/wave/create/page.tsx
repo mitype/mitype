@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from '../../lib/toast';
+import { WaveEditorTutorial } from '../../components/WaveEditorTutorial';
 
 const MAX_DURATION = 60;
 const MAX_SIZE_MB = 80;
@@ -63,6 +64,7 @@ export default function WaveCreatePage() {
   const [category, setCategory] = useState('');
   const [progress, setProgress] = useState(0);
   const [progressLabel, setProgressLabel] = useState('');
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const filter = FILTERS[filterIdx];
 
@@ -77,13 +79,24 @@ export default function WaveCreatePage() {
       setUser(user);
       const { data: profile } = await supabase
         .from('profiles')
-        .select('categories')
+        .select('categories, wave_editor_tutorial_seen')
         .eq('user_id', user.id)
         .maybeSingle();
       setMyCategories(profile?.categories ?? []);
       if (profile?.categories?.length) setCategory(profile.categories[0]);
+      if (!profile?.wave_editor_tutorial_seen) setShowTutorial(true);
     })();
   }, [router]);
+
+  async function handleTutorialDone() {
+    setShowTutorial(false);
+    if (user) {
+      await supabase
+        .from('profiles')
+        .update({ wave_editor_tutorial_seen: true })
+        .eq('user_id', user.id);
+    }
+  }
 
   // Live preview: when the user is editing, scrub the video to trimStart
   // whenever they change the trim window so the preview stays in range.
@@ -445,6 +458,7 @@ export default function WaveCreatePage() {
             style={{ display: 'none' }}
           />
         </div>
+        {showTutorial && <WaveEditorTutorial onDismiss={handleTutorialDone} />}
       </main>
     );
   }
@@ -694,6 +708,8 @@ export default function WaveCreatePage() {
 
       {/* Hidden processing canvas */}
       <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+      {showTutorial && <WaveEditorTutorial onDismiss={handleTutorialDone} />}
     </main>
   );
 }
