@@ -114,7 +114,7 @@ export async function GET(req: NextRequest) {
               display: 'flex',
             }}
           >
-            I just found my type on Mitype.
+            I found my type of people on Mitype.
           </div>
           <div
             style={{

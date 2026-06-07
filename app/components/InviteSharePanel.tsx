@@ -25,7 +25,7 @@ interface Props {
 }
 
 const BASE = 'https://www.mitypeapp.com';
-const SHARE_TEXT = 'I just found my type on Mitype — join me.';
+const SHARE_TEXT = 'I found my type of people on Mitype — join me.';
 
 export function InviteSharePanel({ username, open, onClose }: Props) {
   const [downloading, setDownloading] = useState(false);
