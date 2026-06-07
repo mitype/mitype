@@ -159,7 +159,7 @@ export default function Dashboard() {
           {/* Desktop nav links — hidden on mobile */}
           <div className="mitype-dash-nav-links" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <Link href="/discover" style={navLinkStyle}>Discover</Link>
-            <Link href="/wave" style={navLinkStyle}>🌊 Wave</Link>
+            <Link href="/wave" style={navLinkStyle}>The Wave Feed</Link>
             <Link href="/spotlight" style={navLinkStyle}>Spotlight</Link>
             <Link href="/weekly" style={navLinkStyle}>Weekly</Link>
             <Link href="/messages" style={{ ...navLinkStyle, display: 'inline-flex', alignItems: 'center' }}>
@@ -195,7 +195,7 @@ export default function Dashboard() {
             borderTop: '1px solid rgba(200,149,108,0.15)',
           }}>
             <Link href="/discover" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Discover</Link>
-            <Link href="/wave" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>🌊 The Wave</Link>
+            <Link href="/wave" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>The Wave Feed</Link>
             <Link href="/spotlight" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Spotlight</Link>
             <Link href="/weekly" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Weekly</Link>
             <Link href="/messages" onClick={() => setMobileMenuOpen(false)} style={{ ...mobileLinkStyle, display: 'flex', alignItems: 'center', gap: 8 }}>
