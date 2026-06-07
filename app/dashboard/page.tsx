@@ -9,6 +9,7 @@ import { WeeklyPromptCard } from '../components/WeeklyPromptCard';
 import { Coachmark } from '../components/Coachmark';
 import { ProfileCompleteness } from '../components/ProfileCompleteness';
 import { ShareMitypeButton } from '../components/ShareMitypeButton';
+import { InviteSharePanel } from '../components/InviteSharePanel';
 import { UnreadBadge } from '../components/UnreadBadge';
 import { useUnreadCounts } from '../lib/useUnreadCounts';
 
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
 
@@ -254,9 +256,63 @@ export default function Dashboard() {
         {/* Profile completeness — nudge users to fill in the gaps */}
         <ProfileCompleteness profile={profile} />
 
-        {/* Share-with-friends invite. The link includes ?ref=username so we
-            can attribute referrals later if/when a reward system goes in. */}
-        <ShareMitypeButton username={profile?.username} />
+        {/* Share-with-friends invite — opens the multi-platform share panel. */}
+        <button
+          type="button"
+          onClick={() => setShareOpen(true)}
+          style={{
+            width: '100%',
+            background: 'linear-gradient(135deg, #fff3ec 0%, #ffe1c8 100%)',
+            border: '1.5px solid rgba(200,149,108,0.35)',
+            borderRadius: 20,
+            padding: '20px 24px',
+            marginBottom: 32,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            textAlign: 'left',
+            fontFamily: 'inherit',
+            boxShadow: '0 2px 8px rgba(200,149,108,0.12)',
+          }}
+        >
+          <div
+            aria-hidden="true"
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 14,
+              background: 'linear-gradient(135deg, #c8956c 0%, #a07452 100%)',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 22,
+              flexShrink: 0,
+            }}
+          >
+            💌
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ color: '#1a1208', fontSize: 15, fontWeight: 800, margin: '0 0 3px', letterSpacing: '-0.2px' }}>
+              Invite a creative friend
+            </p>
+            <p style={{ color: '#8a7560', fontSize: 13, margin: 0, lineHeight: 1.4 }}>
+              Share to Instagram, TikTok, Snapchat, X, Facebook, Threads, or text.
+            </p>
+          </div>
+          <div aria-hidden="true" style={{ color: '#c8956c', fontSize: 18, fontWeight: 800, flexShrink: 0 }}>
+            →
+          </div>
+        </button>
+
+        {profile?.username && (
+          <InviteSharePanel
+            username={profile.username}
+            open={shareOpen}
+            onClose={() => setShareOpen(false)}
+          />
+        )}
 
         {/* Daily Spark — one hand-picked profile per day with a tailored opener */}
         {user?.id && <DailySparkCard userId={user.id} />}

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { OddcastPill } from './components/OddcastPill';
 import { ScrollIndicator } from './components/ScrollIndicator';
+import { RefBadge } from './components/RefBadge';
 
 export default function HomePage() {
   return (
@@ -11,6 +12,9 @@ export default function HomePage() {
       color: '#1a1208',
       overflowX: 'hidden',
     }}>
+
+      {/* "Invited by @username" badge — appears only when ?ref=… is in URL */}
+      <RefBadge />
 
       {/* Navigation */}
       <nav style={{
