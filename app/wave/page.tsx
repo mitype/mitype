@@ -634,6 +634,27 @@ export default function WavePage() {
                 <span style={{ fontSize: 11, fontWeight: 700 }}>Skip</span>
               </button>
 
+              {/* Download — saves the watermarked video to the user's device */}
+              <a
+                href={item.videoUrl}
+                download={`mitype-${item.id}.mp4`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download this video"
+                style={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 2,
+                  padding: 4,
+                }}
+              >
+                <span style={{ fontSize: 28, lineHeight: 1 }}>⬇️</span>
+                <span style={{ fontSize: 11, fontWeight: 700 }}>Save</span>
+              </a>
+
               {/* More */}
               <button
                 type="button"
