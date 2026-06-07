@@ -49,6 +49,7 @@ export default function WavePage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [menuVideoId, setMenuVideoId] = useState<string | null>(null);
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   // Fetch helper that includes the current session's access token.
   const apiFetch = useCallback(async (path: string, init?: RequestInit) => {
@@ -219,6 +220,52 @@ export default function WavePage() {
       toast.error('Could not submit report');
     }
     setMenuVideoId(null);
+  }
+
+  // Mobile-friendly save flow. We fetch the watermarked video as a blob
+  // then try the Web Share API first (which gives users a "Save to Photos"
+  // option on iOS / "Save video" on Android). If that's unavailable, we
+  // fall back to a direct download via an object URL.
+  async function handleSave(item: WaveItem) {
+    if (savingId) return;
+    setSavingId(item.id);
+    try {
+      const res = await fetch(item.videoUrl);
+      if (!res.ok) throw new Error('Could not fetch video');
+      const blob = await res.blob();
+      const filename = `mitype-${item.id}.${blob.type.includes('webm') ? 'webm' : 'mp4'}`;
+      const file = new File([blob], filename, { type: blob.type || 'video/mp4' });
+
+      const navAny = navigator as Navigator & {
+        share?: (data: ShareData) => Promise<void>;
+        canShare?: (data: ShareData) => boolean;
+      };
+
+      if (typeof navAny.share === 'function' && navAny.canShare?.({ files: [file] })) {
+        try {
+          await navAny.share({ files: [file], title: 'Mitype' });
+          return;
+        } catch (e: any) {
+          if (e?.name === 'AbortError') return;
+          // Fall through to direct download on other errors.
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      toast.success('Video saved');
+    } catch (err: any) {
+      console.error('[wave] save error:', err);
+      toast.error('Could not save video');
+    } finally {
+      setSavingId(null);
+    }
   }
 
   async function handleBlock(creatorId: string) {
@@ -634,26 +681,33 @@ export default function WavePage() {
                 <span style={{ fontSize: 11, fontWeight: 700 }}>Skip</span>
               </button>
 
-              {/* Download — saves the watermarked video to the user's device */}
-              <a
-                href={item.videoUrl}
-                download={`mitype-${item.id}.mp4`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Download this video"
+              {/* Save — fetches the watermarked video and offers it via the
+                  share sheet (iOS "Save to Photos") or a direct download. */}
+              <button
+                type="button"
+                onClick={() => handleSave(item)}
+                disabled={savingId === item.id}
+                aria-label="Save this video"
                 style={{
+                  background: 'transparent',
+                  border: 'none',
                   color: 'white',
-                  textDecoration: 'none',
+                  cursor: savingId === item.id ? 'wait' : 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: 2,
                   padding: 4,
+                  opacity: savingId === item.id ? 0.6 : 1,
                 }}
               >
-                <span style={{ fontSize: 28, lineHeight: 1 }}>⬇️</span>
-                <span style={{ fontSize: 11, fontWeight: 700 }}>Save</span>
-              </a>
+                <span style={{ fontSize: 28, lineHeight: 1 }}>
+                  {savingId === item.id ? '⏳' : '⬇️'}
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 700 }}>
+                  {savingId === item.id ? 'Saving' : 'Save'}
+                </span>
+              </button>
 
               {/* More */}
               <button

@@ -45,6 +45,7 @@ type Step = 'pick' | 'edit' | 'processing' | 'uploading';
 export default function WaveCreatePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const libraryInputRef = useRef<HTMLInputElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -54,7 +55,10 @@ export default function WaveCreatePage() {
 
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [duration, setDuration] = useState(0);
+  // Full duration of the source video (could be 5+ minutes from library).
+  const [sourceDuration, setSourceDuration] = useState(0);
+  // Currently selected start/end within the source. Range cannot exceed MAX_DURATION.
+  const [duration, setDuration] = useState(0); // kept for backward compatibility — equals trimEnd - trimStart
   const [dims, setDims] = useState<{ w: number; h: number }>({ w: 1080, h: 1920 });
 
   const [trimStart, setTrimStart] = useState(0);
@@ -120,6 +124,10 @@ export default function WaveCreatePage() {
     fileInputRef.current?.click();
   }
 
+  function pickFromLibrary() {
+    libraryInputRef.current?.click();
+  }
+
   async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -144,12 +152,14 @@ export default function WaveCreatePage() {
       URL.revokeObjectURL(url);
       return;
     }
-    const dur = Math.min(probe.duration, MAX_DURATION);
+    const sourceDur = probe.duration || 0;
+    const defaultEnd = Math.min(MAX_DURATION, sourceDur);
     setFile(f);
     setPreviewUrl(url);
-    setDuration(dur);
+    setSourceDuration(sourceDur);
+    setDuration(defaultEnd);
     setTrimStart(0);
-    setTrimEnd(dur);
+    setTrimEnd(defaultEnd);
     setDims({ w: probe.videoWidth || 1080, h: probe.videoHeight || 1920 });
     setStep('edit');
   }
@@ -439,21 +449,60 @@ export default function WaveCreatePage() {
     return (
       <main style={pageStyle}>
         <Nav />
-        <div style={cardStyle}>
+        <div style={{ ...cardStyle, position: 'relative' }}>
           <button type="button" onClick={pickFile} style={pickButtonStyle}>
             <div style={{ fontSize: 42, marginBottom: 10 }}>📹</div>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>
               Pick a video to edit
             </div>
             <div style={{ fontSize: 13, color: '#8a7560' }}>
-              Up to 60 seconds. Vertical (9:16) looks best.
+              Record a new one or choose from your library. Long videos can be trimmed to 60s.
             </div>
           </button>
+
+          {/* Small library shortcut — bottom-left as a separate affordance for users
+              who want to jump straight to their existing videos. */}
+          <button
+            type="button"
+            onClick={pickFromLibrary}
+            aria-label="Choose from your video library"
+            style={{
+              position: 'absolute',
+              left: 22,
+              bottom: 22,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 14px',
+              background: 'white',
+              border: '1px solid rgba(200,149,108,0.4)',
+              borderRadius: 100,
+              color: '#6b5744',
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              boxShadow: '0 4px 12px rgba(200,149,108,0.18)',
+            }}
+          >
+            <span style={{ fontSize: 16 }}>🖼️</span>
+            From your library
+          </button>
+
+          {/* Default picker — no capture attribute so the system shows both
+              "Photo Library" and "Take Video" options on iOS/Android. */}
           <input
             ref={fileInputRef}
             type="file"
             accept="video/*"
-            capture="user"
+            onChange={onFileChange}
+            style={{ display: 'none' }}
+          />
+          {/* Library-only picker — forces the gallery view. */}
+          <input
+            ref={libraryInputRef}
+            type="file"
+            accept="video/*"
             onChange={onFileChange}
             style={{ display: 'none' }}
           />
@@ -574,11 +623,24 @@ export default function WaveCreatePage() {
 
       {/* Trim */}
       <div style={cardStyle}>
-        <div style={sectionLabel}>Trim</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={sectionLabel}>Trim</div>
+          <div style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#c8956c',
+            background: 'rgba(200,149,108,0.12)',
+            padding: '4px 10px',
+            borderRadius: 100,
+            letterSpacing: '0.5px',
+          }}>
+            MAX 60s
+          </div>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#8a7560', fontSize: 13, marginBottom: 8 }}>
           <span>{trimStart.toFixed(1)}s</span>
           <span style={{ flex: 1, textAlign: 'center', color: '#1a1208', fontWeight: 700 }}>
-            {(trimEnd - trimStart).toFixed(1)}s
+            {(trimEnd - trimStart).toFixed(1)}s selected
           </span>
           <span>{trimEnd.toFixed(1)}s</span>
         </div>
@@ -586,12 +648,16 @@ export default function WaveCreatePage() {
           <input
             type="range"
             min={0}
-            max={duration}
+            max={sourceDuration}
             step={0.1}
             value={trimStart}
             onChange={(e) => {
-              const v = Math.min(parseFloat(e.target.value), trimEnd - 0.5);
+              const v = Math.min(parseFloat(e.target.value), Math.max(0, trimEnd - 0.5));
               setTrimStart(v);
+              // If the user pushes start too close to end, slide the end forward to keep 60s window when possible.
+              if (trimEnd - v > MAX_DURATION) {
+                setTrimEnd(Math.min(v + MAX_DURATION, sourceDuration));
+              }
               if (videoRef.current) videoRef.current.currentTime = v;
             }}
             style={trimRangeStyle}
@@ -599,13 +665,24 @@ export default function WaveCreatePage() {
           <input
             type="range"
             min={0}
-            max={duration}
+            max={sourceDuration}
             step={0.1}
             value={trimEnd}
-            onChange={(e) => setTrimEnd(Math.max(parseFloat(e.target.value), trimStart + 0.5))}
+            onChange={(e) => {
+              let v = Math.max(parseFloat(e.target.value), trimStart + 0.5);
+              if (v - trimStart > MAX_DURATION) {
+                v = trimStart + MAX_DURATION;
+              }
+              setTrimEnd(Math.min(v, sourceDuration));
+            }}
             style={trimRangeStyle}
           />
         </div>
+        {sourceDuration > MAX_DURATION && (
+          <div style={{ fontSize: 12, color: '#8a7560', marginTop: 10, lineHeight: 1.5 }}>
+            Your source video is {Math.floor(sourceDuration / 60)}m {Math.round(sourceDuration % 60)}s. Slide the handles to pick the 60-second window you want to post.
+          </div>
+        )}
       </div>
 
       {/* Filters */}
