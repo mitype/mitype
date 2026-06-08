@@ -1,11 +1,13 @@
-// GET /api/wave/feed?cursor=<iso>
+// GET /api/wave/feed?cursor=<iso>&category=<exact-tag>
 //
 // Returns the next page of videos for the viewer. Filters out:
 //  - expired videos (server-enforced via the RLS policy, double-check here)
-//  - the viewer's own videos
 //  - videos from users the viewer has blocked
 //  - videos the viewer has dismissed
 //  - videos flagged as removed (moderation)
+//
+// Optional `category` query param scopes the feed to videos tagged with
+// that exact category string (used by the Discover-page category filter).
 //
 // Sorts by a blended order: compatibility-weighted recency. Recent
 // videos from highly compatible creators surface first.
@@ -30,6 +32,7 @@ export async function GET(req: NextRequest) {
 
     const url = new URL(req.url);
     const cursor = url.searchParams.get('cursor');
+    const category = url.searchParams.get('category');
 
     const supabaseAdmin = getSupabaseAdmin();
 
@@ -75,6 +78,9 @@ export async function GET(req: NextRequest) {
 
     if (cursor) {
       query = query.lt('created_at', cursor);
+    }
+    if (category) {
+      query = query.eq('category', category);
     }
 
     const { data: candidates, error: feedErr } = await query;

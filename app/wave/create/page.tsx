@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from '../../lib/toast';
 import { WaveEditorTutorial } from '../../components/WaveEditorTutorial';
+import { ALL_CATEGORIES } from '../../lib/categories';
 
 const MAX_DURATION = 60;
 const MAX_SIZE_MB = 500;
@@ -743,37 +744,16 @@ export default function WaveCreatePage() {
         </div>
       </div>
 
-      {/* Category tag */}
-      {myCategories.length > 0 && (
-        <div style={cardStyle}>
-          <div style={sectionLabel}>Tag a category</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {myCategories.map((cat) => {
-              const selected = cat === category;
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setCategory(cat)}
-                  style={{
-                    background: selected ? '#c8956c' : 'white',
-                    border: `1px solid ${selected ? '#c8956c' : 'rgba(200,149,108,0.3)'}`,
-                    color: selected ? 'white' : '#6b5744',
-                    padding: '8px 14px',
-                    borderRadius: 100,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* Category tag — pick from the FULL platform category list so the
+          video can be tagged with whatever fits, regardless of what the
+          poster has set on their own profile. The poster's own categories
+          are surfaced as quick suggestions at the top. */}
+      <CategoryPicker
+        value={category}
+        onChange={setCategory}
+        myCategories={myCategories}
+      />
+
 
       {/* Post + discard */}
       <button type="button" onClick={handlePost} style={postButtonStyle}>
@@ -805,6 +785,189 @@ function Nav() {
       <div style={{ fontSize: 18, fontWeight: 800, color: '#1a1208' }}>Post to The Wave</div>
       <div style={{ width: 24 }} />
     </nav>
+  );
+}
+
+// Category picker for posting a Wave video. Lets the poster pick from
+// the FULL platform category list (not just their own profile categories)
+// so the video can be tagged to whatever fits best. Their own categories
+// are surfaced as one-tap suggestions at the top, and a search box filters
+// the full list for fast access.
+function CategoryPicker({
+  value,
+  onChange,
+  myCategories,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  myCategories: string[];
+}) {
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? ALL_CATEGORIES.filter((c) => c.toLowerCase().includes(q))
+    : ALL_CATEGORIES;
+
+  return (
+    <div style={cardStyle}>
+      <div style={sectionLabel}>Tag a category</div>
+      <p style={{ fontSize: 13, color: '#8a7560', margin: '0 0 12px', lineHeight: 1.4 }}>
+        Pick any category that fits your video — it doesn&rsquo;t have to be one of yours.
+        Your video will show up when other creatives filter by this category.
+      </p>
+
+      {/* Quick suggestions: the poster's own profile categories. */}
+      {myCategories.length > 0 && (
+        <>
+          <div style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#a89278',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            marginBottom: 8,
+          }}>
+            Your categories
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+            {myCategories.map((cat) => {
+              const selected = cat === value;
+              return (
+                <button
+                  key={`mine-${cat}`}
+                  type="button"
+                  onClick={() => onChange(cat)}
+                  style={{
+                    background: selected ? '#c8956c' : 'white',
+                    border: `1px solid ${selected ? '#c8956c' : 'rgba(200,149,108,0.3)'}`,
+                    color: selected ? 'white' : '#6b5744',
+                    padding: '8px 14px',
+                    borderRadius: 100,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Currently selected — shown prominently when it's NOT in
+          "your categories" so the user always sees what they picked. */}
+      {value && !myCategories.includes(value) && (
+        <div style={{
+          marginBottom: 14,
+          padding: '10px 14px',
+          background: 'rgba(200,149,108,0.1)',
+          border: '1px solid rgba(200,149,108,0.3)',
+          borderRadius: 12,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+        }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#8a7560', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              Selected
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#6b5744', marginTop: 2 }}>
+              {value}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#8a7560',
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <div style={{
+        fontSize: 11,
+        fontWeight: 700,
+        color: '#a89278',
+        textTransform: 'uppercase',
+        letterSpacing: '1px',
+        marginBottom: 8,
+      }}>
+        Browse all
+      </div>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search categories…"
+        style={{
+          width: '100%',
+          padding: '10px 14px',
+          background: '#faf6f0',
+          border: '1px solid rgba(200,149,108,0.25)',
+          borderRadius: 12,
+          fontSize: 14,
+          color: '#1a1208',
+          outline: 'none',
+          marginBottom: 10,
+          boxSizing: 'border-box',
+          fontFamily: 'inherit',
+        }}
+      />
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 6,
+        maxHeight: 220,
+        overflowY: 'auto',
+        padding: 4,
+        background: '#fbf7f1',
+        border: '1px solid rgba(200,149,108,0.15)',
+        borderRadius: 12,
+      }}>
+        {filtered.length === 0 ? (
+          <p style={{ fontSize: 13, color: '#a89278', margin: '12px auto' }}>
+            No categories match &ldquo;{query}&rdquo;
+          </p>
+        ) : (
+          filtered.map((cat) => {
+            const selected = cat === value;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => onChange(cat)}
+                style={{
+                  background: selected ? '#c8956c' : 'white',
+                  border: `1px solid ${selected ? '#c8956c' : 'rgba(200,149,108,0.2)'}`,
+                  color: selected ? 'white' : '#6b5744',
+                  padding: '6px 12px',
+                  borderRadius: 100,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {cat}
+              </button>
+            );
+          })
+        )}
+      </div>
+    </div>
   );
 }
 

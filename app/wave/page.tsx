@@ -38,6 +38,12 @@ interface WaveItem {
 
 export default function WavePage() {
   const router = useRouter();
+  // Optional category scope read from the URL — if present, the feed is
+  // narrowed to videos tagged with this category. Used when entering
+  // The Wave from the Discover category filter
+  // (e.g. `/wave?category=🍕 Food Blogger`). Read from window.location
+  // instead of useSearchParams to avoid the Next 16 Suspense requirement.
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const [user, setUser] = useState<any>(null);
@@ -68,6 +74,13 @@ export default function WavePage() {
   // Initial load: check auth, check tutorial flag, load first page of feed.
   useEffect(() => {
     (async () => {
+      // Read the optional `?category=` URL filter before we kick off
+      // the first feed load so the filter is applied from the start.
+      const cat = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('category')
+        : null;
+      setCategoryFilter(cat);
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push('/login');
@@ -84,14 +97,25 @@ export default function WavePage() {
         setShowTutorial(true);
       }
 
-      await loadFeed(null);
+      await loadFeedWithFilter(null, cat);
       setLoading(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadFeed(cur: string | null) {
-    const res = await apiFetch(`/api/wave/feed${cur ? `?cursor=${encodeURIComponent(cur)}` : ''}`);
+    return loadFeedWithFilter(cur, categoryFilter);
+  }
+
+  // Internal: lets the initial mount call this synchronously with the
+  // category value it just read from the URL, without waiting for the
+  // state update to flush.
+  async function loadFeedWithFilter(cur: string | null, cat: string | null) {
+    const qs = new URLSearchParams();
+    if (cur) qs.set('cursor', cur);
+    if (cat) qs.set('category', cat);
+    const queryString = qs.toString();
+    const res = await apiFetch(`/api/wave/feed${queryString ? `?${queryString}` : ''}`);
     const json = await res.json();
     if (!res.ok) {
       toast.error(json.error ?? 'Could not load feed');
@@ -338,9 +362,14 @@ export default function WavePage() {
             fontSize: 18,
             fontWeight: 800,
             letterSpacing: '-0.3px',
+            textAlign: 'center',
+            maxWidth: '60%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           }}
         >
-          The Wave
+          {categoryFilter ? categoryFilter : 'The Wave'}
         </div>
         <Link
           href="/wave/create"
@@ -421,26 +450,49 @@ export default function WavePage() {
           }}>
             <div style={{ fontSize: 64, marginBottom: 16 }}>🌊</div>
             <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 12px' }}>
-              The Wave is quiet right now
+              {categoryFilter
+                ? `No ${categoryFilter} videos yet`
+                : 'The Wave is quiet right now'}
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 15, lineHeight: 1.6, maxWidth: 320, marginBottom: 28 }}>
-              Be the first to post a video. Show your craft. Your people are waiting.
+              {categoryFilter
+                ? 'Be the first to tag a video with this category — or browse the whole feed.'
+                : 'Be the first to post a video. Show your craft. Your people are waiting.'}
             </p>
-            <Link
-              href="/wave/create"
-              style={{
-                background: '#c8956c',
-                color: 'white',
-                textDecoration: 'none',
-                fontSize: 16,
-                fontWeight: 700,
-                padding: '14px 32px',
-                borderRadius: 100,
-                boxShadow: '0 8px 24px rgba(200,149,108,0.4)',
-              }}
-            >
-              Post the first video
-            </Link>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Link
+                href="/wave/create"
+                style={{
+                  background: '#c8956c',
+                  color: 'white',
+                  textDecoration: 'none',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  padding: '14px 32px',
+                  borderRadius: 100,
+                  boxShadow: '0 8px 24px rgba(200,149,108,0.4)',
+                }}
+              >
+                Post a video
+              </Link>
+              {categoryFilter && (
+                <Link
+                  href="/wave"
+                  style={{
+                    background: 'rgba(255,255,255,0.12)',
+                    color: 'white',
+                    textDecoration: 'none',
+                    fontSize: 16,
+                    fontWeight: 700,
+                    padding: '14px 28px',
+                    borderRadius: 100,
+                    border: '1px solid rgba(255,255,255,0.2)',
+                  }}
+                >
+                  See the full Wave
+                </Link>
+              )}
+            </div>
           </div>
         )}
 
@@ -534,15 +586,21 @@ export default function WavePage() {
               </div>
             )}
 
-            {/* Caption + creator info — bottom-left */}
+            {/* Creator card — bottom-left.
+                NOTE: the caption is intentionally NOT rendered here because
+                the editor already bakes a styled caption pill into the
+                video frame itself. Rendering it again caused the captions
+                to visually collide at the bottom of the screen. */}
             <div
               style={{
                 position: 'absolute',
-                bottom: 'max(28px, env(safe-area-inset-bottom))',
+                // Sit well clear of the in-video caption pill, which is
+                // painted near the bottom of the video frame.
+                bottom: 'max(96px, calc(env(safe-area-inset-bottom) + 88px))',
                 left: 70,
-                right: 80,
+                right: 90,
                 color: 'white',
-                paddingBottom: 0,
+                pointerEvents: 'auto',
               }}
             >
               {item.creator && (
@@ -554,13 +612,16 @@ export default function WavePage() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 10,
-                    marginBottom: 8,
+                    background: 'rgba(0,0,0,0.45)',
+                    padding: '6px 14px 6px 6px',
+                    borderRadius: 100,
+                    backdropFilter: 'blur(4px)',
                   }}
                 >
                   <div
                     style={{
-                      width: 36,
-                      height: 36,
+                      width: 32,
+                      height: 32,
                       borderRadius: '50%',
                       background: 'rgba(255,255,255,0.15)',
                       backgroundImage: item.creator.avatarUrl
@@ -568,33 +629,27 @@ export default function WavePage() {
                         : undefined,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
-                      border: '2px solid white',
+                      border: '1.5px solid white',
+                      flexShrink: 0,
                     }}
                   />
-                  <span style={{ fontWeight: 800, fontSize: 15 }}>
+                  <span style={{ fontWeight: 800, fontSize: 14, letterSpacing: '-0.2px' }}>
                     @{item.creator.username}
                   </span>
                 </Link>
-              )}
-              {item.caption && (
-                <p
-                  style={{
-                    fontSize: 14,
-                    lineHeight: 1.45,
-                    margin: '4px 0 0',
-                    textShadow: '0 1px 4px rgba(0,0,0,0.5)',
-                  }}
-                >
-                  {item.caption}
-                </p>
               )}
               {item.sharedCategories.length > 0 && (
                 <p
                   style={{
                     fontSize: 12,
-                    color: 'rgba(255,255,255,0.85)',
+                    color: 'white',
                     margin: '8px 0 0',
                     fontWeight: 600,
+                    background: 'rgba(0,0,0,0.45)',
+                    padding: '5px 12px',
+                    borderRadius: 100,
+                    display: 'inline-block',
+                    backdropFilter: 'blur(4px)',
                   }}
                 >
                   ✓ You both create {item.sharedCategories.slice(0, 2).join(' · ')}

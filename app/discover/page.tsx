@@ -11,74 +11,7 @@ import { OnlineDot } from '../components/OnlineDot';
 import { sanitizeText } from '../lib/sanitize';
 import { calculateAge } from '../lib/age';
 import { usePresence } from '../lib/usePresence';
-
-const ALL_CATEGORIES = [
-  // Creative Arts
-  '🎨 Painter', '✍️ Writer', '📸 Photographer', '🎭 Actor',
-  '💃 Dancer', '🎬 Filmmaker', '🖌️ Illustrator', '🗿 Sculptor',
-  '📖 Poet', '🎙️ Storyteller', '✏️ Graphic Designer', '🖼️ Art Director',
-  '🪶 Tattoo Artist', '🎚️ Music Producer', '🎬 Film Producer',
-  '🎤 Comedian', '🎪 Entertainer', '🃏 Magician',
-  // Music
-  '🎵 Musician', '🎹 Pianist', '🎸 Guitarist', '🎤 Singer',
-  '🥁 Drummer', '🎻 Violinist', '🎺 Brass Player', '🎧 DJ',
-  '🎼 Composer', '🎷 Saxophonist',
-  // Digital & Content
-  '📱 Content Creator', '🎮 Gamer', '📺 YouTuber', '🤳 Influencer',
-  '💻 Blogger', '🎙️ Podcaster', '📡 Streamer', '👾 Esports Player',
-  '🖥️ Web Developer', '📲 App Developer', '🤖 AI Enthusiast',
-  '🎙️ Motivational Speaker', '📻 Radio Personality',
-  // Healthcare
-  '🩺 Doctor', '👩‍⚕️ Nurse', '🦷 Dentist', '🧠 Therapist',
-  '💊 Pharmacist', '🏃 Physical Therapist', '🧬 Scientist',
-  '🥗 Nutritionist', '🌿 Herbalist',
-  // Education
-  '👩‍🏫 Teacher', '👨‍🎓 Professor', '📚 Tutor', '🏫 School Counselor',
-  '🔬 Researcher', '📜 Historian',
-  // Fitness & Outdoors
-  '🏋️ Athlete', '🧘 Yoga Instructor', '🚴 Cyclist', '🏊 Swimmer',
-  '⛷️ Skier', '🏄 Surfer', '🧗 Rock Climber', '🥊 Boxer',
-  '🏇 Equestrian', '🎾 Tennis Player', '⚽ Soccer Player',
-  '🏋️ Personal Trainer', '🎣 Angler', '🏕️ Camper', '🏔️ Hiker',
-  // Food & Lifestyle
-  '👨‍🍳 Chef', '🧁 Baker', '🍷 Sommelier', '🌿 Foodie',
-  '🌱 Vegan', '☕ Barista', '🍕 Food Blogger',
-  // Animals & Nature
-  '🐶 Dog Walker', '🐱 Cat Lover', '🐾 Pet Trainer',
-  '🌿 Gardener', '🦋 Nature Lover', '🐠 Marine Biologist',
-  '🏡 Homesteader', '🌾 Farmer', '🐝 Beekeeper',
-  // Enthusiasts
-  '🏎️ Car Enthusiast', '🏍️ Motorcyclist', '✈️ Pilot',
-  '⛵ Sailor', '🚀 Space Enthusiast', '📷 Film Photographer',
-  // Professional
-  '👔 Entrepreneur', '⚖️ Lawyer', '🏛️ Architect',
-  '🏗️ Engineer', '📊 Finance Professional', '🎯 Marketing Creative',
-  '🏠 Real Estate Agent', '👗 Fashion Designer', '💈 Stylist',
-  '💇 Hair Stylist', '💅 Nail Artist', '🔧 Mechanic',
-  '🔨 Contractor', '⚡ Electrician', '🚒 Firefighter',
-  '👮 Law Enforcement', '🪖 Military',
-  '🎫 Event Organizer', '👟 Sneaker Reseller',
-  // Travel & Culture
-  '✈️ Traveler', '🌍 Expat', '🗺️ Adventurer',
-  '📿 Cultural Enthusiast', '🛕 Spiritual Seeker',
-  // Pop Culture & Fandoms
-  '🐉 Anime Fan', '🎴 Pokémon Fan', '🎬 Movie Buff', '📺 TV Show Fan',
-  '🦸 Marvel Fan', '🦇 DC Fan', '⭐ Star Wars Fan', '🏰 Disney Adult',
-  '🎤 K-Pop Fan', '📚 Comic Book Fan',
-  // Sports Fans
-  '🏈 Football Fan', '⚾ Baseball Fan', '🏀 Basketball Fan',
-  '⚽ Soccer Fan', '🏒 Hockey Fan', '🥊 MMA Fan', '🏎️ Racing Fan',
-  // Hobbies
-  '♟️ Chess Player', '🎲 Board Gamer', '📚 Book Lover', '📖 Book Club Member',
-  '🔭 Astronomer', '🎯 Collector', '🧩 Puzzle Enthusiast',
-  '🪴 Plant Parent', '🧶 Knitter', '🪵 Woodworker',
-  '🎴 Card Collector', '🎴 Pokémon Collector', '🧱 Lego Collector',
-  '👟 Sneakerhead', '💿 Vinyl Collector', '⌚ Watch Collector',
-  // Mindset & Lifestyle
-  '🌐 Free Thinker', '📡 Alternative Media', '🔍 Truth Seeker',
-  '🌱 Minimalist', '💡 Visionary',
-  '✝️ Faith Based', '☮️ Activist', '🌍 Environmentalist',
-];
+import { ALL_CATEGORIES } from '../lib/categories';
 
 // Get 3 random spotlight profiles that rotate daily
 function getSpotlightProfiles(profiles: any[]): any[] {
@@ -103,6 +36,17 @@ export default function DiscoverPage() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [zipFilter, setZipFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  // The category that has actually been applied (separate from the
+  // typed/picked-but-not-yet-applied `categoryFilter`). When this is set,
+  // we also fetch a Wave-Feed preview scoped to the same category so it
+  // can be surfaced at the top of the filtered results.
+  const [appliedCategory, setAppliedCategory] = useState<string>('');
+  const [waveCategoryPreview, setWaveCategoryPreview] = useState<{
+    id: string;
+    videoUrl: string;
+    creator: { username: string; avatarUrl: string | null } | null;
+    count: number;
+  } | null>(null);
   const router = useRouter();
   const onlineUsers = usePresence();
 
@@ -192,12 +136,64 @@ export default function DiscoverPage() {
       results = results.filter((p) => p.zip_code === zipFilter);
     }
     setFilteredProfiles(results);
+    setAppliedCategory(categoryFilter);
+    // If the filter picks a specific category, also fetch a Wave-Feed
+    // preview scoped to that category so we can surface a "scroll the
+    // wave for this category" banner at the top of the results.
+    if (categoryFilter) {
+      fetchWavePreview(categoryFilter);
+    } else {
+      setWaveCategoryPreview(null);
+    }
   }
 
   function clearFilters() {
     setCategoryFilter('');
     setZipFilter('');
     setFilteredProfiles(profiles);
+    setAppliedCategory('');
+    setWaveCategoryPreview(null);
+  }
+
+  // Fetch a one-video preview from the Wave feed scoped to a specific
+  // category. The category filter on the discover page is fuzzy
+  // (`includes`), so we try each ALL_CATEGORIES entry that matches the
+  // typed text against the feed API (which uses an exact match) and use
+  // the first one that returns videos. Most of the time this is a single
+  // round-trip; worst case it's a handful.
+  async function fetchWavePreview(filterText: string) {
+    setWaveCategoryPreview(null);
+    const matches = ALL_CATEGORIES.filter((c) =>
+      c.toLowerCase().includes(filterText.toLowerCase())
+    );
+    const { data: sess } = await supabase.auth.getSession();
+    const token = sess.session?.access_token;
+    if (!token) return;
+    for (const cat of matches) {
+      try {
+        const res = await fetch(
+          `/api/wave/feed?category=${encodeURIComponent(cat)}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!res.ok) continue;
+        const json = await res.json();
+        const items = json.items ?? [];
+        if (items.length > 0) {
+          const first = items[0];
+          setWaveCategoryPreview({
+            id: first.id,
+            videoUrl: first.videoUrl,
+            creator: first.creator
+              ? { username: first.creator.username, avatarUrl: first.creator.avatarUrl }
+              : null,
+            count: items.length,
+          });
+          return;
+        }
+      } catch {
+        // Try the next candidate.
+      }
+    }
   }
 
   async function handleSwipe(targetUserId: string, direction: 'right' | 'left') {
@@ -750,6 +746,130 @@ export default function DiscoverPage() {
               </button>
             </div>
           </div>
+        )}
+
+        {/* Wave-Feed preview for the active category filter — surfaces
+            the first matching video at the top of the results. Clicking
+            launches the Wave feed scoped to the same category. */}
+        {appliedCategory && waveCategoryPreview && (
+          <Link
+            href={`/wave?category=${encodeURIComponent(
+              ALL_CATEGORIES.find((c) =>
+                c.toLowerCase().includes(appliedCategory.toLowerCase())
+              ) ?? appliedCategory
+            )}`}
+            style={{
+              display: 'flex',
+              alignItems: 'stretch',
+              gap: 18,
+              background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 60%, #c8956c 100%)',
+              border: '1px solid rgba(200,149,108,0.35)',
+              borderRadius: 24,
+              padding: 16,
+              marginBottom: 32,
+              textDecoration: 'none',
+              boxShadow: '0 10px 32px rgba(30,58,95,0.22)',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                position: 'relative',
+                width: 92,
+                minHeight: 132,
+                borderRadius: 16,
+                overflow: 'hidden',
+                background: '#000',
+                flexShrink: 0,
+                boxShadow: '0 4px 14px rgba(0,0,0,0.35)',
+              }}
+            >
+              <video
+                src={waveCategoryPreview.videoUrl}
+                muted
+                playsInline
+                loop
+                autoPlay
+                preload="metadata"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                  position: 'absolute',
+                  inset: 0,
+                }}
+              />
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background:
+                    'linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.5) 100%)',
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  justifyContent: 'center',
+                  fontSize: 28,
+                  color: 'white',
+                  padding: 6,
+                }}
+              >
+                ▶
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 0, alignSelf: 'center' }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: 'rgba(255,255,255,0.85)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1.5px',
+                  marginBottom: 4,
+                }}
+              >
+                🌊 The Wave · {appliedCategory}
+              </div>
+              <h2
+                style={{
+                  fontSize: 20,
+                  fontWeight: 800,
+                  color: 'white',
+                  letterSpacing: '-0.4px',
+                  margin: '0 0 6px',
+                  lineHeight: 1.25,
+                }}
+              >
+                Scroll {appliedCategory} videos
+              </h2>
+              <p
+                style={{
+                  color: 'rgba(255,255,255,0.85)',
+                  fontSize: 13,
+                  margin: 0,
+                  lineHeight: 1.4,
+                }}
+              >
+                {waveCategoryPreview.creator
+                  ? `Starting with @${waveCategoryPreview.creator.username} — tap to start watching.`
+                  : 'Tap to start watching.'}
+              </p>
+            </div>
+            <div
+              aria-hidden="true"
+              style={{
+                color: 'white',
+                fontSize: 22,
+                fontWeight: 800,
+                flexShrink: 0,
+                alignSelf: 'center',
+                paddingRight: 6,
+              }}
+            >
+              →
+            </div>
+          </Link>
         )}
 
         {/* Profiles Grid */}
