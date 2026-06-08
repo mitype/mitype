@@ -64,6 +64,15 @@ export default function WavePage() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [menuVideoId, setMenuVideoId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  // Which video the user has manually paused via tap. Cleared whenever
+  // the visible video changes so scrolling back to a previously-paused
+  // video still auto-plays a fresh viewing.
+  const [pausedId, setPausedId] = useState<string | null>(null);
+  // Swipe-to-exit tracking. We capture the start point of a touch on
+  // each video section and, on touchend, compare to the end point. A
+  // right-to-left swipe with low vertical drift dismisses the Wave and
+  // sends the user back to the previous page (router.back()).
+  const swipeStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
 
   // Fetch helper that includes the current session's access token.
   const apiFetch = useCallback(async (path: string, init?: RequestInit) => {
@@ -182,6 +191,9 @@ export default function WavePage() {
           if (!el || !id) continue;
           if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
             setActiveId(id);
+            // Clear any manual-pause state — scrolling onto a video
+            // always starts a fresh autoplay.
+            setPausedId((prev) => (prev === id ? null : prev));
             playWithSoundFallback(el);
             // Fire-and-forget view tracking.
             apiFetch('/api/wave/view', {
@@ -239,6 +251,48 @@ export default function WavePage() {
         el.muted = false;
         el.play().catch(() => {});
       }
+    }
+  }
+
+  // Tap the video to pause; tap again to resume. Driven from onClick on
+  // the video element. Buttons are absolutely positioned above the
+  // video so taps on them won't reach here.
+  function handleVideoTap(videoId: string) {
+    const el = videoRefs.current.get(videoId);
+    if (!el) return;
+    if (el.paused) {
+      el.play().catch(() => {});
+      setPausedId((prev) => (prev === videoId ? null : prev));
+    } else {
+      el.pause();
+      setPausedId(videoId);
+    }
+  }
+
+  // Swipe-to-exit gesture. On touchend, if the user dragged their finger
+  // significantly leftward with little vertical drift, dismiss the Wave
+  // feed and pop back to where they came from. This complements the
+  // back arrow in the top bar with a native-feeling gesture.
+  function handleSectionTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    if (!t) return;
+    swipeStartRef.current = { x: t.clientX, y: t.clientY, t: Date.now() };
+  }
+  function handleSectionTouchEnd(e: React.TouchEvent) {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    const dt = Date.now() - start.t;
+    // Treat as a leftward exit swipe when the horizontal distance is
+    // large, the vertical drift is small, and the gesture is brisk —
+    // these thresholds avoid hijacking the vertical scroll-snap and
+    // single-tap-to-pause gestures.
+    if (dx < -90 && Math.abs(dy) < 60 && dt < 600) {
+      router.back();
     }
   }
 
@@ -636,6 +690,8 @@ export default function WavePage() {
           <section
             key={item.id}
             data-video-id={item.id}
+            onTouchStart={handleSectionTouchStart}
+            onTouchEnd={handleSectionTouchEnd}
             style={{
               height: '100%',
               width: '100%',
@@ -655,6 +711,8 @@ export default function WavePage() {
               src={item.videoUrl}
               loop
               playsInline
+              // Tap the video to toggle pause/play.
+              onClick={() => handleVideoTap(item.id)}
               // Start muted only when sound isn't yet enabled — the
               // IntersectionObserver flips `el.muted = !soundEnabled`
               // and gracefully retries muted if the browser blocks
@@ -666,8 +724,43 @@ export default function WavePage() {
                 height: '100%',
                 objectFit: 'cover',
                 background: '#000',
+                cursor: 'pointer',
               }}
             />
+
+            {/* Pause overlay — large centered play button shown while
+                the user has manually paused this video. Tapping it
+                resumes playback. */}
+            {pausedId === item.id && (
+              <button
+                type="button"
+                onClick={() => handleVideoTap(item.id)}
+                aria-label="Resume video"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  margin: 'auto',
+                  width: 96,
+                  height: 96,
+                  borderRadius: '50%',
+                  background: 'rgba(0,0,0,0.55)',
+                  border: '2px solid rgba(255,255,255,0.85)',
+                  color: 'white',
+                  fontSize: 40,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 40,
+                  backdropFilter: 'blur(4px)',
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.45)',
+                  // Slight offset so the triangle looks centered.
+                  paddingLeft: 6,
+                }}
+              >
+                ▶
+              </button>
+            )}
 
             {/* Mitype watermark — CSS overlay so the brand is always
                 visible in the player, regardless of how the video is
