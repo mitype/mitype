@@ -1013,7 +1013,8 @@ export default function WavePage() {
             {/* Pause overlay — large centered play button shown while
                 the user has manually paused this video. Tapping it
                 resumes playback (no double-tap detection here — the
-                user clearly wants to resume). */}
+                user clearly wants to resume). Uses an inline SVG
+                triangle so iOS doesn't render the emoji square. */}
             {pausedId === item.id && (
               <button
                 type="button"
@@ -1033,7 +1034,6 @@ export default function WavePage() {
                   background: 'rgba(0,0,0,0.55)',
                   border: '2px solid rgba(255,255,255,0.85)',
                   color: 'white',
-                  fontSize: 40,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1041,11 +1041,20 @@ export default function WavePage() {
                   zIndex: 40,
                   backdropFilter: 'blur(4px)',
                   boxShadow: '0 12px 32px rgba(0,0,0,0.45)',
-                  // Slight offset so the triangle looks centered.
+                  // Slight offset so the triangle looks visually centered
+                  // inside the circle.
                   paddingLeft: 6,
                 }}
               >
-                ▶
+                <svg
+                  width="38"
+                  height="38"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  style={{ display: 'block' }}
+                >
+                  <polygon points="6,4 20,12 6,20" fill="white" />
+                </svg>
               </button>
             )}
 
