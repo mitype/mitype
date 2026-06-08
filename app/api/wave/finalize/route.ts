@@ -13,6 +13,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const MAX_DURATION = 60; // seconds
+const MAX_CAPTION_CHARS = 80; // matches MAX_CAPTION on /wave/create
 const BUCKET = 'wave-videos';
 
 export async function POST(req: NextRequest) {
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
       .insert({
         user_id: user.id,
         storage_path: storagePath,
-        caption: caption?.slice(0, 280) ?? null,
+        caption: caption?.slice(0, MAX_CAPTION_CHARS) ?? null,
         category: category ?? null,
         duration_seconds: durationSeconds ?? null,
         width: width ?? null,

@@ -36,6 +36,31 @@ interface WaveItem {
   } | null;
 }
 
+// Heart animation rendered when a user double-taps to like.
+interface FloatingHeart {
+  id: number;
+  x: number;
+  y: number;
+}
+
+// Item awaiting a possible undo after Skip. We stash the full record so
+// we can re-insert it at its original slot if the user changes their mind.
+interface UndoSkipState {
+  item: WaveItem;
+  index: number;
+  expiresAt: number; // wall-clock ms when the toast auto-dismisses
+}
+
+// How far apart two taps can be (ms) to count as a double-tap.
+const DOUBLE_TAP_WINDOW_MS = 300;
+// How long the Undo Skip toast stays on screen.
+const UNDO_SKIP_WINDOW_MS = 5000;
+// Section-distance from the active video beyond which we release the
+// `src` to avoid accumulating decoded video buffers in memory.
+const WINDOW_RADIUS = 2;
+// Treat a video as "expiring soon" when this much (or less) time remains.
+const EXPIRING_SOON_MS = 60 * 60 * 1000;
+
 export default function WavePage() {
   const router = useRouter();
   // Optional category scope read from the URL — if present, the feed is
@@ -59,7 +84,6 @@ export default function WavePage() {
   // to muted, show a one-tap "🔊 Enable sound" nudge, and flip the flag
   // forever once they tap.
   const [soundEnabled, setSoundEnabled] = useState(false);
-  const [needsSoundTap, setNeedsSoundTap] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [menuVideoId, setMenuVideoId] = useState<string | null>(null);
@@ -73,6 +97,28 @@ export default function WavePage() {
   // right-to-left swipe with low vertical drift dismisses the Wave and
   // sends the user back to the previous page (router.back()).
   const swipeStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
+  // Index of the currently-visible video in `items`. Drives the memory
+  // windowing logic that releases `src` for distant videos.
+  const [activeIndex, setActiveIndex] = useState(0);
+  // Floating hearts spawned by double-tap-to-like; auto-cleared after
+  // their CSS animation finishes.
+  const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
+  const heartIdRef = useRef(0);
+  // Per-video last-tap timestamp + position; used to distinguish a
+  // double-tap (like) from a single tap (pause/resume).
+  const lastTapRef = useRef<{ videoId: string; t: number } | null>(null);
+  const singleTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Which video, if any, currently has the "Why this video?" panel open.
+  const [whyVideoId, setWhyVideoId] = useState<string | null>(null);
+  // Pending Skip + timeout for the Undo Skip toast.
+  const [undoSkip, setUndoSkip] = useState<UndoSkipState | null>(null);
+  const undoSkipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Set of video IDs whose `view` has already been recorded this session.
+  // Avoids inflating view counts when the user scrolls past the same
+  // video multiple times.
+  const seenViewsRef = useRef<Set<string>>(new Set());
+  // Network-aware feed-fetch in-flight guard, used by retry logic.
+  const feedFetchInFlightRef = useRef(false);
 
   // Fetch helper that includes the current session's access token.
   const apiFetch = useCallback(async (path: string, init?: RequestInit) => {
@@ -132,21 +178,55 @@ export default function WavePage() {
 
   // Internal: lets the initial mount call this synchronously with the
   // category value it just read from the URL, without waiting for the
-  // state update to flush.
+  // state update to flush. Includes a single 750ms retry on transient
+  // errors so brief mobile-network blips don't surface as a hard fail.
   async function loadFeedWithFilter(cur: string | null, cat: string | null) {
+    if (feedFetchInFlightRef.current) return;
+    feedFetchInFlightRef.current = true;
     const qs = new URLSearchParams();
     if (cur) qs.set('cursor', cur);
     if (cat) qs.set('category', cat);
     const queryString = qs.toString();
-    const res = await apiFetch(`/api/wave/feed${queryString ? `?${queryString}` : ''}`);
-    const json = await res.json();
-    if (!res.ok) {
-      toast.error(json.error ?? 'Could not load feed');
-      return;
+    const url = `/api/wave/feed${queryString ? `?${queryString}` : ''}`;
+
+    async function attempt(): Promise<{ ok: boolean; json: any } | null> {
+      try {
+        const res = await apiFetch(url);
+        const json = await res.json().catch(() => ({} as any));
+        return { ok: res.ok, json };
+      } catch {
+        return null;
+      }
     }
-    setItems((prev) => (cur ? [...prev, ...(json.items ?? [])] : (json.items ?? [])));
-    setCursor(json.nextCursor ?? null);
-    setHasMore(Boolean(json.nextCursor));
+
+    try {
+      let outcome = await attempt();
+      // Retry once on network failure OR transient 5xx — but never on
+      // 401/403/404 where retrying is pointless.
+      if (
+        outcome === null ||
+        (!outcome.ok && (outcome.json?.status ?? 0) >= 500) ||
+        outcome === null
+      ) {
+        await new Promise((r) => setTimeout(r, 750));
+        const retried = await attempt();
+        if (retried) outcome = retried;
+      }
+      if (!outcome) {
+        toast.error('Network hiccup loading the wave — try again in a moment.');
+        return;
+      }
+      const { ok, json } = outcome;
+      if (!ok) {
+        toast.error(json.error ?? 'Could not load feed');
+        return;
+      }
+      setItems((prev) => (cur ? [...prev, ...(json.items ?? [])] : (json.items ?? [])));
+      setCursor(json.nextCursor ?? null);
+      setHasMore(Boolean(json.nextCursor));
+    } finally {
+      feedFetchInFlightRef.current = false;
+    }
   }
 
   async function handleTutorialDone() {
@@ -171,12 +251,12 @@ export default function WavePage() {
       try {
         await el.play();
       } catch {
-        // Audio autoplay blocked — fall back to muted autoplay and
-        // surface the one-tap prompt to enable sound.
+        // Audio autoplay blocked — fall back to muted autoplay. The
+        // persistent sound toggle at the bottom-left of the screen lets
+        // the user opt-in to sound with one tap.
         try {
           el.muted = true;
           await el.play();
-          setNeedsSoundTap(true);
         } catch {
           // Some other reason; ignore.
         }
@@ -191,15 +271,24 @@ export default function WavePage() {
           if (!el || !id) continue;
           if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
             setActiveId(id);
+            // Keep activeIndex in sync so the windowing logic knows
+            // which sections are within WINDOW_RADIUS.
+            const idx = items.findIndex((it) => it.id === id);
+            if (idx >= 0) setActiveIndex(idx);
             // Clear any manual-pause state — scrolling onto a video
             // always starts a fresh autoplay.
             setPausedId((prev) => (prev === id ? null : prev));
             playWithSoundFallback(el);
-            // Fire-and-forget view tracking.
-            apiFetch('/api/wave/view', {
-              method: 'POST',
-              body: JSON.stringify({ videoId: id }),
-            }).catch(() => {});
+            // Per-session view dedup: only count one view per video per
+            // session, regardless of how many times the user scrolls
+            // past it. Honest counts beat inflated ones.
+            if (!seenViewsRef.current.has(id)) {
+              seenViewsRef.current.add(id);
+              apiFetch('/api/wave/view', {
+                method: 'POST',
+                body: JSON.stringify({ videoId: id }),
+              }).catch(() => {});
+            }
           } else {
             el.pause();
             el.currentTime = 0;
@@ -230,11 +319,38 @@ export default function WavePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, soundEnabled, cursor, hasMore]);
 
+  // Auto-pause the active video when the user backgrounds the app /
+  // switches tabs, and resume on return (unless they manually paused).
+  // Saves battery + avoids the surprise of audio playing somewhere the
+  // user isn't looking.
+  useEffect(() => {
+    function onVisibilityChange() {
+      const el = activeId ? videoRefs.current.get(activeId) : null;
+      if (!el) return;
+      if (document.visibilityState === 'hidden') {
+        el.pause();
+      } else if (document.visibilityState === 'visible') {
+        if (pausedId !== activeId) {
+          el.play().catch(() => {});
+        }
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [activeId, pausedId]);
+
+  // Cleanup outstanding timers on unmount.
+  useEffect(() => {
+    return () => {
+      if (singleTapTimeoutRef.current) clearTimeout(singleTapTimeoutRef.current);
+      if (undoSkipTimeoutRef.current) clearTimeout(undoSkipTimeoutRef.current);
+    };
+  }, []);
+
   // One-tap handler: user grants sound permission for the whole feed.
   // Remember the choice locally so future sessions never need the tap.
   function enableSound() {
     setSoundEnabled(true);
-    setNeedsSoundTap(false);
     if (typeof window !== 'undefined') {
       try {
         window.localStorage.setItem('mitype-wave-sound', '1');
@@ -254,19 +370,63 @@ export default function WavePage() {
     }
   }
 
-  // Tap the video to pause; tap again to resume. Driven from onClick on
-  // the video element. Buttons are absolutely positioned above the
-  // video so taps on them won't reach here.
-  function handleVideoTap(videoId: string) {
-    const el = videoRefs.current.get(videoId);
-    if (!el) return;
-    if (el.paused) {
-      el.play().catch(() => {});
-      setPausedId((prev) => (prev === videoId ? null : prev));
-    } else {
-      el.pause();
-      setPausedId(videoId);
+  // Tap the video. We support BOTH single-tap (pause/resume) and
+  // double-tap (like with floating-heart animation). To tell them apart
+  // we defer the single-tap action until DOUBLE_TAP_WINDOW_MS has passed
+  // with no second tap.
+  function handleVideoTap(videoId: string, e: React.MouseEvent<HTMLVideoElement>) {
+    const now = Date.now();
+    const last = lastTapRef.current;
+
+    // Double-tap detected — fire the like AND show a floating heart at
+    // the second tap's coordinates relative to the video element.
+    if (last && last.videoId === videoId && now - last.t < DOUBLE_TAP_WINDOW_MS) {
+      lastTapRef.current = null;
+      if (singleTapTimeoutRef.current) {
+        clearTimeout(singleTapTimeoutRef.current);
+        singleTapTimeoutRef.current = null;
+      }
+      const target = e.currentTarget;
+      const rect = target.getBoundingClientRect();
+      spawnHeart(e.clientX - rect.left, e.clientY - rect.top);
+      // Only flip from unliked → liked on double-tap; never accidentally
+      // unlike the way Instagram does it.
+      const current = items.find((it) => it.id === videoId);
+      if (current && !current.likedByMe) {
+        handleLike(videoId);
+      }
+      return;
     }
+
+    // First tap recorded; schedule the single-tap pause/resume to fire
+    // only if a second tap doesn't come in.
+    lastTapRef.current = { videoId, t: now };
+    if (singleTapTimeoutRef.current) {
+      clearTimeout(singleTapTimeoutRef.current);
+    }
+    singleTapTimeoutRef.current = setTimeout(() => {
+      singleTapTimeoutRef.current = null;
+      lastTapRef.current = null;
+      const el = videoRefs.current.get(videoId);
+      if (!el) return;
+      if (el.paused) {
+        el.play().catch(() => {});
+        setPausedId((prev) => (prev === videoId ? null : prev));
+      } else {
+        el.pause();
+        setPausedId(videoId);
+      }
+    }, DOUBLE_TAP_WINDOW_MS);
+  }
+
+  // Spawn a floating-heart sprite that the CSS animation in the
+  // component tree will scale up + fade out, then schedule its removal.
+  function spawnHeart(x: number, y: number) {
+    const id = ++heartIdRef.current;
+    setFloatingHearts((prev) => [...prev, { id, x, y }]);
+    setTimeout(() => {
+      setFloatingHearts((prev) => prev.filter((h) => h.id !== id));
+    }, 1100);
   }
 
   // Swipe-to-exit gesture. On touchend, if the user dragged their finger
@@ -347,15 +507,93 @@ export default function WavePage() {
   }
 
   async function handleDismiss(videoId: string) {
+    // Stash the item so we can offer an Undo for 5 seconds.
+    const index = items.findIndex((it) => it.id === videoId);
+    const item = index >= 0 ? items[index] : null;
+
     const res = await apiFetch('/api/wave/dismiss', {
       method: 'POST',
       body: JSON.stringify({ videoId }),
     });
     if (res.ok) {
       setItems((prev) => prev.filter((it) => it.id !== videoId));
+      if (item) {
+        if (undoSkipTimeoutRef.current) clearTimeout(undoSkipTimeoutRef.current);
+        const expiresAt = Date.now() + UNDO_SKIP_WINDOW_MS;
+        setUndoSkip({ item, index, expiresAt });
+        undoSkipTimeoutRef.current = setTimeout(() => {
+          setUndoSkip(null);
+          undoSkipTimeoutRef.current = null;
+        }, UNDO_SKIP_WINDOW_MS);
+      }
     } else {
       toast.error('Could not dismiss');
     }
+  }
+
+  // Reverse a Skip within the 5-second undo window. Deletes the
+  // server-side dismissal row so the video could reappear in future
+  // feeds AND re-inserts it locally at its original slot.
+  async function handleUndoSkip() {
+    if (!undoSkip) return;
+    const { item, index } = undoSkip;
+    if (undoSkipTimeoutRef.current) clearTimeout(undoSkipTimeoutRef.current);
+    undoSkipTimeoutRef.current = null;
+    setUndoSkip(null);
+    // Re-insert immediately for optimistic feel.
+    setItems((prev) => {
+      const next = prev.slice();
+      const clampedIndex = Math.min(Math.max(index, 0), next.length);
+      next.splice(clampedIndex, 0, item);
+      return next;
+    });
+    const res = await apiFetch('/api/wave/undismiss', {
+      method: 'POST',
+      body: JSON.stringify({ videoId: item.id }),
+    });
+    if (!res.ok) {
+      // Server-side undo failed — leave the local re-insert in place
+      // because the user clearly wants this video back, but warn so they
+      // know the dismissal might come back on next refresh.
+      toast.error('Could not fully undo — refresh to recheck.');
+    }
+  }
+
+  // Chat with the creator of the current video. We open (or create) a
+  // 1:1 conversation row, then route the user straight into that
+  // thread inside the existing /messages center. This is the deep-link
+  // path the messages page already supports via `?user=<creatorUserId>`.
+  async function handleChat(creatorUserId: string) {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (creatorUserId === user.id) return; // shouldn't happen — UI gates this
+
+    try {
+      // Look up any existing conversation that contains both participants.
+      const { data: existing } = await supabase
+        .from('conversations')
+        .select('id')
+        .contains('participant_ids', [user.id, creatorUserId])
+        .maybeSingle();
+
+      if (!existing) {
+        // None yet — create a pending conversation, same flow as a
+        // right-swipe on Discover. The recipient will see it as a
+        // connection request to approve.
+        await supabase.from('conversations').insert({
+          participant_ids: [user.id, creatorUserId],
+          initiated_by: user.id,
+          status: 'pending',
+        });
+      }
+    } catch (e) {
+      // Non-fatal — even if conversation creation fails, deep-linking
+      // the user to /messages still gets them to a useful place.
+      console.warn('[wave/chat] could not ensure conversation:', e);
+    }
+    router.push(`/messages?user=${encodeURIComponent(creatorUserId)}`);
   }
 
   // Creator-only: delete one of your own videos. Server enforces the
@@ -686,7 +924,15 @@ export default function WavePage() {
           </div>
         )}
 
-        {items.map((item) => (
+        {items.map((item, index) => {
+          // Memory-safe video windowing: keep `src` live only for the
+          // active video and a small neighborhood around it. Distant
+          // videos get an empty src so the browser releases their
+          // decoded buffers — important on long scroll sessions.
+          const isWithinWindow = Math.abs(index - activeIndex) <= WINDOW_RADIUS;
+          const expiringSoon =
+            new Date(item.expiresAt).getTime() - Date.now() <= EXPIRING_SOON_MS;
+          return (
           <section
             key={item.id}
             data-video-id={item.id}
@@ -701,6 +947,10 @@ export default function WavePage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              // Soft red inset glow when this video is about to expire.
+              boxShadow: expiringSoon
+                ? 'inset 0 0 0 3px rgba(255,90,90,0.6), inset 0 0 80px rgba(255,90,90,0.2)'
+                : 'none',
             }}
           >
             <video
@@ -708,11 +958,11 @@ export default function WavePage() {
                 if (el) videoRefs.current.set(item.id, el);
                 else videoRefs.current.delete(item.id);
               }}
-              src={item.videoUrl}
+              src={isWithinWindow ? item.videoUrl : undefined}
               loop
               playsInline
-              // Tap the video to toggle pause/play.
-              onClick={() => handleVideoTap(item.id)}
+              // Tap the video: single-tap pauses/resumes, double-tap likes.
+              onClick={(e) => handleVideoTap(item.id, e)}
               // Start muted only when sound isn't yet enabled — the
               // IntersectionObserver flips `el.muted = !soundEnabled`
               // and gracefully retries muted if the browser blocks
@@ -728,13 +978,50 @@ export default function WavePage() {
               }}
             />
 
+            {/* Floating hearts spawned by double-tap-to-like. Only
+                visible on the active section to avoid stale visuals on
+                other sections. */}
+            {activeId === item.id && floatingHearts.length > 0 && (
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  pointerEvents: 'none',
+                  zIndex: 45,
+                }}
+              >
+                {floatingHearts.map((h) => (
+                  <span
+                    key={h.id}
+                    style={{
+                      position: 'absolute',
+                      left: h.x,
+                      top: h.y,
+                      transform: 'translate(-50%, -50%)',
+                      fontSize: 80,
+                      animation: 'mitype-wave-heart 1s ease-out forwards',
+                      filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))',
+                    }}
+                  >
+                    ❤️
+                  </span>
+                ))}
+              </div>
+            )}
+
             {/* Pause overlay — large centered play button shown while
                 the user has manually paused this video. Tapping it
-                resumes playback. */}
+                resumes playback (no double-tap detection here — the
+                user clearly wants to resume). */}
             {pausedId === item.id && (
               <button
                 type="button"
-                onClick={() => handleVideoTap(item.id)}
+                onClick={() => {
+                  const el = videoRefs.current.get(item.id);
+                  if (el) el.play().catch(() => {});
+                  setPausedId(null);
+                }}
                 aria-label="Resume video"
                 style={{
                   position: 'absolute',
@@ -804,18 +1091,28 @@ export default function WavePage() {
               </div>
             )}
 
-            {/* Expires-in badge — top-right */}
+            {/* Expires-in badge — top-right. Pulses red when this video
+                has under EXPIRING_SOON_MS left to live, creating a
+                catch-it-before-it's-gone urgency cue unique to The Wave. */}
             <div
               style={{
                 position: 'absolute',
                 top: 'max(76px, calc(env(safe-area-inset-top) + 60px))',
                 right: 16,
-                background: 'rgba(0,0,0,0.55)',
+                background: expiringSoon
+                  ? 'rgba(255,90,90,0.95)'
+                  : 'rgba(0,0,0,0.55)',
                 color: 'white',
                 padding: '6px 12px',
                 borderRadius: 100,
                 fontSize: 12,
-                fontWeight: 600,
+                fontWeight: expiringSoon ? 800 : 600,
+                boxShadow: expiringSoon
+                  ? '0 0 0 0 rgba(255,90,90,0.55)'
+                  : 'none',
+                animation: expiringSoon
+                  ? 'mitype-wave-pulse 1.8s ease-out infinite'
+                  : undefined,
               }}
             >
               ⏱ {timeRemaining(item.expiresAt)}
@@ -953,24 +1250,72 @@ export default function WavePage() {
                 </span>
               </button>
 
-              {/* Message */}
-              {item.creator && (
-                <Link
-                  href={`/profile/${item.creator.username}`}
+              {/* Chat — opens (or creates) a 1:1 conversation with the
+                  creator inside the messages center. Hidden on your
+                  own videos. */}
+              {item.creator && !isOwnVideo(item) && (
+                <button
+                  type="button"
+                  onClick={() => handleChat(item.creator!.userId)}
                   aria-label="Message creator"
                   style={{
+                    background: 'transparent',
+                    border: 'none',
                     color: 'white',
-                    textDecoration: 'none',
+                    cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: 2,
                     padding: 4,
+                    fontFamily: 'inherit',
                   }}
                 >
                   <span style={{ fontSize: 32, lineHeight: 1 }}>💬</span>
                   <span style={{ fontSize: 11, fontWeight: 700 }}>Chat</span>
-                </Link>
+                </button>
+              )}
+
+              {/* "Why this video?" — explains the compatibility match.
+                  This is the Mitype differentiator: it shows users
+                  exactly WHY the algorithm surfaced this creator. Only
+                  meaningful when there's something to show. */}
+              {(item.compatibility > 0 || item.sharedCategories.length > 0) && (
+                <button
+                  type="button"
+                  onClick={() => setWhyVideoId(item.id)}
+                  aria-label="Why this video?"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 2,
+                    padding: 4,
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: '50%',
+                      border: '2px solid white',
+                      fontSize: 16,
+                      fontWeight: 800,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      lineHeight: 1,
+                    }}
+                  >
+                    i
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>Why</span>
+                </button>
               )}
 
               {/* Dismiss */}
@@ -1117,7 +1462,8 @@ export default function WavePage() {
               </div>
             )}
           </section>
-        ))}
+          );
+        })}
 
         {hasMore && items.length > 0 && (
           <div
@@ -1135,6 +1481,283 @@ export default function WavePage() {
           </div>
         )}
       </div>
+
+      {/* "Why this video?" panel — the compatibility narrative.
+          This is the Mitype-specific feature that sets the feed apart:
+          we explain why this creator was surfaced to the viewer. */}
+      {whyVideoId && (() => {
+        const v = items.find((it) => it.id === whyVideoId);
+        if (!v) return null;
+        return (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Why this video?"
+            onClick={() => setWhyVideoId(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.65)',
+              backdropFilter: 'blur(6px)',
+              zIndex: 200,
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              padding: 16,
+              paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%',
+                maxWidth: 440,
+                background: 'linear-gradient(180deg, rgba(26,18,8,0.95) 0%, rgba(40,24,12,0.95) 100%)',
+                border: '1px solid rgba(200,149,108,0.35)',
+                borderRadius: 24,
+                padding: 24,
+                color: 'white',
+                boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 16,
+              }}>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 900, letterSpacing: '-0.3px' }}>
+                  Why this video?
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setWhyVideoId(null)}
+                  aria-label="Close"
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: 'none',
+                    color: 'white',
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    fontSize: 16,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p style={{
+                color: 'rgba(255,255,255,0.7)',
+                fontSize: 13,
+                margin: '0 0 18px',
+                lineHeight: 1.4,
+              }}>
+                We surface videos from creators who line up with what you
+                make. Here&rsquo;s the match for this one:
+              </p>
+
+              {/* Compatibility bar */}
+              <div style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 16,
+                padding: '14px 16px',
+                marginBottom: 12,
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 8,
+                }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>
+                    Compatibility score
+                  </span>
+                  <span style={{
+                    fontSize: 16,
+                    fontWeight: 900,
+                    color: '#c8956c',
+                    letterSpacing: '-0.3px',
+                  }}>
+                    {v.compatibility}%
+                  </span>
+                </div>
+                <div style={{
+                  height: 6,
+                  borderRadius: 100,
+                  background: 'rgba(255,255,255,0.08)',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{
+                    width: `${Math.min(100, v.compatibility)}%`,
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #c8956c 0%, #ffb37c 100%)',
+                    transition: 'width 0.4s ease',
+                  }} />
+                </div>
+              </div>
+
+              {/* Shared categories */}
+              {v.sharedCategories.length > 0 ? (
+                <div style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 16,
+                  padding: '14px 16px',
+                  marginBottom: 12,
+                }}>
+                  <div style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: 'rgba(255,255,255,0.6)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1.2px',
+                    marginBottom: 10,
+                  }}>
+                    You both create
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {v.sharedCategories.map((c) => (
+                      <span
+                        key={c}
+                        style={{
+                          background: 'rgba(200,149,108,0.2)',
+                          border: '1px solid rgba(200,149,108,0.4)',
+                          color: '#ffd5b3',
+                          padding: '5px 12px',
+                          borderRadius: 100,
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 16,
+                  padding: '14px 16px',
+                  marginBottom: 12,
+                  fontSize: 13,
+                  color: 'rgba(255,255,255,0.7)',
+                }}>
+                  You don&rsquo;t share categories yet — but recency and the
+                  community&rsquo;s overall energy bring this onto your feed.
+                </div>
+              )}
+
+              {/* Category of this video */}
+              {v.category && (
+                <div style={{
+                  fontSize: 13,
+                  color: 'rgba(255,255,255,0.75)',
+                  marginBottom: 16,
+                  lineHeight: 1.4,
+                }}>
+                  Tagged as <strong style={{ color: 'white' }}>{v.category}</strong>.
+                </div>
+              )}
+
+              {v.creator?.bio && (
+                <div style={{
+                  fontSize: 13,
+                  color: 'rgba(255,255,255,0.75)',
+                  lineHeight: 1.5,
+                  borderTop: '1px solid rgba(255,255,255,0.08)',
+                  paddingTop: 14,
+                }}>
+                  About @{v.creator.username}: <em style={{ color: 'rgba(255,255,255,0.9)' }}>
+                    &ldquo;{v.creator.bio.slice(0, 160)}{v.creator.bio.length > 160 ? '…' : ''}&rdquo;
+                  </em>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Undo Skip toast — 5-second window after a Skip to bring the
+          video back, with a thin progress bar showing time remaining. */}
+      {undoSkip && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 'max(80px, calc(env(safe-area-inset-bottom) + 72px))',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'rgba(20,14,8,0.95)',
+            border: '1px solid rgba(200,149,108,0.35)',
+            borderRadius: 100,
+            padding: '10px 12px 10px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+            color: 'white',
+            zIndex: 150,
+            boxShadow: '0 10px 32px rgba(0,0,0,0.55)',
+            overflow: 'hidden',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <span style={{ fontSize: 13, fontWeight: 700 }}>Skipped</span>
+          <button
+            type="button"
+            onClick={handleUndoSkip}
+            style={{
+              background: '#c8956c',
+              border: 'none',
+              borderRadius: 100,
+              color: 'white',
+              fontSize: 13,
+              fontWeight: 800,
+              padding: '8px 18px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            Undo
+          </button>
+          {/* Progress bar showing time remaining. */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: 0,
+              bottom: 0,
+              height: 2,
+              background: 'rgba(200,149,108,0.85)',
+              animation: `mitype-wave-undobar ${UNDO_SKIP_WINDOW_MS}ms linear forwards`,
+              width: '100%',
+              transformOrigin: 'left',
+            }}
+          />
+        </div>
+      )}
+
+      {/* Global keyframes for floating heart, pulse, and undo-bar. */}
+      <style>{`
+        @keyframes mitype-wave-heart {
+          0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+          25% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+          100% { transform: translate(-50%, -90%) scale(0.9); opacity: 0; }
+        }
+        @keyframes mitype-wave-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(255,90,90,0.55); }
+          70% { box-shadow: 0 0 0 12px rgba(255,90,90,0); }
+          100% { box-shadow: 0 0 0 0 rgba(255,90,90,0); }
+        }
+        @keyframes mitype-wave-undobar {
+          0% { transform: scaleX(1); }
+          100% { transform: scaleX(0); }
+        }
+      `}</style>
 
       {showTutorial && <WaveTutorial onDismiss={handleTutorialDone} />}
     </main>
