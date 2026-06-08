@@ -231,12 +231,30 @@ export default function WavePage() {
       }
     }
     // Immediately unmute and (re)play the currently active video.
+    // The click that triggered this counts as a user gesture, so iOS
+    // Safari will allow the unmuted play() that follows.
     if (activeId) {
       const el = videoRefs.current.get(activeId);
       if (el) {
         el.muted = false;
         el.play().catch(() => {});
       }
+    }
+  }
+
+  // Toggle the other direction — user wants quiet again.
+  function disableSound() {
+    setSoundEnabled(false);
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.removeItem('mitype-wave-sound');
+      } catch {
+        // Non-fatal.
+      }
+    }
+    if (activeId) {
+      const el = videoRefs.current.get(activeId);
+      if (el) el.muted = true;
     }
   }
 
@@ -305,14 +323,25 @@ export default function WavePage() {
     setMenuVideoId(null);
   }
 
+  // Whether the viewer is the creator of a given video.
+  function isOwnVideo(item: WaveItem): boolean {
+    return Boolean(user && item.creator && item.creator.userId === user.id);
+  }
+
   // Whether the viewer is the creator of a given video AND it's still
   // inside the 1-hour delete window. Drives the "Delete video" option
   // in the More menu.
   function canDelete(item: WaveItem): boolean {
-    if (!user || !item.creator) return false;
-    if (item.creator.userId !== user.id) return false;
+    if (!isOwnVideo(item)) return false;
     const ageMs = Date.now() - new Date(item.createdAt).getTime();
     return ageMs <= 60 * 60 * 1000;
+  }
+
+  // Human-readable "X minutes ago" type string used to explain why
+  // delete is unavailable when past the 1-hour window.
+  function minutesSincePost(item: WaveItem): number {
+    const ms = Date.now() - new Date(item.createdAt).getTime();
+    return Math.floor(ms / (60 * 1000));
   }
 
   async function handleReport(videoId: string) {
@@ -474,39 +503,51 @@ export default function WavePage() {
         </Link>
       </div>
 
-      {/* One-tap "Enable sound" nudge — only shown when the browser
-          blocked unmuted autoplay (typically iOS Safari on first visit).
-          Tapping enables sound for every video for the rest of this
-          session AND every future session on this device. */}
-      {needsSoundTap && (
-        <button
-          type="button"
-          onClick={enableSound}
-          aria-label="Tap to enable sound"
-          style={{
-            position: 'absolute',
-            bottom: 'max(20px, env(safe-area-inset-bottom))',
-            left: 16,
-            zIndex: 50,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            background: 'rgba(0,0,0,0.7)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            color: 'white',
-            fontSize: 13,
-            fontWeight: 700,
-            padding: '10px 16px',
-            borderRadius: 100,
-            cursor: 'pointer',
-            backdropFilter: 'blur(6px)',
-            fontFamily: 'inherit',
-          }}
-        >
-          <span aria-hidden="true" style={{ fontSize: 18 }}>🔊</span>
-          Tap to enable sound
-        </button>
-      )}
+      {/* Persistent sound toggle — always visible at bottom-left so the
+          user has clear control. Browsers force the initial state to
+          muted on iOS Safari etc., so we surface this prominently. Once
+          the user enables sound, the choice is remembered forever on
+          this device via localStorage. */}
+      <button
+        type="button"
+        onClick={soundEnabled ? disableSound : enableSound}
+        aria-label={soundEnabled ? 'Mute' : 'Tap to unmute'}
+        style={{
+          position: 'absolute',
+          bottom: 'max(20px, env(safe-area-inset-bottom))',
+          left: 12,
+          zIndex: 50,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          background: soundEnabled
+            ? 'rgba(0,0,0,0.55)'
+            : 'rgba(200,149,108,0.95)',
+          border: soundEnabled
+            ? '1px solid rgba(255,255,255,0.15)'
+            : 'none',
+          color: 'white',
+          fontSize: soundEnabled ? 18 : 13,
+          fontWeight: 700,
+          padding: soundEnabled ? '8px 12px' : '10px 16px',
+          borderRadius: 100,
+          cursor: 'pointer',
+          backdropFilter: 'blur(6px)',
+          fontFamily: 'inherit',
+          boxShadow: soundEnabled
+            ? 'none'
+            : '0 6px 18px rgba(200,149,108,0.5)',
+        }}
+      >
+        {soundEnabled ? (
+          <span aria-hidden="true">🔊</span>
+        ) : (
+          <>
+            <span aria-hidden="true" style={{ fontSize: 18 }}>🔇</span>
+            Tap to unmute
+          </>
+        )}
+      </button>
 
       {/* Scroll container */}
       <div
@@ -627,6 +668,27 @@ export default function WavePage() {
                 background: '#000',
               }}
             />
+
+            {/* Mitype watermark — CSS overlay so the brand is always
+                visible in the player, regardless of how the video is
+                cropped (the baked-in watermark gets clipped on
+                landscape videos shown in a portrait viewport). */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                top: 'max(120px, calc(env(safe-area-inset-top) + 105px))',
+                right: 16,
+                fontSize: 14,
+                fontWeight: 900,
+                color: 'rgba(255,255,255,0.85)',
+                letterSpacing: '-0.3px',
+                textShadow: '0 1px 3px rgba(0,0,0,0.55)',
+                pointerEvents: 'none',
+              }}
+            >
+              mitype
+            </div>
 
             {/* Compatibility badge — top-left */}
             {item.compatibility > 0 && (
@@ -901,35 +963,56 @@ export default function WavePage() {
                   boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
                 }}
               >
-                {/* Owner-only: delete your own video within 1 hour. */}
-                {canDelete(item) && (
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(item.id)}
-                    style={{ ...menuButtonStyle, color: '#ff6b6b', fontWeight: 700 }}
-                  >
-                    🗑️ Delete video
-                  </button>
-                )}
-                {/* Report — hide for your own videos. */}
-                {(!user || !item.creator || item.creator.userId !== user.id) && (
-                  <button
-                    type="button"
-                    onClick={() => handleReport(item.id)}
-                    style={menuButtonStyle}
-                  >
-                    🚩 Report video
-                  </button>
-                )}
-                {/* Block — only show for OTHER creators. */}
-                {item.creator && (!user || item.creator.userId !== user.id) && (
-                  <button
-                    type="button"
-                    onClick={() => handleBlock(item.creator!.userId)}
-                    style={menuButtonStyle}
-                  >
-                    🚫 Block creator
-                  </button>
+                {/* OWN video: always surface the Delete state so the
+                    creator understands the 1-hour window — clickable
+                    inside the window, greyed-out + explanatory outside. */}
+                {isOwnVideo(item) ? (
+                  canDelete(item) ? (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(item.id)}
+                      style={{ ...menuButtonStyle, color: '#ff6b6b', fontWeight: 700 }}
+                    >
+                      🗑️ Delete video
+                    </button>
+                  ) : (
+                    <div
+                      style={{
+                        ...menuButtonStyle,
+                        color: 'rgba(255,255,255,0.55)',
+                        cursor: 'default',
+                        whiteSpace: 'normal',
+                        maxWidth: 220,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      🗑️ Delete window closed
+                      <div style={{ fontSize: 11, marginTop: 2, fontWeight: 400 }}>
+                        Posted {minutesSincePost(item)} min ago — videos can only
+                        be deleted within 1 hour of posting. This video will
+                        auto-expire 24 hours after posting.
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleReport(item.id)}
+                      style={menuButtonStyle}
+                    >
+                      🚩 Report video
+                    </button>
+                    {item.creator && (
+                      <button
+                        type="button"
+                        onClick={() => handleBlock(item.creator!.userId)}
+                        style={menuButtonStyle}
+                      >
+                        🚫 Block creator
+                      </button>
+                    )}
+                  </>
                 )}
                 <button
                   type="button"

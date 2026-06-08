@@ -184,16 +184,25 @@ export default function WaveCreatePage() {
     h: number,
     captionText: string
   ) {
-    // Watermark (top-right)
+    // Watermark (top-right) — inset enough that even when a landscape
+    // video is portrait-cropped in the feed (objectFit: cover, which
+    // can shave 30-40% off the sides), the watermark stays inside the
+    // visible area. We use a percentage of the SHORTER dimension so
+    // the inset works for both portrait and landscape inputs.
     const wmFontSize = Math.max(18, Math.round(w * 0.025));
     ctx.font = `900 ${wmFontSize}px Helvetica, Arial, sans-serif`;
     ctx.textBaseline = 'top';
     ctx.textAlign = 'right';
     const padding = Math.round(w * 0.025);
+    const shortSide = Math.min(w, h);
+    // Pull the watermark in by ~20% of the short side so a landscape
+    // video cropped to a 9:16 viewport still shows it on-screen.
+    const safeRightInset = Math.round(shortSide * 0.2) + padding;
+    const safeTopInset = Math.round(shortSide * 0.04) + padding;
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.fillText('mitype', w - padding + 1, padding + 1);
+    ctx.fillText('mitype', w - safeRightInset + 1, safeTopInset + 1);
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.fillText('mitype', w - padding, padding);
+    ctx.fillText('mitype', w - safeRightInset, safeTopInset);
 
     // Caption (bottom-center, pill background)
     if (captionText) {
@@ -281,21 +290,48 @@ export default function WaveCreatePage() {
 
     const stream = (canvas as any).captureStream(30) as MediaStream;
 
-    // Add audio from the video element if available.
+    // Add audio from the video element if available. We use the
+    // Web Audio API (createMediaElementSource + MediaStreamDestination)
+    // because iOS Safari does NOT implement HTMLVideoElement.captureStream,
+    // which was the older approach. Web Audio works everywhere modern,
+    // including iOS Safari.
+    let audioCtx: AudioContext | null = null;
     try {
-      const vAny = v as any;
-      const vStream: MediaStream | null = vAny.captureStream
-        ? vAny.captureStream()
-        : vAny.mozCaptureStream
-          ? vAny.mozCaptureStream()
-          : null;
-      if (vStream) {
-        for (const track of vStream.getAudioTracks()) {
+      const AudioCtxCtor =
+        (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtxCtor) {
+        audioCtx = new AudioCtxCtor();
+        if (audioCtx!.state === 'suspended') {
+          await audioCtx!.resume();
+        }
+        const sourceNode = audioCtx!.createMediaElementSource(v);
+        const destNode = audioCtx!.createMediaStreamDestination();
+        sourceNode.connect(destNode);
+        // Note: we deliberately do NOT connect to audioCtx.destination,
+        // because we don't want the processing video to play audibly
+        // through the user's speakers while we're rendering.
+        for (const track of destNode.stream.getAudioTracks()) {
           stream.addTrack(track);
         }
       }
-    } catch {
-      // Audio capture failed — fall back to a silent video.
+    } catch (audioErr) {
+      console.warn('[wave/create] audio capture via Web Audio failed:', audioErr);
+      // Last-ditch fallback for browsers that DO have captureStream.
+      try {
+        const vAny = v as any;
+        const vStream: MediaStream | null = vAny.captureStream
+          ? vAny.captureStream()
+          : vAny.mozCaptureStream
+            ? vAny.mozCaptureStream()
+            : null;
+        if (vStream) {
+          for (const track of vStream.getAudioTracks()) {
+            stream.addTrack(track);
+          }
+        }
+      } catch {
+        // Silent video; better than failing the whole upload.
+      }
     }
 
     const mimeType = pickMimeType();
@@ -359,6 +395,15 @@ export default function WaveCreatePage() {
     requestAnimationFrame(frame);
 
     await stopped;
+
+    // Release the AudioContext now that recording has finished.
+    if (audioCtx) {
+      try {
+        await audioCtx.close();
+      } catch {
+        // Non-fatal.
+      }
+    }
 
     const blob = new Blob(chunks, { type: mimeType });
     return { blob, ext };
