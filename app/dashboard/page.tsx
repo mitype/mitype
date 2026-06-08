@@ -12,6 +12,7 @@ import { ShareMitypeButton } from '../components/ShareMitypeButton';
 import { InviteSharePanel } from '../components/InviteSharePanel';
 import { UnreadBadge } from '../components/UnreadBadge';
 import { useUnreadCounts } from '../lib/useUnreadCounts';
+import { Avatar } from '../components/Avatar';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -19,6 +20,9 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  // True when this user has wave videos posted in the last 24h.
+  // Drives the glowing bronze outline around their dashboard avatar.
+  const [hasFreshWave, setHasFreshWave] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
 
@@ -45,6 +49,22 @@ export default function Dashboard() {
       }
 
       setProfile(profile);
+
+      // Check whether the user has wave videos in the last 24h so we
+      // can light up the avatar as a one-tap entry to their own Wave.
+      try {
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { count } = await supabase
+          .from('wave_videos')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('is_removed', false)
+          .gte('created_at', since);
+        setHasFreshWave((count ?? 0) > 0);
+      } catch {
+        // Non-fatal.
+      }
+
       setLoading(false);
     };
     getData();
@@ -237,21 +257,102 @@ export default function Dashboard() {
       {/* Main Content */}
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 24px' }}>
 
-        {/* Welcome */}
-        <div style={{ marginBottom: 48 }}>
-          <h1 style={{
-            fontSize: 40,
-            fontWeight: 900,
-            color: '#1a1208',
-            letterSpacing: '-1px',
-            marginBottom: 8,
-          }}>
-            Welcome back, <span style={{ color: '#c8956c' }}>@{profile?.username}</span> 👋
-          </h1>
-          <p style={{ color: '#a89278', fontSize: 16 }}>
-            Here's what's happening on your Mitype profile.
-          </p>
+        {/* Welcome — when this user has Wave videos in the last 24h,
+            their avatar lights up with a bronze glow. Tapping it goes
+            straight into their own Wave feed (just their videos). */}
+        <div style={{
+          marginBottom: 48,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 18,
+          flexWrap: 'wrap',
+        }}>
+          {hasFreshWave ? (
+            <Link
+              href={`/wave?user=${encodeURIComponent(user?.id ?? '')}`}
+              aria-label="Watch your Wave videos"
+              style={{
+                display: 'inline-block',
+                padding: 4,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #c8956c 0%, #ffb37c 50%, #c8956c 100%)',
+                boxShadow: '0 0 20px rgba(200,149,108,0.55)',
+                animation: 'mitype-dashboard-freshwave 2.4s ease-in-out infinite',
+                flexShrink: 0,
+                textDecoration: 'none',
+              }}
+            >
+              <div style={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                border: '2.5px solid white',
+                overflow: 'hidden',
+                background: '#f0e8df',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxSizing: 'border-box',
+              }}>
+                <Avatar
+                  src={profile?.avatar_url}
+                  alt="Your profile photo"
+                  width={64}
+                  height={64}
+                  fallbackFontSize={28}
+                  sizes="64px"
+                />
+              </div>
+            </Link>
+          ) : (
+            <div style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              border: '3px solid white',
+              overflow: 'hidden',
+              background: '#f0e8df',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
+              flexShrink: 0,
+              boxSizing: 'border-box',
+            }}>
+              <Avatar
+                src={profile?.avatar_url}
+                alt="Your profile photo"
+                width={64}
+                height={64}
+                fallbackFontSize={28}
+                sizes="64px"
+              />
+            </div>
+          )}
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <h1 style={{
+              fontSize: 40,
+              fontWeight: 900,
+              color: '#1a1208',
+              letterSpacing: '-1px',
+              marginBottom: 8,
+              marginTop: 0,
+            }}>
+              Welcome back, <span style={{ color: '#c8956c' }}>@{profile?.username}</span> 👋
+            </h1>
+            <p style={{ color: '#a89278', fontSize: 16, margin: 0 }}>
+              {hasFreshWave
+                ? 'Your Wave is live — tap your avatar to watch your own videos.'
+                : "Here's what's happening on your Mitype profile."}
+            </p>
+          </div>
         </div>
+        <style>{`
+          @keyframes mitype-dashboard-freshwave {
+            0%, 100% { box-shadow: 0 0 20px rgba(200,149,108,0.55); }
+            50% { box-shadow: 0 0 32px rgba(200,149,108,0.85); }
+          }
+        `}</style>
 
         {/* Profile completeness — nudge users to fill in the gaps */}
         <ProfileCompleteness profile={profile} />

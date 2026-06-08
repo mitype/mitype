@@ -59,6 +59,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  // True when this profile owner has posted a wave_videos row in the
+  // last 24h. Drives the glowing bronze outline around their avatar
+  // that, when tapped, opens /wave?user=<theirUserId>.
+  const [hasFreshWave, setHasFreshWave] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
@@ -93,6 +97,20 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         if (cancelled) return;
         if (!profileData) { router.push('/discover'); return; }
         setProfile(profileData as PublicProfile);
+
+        // Check for fresh wave videos in the last 24h. One small query.
+        try {
+          const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+          const { count } = await supabase
+            .from('wave_videos')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', profileData.user_id)
+            .eq('is_removed', false)
+            .gte('created_at', since);
+          if (!cancelled) setHasFreshWave((count ?? 0) > 0);
+        } catch {
+          // Non-fatal — outline just won't show.
+        }
 
         // Check if already blocked.
         //
@@ -404,22 +422,80 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               marginTop: -50, marginBottom: 16, display: 'flex',
               justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12,
             }}>
-              <div style={{
-                width: 100, height: 125, borderRadius: 16, border: '4px solid white',
-                background: '#f0e8df', overflow: 'hidden', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-              }}>
-                <Avatar
-                  src={profile.avatar_url}
-                  alt={`${profile.username} profile photo`}
-                  width={100}
-                  height={125}
-                  fallbackFontSize={48}
-                  sizes="100px"
-                />
-
-              </div>
+              {/* Avatar — wrapped in a glowing bronze gradient outline
+                  when this creator has Wave videos in the last 24h.
+                  Tapping the avatar in that state opens the Wave feed
+                  scoped to just their videos. Works for both your own
+                  profile (see your own Wave) and other creators. */}
+              {hasFreshWave ? (
+                <Link
+                  href={`/wave?user=${encodeURIComponent(profile.user_id)}`}
+                  aria-label={isOwnProfile
+                    ? 'Watch your Wave videos'
+                    : `Watch ${profile.username}'s Wave videos`}
+                  style={{
+                    display: 'inline-block',
+                    padding: 4,
+                    borderRadius: 20,
+                    background: 'linear-gradient(135deg, #c8956c 0%, #ffb37c 50%, #c8956c 100%)',
+                    boxShadow: '0 0 24px rgba(200,149,108,0.6)',
+                    animation: 'mitype-profile-freshwave 2.4s ease-in-out infinite',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <div style={{
+                    width: 100, height: 125, borderRadius: 16,
+                    border: '3px solid white',
+                    background: '#f0e8df', overflow: 'hidden', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+                    boxSizing: 'border-box',
+                  }}>
+                    <Avatar
+                      src={profile.avatar_url}
+                      alt={`${profile.username} profile photo`}
+                      width={100}
+                      height={125}
+                      fallbackFontSize={48}
+                      sizes="100px"
+                    />
+                  </div>
+                  <div style={{
+                    position: 'absolute',
+                    background: 'linear-gradient(135deg, #c8956c 0%, #ffb37c 100%)',
+                    color: 'white',
+                    padding: '3px 9px',
+                    borderRadius: 100,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    letterSpacing: '0.3px',
+                    transform: 'translate(-50%, -50%)',
+                    left: '50%',
+                    marginTop: -8,
+                    boxShadow: '0 4px 12px rgba(200,149,108,0.55)',
+                    whiteSpace: 'nowrap',
+                    pointerEvents: 'none',
+                  }}>
+                    🌊 WATCH
+                  </div>
+                </Link>
+              ) : (
+                <div style={{
+                  width: 100, height: 125, borderRadius: 16, border: '4px solid white',
+                  background: '#f0e8df', overflow: 'hidden', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+                }}>
+                  <Avatar
+                    src={profile.avatar_url}
+                    alt={`${profile.username} profile photo`}
+                    width={100}
+                    height={125}
+                    fallbackFontSize={48}
+                    sizes="100px"
+                  />
+                </div>
+              )}
 
               <div style={{ display: 'flex', gap: 8, paddingBottom: 4, flexWrap: 'wrap' }}>
                 <button onClick={shareProfile} style={{
@@ -728,6 +804,12 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           </div>
         )}
       </div>
+      <style>{`
+        @keyframes mitype-profile-freshwave {
+          0%, 100% { box-shadow: 0 0 24px rgba(200,149,108,0.6); }
+          50% { box-shadow: 0 0 32px rgba(200,149,108,0.9); }
+        }
+      `}</style>
     </main>
   );
 }
