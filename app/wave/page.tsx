@@ -51,7 +51,15 @@ export default function WavePage() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [muted, setMuted] = useState(true);
+  // Audio handling. We want videos to play with sound by default, but
+  // every mobile browser (especially iOS Safari) requires muted autoplay
+  // until the user has interacted with the page. We start with sound
+  // enabled IF this device has already tapped-to-enable in a previous
+  // session (cached in localStorage); otherwise we'll briefly fall back
+  // to muted, show a one-tap "🔊 Enable sound" nudge, and flip the flag
+  // forever once they tap.
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [needsSoundTap, setNeedsSoundTap] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [menuVideoId, setMenuVideoId] = useState<string | null>(null);
@@ -80,6 +88,12 @@ export default function WavePage() {
         ? new URLSearchParams(window.location.search).get('category')
         : null;
       setCategoryFilter(cat);
+
+      // If the user has ever tapped to enable sound on this device,
+      // start with sound on so the very first video plays with audio.
+      if (typeof window !== 'undefined' && window.localStorage.getItem('mitype-wave-sound') === '1') {
+        setSoundEnabled(true);
+      }
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -137,9 +151,29 @@ export default function WavePage() {
   }
 
   // IntersectionObserver-driven autoplay: the currently-visible video plays,
-  // every other video pauses and rewinds.
+  // every other video pauses and rewinds. We try to play with sound on,
+  // and fall back to muted-autoplay + a "tap to enable sound" prompt only
+  // if the browser blocks audio autoplay (iOS Safari, etc.).
   useEffect(() => {
     if (!containerRef.current || items.length === 0) return;
+
+    async function playWithSoundFallback(el: HTMLVideoElement) {
+      el.muted = !soundEnabled;
+      try {
+        await el.play();
+      } catch {
+        // Audio autoplay blocked — fall back to muted autoplay and
+        // surface the one-tap prompt to enable sound.
+        try {
+          el.muted = true;
+          await el.play();
+          setNeedsSoundTap(true);
+        } catch {
+          // Some other reason; ignore.
+        }
+      }
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -148,8 +182,7 @@ export default function WavePage() {
           if (!el || !id) continue;
           if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
             setActiveId(id);
-            el.muted = muted;
-            el.play().catch(() => {});
+            playWithSoundFallback(el);
             // Fire-and-forget view tracking.
             apiFetch('/api/wave/view', {
               method: 'POST',
@@ -183,7 +216,29 @@ export default function WavePage() {
       loadObserver?.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, muted, cursor, hasMore]);
+  }, [items, soundEnabled, cursor, hasMore]);
+
+  // One-tap handler: user grants sound permission for the whole feed.
+  // Remember the choice locally so future sessions never need the tap.
+  function enableSound() {
+    setSoundEnabled(true);
+    setNeedsSoundTap(false);
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem('mitype-wave-sound', '1');
+      } catch {
+        // localStorage unavailable; non-fatal.
+      }
+    }
+    // Immediately unmute and (re)play the currently active video.
+    if (activeId) {
+      const el = videoRefs.current.get(activeId);
+      if (el) {
+        el.muted = false;
+        el.play().catch(() => {});
+      }
+    }
+  }
 
   async function handleLike(videoId: string) {
     // Optimistic UI: flip immediately.
@@ -390,28 +445,39 @@ export default function WavePage() {
         </Link>
       </div>
 
-      {/* Mute/unmute button */}
-      <button
-        type="button"
-        onClick={() => setMuted(!muted)}
-        aria-label={muted ? 'Unmute' : 'Mute'}
-        style={{
-          position: 'absolute',
-          bottom: 'max(20px, env(safe-area-inset-bottom))',
-          left: 16,
-          zIndex: 50,
-          width: 44,
-          height: 44,
-          borderRadius: '50%',
-          background: 'rgba(0,0,0,0.55)',
-          border: 'none',
-          color: 'white',
-          fontSize: 22,
-          cursor: 'pointer',
-        }}
-      >
-        {muted ? '🔇' : '🔊'}
-      </button>
+      {/* One-tap "Enable sound" nudge — only shown when the browser
+          blocked unmuted autoplay (typically iOS Safari on first visit).
+          Tapping enables sound for every video for the rest of this
+          session AND every future session on this device. */}
+      {needsSoundTap && (
+        <button
+          type="button"
+          onClick={enableSound}
+          aria-label="Tap to enable sound"
+          style={{
+            position: 'absolute',
+            bottom: 'max(20px, env(safe-area-inset-bottom))',
+            left: 16,
+            zIndex: 50,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: 'rgba(0,0,0,0.7)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            color: 'white',
+            fontSize: 13,
+            fontWeight: 700,
+            padding: '10px 16px',
+            borderRadius: 100,
+            cursor: 'pointer',
+            backdropFilter: 'blur(6px)',
+            fontFamily: 'inherit',
+          }}
+        >
+          <span aria-hidden="true" style={{ fontSize: 18 }}>🔊</span>
+          Tap to enable sound
+        </button>
+      )}
 
       {/* Scroll container */}
       <div
@@ -519,7 +585,11 @@ export default function WavePage() {
               src={item.videoUrl}
               loop
               playsInline
-              muted={muted}
+              // Start muted only when sound isn't yet enabled — the
+              // IntersectionObserver flips `el.muted = !soundEnabled`
+              // and gracefully retries muted if the browser blocks
+              // unmuted autoplay.
+              muted={!soundEnabled}
               preload="metadata"
               style={{
                 width: '100%',
