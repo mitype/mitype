@@ -13,6 +13,7 @@ import { supabase } from '../lib/supabaseClient';
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { Skeleton } from '../components/Skeleton';
+import { BackButton } from '../components/BackButton';
 import { sanitizeText, safeUrl } from '../lib/sanitize';
 
 const PORTFOLIO_TYPES = [
@@ -182,12 +183,15 @@ export default function SpotlightPage() {
         flexWrap: 'wrap',
         gap: 12,
       }}>
-        <Link href="/dashboard" style={{
-          fontSize: 24, fontWeight: 900, color: '#c8956c',
-          letterSpacing: '-1px', textDecoration: 'none',
-        }}>
-          mitype
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <BackButton fallbackHref="/dashboard" />
+          <Link href="/dashboard" style={{
+            fontSize: 24, fontWeight: 900, color: '#c8956c',
+            letterSpacing: '-1px', textDecoration: 'none',
+          }}>
+            mitype
+          </Link>
+        </div>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
           <Link href="/discover" style={navLinkStyle}>Discover</Link>
           <Link href="/spotlight" style={{ ...navLinkStyle, color: '#c8956c', background: 'rgba(200,149,108,0.1)' }}>Spotlight</Link>

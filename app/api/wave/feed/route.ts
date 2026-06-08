@@ -33,6 +33,10 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const cursor = url.searchParams.get('cursor');
     const category = url.searchParams.get('category');
+    // Optional single-creator filter — when present, only return videos
+    // from this user. Used by the "fresh wave" story-ring tap target so
+    // tapping a ringed avatar opens that creator's videos.
+    const creatorUserId = url.searchParams.get('user');
 
     const supabaseAdmin = getSupabaseAdmin();
 
@@ -81,6 +85,9 @@ export async function GET(req: NextRequest) {
     }
     if (category) {
       query = query.eq('category', category);
+    }
+    if (creatorUserId) {
+      query = query.eq('user_id', creatorUserId);
     }
 
     const { data: candidates, error: feedErr } = await query;

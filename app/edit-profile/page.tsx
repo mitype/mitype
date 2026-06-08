@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { Coachmark } from '../components/Coachmark';
+import { BackButton } from '../components/BackButton';
 import { PhotoManager } from '../components/PhotoManager';
 import { toast } from '../lib/toast';
 import { isAtLeast18, maxDobIso, minDobIso } from '../lib/age';
@@ -304,15 +305,18 @@ export default function EditProfilePage() {
         top: 0,
         zIndex: 100,
       }}>
-        <Link href="/dashboard" style={{
-          fontSize: 24,
-          fontWeight: 900,
-          color: '#c8956c',
-          letterSpacing: '-1px',
-          textDecoration: 'none',
-        }}>
-          mitype
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <BackButton fallbackHref="/dashboard" />
+          <Link href="/dashboard" style={{
+            fontSize: 24,
+            fontWeight: 900,
+            color: '#c8956c',
+            letterSpacing: '-1px',
+            textDecoration: 'none',
+          }}>
+            mitype
+          </Link>
+        </div>
         <Link href="/dashboard" style={{
           color: '#8a7560',
           textDecoration: 'none',

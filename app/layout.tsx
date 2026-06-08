@@ -5,6 +5,8 @@ import { InstallPrompt } from "./components/InstallPrompt";
 import { UnreadTitleSync } from "./components/UnreadTitleSync";
 import { NewMessageToastListener } from "./components/NewMessageToastListener";
 import { PresenceTracker } from "./components/PresenceTracker";
+import { SwipeBackProvider } from "./components/SwipeBackProvider";
+import { PageTransition } from "./components/PageTransition";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
@@ -54,7 +56,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body>
-        {children}
+        <SwipeBackProvider>
+          <PageTransition>{children}</PageTransition>
+        </SwipeBackProvider>
         <Toaster />
         <InstallPrompt />
         <UnreadTitleSync />

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { MessagesSkeleton } from '../components/Skeleton';
+import { BackButton } from '../components/BackButton';
 import { MatchCard } from '../components/MatchCard';
 import { GameCard, isGameMessage } from '../components/GameCard';
 import { GamePicker } from '../components/GamePicker';
@@ -484,15 +485,18 @@ export default function MessagesPage() {
         backdropFilter: 'blur(10px)',
         flexShrink: 0,
       }}>
-        <Link href="/dashboard" style={{
-          fontSize: 22,
-          fontWeight: 900,
-          color: '#c8956c',
-          letterSpacing: '-1px',
-          textDecoration: 'none',
-        }}>
-          mitype
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <BackButton fallbackHref="/dashboard" />
+          <Link href="/dashboard" style={{
+            fontSize: 22,
+            fontWeight: 900,
+            color: '#c8956c',
+            letterSpacing: '-1px',
+            textDecoration: 'none',
+          }}>
+            mitype
+          </Link>
+        </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <Link href="/dashboard" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Dashboard</Link>
           <Link href="/discover" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Discover</Link>

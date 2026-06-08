@@ -69,6 +69,7 @@ export default function WavePage() {
   // (e.g. `/wave?category=🍕 Food Blogger`). Read from window.location
   // instead of useSearchParams to avoid the Next 16 Suspense requirement.
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [creatorFilter, setCreatorFilter] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const [user, setUser] = useState<any>(null);
@@ -139,10 +140,13 @@ export default function WavePage() {
     (async () => {
       // Read the optional `?category=` URL filter before we kick off
       // the first feed load so the filter is applied from the start.
-      const cat = typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('category')
+      const search = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search)
         : null;
+      const cat = search?.get('category') ?? null;
+      const creator = search?.get('user') ?? null;
       setCategoryFilter(cat);
+      setCreatorFilter(creator);
 
       // If the user has ever tapped to enable sound on this device,
       // start with sound on so the very first video plays with audio.
@@ -166,26 +170,31 @@ export default function WavePage() {
         setShowTutorial(true);
       }
 
-      await loadFeedWithFilter(null, cat);
+      await loadFeedWithFilter(null, cat, creator);
       setLoading(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadFeed(cur: string | null) {
-    return loadFeedWithFilter(cur, categoryFilter);
+    return loadFeedWithFilter(cur, categoryFilter, creatorFilter);
   }
 
   // Internal: lets the initial mount call this synchronously with the
   // category value it just read from the URL, without waiting for the
   // state update to flush. Includes a single 750ms retry on transient
   // errors so brief mobile-network blips don't surface as a hard fail.
-  async function loadFeedWithFilter(cur: string | null, cat: string | null) {
+  async function loadFeedWithFilter(
+    cur: string | null,
+    cat: string | null,
+    creator: string | null
+  ) {
     if (feedFetchInFlightRef.current) return;
     feedFetchInFlightRef.current = true;
     const qs = new URLSearchParams();
     if (cur) qs.set('cursor', cur);
     if (cat) qs.set('category', cat);
+    if (creator) qs.set('user', creator);
     const queryString = qs.toString();
     const url = `/api/wave/feed${queryString ? `?${queryString}` : ''}`;
 
@@ -723,6 +732,11 @@ export default function WavePage() {
 
   return (
     <main
+      // We opt-out of the global SwipeBackProvider's gesture here
+      // because The Wave already runs its own (identical) swipe-left-
+      // exit handler. Without this attribute both would fire and we'd
+      // pop two pages off the history stack on one swipe.
+      data-no-swipe-back="true"
       style={{
         height: '100vh',
         width: '100vw',

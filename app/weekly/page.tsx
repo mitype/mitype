@@ -12,6 +12,7 @@ import { supabase } from '../lib/supabaseClient';
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { Skeleton } from '../components/Skeleton';
+import { BackButton } from '../components/BackButton';
 import { sanitizeText } from '../lib/sanitize';
 import { toast } from '../lib/toast';
 import {
@@ -294,18 +295,21 @@ export default function WeeklyPromptPage() {
           gap: 12,
         }}
       >
-        <Link
-          href="/dashboard"
-          style={{
-            fontSize: 24,
-            fontWeight: 900,
-            color: '#c8956c',
-            letterSpacing: '-1px',
-            textDecoration: 'none',
-          }}
-        >
-          mitype
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <BackButton fallbackHref="/dashboard" />
+          <Link
+            href="/dashboard"
+            style={{
+              fontSize: 24,
+              fontWeight: 900,
+              color: '#c8956c',
+              letterSpacing: '-1px',
+              textDecoration: 'none',
+            }}
+          >
+            mitype
+          </Link>
+        </div>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
           <Link href="/dashboard" style={navLinkStyle}>Dashboard</Link>
           <Link href="/discover" style={navLinkStyle}>Discover</Link>

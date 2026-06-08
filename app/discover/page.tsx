@@ -12,6 +12,8 @@ import { sanitizeText } from '../lib/sanitize';
 import { calculateAge } from '../lib/age';
 import { usePresence } from '../lib/usePresence';
 import { ALL_CATEGORIES } from '../lib/categories';
+import { BackButton } from '../components/BackButton';
+import { WaveStoryRing } from '../components/WaveStoryRing';
 
 // Get 3 random spotlight profiles that rotate daily
 function getSpotlightProfiles(profiles: any[]): any[] {
@@ -36,6 +38,10 @@ export default function DiscoverPage() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [zipFilter, setZipFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // Set of user_ids that have posted a Wave video in the last 24h.
+  // Drives the bronze "fresh wave" story ring on profile avatars.
+  const [freshWaveCreators, setFreshWaveCreators] = useState<Set<string>>(new Set());
   // The category that has actually been applied (separate from the
   // typed/picked-but-not-yet-applied `categoryFilter`). When this is set,
   // we also fetch a Wave-Feed preview scoped to the same category so it
@@ -118,6 +124,25 @@ export default function DiscoverPage() {
 
       setProfiles(sorted);
       setFilteredProfiles(sorted);
+
+      // Fresh-wave story-ring: figure out which of these creators has
+      // posted a Wave video in the last 24h. One round-trip — only the
+      // user_id column, no joins.
+      try {
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { data: freshWaves } = await supabase
+          .from('wave_videos')
+          .select('user_id')
+          .eq('is_removed', false)
+          .gte('created_at', since);
+        if (freshWaves) {
+          const ids = new Set<string>(freshWaves.map((w: any) => w.user_id));
+          setFreshWaveCreators(ids);
+        }
+      } catch {
+        // Non-fatal — rings just won't appear this session.
+      }
+
       setLoading(false);
     };
     getData();
@@ -229,6 +254,16 @@ export default function DiscoverPage() {
     );
   }
 
+  // Shared link style for the mobile drawer items.
+  const mobileLinkStyle: React.CSSProperties = {
+    color: '#1a1208',
+    textDecoration: 'none',
+    fontSize: 16,
+    fontWeight: 600,
+    padding: '14px 16px',
+    borderRadius: 12,
+  };
+
   if (loading) return <DiscoverSkeleton />;
 
   return (
@@ -244,42 +279,117 @@ export default function DiscoverPage() {
         connection request lands in their <strong>Messages</strong> for them to approve.
       </Coachmark>
 
-      {/* Nav */}
+      {/* Nav — responsive: horizontal on desktop, hamburger on mobile.
+          Mirrors the dashboard pattern for visual consistency. */}
       <nav style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '20px 40px',
-        borderBottom: '1px solid rgba(200,149,108,0.15)',
-        background: 'rgba(250,246,240,0.9)',
-        backdropFilter: 'blur(10px)',
         position: 'sticky',
         top: 0,
         zIndex: 100,
+        background: 'rgba(250,246,240,0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(200,149,108,0.15)',
       }}>
-        <Link href="/dashboard" style={{
-          fontSize: 24,
-          fontWeight: 900,
-          color: '#c8956c',
-          letterSpacing: '-1px',
-          textDecoration: 'none',
+        <div className="mitype-discover-nav-row" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 40px',
+          gap: 12,
         }}>
-          mitype
-        </Link>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Link href="/dashboard" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
-            Dashboard
-          </Link>
-          <Link href="/spotlight" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
-            Spotlight
-          </Link>
-          <Link href="/weekly" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
-            Weekly
-          </Link>
-          <Link href="/messages" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
-            Messages
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <BackButton fallbackHref="/dashboard" />
+            <Link href="/dashboard" style={{
+              fontSize: 24,
+              fontWeight: 900,
+              color: '#c8956c',
+              letterSpacing: '-1px',
+              textDecoration: 'none',
+            }}>
+              mitype
+            </Link>
+          </div>
+
+          {/* Hamburger — visible on mobile only. */}
+          <button
+            type="button"
+            className="mitype-discover-hamburger"
+            onClick={() => setMobileMenuOpen((v) => !v)}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+            style={{
+              display: 'none',
+              background: 'transparent',
+              border: 'none',
+              padding: 6,
+              cursor: 'pointer',
+              color: '#8a7560',
+            }}
+          >
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+              {mobileMenuOpen ? (
+                <>
+                  <path d="M7 7 L19 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M7 19 L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </>
+              ) : (
+                <>
+                  <path d="M4 8 H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M4 13 H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M4 18 H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </>
+              )}
+            </svg>
+          </button>
+
+          {/* Desktop nav links — hidden on mobile. */}
+          <div className="mitype-discover-nav-links" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <Link href="/dashboard" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+              Dashboard
+            </Link>
+            <Link href="/wave" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+              The Wave Feed
+            </Link>
+            <Link href="/spotlight" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+              Spotlight
+            </Link>
+            <Link href="/weekly" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+              Weekly
+            </Link>
+            <Link href="/messages" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+              Messages
+            </Link>
+          </div>
         </div>
+
+        {/* Mobile drawer — only renders when open. */}
+        {mobileMenuOpen && (
+          <div className="mitype-discover-mobile-drawer" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '8px 24px 20px',
+            gap: 4,
+            borderTop: '1px solid rgba(200,149,108,0.15)',
+          }}>
+            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Dashboard</Link>
+            <Link href="/wave" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>The Wave Feed</Link>
+            <Link href="/spotlight" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Spotlight</Link>
+            <Link href="/weekly" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Weekly</Link>
+            <Link href="/messages" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Messages</Link>
+            <Link href="/edit-profile" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Edit Profile</Link>
+          </div>
+        )}
+
+        <style>{`
+          @media (max-width: 768px) {
+            .mitype-discover-nav-row { padding: 16px 20px !important; }
+            .mitype-discover-hamburger { display: flex !important; align-items: center; }
+            .mitype-discover-nav-links { display: none !important; }
+          }
+          @keyframes mitype-freshwave-pulse {
+            0%, 100% { box-shadow: 0 2px 10px rgba(200,149,108,0.55); transform: scale(1); }
+            50% { box-shadow: 0 2px 18px rgba(200,149,108,0.85); transform: scale(1.04); }
+          }
+        `}</style>
       </nav>
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 24px' }}>
@@ -946,6 +1056,35 @@ export default function DiscoverPage() {
                       }}>
                         {score}% Compatible
                       </div>
+                    )}
+
+                    {/* Fresh-Wave indicator — this creator has posted a
+                        Wave video in the last 24h. Tap to open the Wave
+                        feed scoped to just their videos. */}
+                    {freshWaveCreators.has(profile.user_id) && (
+                      <Link
+                        href={`/wave?user=${encodeURIComponent(profile.user_id)}`}
+                        style={{
+                          position: 'absolute',
+                          top: 10,
+                          left: 10,
+                          background: 'linear-gradient(135deg, #c8956c 0%, #ffb37c 100%)',
+                          color: 'white',
+                          padding: '5px 11px',
+                          borderRadius: 100,
+                          fontSize: 11,
+                          fontWeight: 800,
+                          letterSpacing: '0.3px',
+                          textDecoration: 'none',
+                          boxShadow: '0 2px 10px rgba(200,149,108,0.55)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          animation: 'mitype-freshwave-pulse 2.4s ease-in-out infinite',
+                        }}
+                      >
+                        🌊 Fresh Wave
+                      </Link>
                     )}
 
                     <div style={{
