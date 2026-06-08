@@ -286,6 +286,35 @@ export default function WavePage() {
     }
   }
 
+  // Creator-only: delete one of your own videos. Server enforces the
+  // 1-hour ownership window AND keeps the row soft-deleted so the
+  // 3-per-24h post limit still counts it.
+  async function handleDelete(videoId: string) {
+    if (!confirm('Delete this video? This cannot be undone.')) return;
+    const res = await apiFetch('/api/wave/delete', {
+      method: 'POST',
+      body: JSON.stringify({ videoId }),
+    });
+    const json = await res.json().catch(() => ({} as any));
+    if (res.ok) {
+      toast.success('Video deleted');
+      setItems((prev) => prev.filter((it) => it.id !== videoId));
+    } else {
+      toast.error(json.error ?? 'Could not delete video');
+    }
+    setMenuVideoId(null);
+  }
+
+  // Whether the viewer is the creator of a given video AND it's still
+  // inside the 1-hour delete window. Drives the "Delete video" option
+  // in the More menu.
+  function canDelete(item: WaveItem): boolean {
+    if (!user || !item.creator) return false;
+    if (item.creator.userId !== user.id) return false;
+    const ageMs = Date.now() - new Date(item.createdAt).getTime();
+    return ageMs <= 60 * 60 * 1000;
+  }
+
   async function handleReport(videoId: string) {
     if (!confirm('Report this video for review?')) return;
     const res = await apiFetch('/api/wave/report', {
@@ -656,7 +685,7 @@ export default function WavePage() {
               </div>
             )}
 
-            {/* Creator card — bottom-left.
+            {/* Creator card — flush to the LEFT edge of the screen.
                 NOTE: the caption is intentionally NOT rendered here because
                 the editor already bakes a styled caption pill into the
                 video frame itself. Rendering it again caused the captions
@@ -667,10 +696,14 @@ export default function WavePage() {
                 // Sit well clear of the in-video caption pill, which is
                 // painted near the bottom of the video frame.
                 bottom: 'max(96px, calc(env(safe-area-inset-bottom) + 88px))',
-                left: 70,
-                right: 90,
+                left: 12,
+                right: 80,
                 color: 'white',
                 pointerEvents: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: 8,
               }}
             >
               {item.creator && (
@@ -713,7 +746,7 @@ export default function WavePage() {
                   style={{
                     fontSize: 12,
                     color: 'white',
-                    margin: '8px 0 0',
+                    margin: 0,
                     fontWeight: 600,
                     background: 'rgba(0,0,0,0.45)',
                     padding: '5px 12px',
@@ -868,14 +901,28 @@ export default function WavePage() {
                   boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
                 }}
               >
-                <button
-                  type="button"
-                  onClick={() => handleReport(item.id)}
-                  style={menuButtonStyle}
-                >
-                  🚩 Report video
-                </button>
-                {item.creator && (
+                {/* Owner-only: delete your own video within 1 hour. */}
+                {canDelete(item) && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(item.id)}
+                    style={{ ...menuButtonStyle, color: '#ff6b6b', fontWeight: 700 }}
+                  >
+                    🗑️ Delete video
+                  </button>
+                )}
+                {/* Report — hide for your own videos. */}
+                {(!user || !item.creator || item.creator.userId !== user.id) && (
+                  <button
+                    type="button"
+                    onClick={() => handleReport(item.id)}
+                    style={menuButtonStyle}
+                  >
+                    🚩 Report video
+                  </button>
+                )}
+                {/* Block — only show for OTHER creators. */}
+                {item.creator && (!user || item.creator.userId !== user.id) && (
                   <button
                     type="button"
                     onClick={() => handleBlock(item.creator!.userId)}
