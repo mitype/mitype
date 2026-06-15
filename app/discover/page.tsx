@@ -14,6 +14,7 @@ import { usePresence } from '../lib/usePresence';
 import { ALL_CATEGORIES } from '../lib/categories';
 import { BackButton } from '../components/BackButton';
 import { WaveStoryRing } from '../components/WaveStoryRing';
+import { BUSINESS_CATEGORIES } from '../lib/businessCategories';
 
 // Get 3 random spotlight profiles that rotate daily
 function getSpotlightProfiles(profiles: any[]): any[] {
@@ -42,6 +43,16 @@ export default function DiscoverPage() {
   // Set of user_ids that have posted a Wave video in the last 24h.
   // Drives the bronze "fresh wave" story ring on profile avatars.
   const [freshWaveCreators, setFreshWaveCreators] = useState<Set<string>>(new Set());
+  // The viewer's own zip code; used by the local-business tab to scope
+  // the listings.
+  const [myZip, setMyZip] = useState<string>('');
+  // Local-business listings (in the viewer's zip code).
+  const [localBusinesses, setLocalBusinesses] = useState<any[]>([]);
+  const [bizCategoryFilter, setBizCategoryFilter] = useState<string>('');
+  // True when the local-business tab is expanded.
+  const [showBusinessTab, setShowBusinessTab] = useState(false);
+  // Daily-rotating featured business (everyone sees the same one today).
+  const [dailyBusinessSpotlight, setDailyBusinessSpotlight] = useState<any | null>(null);
   // The category that has actually been applied (separate from the
   // typed/picked-but-not-yet-applied `categoryFilter`). When this is set,
   // we also fetch a Wave-Feed preview scoped to the same category so it
@@ -81,12 +92,15 @@ export default function DiscoverPage() {
       // Get current user's profile and categories
       const { data: myProfile } = await supabase
         .from('profiles')
-        .select('categories')
+        .select('categories, zip_code')
         .eq('user_id', user.id)
         .single();
 
       if (myProfile?.categories) {
         setMyCategories(myProfile.categories);
+      }
+      if (myProfile?.zip_code) {
+        setMyZip(myProfile.zip_code);
       }
 
       // Get already swiped profiles
@@ -124,6 +138,46 @@ export default function DiscoverPage() {
 
       setProfiles(sorted);
       setFilteredProfiles(sorted);
+
+      // Local business listings — scoped to the viewer's zip code.
+      // Also load the daily-rotating business spotlight. Two-step:
+      // fetch businesses, then map owner_user_id → username.
+      try {
+        const { data: allPublishedBiz } = await supabase
+          .from('business_profiles')
+          .select('*')
+          .eq('is_published', true);
+        if (allPublishedBiz && allPublishedBiz.length > 0) {
+          const ownerIds = Array.from(
+            new Set(allPublishedBiz.map((b: any) => b.user_id))
+          );
+          const { data: ownerProfiles } = await supabase
+            .from('profiles')
+            .select('user_id, username, avatar_url')
+            .in('user_id', ownerIds);
+          const ownerMap = new Map<string, any>(
+            (ownerProfiles ?? []).map((p: any) => [p.user_id, p])
+          );
+          const enriched = allPublishedBiz.map((b: any) => ({
+            ...b,
+            owner: ownerMap.get(b.user_id) ?? null,
+          }));
+
+          if (myProfile?.zip_code) {
+            const local = enriched.filter((b: any) => b.zip_code === myProfile.zip_code);
+            setLocalBusinesses(local);
+          }
+          // Deterministic daily rotation seeded by today's date — all
+          // viewers see the same featured business each day.
+          const todaySeed = new Date().toDateString()
+            .split('')
+            .reduce((a, c) => a + c.charCodeAt(0), 0);
+          const idx = todaySeed % enriched.length;
+          setDailyBusinessSpotlight(enriched[idx]);
+        }
+      } catch (e) {
+        console.warn('[discover] business load failed:', e);
+      }
 
       // Fresh-wave story-ring: figure out which of these creators has
       // posted a Wave video in the last 24h. One round-trip — only the
@@ -696,6 +750,265 @@ export default function DiscoverPage() {
               <span style={{ color: '#a89278', fontSize: 13, fontWeight: 600 }}>All Profiles</span>
               <div style={{ flex: 1, height: 1, background: 'rgba(200,149,108,0.15)' }} />
             </div>
+          </div>
+        )}
+
+        {/* Daily Business Spotlight — directly under Spotlight Profiles.
+            Purple-coded so it's visually distinct from the creator
+            spotlight. Same business shown to all viewers for the day. */}
+        {dailyBusinessSpotlight && (
+          <div style={{ marginBottom: 40 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <span style={{ fontSize: 20 }}>🏪</span>
+              <div>
+                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1208', letterSpacing: '-0.5px', margin: 0 }}>
+                  Today&rsquo;s Business Spotlight
+                </h2>
+                <p style={{ color: '#7a6a85', fontSize: 13, margin: 0 }}>
+                  A different small business every day — rotates at midnight.
+                </p>
+              </div>
+            </div>
+            <Link
+              href={`/business/${dailyBusinessSpotlight.owner?.username ?? ''}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 18,
+                background: 'linear-gradient(135deg, #5b21b6 0%, #8b5cf6 60%, #c084fc 100%)',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: 24,
+                padding: '22px 24px',
+                boxShadow: '0 16px 40px rgba(139,92,246,0.32)',
+              }}
+            >
+              <div style={{
+                width: 64, height: 64, borderRadius: 16,
+                background: dailyBusinessSpotlight.logo_url
+                  ? `url(${dailyBusinessSpotlight.logo_url})`
+                  : 'rgba(255,255,255,0.18)',
+                backgroundSize: 'cover', backgroundPosition: 'center',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 28, flexShrink: 0,
+              }}>
+                {!dailyBusinessSpotlight.logo_url && '🏪'}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, opacity: 0.85, textTransform: 'uppercase', letterSpacing: '1.5px' }}>
+                  Featured Today
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.4px', marginTop: 2 }}>
+                  {dailyBusinessSpotlight.business_name}
+                </div>
+                {dailyBusinessSpotlight.category && (
+                  <div style={{ fontSize: 13, opacity: 0.92, marginTop: 4 }}>
+                    {dailyBusinessSpotlight.category}
+                  </div>
+                )}
+              </div>
+              <div aria-hidden="true" style={{ fontSize: 22, fontWeight: 800, flexShrink: 0 }}>
+                →
+              </div>
+            </Link>
+          </div>
+        )}
+
+        {/* "Looking for a local small business?" tab */}
+        <button
+          type="button"
+          onClick={() => setShowBusinessTab((v) => !v)}
+          style={{
+            width: '100%',
+            background: showBusinessTab
+              ? 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)'
+              : 'white',
+            border: `1px solid ${showBusinessTab ? 'transparent' : 'rgba(139,92,246,0.35)'}`,
+            borderRadius: 20,
+            padding: '18px 22px',
+            marginBottom: showBusinessTab ? 16 : 32,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+            cursor: 'pointer',
+            color: showBusinessTab ? 'white' : '#5b21b6',
+            fontFamily: 'inherit',
+            boxShadow: showBusinessTab
+              ? '0 10px 28px rgba(139,92,246,0.35)'
+              : '0 2px 8px rgba(139,92,246,0.08)',
+          }}
+        >
+          <span style={{ fontSize: 22 }}>🏪</span>
+          <span style={{ flex: 1, textAlign: 'left' }}>
+            <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
+              Looking for a local small business?
+            </span>
+            <span style={{ display: 'block', fontSize: 13, opacity: 0.9, marginTop: 2 }}>
+              {myZip
+                ? `Browse small businesses in ${myZip}`
+                : 'Add your zip code to see local businesses'}
+            </span>
+          </span>
+          <span aria-hidden="true" style={{ fontSize: 18, fontWeight: 800 }}>
+            {showBusinessTab ? '▲' : '▼'}
+          </span>
+        </button>
+
+        {showBusinessTab && (
+          <div style={{
+            background: '#fbfaff',
+            border: '1px solid rgba(139,92,246,0.2)',
+            borderRadius: 24,
+            padding: 18,
+            marginBottom: 40,
+          }}>
+            {/* Category filter — purple chips */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#5b21b6', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
+                Filter by type
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxHeight: 110, overflowY: 'auto', padding: 2 }}>
+                <button
+                  onClick={() => setBizCategoryFilter('')}
+                  style={{
+                    background: !bizCategoryFilter ? '#8b5cf6' : 'white',
+                    color: !bizCategoryFilter ? 'white' : '#5b21b6',
+                    border: '1px solid rgba(139,92,246,0.25)',
+                    padding: '5px 11px',
+                    borderRadius: 100,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  All
+                </button>
+                {BUSINESS_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setBizCategoryFilter(cat === bizCategoryFilter ? '' : cat)}
+                    style={{
+                      background: cat === bizCategoryFilter ? '#8b5cf6' : 'white',
+                      color: cat === bizCategoryFilter ? 'white' : '#5b21b6',
+                      border: '1px solid rgba(139,92,246,0.25)',
+                      padding: '5px 11px',
+                      borderRadius: 100,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Business cards grid */}
+            {(() => {
+              const visible = bizCategoryFilter
+                ? localBusinesses.filter((b) => b.category === bizCategoryFilter)
+                : localBusinesses;
+              if (visible.length === 0) {
+                return (
+                  <div style={{ padding: '40px 16px', textAlign: 'center', color: '#7a6a85', fontSize: 14 }}>
+                    {myZip
+                      ? bizCategoryFilter
+                        ? `No ${bizCategoryFilter} businesses in ${myZip} yet.`
+                        : `No local businesses in ${myZip} yet — be the first.`
+                      : 'Add a zip code to your profile to see local businesses.'}
+                  </div>
+                );
+              }
+              return (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                  gap: 14,
+                }}>
+                  {visible.map((b) => (
+                    <div
+                      key={b.id}
+                      style={{
+                        background: 'white',
+                        border: '1px solid rgba(139,92,246,0.22)',
+                        borderRadius: 18,
+                        padding: 14,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 10,
+                        boxShadow: '0 6px 18px rgba(139,92,246,0.08)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 12,
+                          background: b.logo_url ? `url(${b.logo_url})` : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                          backgroundSize: 'cover', backgroundPosition: 'center',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 18, color: 'white', flexShrink: 0,
+                        }}>
+                          {!b.logo_url && '🏪'}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1208', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {b.business_name}
+                          </div>
+                          {b.category && (
+                            <div style={{ fontSize: 11, color: '#7a6a85', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {b.category}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <Link
+                          href={`/business/${b.owner?.username ?? ''}`}
+                          aria-label="View business profile"
+                          style={{
+                            flex: 1,
+                            padding: '8px 10px',
+                            background: '#8b5cf6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 100,
+                            fontSize: 12,
+                            fontWeight: 800,
+                            textDecoration: 'none',
+                            textAlign: 'center',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          ▶ View
+                        </Link>
+                        <Link
+                          href={`/messages?user=${encodeURIComponent(b.user_id)}`}
+                          aria-label="Message business"
+                          style={{
+                            padding: '8px 12px',
+                            background: 'rgba(139,92,246,0.1)',
+                            color: '#5b21b6',
+                            border: '1px solid rgba(139,92,246,0.3)',
+                            borderRadius: 100,
+                            fontSize: 12,
+                            fontWeight: 800,
+                            textDecoration: 'none',
+                            textAlign: 'center',
+                          }}
+                        >
+                          💬
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         )}
 

@@ -47,6 +47,11 @@ function getRandomIcebreakers(count = 3): string[] {
 export default function MessagesPage() {
   const [user, setUser] = useState<any>(null);
   const [conversations, setConversations] = useState<any[]>([]);
+  // Small Business Saves — populated alongside conversations so the
+  // purple "Small Business Saves" tab can render counts and rows
+  // without an extra round-trip.
+  const [businessSaves, setBusinessSaves] = useState<any[]>([]);
+  const [showBusinessSaves, setShowBusinessSaves] = useState(false);
   const [selectedConvo, setSelectedConvo] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -166,6 +171,44 @@ export default function MessagesPage() {
       .order('updated_at', { ascending: false });
 
     setConversations(convos ?? []);
+
+    // Load Small Business Saves for this user. Joins business_profiles
+    // for the basic details, then resolves owner_user_id → username so
+    // each row can deep-link straight into /business/[username].
+    try {
+      const { data: saves } = await supabase
+        .from('business_saves')
+        .select('id, created_at, business_id, business_profiles(id, business_name, category, logo_url, user_id)')
+        .eq('user_id', u.id)
+        .order('created_at', { ascending: false });
+      if (saves) {
+        const ownerIds = Array.from(new Set(
+          saves
+            .map((s: any) => s.business_profiles?.user_id)
+            .filter(Boolean)
+        ));
+        const { data: ownerProfiles } = ownerIds.length > 0
+          ? await supabase
+              .from('profiles')
+              .select('user_id, username')
+              .in('user_id', ownerIds)
+          : { data: [] as any[] };
+        const ownerMap = new Map<string, string>(
+          (ownerProfiles ?? []).map((p: any) => [p.user_id, p.username])
+        );
+        const enriched = saves
+          .filter((s: any) => s.business_profiles)
+          .map((s: any) => ({
+            id: s.id,
+            created_at: s.created_at,
+            business: s.business_profiles,
+            ownerUsername: ownerMap.get(s.business_profiles.user_id) ?? '',
+          }));
+        setBusinessSaves(enriched);
+      }
+    } catch (e) {
+      console.warn('[messages] business saves load failed:', e);
+    }
 
     const allIds = [...new Set(
       (convos ?? []).flatMap((c: any) => c.participant_ids)
@@ -530,6 +573,114 @@ export default function MessagesPage() {
             }}>
               Messages
             </h1>
+          </div>
+
+          {/* Small Business Saves — purple to differentiate from
+              regular messages. Expandable list of every business this
+              user has saved from the Discover or business profile view. */}
+          <div style={{ padding: '0 16px 12px' }}>
+            <button
+              type="button"
+              onClick={() => setShowBusinessSaves((v) => !v)}
+              style={{
+                width: '100%',
+                background: showBusinessSaves
+                  ? 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)'
+                  : 'rgba(139,92,246,0.08)',
+                border: showBusinessSaves
+                  ? 'none'
+                  : '1px solid rgba(139,92,246,0.3)',
+                borderRadius: 14,
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                cursor: 'pointer',
+                color: showBusinessSaves ? 'white' : '#5b21b6',
+                fontFamily: 'inherit',
+                boxShadow: showBusinessSaves
+                  ? '0 8px 22px rgba(139,92,246,0.32)'
+                  : 'none',
+              }}
+            >
+              <span style={{ fontSize: 18 }}>🏪</span>
+              <span style={{ flex: 1, textAlign: 'left', fontSize: 13, fontWeight: 800, letterSpacing: '-0.2px' }}>
+                Small Business Saves
+                {businessSaves.length > 0 && (
+                  <span style={{
+                    marginLeft: 6,
+                    background: showBusinessSaves ? 'rgba(255,255,255,0.25)' : 'rgba(139,92,246,0.2)',
+                    color: showBusinessSaves ? 'white' : '#5b21b6',
+                    padding: '1px 7px',
+                    borderRadius: 100,
+                    fontSize: 11,
+                  }}>
+                    {businessSaves.length}
+                  </span>
+                )}
+              </span>
+              <span aria-hidden="true" style={{ fontSize: 14, fontWeight: 800 }}>
+                {showBusinessSaves ? '▲' : '▼'}
+              </span>
+            </button>
+
+            {showBusinessSaves && (
+              <div style={{
+                marginTop: 8,
+                background: '#fbfaff',
+                border: '1px solid rgba(139,92,246,0.2)',
+                borderRadius: 14,
+                padding: 8,
+                maxHeight: 320,
+                overflowY: 'auto',
+              }}>
+                {businessSaves.length === 0 ? (
+                  <div style={{ padding: '20px 8px', fontSize: 12, color: '#7a6a85', textAlign: 'center', lineHeight: 1.5 }}>
+                    No saved businesses yet — tap the ☆ Save button on any
+                    business profile to add it here.
+                  </div>
+                ) : (
+                  businessSaves.map((save) => (
+                    <Link
+                      key={save.id}
+                      href={`/business/${save.ownerUsername}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '10px 8px',
+                        borderRadius: 10,
+                        textDecoration: 'none',
+                        color: 'inherit',
+                      }}
+                    >
+                      <div style={{
+                        width: 36, height: 36, borderRadius: 10,
+                        background: save.business.logo_url
+                          ? `url(${save.business.logo_url})`
+                          : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                        backgroundSize: 'cover', backgroundPosition: 'center',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 16, color: 'white', flexShrink: 0,
+                      }}>
+                        {!save.business.logo_url && '🏪'}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#1a1208', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {save.business.business_name}
+                        </div>
+                        {save.business.category && (
+                          <div style={{ fontSize: 11, color: '#7a6a85', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {save.business.category}
+                          </div>
+                        )}
+                      </div>
+                      <span aria-hidden="true" style={{ color: '#8b5cf6', fontWeight: 800, fontSize: 14 }}>→</span>
+                    </Link>
+                  ))
+                )}
+              </div>
+            )}
           </div>
 
           {/* Pending Requests */}

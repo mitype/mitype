@@ -63,6 +63,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   // last 24h. Drives the glowing bronze outline around their avatar
   // that, when tapped, opens /wave?user=<theirUserId>.
   const [hasFreshWave, setHasFreshWave] = useState(false);
+  // True when this profile owner has a published business profile.
+  // Adds a purple "View Business" pill near the action buttons.
+  const [hasBusiness, setHasBusiness] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
@@ -97,6 +100,19 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         if (cancelled) return;
         if (!profileData) { router.push('/discover'); return; }
         setProfile(profileData as PublicProfile);
+
+        // Check if this user has a published business profile.
+        try {
+          const { data: bizRow } = await supabase
+            .from('business_profiles')
+            .select('id')
+            .eq('user_id', profileData.user_id)
+            .eq('is_published', true)
+            .maybeSingle();
+          if (!cancelled) setHasBusiness(Boolean(bizRow));
+        } catch {
+          // Non-fatal.
+        }
 
         // Check for fresh wave videos in the last 24h. One small query.
         try {
@@ -498,6 +514,27 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               )}
 
               <div style={{ display: 'flex', gap: 8, paddingBottom: 4, flexWrap: 'wrap' }}>
+                {hasBusiness && (
+                  <Link
+                    href={`/business/${profile.username}`}
+                    style={{
+                      padding: '10px 18px',
+                      background: 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)',
+                      border: 'none',
+                      borderRadius: 100,
+                      color: 'white',
+                      fontSize: 13,
+                      fontWeight: 800,
+                      textDecoration: 'none',
+                      boxShadow: '0 8px 22px rgba(139,92,246,0.35)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    🏪 View Business
+                  </Link>
+                )}
                 <button onClick={shareProfile} style={{
                   padding: '10px 20px', background: 'white',
                   border: '1px solid rgba(200,149,108,0.3)', borderRadius: 100,
