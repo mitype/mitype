@@ -164,20 +164,17 @@ function DogTagSvg({ pet, width, height }: { pet: Pet; width: number; height: nu
       aria-label={`${pet.name} dog tag`}
     >
       <defs>
-        {/* Shiny gold gradient — the base metal of every Mipet tag.
-            Users still pick the bezel (outer ring) color separately. */}
+        {/* Mitype bronze gradient — the base metal of every Mipet tag.
+            Picks up the site's signature warm bronze palette so the
+            tag feels native to the brand. Users still pick the bezel
+            (outer ring) color separately. */}
         <linearGradient id={`metal-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#fff2bc" />
-          <stop offset="35%"  stopColor="#f4cc56" />
-          <stop offset="55%"  stopColor="#d4a32a" />
-          <stop offset="80%"  stopColor="#a67518" />
-          <stop offset="100%" stopColor="#7a510a" />
+          <stop offset="0%"   stopColor="#fff3ec" />
+          <stop offset="30%"  stopColor="#f0d4a8" />
+          <stop offset="55%"  stopColor="#c8956c" />
+          <stop offset="80%"  stopColor="#a07452" />
+          <stop offset="100%" stopColor="#6b5744" />
         </linearGradient>
-        {/* Subtle brushed-line texture, warm-tinted so it reads on gold. */}
-        <pattern id={`brushed-${uid}`} width="3" height="3" patternUnits="userSpaceOnUse">
-          <rect width="3" height="3" fill="transparent" />
-          <line x1="0" y1="0" x2="3" y2="0" stroke="rgba(255,240,200,0.28)" strokeWidth="1" />
-        </pattern>
         {/* Bezel gradient using the pet's chosen color. */}
         <linearGradient id={`bezel-${uid}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color.light} />
@@ -211,13 +208,9 @@ function DogTagSvg({ pet, width, height }: { pet: Pet; width: number; height: nu
         rx="10" ry="10"
         fill={`url(#metal-${uid})`}
       />
-      <rect
-        x="6" y="6"
-        width={TAG_W - 12} height={TAG_H - 12}
-        rx="10" ry="10"
-        fill={`url(#brushed-${uid})`}
-        opacity="0.7"
-      />
+      {/* Smooth metal — the brushed line pattern was removed so the
+          face reads as a clean, polished surface. The shade radial
+          alone gives it depth. */}
       <rect
         x="6" y="6"
         width={TAG_W - 12} height={TAG_H - 12}
@@ -277,15 +270,30 @@ function DogTagSvg({ pet, width, height }: { pet: Pet; width: number; height: nu
       >
         {pet.name.toUpperCase().slice(0, 12)}
       </text>
+      {/* MIPET brand engraving — white on the deep-bronze portion of
+          the gradient, plus a soft dark drop-shadow underneath for
+          legibility against any color the user picks for the bezel. */}
       <text
-        x={TAG_W / 2}
-        y={TAG_H * 0.92}
+        x={TAG_W / 2 + 0.5}
+        y={TAG_H * 0.93 + 0.5}
         textAnchor="middle"
         fontFamily="Helvetica, Arial, sans-serif"
-        fontWeight="700"
-        fontSize="6.5"
-        fill="rgba(40,30,20,0.65)"
-        style={{ letterSpacing: 1.2 }}
+        fontWeight="900"
+        fontSize="9"
+        fill="rgba(0,0,0,0.45)"
+        style={{ letterSpacing: 1.4 }}
+      >
+        MIPET
+      </text>
+      <text
+        x={TAG_W / 2}
+        y={TAG_H * 0.93}
+        textAnchor="middle"
+        fontFamily="Helvetica, Arial, sans-serif"
+        fontWeight="900"
+        fontSize="9"
+        fill="rgba(255,248,236,0.98)"
+        style={{ letterSpacing: 1.4 }}
       >
         MIPET
       </text>
