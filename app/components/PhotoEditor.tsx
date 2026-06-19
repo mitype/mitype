@@ -177,7 +177,11 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
 
   // -----------------------------------------------------------------
   // Live preview: render the (transformed + cropped) image into the
-  // preview canvas every time inputs change.
+  // preview canvas every time inputs change. We apply ADJUSTMENTS +
+  // FILTER PRESETS via CSS on the canvas ELEMENT (canvas.style.filter)
+  // instead of ctx.filter — the latter is unsupported on older iOS
+  // Safari (pre-17.4), which silently dropped every filter preset.
+  // CSS style.filter works on every modern browser.
   // -----------------------------------------------------------------
   useEffect(() => {
     if (!img || !previewCanvasRef.current || !previewAreaRef.current) return;
@@ -203,8 +207,9 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
 
     ctx.clearRect(0, 0, pw, ph);
     ctx.save();
-    (ctx as any).filter = cssFilter;
-    // Move origin to canvas center, apply rotation + flip, then draw.
+    // Move origin to canvas center, apply rotation + flip, then draw
+    // the raw, unfiltered image. The filter chain is applied to the
+    // canvas element via CSS below.
     ctx.translate(pw / 2, ph / 2);
     ctx.rotate((rotation * Math.PI) / 180);
     ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
@@ -235,7 +240,14 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, pw, ph);
     }
-  }, [img, rotation, flipH, flipV, cssFilter, glow, sharpen, vignette, previewVersion]);
+  }, [img, rotation, flipH, flipV, glow, sharpen, vignette, previewVersion]);
+
+  // Apply ADJUSTMENTS + FILTER PRESET via CSS on the canvas element.
+  // This is the cross-browser way (older iOS Safari ignores ctx.filter).
+  useEffect(() => {
+    if (!previewCanvasRef.current) return;
+    previewCanvasRef.current.style.filter = cssFilter;
+  }, [cssFilter]);
 
   // -----------------------------------------------------------------
   // Crop drag handles (computed in source pixels, drawn over the preview).
@@ -678,10 +690,20 @@ async function renderFinal(img: HTMLImageElement, a: RenderArgs): Promise<Blob> 
   out.width = outW;
   out.height = outH;
   const octx = out.getContext('2d')!;
-  // Apply the filter chain when drawing the cropped region.
-  (octx as any).filter = a.cssFilter;
-  octx.drawImage(rotated, a.crop.x, a.crop.y, cw, ch, 0, 0, outW, outH);
-  (octx as any).filter = 'none';
+
+  // Try the modern ctx.filter API first — fast and high quality.
+  // Older iOS Safari (pre-17.4) doesn't honor it; in that case we fall
+  // back to a manual color-matrix + box-blur pass that works everywhere.
+  const ctxFilterSupported = 'filter' in (octx as any) && testCtxFilter();
+  if (ctxFilterSupported) {
+    (octx as any).filter = a.cssFilter;
+    octx.drawImage(rotated, a.crop.x, a.crop.y, cw, ch, 0, 0, outW, outH);
+    (octx as any).filter = 'none';
+  } else {
+    // Draw unfiltered first, then bake the filter chain manually.
+    octx.drawImage(rotated, a.crop.x, a.crop.y, cw, ch, 0, 0, outW, outH);
+    applyFiltersManually(octx, outW, outH, a.cssFilter);
+  }
 
   // 3) Beauty composites
   if (a.glow > 0) {
@@ -749,6 +771,237 @@ function applySharpen(ctx: CanvasRenderingContext2D, w: number, h: number, stren
     // toBlob/getImageData can fail on cross-origin images that aren't
     // truly anonymous — skip rather than crash.
   }
+}
+
+// -- Manual filter fallback (used when ctx.filter isn't supported) --
+// Implements the SVG-equivalent color matrix for each filter operation,
+// composes the chain into one matrix, then applies it pixel-by-pixel
+// via putImageData. Blur is handled separately via a separable box blur.
+
+// Cached one-time check: does this browser's CanvasRenderingContext2D
+// actually honor `filter`? Some older browsers expose the property but
+// silently no-op it. Test by drawing a known sepia pattern.
+let _ctxFilterChecked = false;
+let _ctxFilterWorks = false;
+function testCtxFilter(): boolean {
+  if (_ctxFilterChecked) return _ctxFilterWorks;
+  _ctxFilterChecked = true;
+  try {
+    const c = document.createElement('canvas');
+    c.width = 2; c.height = 1;
+    const x = c.getContext('2d')!;
+    x.fillStyle = 'rgb(128,128,128)';
+    x.fillRect(0, 0, 2, 1);
+    (x as any).filter = 'sepia(1)';
+    x.drawImage(c, 0, 0);
+    (x as any).filter = 'none';
+    const px = x.getImageData(0, 0, 1, 1).data;
+    // sepia(1) of grey (128) should shift red higher and blue lower.
+    _ctxFilterWorks = px[0] > px[2];
+  } catch {
+    _ctxFilterWorks = false;
+  }
+  return _ctxFilterWorks;
+}
+
+type ColorMatrix = number[]; // length 20 — rows of [r,g,b,a,offset]
+
+function identityMatrix(): ColorMatrix {
+  return [1,0,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0,1,0];
+}
+
+// Compose two 4x5 color matrices: out = b applied after a.
+function multiplyMatrices(b: ColorMatrix, a: ColorMatrix): ColorMatrix {
+  const out: ColorMatrix = new Array(20).fill(0);
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 5; j++) {
+      let v = 0;
+      for (let k = 0; k < 4; k++) {
+        v += b[i * 5 + k] * a[k * 5 + j];
+      }
+      if (j === 4) v += b[i * 5 + 4];
+      out[i * 5 + j] = v;
+    }
+  }
+  return out;
+}
+
+function brightnessMatrix(n: number): ColorMatrix {
+  return [n,0,0,0,0, 0,n,0,0,0, 0,0,n,0,0, 0,0,0,1,0];
+}
+function contrastMatrix(n: number): ColorMatrix {
+  const off = 0.5 * (1 - n) * 255;
+  return [n,0,0,0,off, 0,n,0,0,off, 0,0,n,0,off, 0,0,0,1,0];
+}
+function saturateMatrix(n: number): ColorMatrix {
+  const a = 0.213 + 0.787 * n;
+  const b = 0.213 - 0.213 * n;
+  const c = 0.715 - 0.715 * n;
+  const d = 0.715 + 0.285 * n;
+  const e = 0.072 - 0.072 * n;
+  const f = 0.072 + 0.928 * n;
+  return [a,c,e,0,0,  b,d,e,0,0,  b,c,f,0,0,  0,0,0,1,0];
+}
+function sepiaMatrix(n: number): ColorMatrix {
+  const id = identityMatrix();
+  const full = [
+    0.393, 0.769, 0.189, 0, 0,
+    0.349, 0.686, 0.168, 0, 0,
+    0.272, 0.534, 0.131, 0, 0,
+    0, 0, 0, 1, 0,
+  ];
+  return id.map((v, i) => v * (1 - n) + full[i] * n);
+}
+function grayscaleMatrix(n: number): ColorMatrix {
+  const id = identityMatrix();
+  const full = [
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0, 0, 0, 1, 0,
+  ];
+  return id.map((v, i) => v * (1 - n) + full[i] * n);
+}
+function hueRotateMatrix(deg: number): ColorMatrix {
+  const rad = (deg * Math.PI) / 180;
+  const c = Math.cos(rad);
+  const s = Math.sin(rad);
+  return [
+    0.213 + c * 0.787 - s * 0.213,
+    0.715 - c * 0.715 - s * 0.715,
+    0.072 - c * 0.072 + s * 0.928,
+    0, 0,
+    0.213 - c * 0.213 + s * 0.143,
+    0.715 + c * 0.285 + s * 0.140,
+    0.072 - c * 0.072 - s * 0.283,
+    0, 0,
+    0.213 - c * 0.213 - s * 0.787,
+    0.715 - c * 0.715 + s * 0.715,
+    0.072 + c * 0.928 + s * 0.072,
+    0, 0,
+    0, 0, 0, 1, 0,
+  ];
+}
+
+function applyColorMatrix(ctx: CanvasRenderingContext2D, w: number, h: number, m: ColorMatrix) {
+  const data = ctx.getImageData(0, 0, w, h);
+  const d = data.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
+    const nr = m[0]*r + m[1]*g + m[2]*b + m[3]*a + m[4];
+    const ng = m[5]*r + m[6]*g + m[7]*b + m[8]*a + m[9];
+    const nb = m[10]*r + m[11]*g + m[12]*b + m[13]*a + m[14];
+    const na = m[15]*r + m[16]*g + m[17]*b + m[18]*a + m[19];
+    d[i]   = clamp(nr, 0, 255);
+    d[i+1] = clamp(ng, 0, 255);
+    d[i+2] = clamp(nb, 0, 255);
+    d[i+3] = clamp(na, 0, 255);
+  }
+  ctx.putImageData(data, 0, 0);
+}
+
+// Lightweight 3-pass box blur — separable, ~equivalent to a Gaussian
+// of the same radius. Fast enough for one-time save bakes.
+function applyBoxBlur(ctx: CanvasRenderingContext2D, w: number, h: number, radius: number) {
+  if (radius <= 0) return;
+  const r = Math.round(radius);
+  for (let pass = 0; pass < 2; pass++) {
+    boxBlurH(ctx, w, h, r);
+    boxBlurV(ctx, w, h, r);
+  }
+}
+function boxBlurH(ctx: CanvasRenderingContext2D, w: number, h: number, r: number) {
+  const data = ctx.getImageData(0, 0, w, h);
+  const src = data.data;
+  const dst = new Uint8ClampedArray(src.length);
+  const denom = r * 2 + 1;
+  for (let y = 0; y < h; y++) {
+    let sumR = 0, sumG = 0, sumB = 0, sumA = 0;
+    for (let i = -r; i <= r; i++) {
+      const x = clamp(i, 0, w - 1);
+      const idx = (y * w + x) * 4;
+      sumR += src[idx]; sumG += src[idx + 1]; sumB += src[idx + 2]; sumA += src[idx + 3];
+    }
+    for (let x = 0; x < w; x++) {
+      const idx = (y * w + x) * 4;
+      dst[idx]     = sumR / denom;
+      dst[idx + 1] = sumG / denom;
+      dst[idx + 2] = sumB / denom;
+      dst[idx + 3] = sumA / denom;
+      const xOut = clamp(x - r, 0, w - 1);
+      const xIn  = clamp(x + r + 1, 0, w - 1);
+      const oIdx = (y * w + xOut) * 4;
+      const iIdx = (y * w + xIn) * 4;
+      sumR += src[iIdx]     - src[oIdx];
+      sumG += src[iIdx + 1] - src[oIdx + 1];
+      sumB += src[iIdx + 2] - src[oIdx + 2];
+      sumA += src[iIdx + 3] - src[oIdx + 3];
+    }
+  }
+  ctx.putImageData(new ImageData(dst, w, h), 0, 0);
+}
+function boxBlurV(ctx: CanvasRenderingContext2D, w: number, h: number, r: number) {
+  const data = ctx.getImageData(0, 0, w, h);
+  const src = data.data;
+  const dst = new Uint8ClampedArray(src.length);
+  const denom = r * 2 + 1;
+  for (let x = 0; x < w; x++) {
+    let sumR = 0, sumG = 0, sumB = 0, sumA = 0;
+    for (let i = -r; i <= r; i++) {
+      const y = clamp(i, 0, h - 1);
+      const idx = (y * w + x) * 4;
+      sumR += src[idx]; sumG += src[idx + 1]; sumB += src[idx + 2]; sumA += src[idx + 3];
+    }
+    for (let y = 0; y < h; y++) {
+      const idx = (y * w + x) * 4;
+      dst[idx]     = sumR / denom;
+      dst[idx + 1] = sumG / denom;
+      dst[idx + 2] = sumB / denom;
+      dst[idx + 3] = sumA / denom;
+      const yOut = clamp(y - r, 0, h - 1);
+      const yIn  = clamp(y + r + 1, 0, h - 1);
+      const oIdx = (yOut * w + x) * 4;
+      const iIdx = (yIn  * w + x) * 4;
+      sumR += src[iIdx]     - src[oIdx];
+      sumG += src[iIdx + 1] - src[oIdx + 1];
+      sumB += src[iIdx + 2] - src[oIdx + 2];
+      sumA += src[iIdx + 3] - src[oIdx + 3];
+    }
+  }
+  ctx.putImageData(new ImageData(dst, w, h), 0, 0);
+}
+
+// Parse a CSS filter string and apply each operation to the canvas
+// manually. Matrix ops are composed into one matrix; blur runs after.
+function applyFiltersManually(ctx: CanvasRenderingContext2D, w: number, h: number, cssFilter: string) {
+  if (!cssFilter || cssFilter === 'none') return;
+  const regex = /(\w+(?:-\w+)*)\(([^)]+)\)/g;
+  let m: ColorMatrix = identityMatrix();
+  let blurPx = 0;
+  let match;
+  while ((match = regex.exec(cssFilter)) !== null) {
+    const name = match[1];
+    const argRaw = match[2].trim();
+    if (name === 'brightness') {
+      m = multiplyMatrices(brightnessMatrix(parseFloat(argRaw) || 1), m);
+    } else if (name === 'contrast') {
+      m = multiplyMatrices(contrastMatrix(parseFloat(argRaw) || 1), m);
+    } else if (name === 'saturate') {
+      m = multiplyMatrices(saturateMatrix(parseFloat(argRaw) || 1), m);
+    } else if (name === 'sepia') {
+      m = multiplyMatrices(sepiaMatrix(clamp(parseFloat(argRaw) || 0, 0, 1)), m);
+    } else if (name === 'grayscale') {
+      m = multiplyMatrices(grayscaleMatrix(clamp(parseFloat(argRaw) || 0, 0, 1)), m);
+    } else if (name === 'hue-rotate') {
+      const deg = parseFloat(argRaw) || 0;
+      m = multiplyMatrices(hueRotateMatrix(deg), m);
+    } else if (name === 'blur') {
+      blurPx += parseFloat(argRaw) || 0;
+    }
+    // invert / drop-shadow not used by our presets — ignore.
+  }
+  applyColorMatrix(ctx, w, h, m);
+  if (blurPx > 0) applyBoxBlur(ctx, w, h, blurPx);
 }
 
 // -- presentational helpers --
