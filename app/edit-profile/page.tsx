@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Coachmark } from '../components/Coachmark';
 import { BackButton } from '../components/BackButton';
 import { PhotoManager } from '../components/PhotoManager';
+import { PetEditor } from '../components/PetEditor';
 import { toast } from '../lib/toast';
 import { isAtLeast18, maxDobIso, minDobIso } from '../lib/age';
 import { normalizePhotos, type ProfilePhoto } from '../lib/photos';
@@ -1097,6 +1098,11 @@ export default function EditProfilePage() {
           </Link>
 
         </form>
+
+        {/* Pets — separate from the main form because the pet editor
+            saves on its own button. Each pet gets a hanging dog tag
+            over the user's main profile photo. */}
+        {user?.id && <PetEditor userId={user.id} />}
       </div>
     </main>
   );

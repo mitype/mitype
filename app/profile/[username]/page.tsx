@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabaseClient';
 import { calculateCompatibility, getCompatibilityColor, getCompatibilityLabel, getSharedCategories } from '../../lib/utils';
 import { Avatar } from '../../components/Avatar';
+import { PetTags, type Pet } from '../../components/PetTags';
 import { ProfileSkeleton } from '../../components/Skeleton';
 import { toast } from '../../lib/toast';
 import { sanitizeText, safeUrl } from '../../lib/sanitize';
@@ -66,6 +67,8 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   // True when this profile owner has a published business profile.
   // Adds a purple "View Business" pill near the action buttons.
   const [hasBusiness, setHasBusiness] = useState(false);
+  // Pets — rendered as hanging dog tags off the top of the profile card.
+  const [pets, setPets] = useState<Pet[]>([]);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
@@ -100,6 +103,19 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         if (cancelled) return;
         if (!profileData) { router.push('/discover'); return; }
         setProfile(profileData as PublicProfile);
+
+        // Pull this user's pet profiles (if any). Tags only render when
+        // at least one pet exists.
+        try {
+          const { data: petRows } = await supabase
+            .from('pet_profiles')
+            .select('id, name, pet_type, birthday, fav_activity, fav_food, bio, photo_url, tag_color')
+            .eq('user_id', profileData.user_id)
+            .order('display_order', { ascending: true });
+          if (!cancelled && petRows) setPets(petRows as Pet[]);
+        } catch {
+          // Non-fatal — no tags will render.
+        }
 
         // Check if this user has a published business profile.
         try {
@@ -428,10 +444,32 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         {/* Profile Card */}
         <div style={{
           background: 'white', border: '1px solid rgba(200,149,108,0.2)',
-          borderRadius: 32, overflow: 'hidden',
+          borderRadius: 32,
+          // overflow: 'visible' so dog-tag chains can extend a bit above
+          // the bronze banner. Top corners of children are still clipped
+          // by the card's own border-radius via individual styling.
+          overflow: 'visible',
           boxShadow: '0 20px 60px rgba(0,0,0,0.06)', marginBottom: 24,
+          position: 'relative',
         }}>
-          <div style={{ height: 100, background: 'linear-gradient(135deg, #e8d5c4 0%, #c8956c 100%)' }} />
+          <div style={{
+            height: 100,
+            background: 'linear-gradient(135deg, #e8d5c4 0%, #c8956c 100%)',
+            borderTopLeftRadius: 32,
+            borderTopRightRadius: 32,
+          }} />
+
+          {/* Pet dog tags — hang from the top-right of the bronze banner,
+              draped down over the right side of the card so they don't
+              cover the profile photo on the left. */}
+          {pets.length > 0 && (
+            <PetTags
+              pets={pets}
+              parentWidth={260}
+              anchorRightPx={48}
+              topOffsetPx={-22}
+            />
+          )}
 
           <div style={{ padding: '0 32px 32px' }}>
             <div style={{
