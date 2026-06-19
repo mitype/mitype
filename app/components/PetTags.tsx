@@ -533,10 +533,24 @@ function Field({ icon, label, value }: { icon: string; label: string; value: str
   );
 }
 
+// Parse a Postgres `date` ("YYYY-MM-DD") as a LOCAL-time date. Using
+// `new Date("YYYY-MM-DD")` directly treats the value as UTC midnight,
+// which renders as the previous day in any timezone west of UTC.
+function parseLocalDate(s: string): Date | null {
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  const out = new Date(y, mo - 1, d);
+  if (isNaN(out.getTime())) return null;
+  return out;
+}
+
 function calcAge(birthday: string | null): string | null {
   if (!birthday) return null;
-  const dob = new Date(birthday);
-  if (isNaN(dob.getTime())) return null;
+  const dob = parseLocalDate(birthday);
+  if (!dob) return null;
   const now = new Date();
   let years = now.getFullYear() - dob.getFullYear();
   const m = now.getMonth() - dob.getMonth();
@@ -551,8 +565,8 @@ function calcAge(birthday: string | null): string | null {
 
 function formatBirthday(b: string | null): string | null {
   if (!b) return null;
-  const d = new Date(b);
-  if (isNaN(d.getTime())) return null;
+  const d = parseLocalDate(b);
+  if (!d) return null;
   return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
