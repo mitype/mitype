@@ -10,6 +10,7 @@
 // re-render at native resolution into a new canvas and export to Blob.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface Props {
   file: File | null;
@@ -95,6 +96,9 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
   // Triggers a preview re-render whenever the viewport / preview area
   // resizes (rotation, soft keyboard appearing, etc.).
   const [previewVersion, setPreviewVersion] = useState(0);
+  // Only render the portal after mount so SSR doesn't try to access document.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   // -----------------------------------------------------------------
   // Load the source image once.
@@ -357,7 +361,14 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
     }
   }
 
-  return (
+  // Render through a portal so the editor lives at document.body level,
+  // OUTSIDE any parent <form>. Critical because PhotoManager is used
+  // inside /edit-profile's form: without this, a missing type="button"
+  // anywhere in the editor would submit that form and unmount the
+  // editor mid-edit.
+  if (!mounted) return null;
+
+  const ui = (
     <div
       data-no-swipe-back="true"
       role="dialog"
@@ -381,7 +392,7 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
         borderBottom: '1px solid rgba(255,255,255,0.08)',
         gap: 8,
       }}>
-        <button onClick={onCancel} style={ghostBtn}>Cancel</button>
+        <button type="button" onClick={onCancel} style={ghostBtn}>Cancel</button>
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -410,7 +421,7 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
             ↺ Reset
           </button>
         </div>
-        <button onClick={handleSave} disabled={saving || !img} style={primaryBtn}>
+        <button type="button" onClick={handleSave} disabled={saving || !img} style={primaryBtn}>
           {saving ? 'Saving…' : 'Save'}
         </button>
       </header>
@@ -516,6 +527,7 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
       }}>
         {(['crop','adjust','filters','beauty'] as TabKey[]).map((k) => (
           <button
+            type="button"
             key={k}
             onClick={() => setTab(k)}
             style={tabBtn(tab === k)}
@@ -588,6 +600,8 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
       </div>
     </div>
   );
+
+  return createPortal(ui, document.body);
 }
 
 // ----- helpers -----
