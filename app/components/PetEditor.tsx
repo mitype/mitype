@@ -212,8 +212,7 @@ export function PetEditor({ userId }: Props) {
             Got a pet?
           </div>
           <div style={{ fontSize: 13, color: '#7a6a4f', lineHeight: 1.4, marginTop: 2 }}>
-            Add a pet and Mitype will hang their dog tag over your profile photo —
-            visitors can tap it to see your pet&rsquo;s full profile.
+            Add your pet and visitors can tap to see your pet&rsquo;s profile.
           </div>
         </div>
         <label style={switchWrap}>

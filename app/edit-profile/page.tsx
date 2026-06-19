@@ -539,6 +539,46 @@ export default function EditProfilePage() {
             )}
           </div>
 
+          {/* Small Business Profile entry — purple to set it apart from
+              the personal profile. Tapping opens the dedicated editor. */}
+          <Link
+            href="/edit-business-profile"
+            style={{
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: 20,
+              padding: '18px 22px',
+              boxShadow: '0 10px 30px rgba(139,92,246,0.32)',
+            }}
+          >
+            <span style={{
+              width: 44, height: 44, borderRadius: 14, fontSize: 24,
+              background: 'rgba(255,255,255,0.18)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              🏪
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
+                Run a small business?
+              </span>
+              <span style={{ display: 'block', fontSize: 13, opacity: 0.92, marginTop: 2, lineHeight: 1.4 }}>
+                Set up a business profile — local Mitype members in your zip will see it.
+              </span>
+            </span>
+            <span aria-hidden="true" style={{ fontSize: 22, fontWeight: 800, flexShrink: 0 }}>→</span>
+          </Link>
+
+          {/* Pets — sits above Categories per spec. Rendered inside the
+              form but the PetEditor has its own Save button. */}
+          {user?.id && <PetEditor userId={user.id} />}
+
           {/* Categories */}
           <div style={{ marginBottom: 24 }}>
             <label style={{
@@ -1061,48 +1101,7 @@ export default function EditProfilePage() {
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
 
-          {/* Small Business Profile entry — purple to set it apart from
-              the personal profile. Tapping opens the dedicated editor. */}
-          <Link
-            href="/edit-business-profile"
-            style={{
-              marginTop: 20,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-              background: 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: 20,
-              padding: '18px 22px',
-              boxShadow: '0 10px 30px rgba(139,92,246,0.32)',
-            }}
-          >
-            <span style={{
-              width: 44, height: 44, borderRadius: 14, fontSize: 24,
-              background: 'rgba(255,255,255,0.18)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              🏪
-            </span>
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
-                Run a small business?
-              </span>
-              <span style={{ display: 'block', fontSize: 13, opacity: 0.92, marginTop: 2, lineHeight: 1.4 }}>
-                Set up a business profile — local Mitype members in your zip will see it.
-              </span>
-            </span>
-            <span aria-hidden="true" style={{ fontSize: 22, fontWeight: 800, flexShrink: 0 }}>→</span>
-          </Link>
-
         </form>
-
-        {/* Pets — separate from the main form because the pet editor
-            saves on its own button. Each pet gets a hanging dog tag
-            over the user's main profile photo. */}
-        {user?.id && <PetEditor userId={user.id} />}
       </div>
     </main>
   );
