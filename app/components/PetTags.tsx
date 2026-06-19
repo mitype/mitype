@@ -52,20 +52,25 @@ export function PetTags({
   pets,
   parentWidth,
   anchorRightPx = 32,
-  topOffsetPx = -18,
+  topOffsetPx = 0,
 }: PetTagsProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   if (!pets || pets.length === 0) return null;
 
-  // Each tag scales to roughly 32-38% of the reference width so the
-  // cluster never overpowers the profile photo it sits next to.
-  const sizeFactor = pets.length === 1 ? 0.35 : pets.length === 2 ? 0.33 : 0.30;
-  const tagW = Math.max(64, Math.round(parentWidth * sizeFactor));
+  // Each tag is sized smaller than before so it never overpowers the
+  // profile photo — roughly 32-36% of the reference width.
+  const sizeFactor = pets.length === 1 ? 0.34 : pets.length === 2 ? 0.31 : 0.28;
+  const tagW = Math.max(56, Math.round(parentWidth * sizeFactor));
   const tagH = Math.round(tagW * (TAG_H / TAG_W));
+  const containerW = Math.round(tagW * Math.max(1, pets.length * 0.55 + 0.45));
 
-  // Width of the container that holds the fanned tags.
-  const containerW = Math.round(tagW * Math.max(1, pets.length * 0.6 + 0.4));
+  // Chain comes from the top of the card down to the tag's hole.
+  // We pivot each tag around its hole so the rotation looks natural
+  // (the chain stays connected) and so the chain ends exactly there.
+  const chainHeight = Math.round(tagH * 0.45);
+  // The hole is at cy=10 in the TAG_H=112 viewBox.
+  const holeYOffset = Math.round((10 / TAG_H) * tagH);
 
   return (
     <div
@@ -76,45 +81,56 @@ export function PetTags({
         pointerEvents: 'none',
         zIndex: 8,
         width: containerW,
-        height: tagH + 80,
+        height: chainHeight + tagH + 12,
       }}
     >
-      {/* Chain — a vertical column of beaded circles that hangs from
-          above the positioning ancestor and meets the tag cluster. */}
-      <BeadedChain x={containerW / 2} length={60} />
-
-      {/* Tags fanned out from the chain end. With multiple pets we
-          rotate alternating tags slightly left/right so they look like
-          a real cluster of ID tags. */}
+      {/* Tags + per-tag V chain. With multiple pets we fan them out
+          and tilt each slightly so they look like a real cluster. The
+          chain forms a V (two strands) ending at the tag's hole,
+          giving the "chain goes through the hole" look. */}
       {pets.map((pet, i) => {
-        const offset = (i - (pets.length - 1) / 2) * tagW * 0.45;
-        const rotate = pets.length === 1 ? -6 : (i - (pets.length - 1) / 2) * 9;
+        const offset = (i - (pets.length - 1) / 2) * tagW * 0.5;
+        const rotate = pets.length === 1 ? -4 : (i - (pets.length - 1) / 2) * 7;
+        const tagLeft = containerW / 2 + offset - tagW / 2;
+        const tagTop = chainHeight;
+        const holeX = tagLeft + tagW / 2;
+        const holeY = tagTop + holeYOffset;
         return (
-          <button
-            key={pet.id}
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setOpenIndex(i); }}
-            aria-label={`See ${pet.name}'s info`}
-            style={{
-              position: 'absolute',
-              left: `calc(50% + ${offset}px - ${tagW / 2}px)`,
-              top: 55,
-              width: tagW,
-              height: tagH,
-              padding: 0,
-              border: 'none',
-              background: 'transparent',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              transform: `rotate(${rotate}deg)`,
-              transformOrigin: '50% 0',
-              filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.3))',
-              zIndex: pets.length - i, // first pet sits on top
-              fontFamily: 'inherit',
-            }}
-          >
-            <DogTagSvg pet={pet} width={tagW} height={tagH} />
-          </button>
+          <React.Fragment key={pet.id}>
+            <ChainV
+              holeX={holeX}
+              holeY={holeY}
+              spread={Math.round(tagW * 0.6)}
+              containerW={containerW}
+              containerH={chainHeight + tagH + 12}
+            />
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setOpenIndex(i); }}
+              aria-label={`See ${pet.name}'s info`}
+              style={{
+                position: 'absolute',
+                left: tagLeft,
+                top: tagTop,
+                width: tagW,
+                height: tagH,
+                padding: 0,
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                pointerEvents: 'auto',
+                transform: `rotate(${rotate}deg)`,
+                // Pivot rotation around the chain hole so the hole stays
+                // anchored to the chain regardless of tilt.
+                transformOrigin: `50% ${holeYOffset}px`,
+                filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.3))',
+                zIndex: pets.length - i + 5, // tags above chains
+                fontFamily: 'inherit',
+              }}
+            >
+              <DogTagSvg pet={pet} width={tagW} height={tagH} />
+            </button>
+          </React.Fragment>
         );
       })}
 
@@ -148,17 +164,19 @@ function DogTagSvg({ pet, width, height }: { pet: Pet; width: number; height: nu
       aria-label={`${pet.name} dog tag`}
     >
       <defs>
-        {/* Brushed silver gradient — the "metal" of the tag face. */}
+        {/* Shiny gold gradient — the base metal of every Mipet tag.
+            Users still pick the bezel (outer ring) color separately. */}
         <linearGradient id={`metal-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f0f1f3" />
-          <stop offset="45%" stopColor="#cfd1d6" />
-          <stop offset="55%" stopColor="#b9bcc1" />
-          <stop offset="100%" stopColor="#8a8d92" />
+          <stop offset="0%"   stopColor="#fff2bc" />
+          <stop offset="35%"  stopColor="#f4cc56" />
+          <stop offset="55%"  stopColor="#d4a32a" />
+          <stop offset="80%"  stopColor="#a67518" />
+          <stop offset="100%" stopColor="#7a510a" />
         </linearGradient>
-        {/* Subtle brushed-line texture overlay. */}
+        {/* Subtle brushed-line texture, warm-tinted so it reads on gold. */}
         <pattern id={`brushed-${uid}`} width="3" height="3" patternUnits="userSpaceOnUse">
           <rect width="3" height="3" fill="transparent" />
-          <line x1="0" y1="0" x2="3" y2="0" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
+          <line x1="0" y1="0" x2="3" y2="0" stroke="rgba(255,240,200,0.28)" strokeWidth="1" />
         </pattern>
         {/* Bezel gradient using the pet's chosen color. */}
         <linearGradient id={`bezel-${uid}`} x1="0" y1="0" x2="0" y2="1">
@@ -264,51 +282,82 @@ function DogTagSvg({ pet, width, height }: { pet: Pet; width: number; height: nu
         y={TAG_H * 0.92}
         textAnchor="middle"
         fontFamily="Helvetica, Arial, sans-serif"
-        fontWeight="600"
+        fontWeight="700"
         fontSize="6.5"
-        fill="rgba(40,30,20,0.55)"
-        style={{ letterSpacing: 1 }}
+        fill="rgba(40,30,20,0.65)"
+        style={{ letterSpacing: 1.2 }}
       >
-        MITYPE
+        MIPET
       </text>
     </svg>
   );
 }
 
-// Vertical beaded chain. Drawn as a column of small dark spheres so
-// it reads as a real chain rather than a flat line.
-function BeadedChain({ x, length }: { x: number; length: number }) {
-  const beadCount = Math.max(3, Math.round(length / 6));
-  const beads = Array.from({ length: beadCount }, (_, i) => i);
+// V-shaped beaded chain: two strands going from the top of the
+// container down to the tag's hole. Makes it look like the chain is
+// threading through the hole (the way a real dog-tag chain does).
+function ChainV({
+  holeX,
+  holeY,
+  spread,
+  containerW,
+  containerH,
+}: {
+  holeX: number;
+  holeY: number;
+  spread: number;
+  containerW: number;
+  containerH: number;
+}) {
+  const leftTopX = Math.max(2, holeX - spread / 2);
+  const rightTopX = Math.min(containerW - 2, holeX + spread / 2);
+  // Number of beads per strand — scales with chain height for an
+  // even, evenly-spaced look.
+  const beadCount = Math.max(5, Math.round(holeY / 4.5));
+  const uid = React.useId().replace(/:/g, '');
+
+  function strand(startX: number) {
+    const beads = [];
+    for (let i = 0; i <= beadCount; i++) {
+      const t = i / beadCount;
+      const x = startX + (holeX - startX) * t;
+      const y = holeY * t;
+      beads.push(
+        <circle
+          key={i}
+          cx={x}
+          cy={y}
+          r={2.2}
+          fill={`url(#bead-${uid})`}
+          stroke="rgba(0,0,0,0.45)"
+          strokeWidth="0.35"
+        />
+      );
+    }
+    return beads;
+  }
+
   return (
     <svg
-      width={20}
-      height={length + 10}
+      width={containerW}
+      height={containerH}
+      viewBox={`0 0 ${containerW} ${containerH}`}
       style={{
         position: 'absolute',
         top: 0,
-        left: x - 10,
+        left: 0,
         pointerEvents: 'none',
       }}
     >
       <defs>
-        <radialGradient id="bead-grad" cx="40%" cy="35%">
+        <radialGradient id={`bead-${uid}`} cx="40%" cy="35%">
           <stop offset="0%" stopColor="#b8b9bd" />
           <stop offset="50%" stopColor="#5e6064" />
           <stop offset="100%" stopColor="#1d1f23" />
         </radialGradient>
       </defs>
-      {beads.map((b) => (
-        <circle
-          key={b}
-          cx={10}
-          cy={4 + b * (length / beadCount)}
-          r={3.3}
-          fill="url(#bead-grad)"
-          stroke="rgba(0,0,0,0.45)"
-          strokeWidth="0.4"
-        />
-      ))}
+      {strand(leftTopX)}
+      {strand(rightTopX)}
     </svg>
   );
 }

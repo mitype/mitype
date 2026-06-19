@@ -459,15 +459,17 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             borderTopRightRadius: 32,
           }} />
 
-          {/* Pet dog tags — hang from the top-right of the bronze banner,
-              draped down over the right side of the card so they don't
-              cover the profile photo on the left. */}
+          {/* Pet dog tags — hang from the top-right of the bronze banner.
+              Chain starts AT the top edge of the card (topOffsetPx=0)
+              and a V-shaped beaded chain threads down into each tag's
+              hole. Sizes are kept modest so the cluster never crowds
+              the profile photo on the left. */}
           {pets.length > 0 && (
             <PetTags
               pets={pets}
-              parentWidth={260}
-              anchorRightPx={48}
-              topOffsetPx={-22}
+              parentWidth={200}
+              anchorRightPx={36}
+              topOffsetPx={0}
             />
           )}
 
