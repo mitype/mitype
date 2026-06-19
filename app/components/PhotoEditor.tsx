@@ -87,6 +87,14 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
 
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const cropFrameRef = useRef<HTMLDivElement | null>(null);
+  // Outer container with the FIXED layout size — we measure this for
+  // canvas sizing instead of the canvas's own parent (which would size
+  // to the canvas, creating a feedback loop that shrinks the photo
+  // on every render).
+  const previewAreaRef = useRef<HTMLDivElement | null>(null);
+  // Triggers a preview re-render whenever the viewport / preview area
+  // resizes (rotation, soft keyboard appearing, etc.).
+  const [previewVersion, setPreviewVersion] = useState(0);
 
   // -----------------------------------------------------------------
   // Load the source image once.
@@ -116,10 +124,13 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file, imageUrl]);
 
-  // When the user changes aspect lock, re-clamp the crop.
+  // When the user changes aspect lock, reset to the largest centered
+  // crop of that aspect in the full image. This is predictable and
+  // prevents the progressive-shrinking bug where re-clamping the
+  // previous crop kept making it smaller each time.
   useEffect(() => {
     if (!img) return;
-    setCrop((prev) => fitCropToAspect(prev, img.naturalWidth, img.naturalHeight, aspect));
+    setCrop(initialCenteredCrop(img.naturalWidth, img.naturalHeight, aspect));
   }, [aspect, img]);
 
   // -----------------------------------------------------------------
@@ -148,20 +159,33 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
     return parts.join(' ');
   }, [brightness, contrast, saturation, warmth, exposure, filterKey, smooth]);
 
+  // Watch the preview area for size changes (window resize, orientation
+  // change, soft keyboard) and re-render the preview canvas to match.
+  useEffect(() => {
+    const area = previewAreaRef.current;
+    if (!area || typeof ResizeObserver === 'undefined') return;
+    const obs = new ResizeObserver(() => {
+      setPreviewVersion((v) => v + 1);
+    });
+    obs.observe(area);
+    return () => obs.disconnect();
+  }, []);
+
   // -----------------------------------------------------------------
   // Live preview: render the (transformed + cropped) image into the
   // preview canvas every time inputs change.
   // -----------------------------------------------------------------
   useEffect(() => {
-    if (!img || !previewCanvasRef.current) return;
+    if (!img || !previewCanvasRef.current || !previewAreaRef.current) return;
     const canvas = previewCanvasRef.current;
-    const parent = canvas.parentElement;
-    if (!parent) return;
+    const area = previewAreaRef.current;
 
-    // Preview is sized to fit the available area, preserving the source
-    // aspect after rotation.
-    const maxW = parent.clientWidth - 24;
-    const maxH = parent.clientHeight - 24;
+    // IMPORTANT: measure the OUTER preview area (which has a fixed
+    // flex:1 layout size), NOT canvas.parentElement, because the
+    // immediate parent sizes to the canvas — measuring it would cause
+    // the canvas to shrink on every render.
+    const maxW = Math.max(120, area.clientWidth - 24);
+    const maxH = Math.max(120, area.clientHeight - 24);
     const srcW = (rotation === 90 || rotation === 270) ? img.naturalHeight : img.naturalWidth;
     const srcH = (rotation === 90 || rotation === 270) ? img.naturalWidth : img.naturalHeight;
     const scale = Math.min(maxW / srcW, maxH / srcH, 1);
@@ -207,7 +231,7 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, pw, ph);
     }
-  }, [img, rotation, flipH, flipV, cssFilter, glow, sharpen, vignette]);
+  }, [img, rotation, flipH, flipV, cssFilter, glow, sharpen, vignette, previewVersion]);
 
   // -----------------------------------------------------------------
   // Crop drag handles (computed in source pixels, drawn over the preview).
@@ -293,6 +317,30 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
   }
 
   // -----------------------------------------------------------------
+  // Reset every edit back to defaults. Always-available escape hatch
+  // from the header so a user can recover from any state.
+  // -----------------------------------------------------------------
+  function resetAll() {
+    setRotation(0);
+    setFlipH(false);
+    setFlipV(false);
+    setBrightness(100);
+    setContrast(100);
+    setSaturation(100);
+    setWarmth(0);
+    setExposure(0);
+    setFilterKey('none');
+    setSmooth(0);
+    setGlow(0);
+    setSharpen(0);
+    setVignette(0);
+    setAspect(initialAspect);
+    if (img) {
+      setCrop(initialCenteredCrop(img.naturalWidth, img.naturalHeight, initialAspect));
+    }
+  }
+
+  // -----------------------------------------------------------------
   // Save: bake everything into a fresh canvas and emit a JPEG Blob.
   // -----------------------------------------------------------------
   async function handleSave() {
@@ -331,16 +379,44 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
         padding: 'max(14px, env(safe-area-inset-top)) 16px 12px',
         background: 'rgba(0,0,0,0.85)',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
+        gap: 8,
       }}>
         <button onClick={onCancel} style={ghostBtn}>Cancel</button>
-        <div style={{ fontWeight: 800, fontSize: 16 }}>Edit Photo</div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          flex: 1,
+          justifyContent: 'center',
+        }}>
+          <div style={{ fontWeight: 800, fontSize: 16 }}>Edit Photo</div>
+          <button
+            type="button"
+            onClick={resetAll}
+            aria-label="Reset all edits"
+            title="Reset all edits"
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              color: 'white',
+              fontSize: 13,
+              fontWeight: 700,
+              padding: '6px 12px',
+              borderRadius: 100,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            ↺ Reset
+          </button>
+        </div>
         <button onClick={handleSave} disabled={saving || !img} style={primaryBtn}>
           {saving ? 'Saving…' : 'Save'}
         </button>
       </header>
 
       {/* Preview */}
-      <div style={{
+      <div ref={previewAreaRef} style={{
         flex: 1,
         position: 'relative',
         display: 'flex',
@@ -349,6 +425,7 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
         padding: 12,
         overflow: 'hidden',
         background: 'radial-gradient(circle at center, #1a1208, #0a0604)',
+        minHeight: 240,
       }}>
         {!img && (
           <div style={{ color: 'rgba(255,255,255,0.5)' }}>Loading photo…</div>
