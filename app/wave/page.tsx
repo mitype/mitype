@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { WaveTutorial } from '../components/WaveTutorial';
+import { FeatureTutorial } from '../components/FeatureTutorial';
 import { toast } from '../lib/toast';
 
 interface WaveItem {
@@ -1783,6 +1784,55 @@ export default function WavePage() {
       `}</style>
 
       {showTutorial && <WaveTutorial onDismiss={handleTutorialDone} />}
+
+      {/* One-time intro to all the new Wave gestures + features.
+          Independent from the original first-visit WaveTutorial above. */}
+      <FeatureTutorial
+        storageKey="mitype-wave-features-v1"
+        eyebrow="New in The Wave"
+        slides={[
+          {
+            icon: '❤️',
+            title: 'Double-tap to like',
+            body: 'See something you love? Just double-tap the video. A heart floats up and the like saves automatically.',
+          },
+          {
+            icon: '⏸️',
+            title: 'Tap to pause',
+            body: 'One tap pauses the video. The play button appears in the middle — tap it (or the video) again to resume.',
+          },
+          {
+            icon: '👈',
+            title: 'Swipe left to exit',
+            body: 'A quick swipe from right to left dismisses The Wave and takes you back to where you came from. Works on every page.',
+          },
+          {
+            icon: '🔊',
+            title: 'Tap to unmute',
+            body: 'Videos start muted because of phone autoplay rules. Tap the gold "Tap to unmute" pill at the bottom-left once — sound stays on for every video, every visit.',
+          },
+          {
+            icon: 'ⓘ',
+            title: 'Why this video?',
+            body: "Tap the small ⓘ on the right side to see exactly why we surfaced this creator — shared categories, your compatibility score, and a bit about who they are.",
+          },
+          {
+            icon: '↩️',
+            title: 'Undo Skip',
+            body: "Tapped Skip by mistake? A small Undo pill pops up for 5 seconds at the bottom — tap it and the video reappears right where it was.",
+          },
+          {
+            icon: '⏱️',
+            title: 'Expiring soon',
+            body: 'Every Wave video lives 24 hours. When less than an hour remains, the timer badge pulses red and the video glows red around the edge — catch it before it disappears.',
+          },
+          {
+            icon: '🌊',
+            title: 'Fresh Wave avatars',
+            body: 'Any avatar with a bronze glow has a fresh Wave video posted today. Tap it to dive straight into that creator’s feed — works on Discover, on profile pages, and your own dashboard.',
+          },
+        ]}
+      />
     </main>
   );
 }

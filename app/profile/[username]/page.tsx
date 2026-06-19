@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { calculateCompatibility, getCompatibilityColor, getCompatibilityLabel, getSharedCategories } from '../../lib/utils';
 import { Avatar } from '../../components/Avatar';
 import { PetTags, type Pet } from '../../components/PetTags';
+import { FeatureTutorial } from '../../components/FeatureTutorial';
 import { ProfileSkeleton } from '../../components/Skeleton';
 import { toast } from '../../lib/toast';
 import { sanitizeText, safeUrl } from '../../lib/sanitize';
@@ -887,6 +888,29 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           50% { box-shadow: 0 0 32px rgba(200,149,108,0.9); }
         }
       `}</style>
+
+      {/* One-time tour of the new profile-page features. */}
+      <FeatureTutorial
+        storageKey="mitype-profile-features-v1"
+        eyebrow="New on Profiles"
+        slides={[
+          {
+            icon: '🐾',
+            title: 'Hanging Mipet tags',
+            body: "If a creator has added pets, you'll see Mipet dog tags hanging from a chain on the right side of their profile card. Tap any tag to open the pet’s full profile — photo, name, age, favorite activity, favorite food, and bio.",
+          },
+          {
+            icon: '🌊',
+            title: 'Fresh Wave glow',
+            body: "When this profile owner has a new Wave video posted in the last 24 hours, their avatar pulses with a bronze gradient glow. Tap the avatar to drop straight into their personal Wave feed.",
+          },
+          {
+            icon: '🏪',
+            title: 'View Business pill',
+            body: "If this person also runs a small business, a purple 🏪 View Business pill appears next to Share. One tap takes you to their business profile — services, contact info, events, and a Save button.",
+          },
+        ]}
+      />
     </main>
   );
 }

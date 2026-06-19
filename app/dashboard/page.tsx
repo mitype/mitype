@@ -109,6 +109,17 @@ export default function Dashboard() {
         discover people, browse Spotlight, or check Messages.
       </Coachmark>
 
+      {/* Quick tip about the new universal swipe-back gesture. */}
+      <Coachmark
+        storageKey="mitype-coachmark-swipe-back-v1"
+        title="New gesture"
+        placement="bottom-right"
+        delay={1800}
+        duration={9000}
+      >
+        Swipe <strong>left</strong> on any page to go back to where you came from — works everywhere except this dashboard.
+      </Coachmark>
+
       {/* Top Nav — responsive: horizontal on desktop, hamburger drawer on mobile */}
       <nav style={{
         position: 'sticky',

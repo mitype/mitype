@@ -7,6 +7,7 @@ import { Coachmark } from '../components/Coachmark';
 import { BackButton } from '../components/BackButton';
 import { PhotoManager } from '../components/PhotoManager';
 import { PetEditor } from '../components/PetEditor';
+import { FeatureTutorial } from '../components/FeatureTutorial';
 import { toast } from '../lib/toast';
 import { isAtLeast18, maxDobIso, minDobIso } from '../lib/age';
 import { normalizePhotos, type ProfilePhoto } from '../lib/photos';
@@ -1103,6 +1104,34 @@ export default function EditProfilePage() {
 
         </form>
       </div>
+
+      {/* One-time tour of the new Edit Profile additions. */}
+      <FeatureTutorial
+        storageKey="mitype-edit-profile-features-v1"
+        eyebrow="New in Edit Profile"
+        slides={[
+          {
+            icon: '📸',
+            title: 'Full photo editor',
+            body: 'Every photo you upload now opens in a built-in editor — crop with aspect locks, rotate, flip, color filters, adjustment sliders, and beauty enhancements. Tap "Edit" on any existing photo to re-edit it later.',
+          },
+          {
+            icon: '🏪',
+            title: 'Small Business profile',
+            body: 'Run a business? The purple "Run a small business?" card opens a dedicated editor — logo, services, contact info, social, and upcoming events. Local Mitype members in your zip will discover it.',
+          },
+          {
+            icon: '🐾',
+            title: 'Got a pet? Add Mipet tags',
+            body: 'Flip the "Got a pet?" toggle to add your pet — name, type, birthday, favorite activity, food, photo, and a 200-char bio. A bronze Mipet dog tag will hang from your profile card; visitors can tap it to see your pet’s full info.',
+          },
+          {
+            icon: '🎨',
+            title: 'Pick your tag bezel color',
+            body: 'Choose any of 10 outer-ring colors for your pet’s tag — gold, silver, rose, black, pink, red, blue, teal, green, or purple. Multiple pets? Each gets their own tag and their own color.',
+          },
+        ]}
+      />
     </main>
   );
 }

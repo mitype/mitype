@@ -7,6 +7,7 @@ import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { MessagesSkeleton } from '../components/Skeleton';
 import { BackButton } from '../components/BackButton';
+import { FeatureTutorial } from '../components/FeatureTutorial';
 import { MatchCard } from '../components/MatchCard';
 import { GameCard, isGameMessage } from '../components/GameCard';
 import { GamePicker } from '../components/GamePicker';
@@ -1562,6 +1563,24 @@ export default function MessagesPage() {
         open={showGamePicker}
         onClose={() => setShowGamePicker(false)}
         onSend={(encoded) => sendRawMessage(encoded)}
+      />
+
+      {/* One-time tour of the new Messages additions. */}
+      <FeatureTutorial
+        storageKey="mitype-messages-features-v1"
+        eyebrow="New in Messages"
+        slides={[
+          {
+            icon: '🏪',
+            title: 'Small Business Saves',
+            body: 'The purple "Small Business Saves" tab at the top of your sidebar collects every business you’ve hit ☆ Save on. Tap any row to open that business profile directly — your favorite salons, mechanics, chefs, all one tap away.',
+          },
+          {
+            icon: '💬',
+            title: 'Open chat from anywhere',
+            body: 'When you tap 💬 on a Wave video, a profile’s Message button, or a business profile, Mitype opens (or creates) a 1:1 conversation here automatically. End-to-end encrypted as always.',
+          },
+        ]}
       />
     </main>
   );

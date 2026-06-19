@@ -15,6 +15,7 @@ import { ALL_CATEGORIES } from '../lib/categories';
 import { BackButton } from '../components/BackButton';
 import { WaveStoryRing } from '../components/WaveStoryRing';
 import { BUSINESS_CATEGORIES } from '../lib/businessCategories';
+import { FeatureTutorial } from '../components/FeatureTutorial';
 
 // Get 3 random spotlight profiles that rotate daily
 function getSpotlightProfiles(profiles: any[]): any[] {
@@ -1525,6 +1526,34 @@ export default function DiscoverPage() {
           </div>
         )}
       </div>
+
+      {/* One-time tour of the new Discover features. */}
+      <FeatureTutorial
+        storageKey="mitype-discover-features-v1"
+        eyebrow="New on Discover"
+        slides={[
+          {
+            icon: '🌊',
+            title: 'The Wave at the top',
+            body: 'A bronze "Fresh Wave" pill appears on any profile card whose creator has a Wave video in the last 24 hours. Tap it to jump straight into their personal feed.',
+          },
+          {
+            icon: '🏪',
+            title: 'Looking for a local small business?',
+            body: 'Tap the purple banner below the Wave Feed card to expand a list of every published business in your zip code. Filter by 60+ business categories (Salon, Plumber, Coffee Shop, Notary…).',
+          },
+          {
+            icon: '✨',
+            title: 'Daily Business Spotlight',
+            body: 'A different small business gets a hero card every single day — same one for every member, rotates at midnight. Free exposure for whoever owns it that day.',
+          },
+          {
+            icon: '☰',
+            title: 'Cleaner mobile nav',
+            body: 'On mobile, the top links collapsed into a hamburger menu. Tap the icon and you have one-tap access to Dashboard, The Wave Feed, Spotlight, Weekly, Messages, and Edit Profile.',
+          },
+        ]}
+      />
     </main>
   );
 }
