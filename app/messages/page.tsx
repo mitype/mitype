@@ -236,6 +236,104 @@ function writeRecentIcebreakers(arr: string[]) {
   }
 }
 
+// Small ⋯ menu button rendered next to each non-game message bubble.
+// Tapping opens the delete options inline next to the bubble.
+function MessageMenuButton({
+  isMine,
+  isOpen,
+  onToggle,
+  canUnsend,
+  onUnsend,
+  onDeleteForMe,
+}: {
+  isMine: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
+  canUnsend: boolean;
+  onUnsend: () => void;
+  onDeleteForMe: () => void;
+}) {
+  return (
+    <div style={{ position: 'relative', alignSelf: 'flex-end' }}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label="Message options"
+        style={{
+          width: 26,
+          height: 26,
+          borderRadius: '50%',
+          background: 'rgba(0,0,0,0.06)',
+          border: 'none',
+          color: '#8a7560',
+          fontSize: 14,
+          fontWeight: 700,
+          cursor: 'pointer',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          lineHeight: 1,
+          fontFamily: 'inherit',
+          padding: 0,
+        }}
+      >
+        ⋯
+      </button>
+      {isOpen && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 'calc(100% + 4px)',
+            [isMine ? 'right' : 'left']: 0,
+            background: 'white',
+            border: '1px solid rgba(0,0,0,0.08)',
+            borderRadius: 14,
+            padding: 6,
+            boxShadow: '0 12px 30px rgba(0,0,0,0.18)',
+            zIndex: 30,
+            minWidth: 160,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+          }}
+        >
+          {canUnsend && (
+            <button
+              type="button"
+              onClick={onUnsend}
+              style={menuActionBtn('#b91c1c')}
+            >
+              🚫 Unsend for everyone
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onDeleteForMe}
+            style={menuActionBtn('#8a7560')}
+          >
+            🗑️ Delete for me
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function menuActionBtn(color: string): React.CSSProperties {
+  return {
+    background: 'transparent',
+    border: 'none',
+    color,
+    fontSize: 13,
+    fontWeight: 700,
+    padding: '8px 12px',
+    textAlign: 'left',
+    borderRadius: 10,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  };
+}
+
 function getRandomIcebreakers(count = 3): string[] {
   const recent = new Set(readRecentIcebreakers());
   // Pick from prompts NOT in the recent window. If we've exhausted
@@ -269,6 +367,8 @@ export default function MessagesPage() {
   const [showIcebreakers, setShowIcebreakers] = useState(false);
   const [showMatchCard, setShowMatchCard] = useState(false);
   const [showGamePicker, setShowGamePicker] = useState(false);
+  // Which message currently has its ⋯ delete-options menu open.
+  const [openMsgMenuId, setOpenMsgMenuId] = useState<string | null>(null);
   // Conversations silent for >30 days collapse behind a toggle so the inbox
   // doesn't feel like a graveyard. Unread chats are never hidden — even if
   // their updated_at is old, an unread message from the partner pulls them
@@ -791,6 +891,99 @@ export default function MessagesPage() {
     await uploadAndSendAttachment(blob, 'voice', ext, durationSeconds);
   }
 
+  // Deletion helpers. We use a per-user "hidden_for_user_ids" array on
+  // each message for soft delete-for-me, and `deleted_for_everyone` for
+  // sender-initiated unsends within a 1-hour window.
+  const UNSEND_WINDOW_MS = 60 * 60 * 1000;
+
+  function isHiddenForMe(m: any): boolean {
+    if (!user) return false;
+    const arr = (m.hidden_for_user_ids ?? []) as string[];
+    return arr.includes(user.id);
+  }
+
+  function canUnsend(m: any): boolean {
+    if (!user || m.sender_id !== user.id) return false;
+    if (m.deleted_for_everyone) return false;
+    const age = Date.now() - new Date(m.created_at).getTime();
+    return age <= UNSEND_WINDOW_MS;
+  }
+
+  async function handleDeleteForMe(m: any) {
+    if (!user) return;
+    const arr = (m.hidden_for_user_ids ?? []) as string[];
+    if (arr.includes(user.id)) return;
+    const next = [...arr, user.id];
+    // Optimistic UI: hide immediately.
+    setMessages((prev) => prev.map((x) => x.id === m.id ? { ...x, hidden_for_user_ids: next } : x));
+    const { error } = await supabase
+      .from('messages')
+      .update({ hidden_for_user_ids: next })
+      .eq('id', m.id);
+    if (error) {
+      console.error('[messages] delete-for-me error:', error);
+      toast.error('Could not delete.');
+      // Roll back
+      setMessages((prev) => prev.map((x) => x.id === m.id ? { ...x, hidden_for_user_ids: arr } : x));
+    }
+  }
+
+  async function handleUnsend(m: any) {
+    if (!canUnsend(m)) return;
+    if (!confirm('Unsend this message? It will be removed for everyone in this chat.')) return;
+    // Optimistic UI: mark deleted, clear content + attachment locally.
+    setMessages((prev) => prev.map((x) =>
+      x.id === m.id
+        ? { ...x, deleted_for_everyone: true, content: '', attachment_url: null, attachment_storage_path: null }
+        : x
+    ));
+    const { error } = await supabase
+      .from('messages')
+      .update({
+        deleted_for_everyone: true,
+        content: '',
+        attachment_url: null,
+        attachment_storage_path: null,
+      })
+      .eq('id', m.id)
+      .eq('sender_id', user.id); // belt-and-suspenders, RLS also enforces this
+    // Best-effort: also clean up the storage object for attachments.
+    if (!error && m.attachment_storage_path) {
+      void supabase.storage.from('message-media').remove([m.attachment_storage_path]);
+    }
+    if (error) {
+      console.error('[messages] unsend error:', error);
+      toast.error('Could not unsend.');
+    }
+  }
+
+  async function handleDeleteConversation(convoId: string) {
+    if (!user) return;
+    if (!confirm('Delete this conversation from your inbox? Messages stay visible to the other person, but you’ll see new messages they send.')) return;
+    // Hide every existing message in this convo for me.
+    const { data: ids } = await supabase
+      .from('messages')
+      .select('id, hidden_for_user_ids')
+      .eq('conversation_id', convoId);
+    if (ids && ids.length > 0) {
+      // Update each row to append the user id (Postgres arrays don't
+      // have a clean push from the JS client, so we do this in a loop).
+      await Promise.all(ids.map((row: any) => {
+        const arr = (row.hidden_for_user_ids ?? []) as string[];
+        if (arr.includes(user.id)) return Promise.resolve();
+        return supabase
+          .from('messages')
+          .update({ hidden_for_user_ids: [...arr, user.id] })
+          .eq('id', row.id);
+      }));
+    }
+    // Drop the conversation from the local list if I'm currently looking
+    // at it (it'll come back the moment the other person messages me).
+    setMessages([]);
+    if (selectedConvo?.id === convoId) setSelectedConvo(null);
+    toast.success('Conversation cleared from your inbox.');
+  }
+
   async function respondToRequest(status: 'approved' | 'denied') {
     if (!selectedConvo) return;
     const { error } = await supabase
@@ -1171,20 +1364,23 @@ export default function MessagesPage() {
               {approvedActive.map((convo) => {
                 const other = getOtherUser(convo);
                 return (
-                  <button
+                  <div
                     key={convo.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => selectConvo(convo)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') selectConvo(convo); }}
                     style={{
                       width: '100%',
                       padding: '12px 20px',
                       background: selectedConvo?.id === convo.id ? '#fff3ec' : 'transparent',
-                      border: 'none',
                       borderLeft: selectedConvo?.id === convo.id ? '3px solid #c8956c' : '3px solid transparent',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
                       textAlign: 'left',
+                      boxSizing: 'border-box',
                     }}
                   >
                     <div style={{
@@ -1214,8 +1410,32 @@ export default function MessagesPage() {
                         </p>
                       </div>
                       <UnreadBadge count={unread.perConvo[convo.id] ?? 0} />
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); void handleDeleteConversation(convo.id); }}
+                        aria-label={`Delete conversation with @${other?.username ?? 'user'}`}
+                        title="Delete conversation"
+                        style={{
+                          width: 28,
+                          height: 28,
+                          background: 'rgba(0,0,0,0.04)',
+                          border: 'none',
+                          borderRadius: '50%',
+                          color: '#a89278',
+                          fontSize: 14,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          lineHeight: 1,
+                          fontFamily: 'inherit',
+                          flexShrink: 0,
+                        }}
+                      >
+                        🗑️
+                      </button>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -1612,8 +1832,10 @@ export default function MessagesPage() {
                 {/* "Read" indicator is shown only on my most recent
                     message that the partner has read. */}
                 {messages.map((msg, idx, arr) => {
+                  // Soft-deleted "for me" → never render.
+                  if (isHiddenForMe(msg)) return null;
                   const isMine = msg.sender_id === user?.id;
-                  const isGame = isGameMessage(msg.content);
+                  const isGame = !msg.deleted_for_everyone && isGameMessage(msg.content);
                   // Walk back from the end, but only on the iteration where
                   // it could matter (the current msg is mine).
                   let isMyLast = false;
@@ -1663,42 +1885,87 @@ export default function MessagesPage() {
                             )}
                           </p>
                         </div>
-                      ) : msg.attachment_type ? (
-                        <AttachmentBubble
-                          msg={msg}
-                          isMine={isMine}
-                          showReadReceipt={showReadReceipt}
-                          timeAgo={timeAgo(msg.created_at)}
-                        />
-                      ) : (
+                      ) : msg.deleted_for_everyone ? (
                         <div style={{
                           maxWidth: '70%',
-                          padding: '12px 16px',
-                          borderRadius: isMine
-                            ? '18px 18px 4px 18px'
-                            : '18px 18px 18px 4px',
-                          background: isMine ? '#c8956c' : 'white',
-                          color: isMine ? 'white' : '#1a1208',
-                          fontSize: 14,
-                          lineHeight: 1.5,
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                          padding: '10px 16px',
+                          borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                          background: 'rgba(0,0,0,0.04)',
+                          color: '#8a7560',
+                          fontSize: 13,
+                          fontStyle: 'italic',
+                          border: '1px dashed rgba(200,149,108,0.3)',
                         }}>
-                          <p style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                            {sanitizeText(msg.content)}
-                          </p>
-                          <p style={{
-                            fontSize: 11,
-                            margin: '4px 0 0',
-                            opacity: 0.6,
-                            textAlign: 'right',
+                          🚫 This message was unsent
+                        </div>
+                      ) : msg.attachment_type ? (
+                        <div style={{
+                          position: 'relative',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: 6,
+                          flexDirection: isMine ? 'row-reverse' : 'row',
+                        }}>
+                          <AttachmentBubble
+                            msg={msg}
+                            isMine={isMine}
+                            showReadReceipt={showReadReceipt}
+                            timeAgo={timeAgo(msg.created_at)}
+                          />
+                          <MessageMenuButton
+                            isMine={isMine}
+                            isOpen={openMsgMenuId === msg.id}
+                            onToggle={() => setOpenMsgMenuId(openMsgMenuId === msg.id ? null : msg.id)}
+                            canUnsend={canUnsend(msg)}
+                            onUnsend={() => { setOpenMsgMenuId(null); void handleUnsend(msg); }}
+                            onDeleteForMe={() => { setOpenMsgMenuId(null); void handleDeleteForMe(msg); }}
+                          />
+                        </div>
+                      ) : (
+                        <div style={{
+                          position: 'relative',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: 6,
+                          flexDirection: isMine ? 'row-reverse' : 'row',
+                        }}>
+                          <div style={{
+                            maxWidth: '70%',
+                            padding: '12px 16px',
+                            borderRadius: isMine
+                              ? '18px 18px 4px 18px'
+                              : '18px 18px 18px 4px',
+                            background: isMine ? '#c8956c' : 'white',
+                            color: isMine ? 'white' : '#1a1208',
+                            fontSize: 14,
+                            lineHeight: 1.5,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                           }}>
-                            {timeAgo(msg.created_at)}
-                            {showReadReceipt && (
-                              <span style={{ marginLeft: 6, fontWeight: 700 }}>
-                                ✓ Read
-                              </span>
-                            )}
-                          </p>
+                            <p style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                              {sanitizeText(msg.content)}
+                            </p>
+                            <p style={{
+                              fontSize: 11,
+                              margin: '4px 0 0',
+                              opacity: 0.6,
+                              textAlign: 'right',
+                            }}>
+                              {timeAgo(msg.created_at)}
+                              {showReadReceipt && (
+                                <span style={{ marginLeft: 6, fontWeight: 700 }}>
+                                  ✓ Read
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          <MessageMenuButton
+                            isMine={isMine}
+                            isOpen={openMsgMenuId === msg.id}
+                            onToggle={() => setOpenMsgMenuId(openMsgMenuId === msg.id ? null : msg.id)}
+                            canUnsend={canUnsend(msg)}
+                            onUnsend={() => { setOpenMsgMenuId(null); void handleUnsend(msg); }}
+                            onDeleteForMe={() => { setOpenMsgMenuId(null); void handleDeleteForMe(msg); }}
+                          />
                         </div>
                       )}
                     </div>
