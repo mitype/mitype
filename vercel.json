@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/wave-cleanup",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/message-media-cleanup",
+      "schedule": "15 * * * *"
     }
   ]
 }

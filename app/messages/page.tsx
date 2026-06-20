@@ -8,6 +8,9 @@ import { Coachmark } from '../components/Coachmark';
 import { MessagesSkeleton } from '../components/Skeleton';
 import { BackButton } from '../components/BackButton';
 import { FeatureTutorial } from '../components/FeatureTutorial';
+import { VoiceRecorder } from '../components/VoiceRecorder';
+import { VoiceNotePlayer } from '../components/VoiceNotePlayer';
+import { PhotoLightbox } from '../components/PhotoLightbox';
 import { MatchCard } from '../components/MatchCard';
 import { GameCard, isGameMessage } from '../components/GameCard';
 import { GamePicker } from '../components/GamePicker';
@@ -39,6 +42,74 @@ const ICEBREAKERS = [
   "What kind of creative work do you wish more people appreciated? 🎨",
   "What's your favorite way to recharge after a long day? 🌙",
 ];
+
+// AttachmentBubble — renders a chat bubble for a photo or voice-note
+// message. When the attachment has expired (cron cleared the URL,
+// OR the expires_at has passed) we show an "expired" placeholder.
+function AttachmentBubble({
+  msg,
+  isMine,
+  showReadReceipt,
+  timeAgo,
+}: {
+  msg: any;
+  isMine: boolean;
+  showReadReceipt: boolean;
+  timeAgo: string;
+}) {
+  const expired =
+    !msg.attachment_url ||
+    (msg.attachment_expires_at && new Date(msg.attachment_expires_at).getTime() <= Date.now());
+
+  return (
+    <div style={{
+      maxWidth: '70%',
+      padding: msg.attachment_type === 'image' ? 6 : '10px 14px',
+      borderRadius: isMine
+        ? '18px 18px 4px 18px'
+        : '18px 18px 18px 4px',
+      background: isMine ? '#c8956c' : 'white',
+      color: isMine ? 'white' : '#1a1208',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    }}>
+      {expired ? (
+        <p style={{
+          margin: 0,
+          padding: '6px 4px',
+          fontSize: 13,
+          fontStyle: 'italic',
+          opacity: 0.75,
+        }}>
+          {msg.attachment_type === 'image' ? '📷 Photo expired' : '🎤 Voice note expired'}
+        </p>
+      ) : msg.attachment_type === 'image' ? (
+        <PhotoLightbox
+          url={msg.attachment_url}
+          expiresAt={msg.attachment_expires_at}
+        />
+      ) : (
+        <VoiceNotePlayer
+          url={msg.attachment_url}
+          durationSeconds={msg.attachment_duration_seconds ?? 0}
+          variant={isMine ? 'mine' : 'theirs'}
+        />
+      )}
+      <p style={{
+        fontSize: 11,
+        margin: '6px 4px 0',
+        opacity: 0.6,
+        textAlign: 'right',
+      }}>
+        {timeAgo}
+        {showReadReceipt && (
+          <span style={{ marginLeft: 6, fontWeight: 700 }}>
+            ✓ Read
+          </span>
+        )}
+      </p>
+    </div>
+  );
+}
 
 function getRandomIcebreakers(count = 3): string[] {
   const shuffled = [...ICEBREAKERS].sort(() => Math.random() - 0.5);
@@ -446,6 +517,144 @@ export default function MessagesPage() {
     } else if (error) {
       toast.error("Couldn't send. Try again.");
     }
+  }
+
+  // Attachments — photos and voice notes. Every attachment is uploaded
+  // to the message-media bucket under <conversation_id>/<unique-name>
+  // and expires 24 hours after sending. The hourly cron at
+  // /api/cron/message-media-cleanup deletes the storage file and clears
+  // the URL once expired.
+  const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+  const ATTACHMENT_TTL_MS = 24 * 60 * 60 * 1000;
+
+  async function uploadAndSendAttachment(
+    blob: Blob,
+    kind: 'image' | 'voice',
+    ext: string,
+    durationSeconds?: number
+  ) {
+    if (!selectedConvo || !user) return;
+    if (blob.size > MAX_ATTACHMENT_BYTES) {
+      toast.error('Attachment must be under 25 MB.');
+      return;
+    }
+    if (selectedConvo.status === 'pending') {
+      const myMessages = messages.filter((m) => m.sender_id === user.id);
+      if (myMessages.length >= 1) {
+        toast.info('Wait for the recipient to approve your request before sending more messages.');
+        return;
+      }
+    }
+
+    setSending(true);
+    try {
+      // <conversation_id>/<random-name>.<ext>
+      const rand = Math.random().toString(36).slice(2, 9);
+      const path = `${selectedConvo.id}/${Date.now()}-${rand}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('message-media')
+        .upload(path, blob, {
+          upsert: false,
+          contentType: blob.type || (kind === 'image' ? 'image/jpeg' : 'audio/webm'),
+        });
+      if (upErr) {
+        console.error('[messages] attachment upload error:', upErr);
+        toast.error("Couldn't upload that. Try again.");
+        return;
+      }
+      // Private bucket → signed URL valid for the full 24h lifetime.
+      const { data: signed } = await supabase.storage
+        .from('message-media')
+        .createSignedUrl(path, 24 * 60 * 60);
+      const url = signed?.signedUrl ?? null;
+      const expiresAt = new Date(Date.now() + ATTACHMENT_TTL_MS).toISOString();
+
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: selectedConvo.id,
+          sender_id: user.id,
+          content: kind === 'image' ? '📷 Photo' : '🎤 Voice note',
+          attachment_type: kind,
+          attachment_url: url,
+          attachment_storage_path: path,
+          attachment_duration_seconds: durationSeconds ?? null,
+          attachment_expires_at: expiresAt,
+        })
+        .select()
+        .single();
+
+      if (!error && data) {
+        setMessages((prev) => [...prev, data]);
+      } else if (error) {
+        console.error('[messages] insert error:', error);
+        toast.error("Couldn't send. Try again.");
+      }
+    } finally {
+      setSending(false);
+    }
+  }
+
+  // Re-encodes an arbitrary image (HEIC from iPhones, PNG, WebP, etc.)
+  // as a normalized JPEG via canvas. This guarantees the recipient can
+  // view it on any browser. Falls back to the original blob if the
+  // image can't be decoded (e.g. raw HEIC on a non-Safari browser).
+  async function normalizeImage(file: File): Promise<{ blob: Blob; ext: string }> {
+    if (file.type === 'image/gif') {
+      // Don't re-encode animated GIFs — would lose the animation.
+      return { blob: file, ext: 'gif' };
+    }
+    try {
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = () => reject(new Error('read'));
+        r.readAsDataURL(file);
+      });
+      const img: HTMLImageElement = await new Promise((resolve, reject) => {
+        const i = new Image();
+        i.onload = () => resolve(i);
+        i.onerror = () => reject(new Error('decode'));
+        i.src = dataUrl;
+      });
+      // Cap longest dimension at 2400px for sane file size.
+      const cap = 2400;
+      const scale = Math.min(1, cap / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.round(img.naturalWidth * scale);
+      const h = Math.round(img.naturalHeight * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('canvas');
+      ctx.drawImage(img, 0, 0, w, h);
+      const out: Blob = await new Promise((resolve, reject) => {
+        canvas.toBlob((b) => b ? resolve(b) : reject(new Error('toBlob')), 'image/jpeg', 0.9);
+      });
+      return { blob: out, ext: 'jpg' };
+    } catch {
+      // Re-encoding failed — best effort, send the original.
+      const ext = (file.name.split('.').pop() ?? 'jpg').toLowerCase();
+      return { blob: file, ext };
+    }
+  }
+
+  async function handlePhotoPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    e.target.value = '';
+    if (!f) return;
+    if (!f.type.startsWith('image/') && !/\.heic$/i.test(f.name)) {
+      toast.error('Pick an image file.');
+      return;
+    }
+    const { blob, ext } = await normalizeImage(f);
+    await uploadAndSendAttachment(blob, 'image', ext);
+  }
+
+  async function handleVoiceSend(blob: Blob, durationSeconds: number) {
+    const ext = (blob.type.includes('mp4') || blob.type.includes('aac')) ? 'm4a'
+              : (blob.type.includes('ogg')) ? 'ogg'
+              : 'webm';
+    await uploadAndSendAttachment(blob, 'voice', ext, durationSeconds);
   }
 
   async function respondToRequest(status: 'approved' | 'denied') {
@@ -1320,6 +1529,13 @@ export default function MessagesPage() {
                             )}
                           </p>
                         </div>
+                      ) : msg.attachment_type ? (
+                        <AttachmentBubble
+                          msg={msg}
+                          isMine={isMine}
+                          showReadReceipt={showReadReceipt}
+                          timeAgo={timeAgo(msg.created_at)}
+                        />
                       ) : (
                         <div style={{
                           maxWidth: '70%',
@@ -1420,7 +1636,7 @@ export default function MessagesPage() {
                     </button>
                   )}
 
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     {/* Mini-game launcher — only when the chat is fully
                         approved, since pending senders are rate-limited
                         to one message until approved. */}
@@ -1448,6 +1664,40 @@ export default function MessagesPage() {
                         <span aria-hidden="true">🎮</span>
                       </button>
                     )}
+
+                    {/* Photo attachment — accept any image format. */}
+                    <label
+                      aria-label="Send a photo"
+                      title="Send a photo"
+                      style={{
+                        width: 40,
+                        height: 40,
+                        flexShrink: 0,
+                        background: 'white',
+                        border: '1px solid rgba(200,149,108,0.35)',
+                        borderRadius: '50%',
+                        color: '#c8956c',
+                        fontSize: 20,
+                        cursor: sending ? 'wait' : 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        opacity: sending ? 0.6 : 1,
+                      }}
+                    >
+                      📷
+                      <input
+                        type="file"
+                        accept="image/*,.heic,.heif"
+                        onChange={handlePhotoPick}
+                        disabled={sending}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+
+                    {/* Voice note recorder */}
+                    <VoiceRecorder onSend={handleVoiceSend} />
+
                     <input
                       type="text"
                       placeholder={
@@ -1567,9 +1817,24 @@ export default function MessagesPage() {
 
       {/* One-time tour of the new Messages additions. */}
       <FeatureTutorial
-        storageKey="mitype-messages-features-v1"
+        storageKey="mitype-messages-features-v2"
         eyebrow="New in Messages"
         slides={[
+          {
+            icon: '📷',
+            title: 'Send photos',
+            body: 'Tap the 📷 button next to the message input to send a photo. Pick any image format — JPEG, PNG, HEIC from iPhone, even GIFs. Photos auto-convert so everyone can view them on every device.',
+          },
+          {
+            icon: '🎤',
+            title: 'Send voice notes',
+            body: 'Tap the 🎤 button to record a voice note. A panel opens with a live waveform — tap Start, talk, tap Stop. Listen back, then Send or Re-record. Up to 10 minutes per voice note.',
+          },
+          {
+            icon: '⏱️',
+            title: 'Auto-expires in 24 hours',
+            body: 'Photos and voice notes vanish from the chat 24 hours after sending — the file is deleted from our servers and the bubble shows "Photo expired" or "Voice note expired." Like Snapchat, but built into your DMs.',
+          },
           {
             icon: '🏪',
             title: 'Small Business Saves',
@@ -1578,7 +1843,7 @@ export default function MessagesPage() {
           {
             icon: '💬',
             title: 'Open chat from anywhere',
-            body: 'When you tap 💬 on a Wave video, a profile’s Message button, or a business profile, Mitype opens (or creates) a 1:1 conversation here automatically. End-to-end encrypted as always.',
+            body: 'When you tap 💬 on a Wave video, a profile’s Message button, or a business profile, Mitype opens (or creates) a 1:1 conversation here automatically.',
           },
         ]}
       />
