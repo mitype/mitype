@@ -865,6 +865,11 @@ export default function WavePage() {
           overflowY: 'scroll',
           scrollSnapType: 'y mandatory',
           WebkitOverflowScrolling: 'touch',
+          // Pin the touch axis to vertical only — kills the "wobble
+          // sideways" feel during swipes and lets the swipe-back
+          // gesture coexist with vertical scrolling cleanly.
+          touchAction: 'pan-y',
+          overscrollBehavior: 'contain',
         }}
       >
         {loading && (

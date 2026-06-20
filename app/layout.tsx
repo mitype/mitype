@@ -38,6 +38,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // viewportFit:'cover' lets safe-area-inset-* see the real notch/home
+  // bar instead of fixed bezels — this is what makes our Wave feed top
+  // and bottom bars sit clean under the iPhone notch and home bar.
+  viewportFit: "cover",
   themeColor: "#c8956c",
 };
 

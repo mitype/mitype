@@ -282,12 +282,24 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
   function onCropMouseDown(e: React.PointerEvent, mode: 'move' | 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'e' | 'w') {
     if (!img) return;
     e.preventDefault();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    e.stopPropagation();
+    // Capture on currentTarget (not target) so the pointer stays
+    // bound even if our finger drifts off the small handle span.
+    // Without this, mobile drag releases halfway through and feels
+    // sluggish or unresponsive.
+    const captureEl = e.currentTarget as HTMLElement;
+    try {
+      captureEl.setPointerCapture(e.pointerId);
+    } catch {
+      /* not supported — fall back to window listeners below */
+    }
     const startCrop = { ...crop };
     const start = previewToSource(e.clientX, e.clientY);
     const ar = ASPECTS.find((a) => a.key === aspect)?.ratio ?? null;
 
     function onMove(ev: PointerEvent) {
+      // Don't let the browser also try to interpret the drag as a scroll.
+      ev.preventDefault();
       const current = previewToSource(ev.clientX, ev.clientY);
       const dx = current.x - start.x;
       const dy = current.y - start.y;
@@ -327,9 +339,14 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
     function onUp() {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      try { captureEl.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
     }
-    window.addEventListener('pointermove', onMove);
+    // Use { passive: false } so preventDefault inside onMove can stop
+    // the browser's gesture from stealing the touch on iOS.
+    window.addEventListener('pointermove', onMove, { passive: false });
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
   }
 
   // -----------------------------------------------------------------
@@ -507,6 +524,14 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
                     pointerEvents: 'auto',
                     cursor: 'move',
                     boxSizing: 'border-box',
+                    // Critical for mobile: tell the browser this element
+                    // is taking full control of the touch — no panning,
+                    // no zooming, no scroll. Drag stays snappy.
+                    touchAction: 'none',
+                    // Disable iOS callout / text selection during drag.
+                    WebkitUserSelect: 'none',
+                    userSelect: 'none',
+                    WebkitTouchCallout: 'none',
                   }}
                 >
                   {/* Rule-of-thirds guides */}
@@ -1039,6 +1064,9 @@ function tabBtn(active: boolean): React.CSSProperties {
 function cornerHandleStyle(m: string): React.CSSProperties {
   const base: React.CSSProperties = {
     position: 'absolute',
+    // Bigger tap target on mobile — the visual is still 16px but the
+    // hit-box around it is generous, so users don't have to land on a
+    // pixel-perfect spot to start dragging.
     width: 16,
     height: 16,
     background: 'white',
@@ -1046,6 +1074,12 @@ function cornerHandleStyle(m: string): React.CSSProperties {
     boxShadow: '0 0 0 1px rgba(0,0,0,0.5)',
     pointerEvents: 'auto',
     cursor: m + '-resize' as any,
+    // Take full ownership of touches over this element so the browser
+    // doesn't preempt the drag with a scroll.
+    touchAction: 'none',
+    WebkitUserSelect: 'none',
+    userSelect: 'none',
+    WebkitTouchCallout: 'none',
   };
   if (m === 'nw') return { ...base, top: -8, left: -8 };
   if (m === 'ne') return { ...base, top: -8, right: -8 };
