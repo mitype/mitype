@@ -30,6 +30,8 @@ interface BusinessProfile {
   state: string | null;
   zip_code: string | null;
   hide_address: boolean;
+  is_online_only: boolean;
+  online_label: string | null;
   social_links: Record<string, string>;
   is_published: boolean;
 }
@@ -51,6 +53,14 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
   const [events, setEvents] = useState<BusinessEvent[]>([]);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Recommenders — the (up to 6) most recent Mitype members who added
+  // this business to their profile recommendations, plus the total count.
+  const [recommenders, setRecommenders] = useState<{
+    user_id: string;
+    username: string;
+    avatar_url: string | null;
+  }[]>([]);
+  const [recommenderCount, setRecommenderCount] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -102,6 +112,45 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
         .eq('business_id', bizRow.id)
         .maybeSingle();
       setSaved(Boolean(saveRow));
+
+      // Recommenders — recent + count. Two cheap queries.
+      try {
+        const { count } = await supabase
+          .from('business_recommendations')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', bizRow.id);
+        setRecommenderCount(count ?? 0);
+        if ((count ?? 0) > 0) {
+          const { data: recentRecs } = await supabase
+            .from('business_recommendations')
+            .select('user_id, created_at')
+            .eq('business_id', bizRow.id)
+            .order('created_at', { ascending: false })
+            .limit(6);
+          const userIds = (recentRecs ?? []).map((r: any) => r.user_id);
+          if (userIds.length > 0) {
+            const { data: profs } = await supabase
+              .from('profiles')
+              .select('user_id, username, avatar_url')
+              .in('user_id', userIds);
+            const profMap = new Map<string, any>(
+              (profs ?? []).map((p: any) => [p.user_id, p])
+            );
+            setRecommenders(
+              userIds
+                .map((id: string) => profMap.get(id))
+                .filter(Boolean)
+                .map((p: any) => ({
+                  user_id: p.user_id,
+                  username: p.username,
+                  avatar_url: p.avatar_url,
+                }))
+            );
+          }
+        }
+      } catch {
+        /* Non-fatal. */
+      }
 
       setLoading(false);
     })();
@@ -232,11 +281,49 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                   {biz.category}
                 </div>
               )}
-              {fullAddress && (
+              {biz.is_online_only ? (
+                biz.website ? (
+                  <a
+                    href={biz.website.startsWith('http') ? biz.website : `https://${biz.website}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      marginTop: 10,
+                      padding: '6px 14px',
+                      background: 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)',
+                      color: 'white',
+                      borderRadius: 100,
+                      fontSize: 13,
+                      fontWeight: 800,
+                      textDecoration: 'none',
+                      boxShadow: '0 6px 18px rgba(139,92,246,0.35)',
+                    }}
+                  >
+                    🌐 {biz.online_label ?? 'Online Business'}
+                    <span aria-hidden="true" style={{ marginLeft: 4 }}>→</span>
+                  </a>
+                ) : (
+                  <div style={{
+                    display: 'inline-block',
+                    marginTop: 10,
+                    padding: '6px 14px',
+                    background: 'rgba(139,92,246,0.12)',
+                    color: '#5b21b6',
+                    borderRadius: 100,
+                    fontSize: 13,
+                    fontWeight: 800,
+                  }}>
+                    🌐 {biz.online_label ?? 'Online Business'}
+                  </div>
+                )
+              ) : fullAddress ? (
                 <div style={{ color: '#5b4a6e', fontSize: 13, marginTop: 8 }}>
                   📍 {fullAddress}
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -286,7 +373,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                   🌐 {biz.website}
                 </a>
               )}
-              {fullAddress && (
+              {!biz.is_online_only && fullAddress && (
                 <a href={`https://maps.google.com/?q=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noreferrer noopener" style={contactRow}>
                   🗺️ Open in Maps
                 </a>
@@ -303,6 +390,47 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
               {biz.social_links.instagram && <SocialLink label="Instagram" value={biz.social_links.instagram} icon="📷" />}
               {biz.social_links.facebook && <SocialLink label="Facebook" value={biz.social_links.facebook} icon="📘" />}
               {biz.social_links.tiktok && <SocialLink label="TikTok" value={biz.social_links.tiktok} icon="🎵" />}
+            </div>
+          </Card>
+        )}
+
+        {/* Recommenders — social proof. Shows the count badge plus
+            up to 6 recent recommender avatars. */}
+        {recommenderCount > 0 && (
+          <Card>
+            <SectionLabel>Recommended by {recommenderCount} {recommenderCount === 1 ? 'member' : 'members'}</SectionLabel>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {recommenders.map((r, i) => (
+                  <Link
+                    key={r.user_id}
+                    href={`/profile/${r.username}`}
+                    aria-label={`@${r.username}'s profile`}
+                    title={`@${r.username}`}
+                    style={{
+                      width: 38, height: 38,
+                      borderRadius: '50%',
+                      background: r.avatar_url
+                        ? `url(${r.avatar_url}) center / cover`
+                        : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                      border: '2px solid white',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 14, color: 'white',
+                      marginLeft: i === 0 ? 0 : -10,
+                      textDecoration: 'none',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {!r.avatar_url && '👤'}
+                  </Link>
+                ))}
+              </div>
+              {recommenderCount > recommenders.length && (
+                <span style={{ fontSize: 13, color: '#7a6a85', fontWeight: 700 }}>
+                  + {recommenderCount - recommenders.length} more
+                </span>
+              )}
             </div>
           </Card>
         )}

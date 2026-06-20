@@ -45,6 +45,10 @@ export default function EditBusinessProfilePage() {
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [hideAddress, setHideAddress] = useState(false);
+  // Online-only business: when true, address fields disappear and we
+  // show an "online label" dropdown (Online Store, Online Boutique, etc.)
+  const [isOnlineOnly, setIsOnlineOnly] = useState(false);
+  const [onlineLabel, setOnlineLabel] = useState('Online Store');
   const [instagram, setInstagram] = useState('');
   const [facebook, setFacebook] = useState('');
   const [tiktok, setTiktok] = useState('');
@@ -86,6 +90,8 @@ export default function EditBusinessProfilePage() {
         setState(biz.state ?? '');
         setZipCode(biz.zip_code ?? '');
         setHideAddress(Boolean(biz.hide_address));
+        setIsOnlineOnly(Boolean(biz.is_online_only));
+        setOnlineLabel(biz.online_label || 'Online Store');
         setIsPublished(biz.is_published !== false);
         const social = biz.social_links ?? {};
         setInstagram(social.instagram ?? '');
@@ -193,11 +199,13 @@ export default function EditBusinessProfilePage() {
         phone: phone.trim() || null,
         email: email.trim() || null,
         website: website.trim() || null,
-        address_line: addressLine.trim() || null,
-        city: city.trim() || null,
-        state: state.trim() || null,
-        zip_code: zipCode.trim() || null,
+        address_line: isOnlineOnly ? null : (addressLine.trim() || null),
+        city: isOnlineOnly ? null : (city.trim() || null),
+        state: isOnlineOnly ? null : (state.trim() || null),
+        zip_code: isOnlineOnly ? null : (zipCode.trim() || null),
         hide_address: hideAddress,
+        is_online_only: isOnlineOnly,
+        online_label: isOnlineOnly ? onlineLabel : null,
         social_links: {
           instagram: instagram.trim(),
           facebook: facebook.trim(),
@@ -490,7 +498,50 @@ export default function EditBusinessProfilePage() {
           </FieldGrid>
         </SectionCard>
 
-        {/* Address */}
+        {/* Online-only toggle — when on, hide every address field and
+            ask for an online label instead. */}
+        <SectionCard>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={isOnlineOnly}
+              onChange={(e) => setIsOnlineOnly(e.target.checked)}
+              style={{ width: 20, height: 20, accentColor: '#8b5cf6' }}
+            />
+            <div>
+              <div style={{ fontWeight: 700, color: '#1a1208', fontSize: 15 }}>
+                🌐 This is an online-only business
+              </div>
+              <div style={{ color: '#7a6a85', fontSize: 13, marginTop: 2 }}>
+                Hides the address fields and shows your website + a label
+                like &ldquo;Online Boutique&rdquo; on your business profile.
+              </div>
+            </div>
+          </label>
+          {isOnlineOnly && (
+            <div style={{ marginTop: 16 }}>
+              <SectionLabel>Label this online business as</SectionLabel>
+              <select
+                value={onlineLabel}
+                onChange={(e) => setOnlineLabel(e.target.value)}
+                style={inputStyle}
+              >
+                <option>Online Store</option>
+                <option>Online Boutique</option>
+                <option>Online Service</option>
+                <option>Online Studio</option>
+                <option>Online Class</option>
+                <option>Online Coaching</option>
+                <option>Online Consultation</option>
+                <option>Online Shop</option>
+                <option>Online Restaurant / Delivery</option>
+              </select>
+            </div>
+          )}
+        </SectionCard>
+
+        {/* Address — hidden when the business is online-only. */}
+        {!isOnlineOnly && (
         <SectionCard>
           <SectionLabel>Address</SectionLabel>
           <FieldGrid>
@@ -514,6 +565,7 @@ export default function EditBusinessProfilePage() {
             </span>
           </label>
         </SectionCard>
+        )}
 
         {/* Socials */}
         <SectionCard>

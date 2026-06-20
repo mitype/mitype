@@ -70,6 +70,17 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const [hasBusiness, setHasBusiness] = useState(false);
   // Pets — rendered as hanging dog tags off the top of the profile card.
   const [pets, setPets] = useState<Pet[]>([]);
+  // Small Business Recommendations — purple cards rendered under
+  // Creative Portfolio. Auto-hides any whose business has been
+  // unpublished or removed.
+  const [recommendations, setRecommendations] = useState<{
+    id: string;
+    business_id: string;
+    name: string;
+    category: string | null;
+    logo_url: string | null;
+    owner_username: string | null;
+  }[]>([]);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
@@ -104,6 +115,43 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         if (cancelled) return;
         if (!profileData) { router.push('/discover'); return; }
         setProfile(profileData as PublicProfile);
+
+        // Pull this user's business recommendations (purple section).
+        // Join the businesses + their owner username for the deep link.
+        try {
+          const { data: recRows } = await supabase
+            .from('business_recommendations')
+            .select('id, business_id, display_order, business_profiles(id, business_name, category, logo_url, is_published, user_id)')
+            .eq('user_id', profileData.user_id)
+            .order('display_order', { ascending: true });
+          if (recRows && !cancelled) {
+            const validRecs = recRows.filter(
+              (r: any) => r.business_profiles && r.business_profiles.is_published
+            );
+            // Map owner user_id → username for deep links.
+            const ownerIds = Array.from(
+              new Set(validRecs.map((r: any) => r.business_profiles.user_id))
+            );
+            const { data: ownerProfiles } = ownerIds.length > 0
+              ? await supabase.from('profiles').select('user_id, username').in('user_id', ownerIds)
+              : { data: [] as any[] };
+            const ownerMap = new Map<string, string>(
+              (ownerProfiles ?? []).map((p: any) => [p.user_id, p.username])
+            );
+            setRecommendations(
+              validRecs.map((r: any) => ({
+                id: r.id,
+                business_id: r.business_id,
+                name: r.business_profiles.business_name,
+                category: r.business_profiles.category,
+                logo_url: r.business_profiles.logo_url,
+                owner_username: ownerMap.get(r.business_profiles.user_id) ?? null,
+              }))
+            );
+          }
+        } catch {
+          // Non-fatal.
+        }
 
         // Pull this user's pet profiles (if any). Tags only render when
         // at least one pet exists.
@@ -839,6 +887,72 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           </div>
         )}
 
+        {/* Small Businesses I Recommend — purple section below
+            Categories, above Creative Portfolio. Only visible when
+            this profile owner has at least one published recommendation. */}
+        {recommendations.length > 0 && (
+          <div style={{
+            background: 'linear-gradient(135deg, #f6f3fb 0%, #ebe5f5 100%)',
+            border: '1px solid rgba(139,92,246,0.25)',
+            borderRadius: 24,
+            padding: '28px 32px',
+            marginBottom: 24,
+            boxShadow: '0 8px 32px rgba(139,92,246,0.08)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <span style={{ fontSize: 22 }}>🏪</span>
+              <p style={{ fontSize: 12, fontWeight: 800, color: '#5b21b6', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
+                Small Businesses I Recommend
+              </p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+              {recommendations.map((r) => (
+                <Link
+                  key={r.id}
+                  href={r.owner_username ? `/business/${r.owner_username}` : '#'}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: 12,
+                    background: 'white',
+                    border: '1px solid rgba(139,92,246,0.2)',
+                    borderRadius: 14,
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 12px rgba(139,92,246,0.06)',
+                  }}
+                >
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+                    background: r.logo_url
+                      ? `url(${r.logo_url}) center / cover`
+                      : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 18, color: 'white',
+                  }}>
+                    {!r.logo_url && '🏪'}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: 14, fontWeight: 800, color: '#1a1208',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>
+                      {r.name}
+                    </div>
+                    {r.category && (
+                      <div style={{
+                        fontSize: 11, color: '#5b21b6', fontWeight: 700,
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      }}>
+                        {r.category}
+                      </div>
+                    )}
+                  </div>
+                  <span style={{ color: '#8b5cf6', fontWeight: 800, fontSize: 14, flexShrink: 0 }}>→</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Creative Portfolio */}
         {portfolioLinks.length > 0 && (
           <div style={{ background: 'white', border: '1px solid rgba(200,149,108,0.2)', borderRadius: 24, padding: '28px 32px', marginBottom: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
@@ -891,13 +1005,13 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
       {/* One-time tour of the new profile-page features. */}
       <FeatureTutorial
-        storageKey="mitype-profile-features-v1"
+        storageKey="mitype-profile-features-v2"
         eyebrow="New on Profiles"
         slides={[
           {
             icon: '🐾',
             title: 'Hanging Mipet tags',
-            body: "If a creator has added pets, you'll see Mipet dog tags hanging from a chain on the right side of their profile card. Tap any tag to open the pet’s full profile — photo, name, age, favorite activity, favorite food, and bio.",
+            body: "If a creator has added pets, you'll see Mipet dog tags hanging from a chain on the right side of their profile card. Tap any tag to open the pet’s full profile.",
           },
           {
             icon: '🌊',
@@ -907,7 +1021,17 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           {
             icon: '🏪',
             title: 'View Business pill',
-            body: "If this person also runs a small business, a purple 🏪 View Business pill appears next to Share. One tap takes you to their business profile — services, contact info, events, and a Save button.",
+            body: "If this person runs a small business, a purple 🏪 View Business pill appears next to Share. One tap takes you to their business profile.",
+          },
+          {
+            icon: '💜',
+            title: 'Small Businesses I Recommend',
+            body: 'Every profile can now showcase up to 10 small businesses they personally recommend, in a purple section above the Creative Portfolio. Tap any card to see the business — discover your favorites through people you trust.',
+          },
+          {
+            icon: '🔔',
+            title: 'Notification bell',
+            body: 'A bell appeared in your dashboard nav. When someone recommends your business, sends you a love note, or anything else, you’ll see an unread badge here.',
           },
         ]}
       />

@@ -13,6 +13,7 @@ import { InviteSharePanel } from '../components/InviteSharePanel';
 import { UnreadBadge } from '../components/UnreadBadge';
 import { useUnreadCounts } from '../lib/useUnreadCounts';
 import { Avatar } from '../components/Avatar';
+import { NotificationBell } from '../components/NotificationBell';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -198,6 +199,7 @@ export default function Dashboard() {
               <UnreadBadge count={unread.total} />
             </Link>
             <Link href="/edit-profile" style={navLinkStyle}>Edit Profile</Link>
+            {user?.id && <NotificationBell userId={user.id} />}
             <button
               onClick={handleSignOut}
               style={{
