@@ -24,6 +24,8 @@ import { WouldYouRather } from './games/WouldYouRather';
 import { ThisOrThat } from './games/ThisOrThat';
 import { TicTacToe } from './games/TicTacToe';
 import { ConnectFour } from './games/ConnectFour';
+import { TriviaBattle } from './games/TriviaBattle';
+import { StoryBuilder } from './games/StoryBuilder';
 
 export interface GameSession {
   id: string;
@@ -282,6 +284,18 @@ export function GameContainer({
           />
         ) : session.game_type === 'c4' ? (
           <ConnectFour
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
+        ) : session.game_type === 'trivia' ? (
+          <TriviaBattle
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
+        ) : session.game_type === 'story' ? (
+          <StoryBuilder
             session={session}
             currentUserId={currentUserId}
             updateState={updateState}

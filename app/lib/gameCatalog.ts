@@ -5,7 +5,7 @@
 // Adding a new game = add a row here + add a renderer in
 // components/games/<NewGame>.tsx + register it in GameContainer.tsx.
 
-export type GameKey = 'wyr' | 'tot' | 'ttt' | 'c4';
+export type GameKey = 'wyr' | 'tot' | 'ttt' | 'c4' | 'trivia' | 'story';
 
 export interface GameCatalogEntry {
   key: GameKey;
@@ -86,6 +86,38 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '5–10 min',
     vibe: 'medium',
+  },
+  {
+    key: 'trivia',
+    name: 'Trivia Battle',
+    emoji: '🧠',
+    tagline: '7 rounds, 12 categories, head-to-head. Sharpest mind wins.',
+    howToPlay: [
+      'Each round both players see the same multiple-choice trivia question — pulled from 345+ questions across 12 categories (Music, Film/TV, Art, Sports, Food, Tech, Pop Culture, History, Science, and more).',
+      'You both privately tap one of four answers. The round reveals as soon as both have answered.',
+      'You score 1 point for every correct answer. Both right? You both get the point.',
+      '7 rounds per game. Questions rotate across categories so every game feels fresh.',
+      'Highest score at the end wins.',
+      'Hit End Game at any time to bail out.',
+    ],
+    duration: '4–7 min',
+    vibe: 'medium',
+  },
+  {
+    key: 'story',
+    name: 'Story Builder',
+    emoji: '✍️',
+    tagline: 'Build a story together, one sentence at a time.',
+    howToPlay: [
+      'You\'ll see a one-line story opener — that\'s the starting point.',
+      'Players take turns adding ONE sentence to the story. The inviter goes first.',
+      'Each sentence is capped at 200 characters to keep the rhythm tight.',
+      '8 sentences total — 4 from each player. After the last sentence, you\'ll both see the finished story.',
+      'No score — it\'s pure collaborative writing. Save it somewhere if you love it.',
+      'Hit End Game at any time to cut the story short.',
+    ],
+    duration: '5–10 min',
+    vibe: 'easy',
   },
 ];
 
