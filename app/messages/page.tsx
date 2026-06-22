@@ -11,6 +11,9 @@ import { FeatureTutorial } from '../components/FeatureTutorial';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { VoiceNotePlayer } from '../components/VoiceNotePlayer';
 import { PhotoLightbox } from '../components/PhotoLightbox';
+import { GameLobby } from '../components/GameLobby';
+import { GameContainer, type GameSession } from '../components/GameContainer';
+import type { GameKey } from '../lib/gameCatalog';
 import { MatchCard } from '../components/MatchCard';
 import { GameCard, isGameMessage } from '../components/GameCard';
 import { GamePicker } from '../components/GamePicker';
@@ -369,6 +372,9 @@ export default function MessagesPage() {
   const [showGamePicker, setShowGamePicker] = useState(false);
   // Which message currently has its ⋯ delete-options menu open.
   const [openMsgMenuId, setOpenMsgMenuId] = useState<string | null>(null);
+  // Game lobby + active game session state.
+  const [showGameLobby, setShowGameLobby] = useState(false);
+  const [activeGame, setActiveGame] = useState<GameSession | null>(null);
   // Conversations silent for >30 days collapse behind a toggle so the inbox
   // doesn't feel like a graveyard. Unread chats are never hidden — even if
   // their updated_at is old, an unread message from the partner pulls them
@@ -680,6 +686,83 @@ export default function MessagesPage() {
   async function selectConvo(convo: any) {
     setSelectedConvo(convo);
     await loadMessages(convo.id);
+    // Auto-resume any active or pending game in this conversation so
+    // it pops back up if the user reloads or switches conversations.
+    if (user) {
+      const { data: liveGame } = await supabase
+        .from('game_sessions')
+        .select('*')
+        .eq('conversation_id', convo.id)
+        .or(`inviter_id.eq.${user.id},invitee_id.eq.${user.id}`)
+        .in('status', ['pending', 'active'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (liveGame) setActiveGame(liveGame as GameSession);
+    }
+  }
+
+  // Realtime subscription: listen for game sessions in the currently
+  // selected conversation so an invite from the partner opens the
+  // game on this user's screen automatically.
+  useEffect(() => {
+    if (!user || !selectedConvo) return;
+    const channel = supabase
+      .channel(`messages-games-${selectedConvo.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'game_sessions',
+          filter: `conversation_id=eq.${selectedConvo.id}`,
+        },
+        (payload) => {
+          const row = payload.new as GameSession;
+          if (!row) return;
+          // Only show invites where this user is the invitee — the
+          // inviter already gets a local state update.
+          if (row.invitee_id === user.id) {
+            setActiveGame(row);
+          }
+        }
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [user, selectedConvo]);
+
+  async function startNewGame(gameKey: GameKey) {
+    if (!user || !selectedConvo) return;
+    const partnerId = (selectedConvo.participant_ids ?? []).find(
+      (id: string) => id !== user.id
+    );
+    if (!partnerId) {
+      toast.error('Could not find the other player.');
+      return;
+    }
+    const { data, error } = await supabase
+      .from('game_sessions')
+      .insert({
+        conversation_id: selectedConvo.id,
+        game_type: gameKey,
+        status: 'pending',
+        inviter_id: user.id,
+        invitee_id: partnerId,
+        state: {},
+      })
+      .select('*')
+      .single();
+    if (error) {
+      console.error('[messages] start game error:', error);
+      toast.error('Could not start the game.');
+      return;
+    }
+    if (data) {
+      setActiveGame(data as GameSession);
+      setShowGameLobby(false);
+    }
   }
 
   function useIcebreaker(text: string) {
@@ -2042,28 +2125,55 @@ export default function MessagesPage() {
                         approved, since pending senders are rate-limited
                         to one message until approved. */}
                     {selectedConvo.status === 'approved' && (
-                      <button
-                        type="button"
-                        onClick={() => setShowGamePicker(true)}
-                        aria-label="Send a mini-game"
-                        title="Send a mini-game"
-                        style={{
-                          width: 44,
-                          height: 44,
-                          flexShrink: 0,
-                          background: 'rgba(200,149,108,0.1)',
-                          border: '1px solid rgba(200,149,108,0.25)',
-                          borderRadius: '50%',
-                          color: '#c8956c',
-                          fontSize: 20,
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <span aria-hidden="true">🎮</span>
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setShowGamePicker(true)}
+                          aria-label="Send a mini-game"
+                          title="Send a quick mini-game"
+                          style={{
+                            width: 44,
+                            height: 44,
+                            flexShrink: 0,
+                            background: 'rgba(200,149,108,0.1)',
+                            border: '1px solid rgba(200,149,108,0.25)',
+                            borderRadius: '50%',
+                            color: '#c8956c',
+                            fontSize: 20,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <span aria-hidden="true">🎮</span>
+                        </button>
+                        {/* Live multiplayer game launcher — opens the game
+                            lobby + creates a real-time game session. */}
+                        <button
+                          type="button"
+                          onClick={() => setShowGameLobby(true)}
+                          aria-label="Start a live game"
+                          title="Play a live game"
+                          style={{
+                            width: 44,
+                            height: 44,
+                            flexShrink: 0,
+                            background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                            border: 'none',
+                            borderRadius: '50%',
+                            color: 'white',
+                            fontSize: 20,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 6px 16px rgba(200,149,108,0.35)',
+                          }}
+                        >
+                          <span aria-hidden="true">🎯</span>
+                        </button>
+                      </>
                     )}
 
                     {/* Photo attachment — accept any image format. */}
@@ -2209,12 +2319,42 @@ export default function MessagesPage() {
         />
       )}
 
-      {/* Mini-game composer */}
+      {/* Mini-game composer (one-shot in-chat games) */}
       <GamePicker
         open={showGamePicker}
         onClose={() => setShowGamePicker(false)}
         onSend={(encoded) => sendRawMessage(encoded)}
       />
+
+      {/* Live multiplayer game lobby (picker for real-time games). */}
+      <GameLobby
+        open={showGameLobby}
+        onClose={() => setShowGameLobby(false)}
+        partnerUsername={(() => {
+          if (!selectedConvo || !user) return null;
+          const other = getOtherUser(selectedConvo);
+          return other?.username ?? null;
+        })()}
+        onPick={(key) => startNewGame(key)}
+      />
+
+      {/* The active game itself — full-screen overlay over messages. */}
+      {activeGame && user && (
+        <GameContainer
+          session={activeGame}
+          currentUserId={user.id}
+          partnerUsername={(() => {
+            if (!selectedConvo) return null;
+            const other = getOtherUser(selectedConvo);
+            return other?.username ?? null;
+          })()}
+          onStartNewGame={(key) => {
+            setActiveGame(null);
+            void startNewGame(key);
+          }}
+          onExit={() => setActiveGame(null)}
+        />
+      )}
 
       {/* One-time tour of the new Messages additions. */}
       <FeatureTutorial
