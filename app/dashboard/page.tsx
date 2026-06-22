@@ -121,6 +121,19 @@ export default function Dashboard() {
         Swipe <strong>left</strong> on any page to go back to where you came from — works everywhere except this dashboard.
       </Coachmark>
 
+      {/* "What's new" coachmark — announces the live games. Drops in
+          on the user's next login and fades after 10s. Bump the v
+          suffix in the storageKey whenever there's a big new drop. */}
+      <Coachmark
+        storageKey="mitype-coachmark-games-v1"
+        title="🎮 New: Live Games"
+        placement="top"
+        delay={1200}
+        duration={10000}
+      >
+        Six live multiplayer games are now in Messages — Trivia, Story Builder, Connect Four, and more. Open a chat and tap the gold 🎮 button next to the message input to play.
+      </Coachmark>
+
       {/* Top Nav — responsive: horizontal on desktop, hamburger drawer on mobile */}
       <nav style={{
         position: 'sticky',

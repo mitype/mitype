@@ -2367,35 +2367,56 @@ export default function MessagesPage() {
         />
       )}
 
-      {/* One-time tour of the new Messages additions. */}
+      {/* One-time tour of the new Messages additions.
+          v3 bump announces the live games + Story Builder exports. */}
       <FeatureTutorial
-        storageKey="mitype-messages-features-v2"
+        storageKey="mitype-messages-features-v3"
         eyebrow="New in Messages"
         slides={[
           {
-            icon: '📷',
-            title: 'Send photos',
-            body: 'Tap the 📷 button next to the message input to send a photo. Pick any image format — JPEG, PNG, HEIC from iPhone, even GIFs. Photos auto-convert so everyone can view them on every device.',
+            icon: '🎮',
+            title: 'Live games are here',
+            body: 'Tap the new gold 🎮 button next to the message input to open the Game Lobby. Invite the other person to a real-time game right inside the chat — your invite shows up on their screen instantly.',
           },
           {
-            icon: '🎤',
+            icon: '🤔',
+            title: 'Six live games to choose from',
+            body: 'Would You Rather, This or That, Tic-Tac-Toe, Connect Four, Trivia Battle (345 questions across 12 categories), and Story Builder. Each has its own How-to-Play card via the ⓘ button in-game.',
+          },
+          {
+            icon: '✍️',
+            title: 'Story Builder exports',
+            body: 'After you finish a story together, you get three ways to keep it: 📥 Download as a beautiful image with the Mitype watermark in the corner, 📋 Copy as text, or 🌊 Send straight to the Wave editor as a caption.',
+          },
+          {
+            icon: '🚪',
+            title: 'End game any time',
+            body: 'Every game has an ✕ in the top right. Tap it and your partner is told you ended the game — both of you get a "Play another game?" prompt. Games are NOT saved, so close out cleanly.',
+          },
+          {
+            icon: '📷',
+            title: 'Send photos',
+            body: 'Tap the 📷 button next to the message input to send a photo. Any image format — JPEG, PNG, HEIC from iPhone, even GIFs. Photos auto-convert so everyone can view them on every device.',
+          },
+          {
+            icon: '🔊',
             title: 'Send voice notes',
-            body: 'Tap the 🎤 button to record a voice note. A panel opens with a live waveform — tap Start, talk, tap Stop. Listen back, then Send or Re-record. Up to 10 minutes per voice note.',
+            body: 'Tap the sound-bar icon to record a voice note. A panel opens with a live waveform — tap Start, talk, tap Stop. Listen back, then Send or Re-record. Up to 10 minutes per voice note.',
           },
           {
             icon: '⏱️',
-            title: 'Auto-expires in 24 hours',
-            body: 'Photos and voice notes vanish from the chat 24 hours after sending — the file is deleted from our servers and the bubble shows "Photo expired" or "Voice note expired." Like Snapchat, but built into your DMs.',
+            title: 'Photos & voice auto-expire in 24h',
+            body: 'Photos and voice notes vanish from the chat 24 hours after sending — the file is deleted from our servers and the bubble shows "Photo expired" or "Voice note expired."',
+          },
+          {
+            icon: '🗑️',
+            title: 'Delete what you don\'t want',
+            body: 'Tap the ⋯ next to any message bubble to Unsend (your own, within 1 hour) or Delete-for-me. The 🗑️ icon on conversations in the sidebar clears the whole thread from your inbox.',
           },
           {
             icon: '🏪',
             title: 'Small Business Saves',
-            body: 'The purple "Small Business Saves" tab at the top of your sidebar collects every business you’ve hit ☆ Save on. Tap any row to open that business profile directly — your favorite salons, mechanics, chefs, all one tap away.',
-          },
-          {
-            icon: '💬',
-            title: 'Open chat from anywhere',
-            body: 'When you tap 💬 on a Wave video, a profile’s Message button, or a business profile, Mitype opens (or creates) a 1:1 conversation here automatically.',
+            body: 'The purple "Small Business Saves" tab at the top of your sidebar collects every business you\'ve hit ☆ Save on. Tap any row to open that business profile directly.',
           },
         ]}
       />
