@@ -5,7 +5,7 @@
 // Adding a new game = add a row here + add a renderer in
 // components/games/<NewGame>.tsx + register it in GameContainer.tsx.
 
-export type GameKey = 'wyr';
+export type GameKey = 'wyr' | 'tot' | 'ttt' | 'c4';
 
 export interface GameCatalogEntry {
   key: GameKey;
@@ -37,6 +37,55 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '3–5 min',
     vibe: 'easy',
+  },
+  {
+    key: 'tot',
+    name: 'This or That',
+    emoji: '⚡',
+    tagline: 'Snap choices. 10 rapid-fire rounds. How aligned are you?',
+    howToPlay: [
+      'Each round you both see a quick A-or-B choice — like Pizza vs Tacos, or Beach vs Mountains.',
+      'You both privately pick. Once both have chosen, the round reveals.',
+      'You score 1 match every round you BOTH pick the same answer.',
+      'There are 10 quick rounds per game.',
+      'The more matches at the end, the more aligned your tastes are.',
+      'Hit End Game at any time to bail out — your partner will be asked if they want to try a different game.',
+    ],
+    duration: '2–4 min',
+    vibe: 'easy',
+  },
+  {
+    key: 'ttt',
+    name: 'Tic-Tac-Toe',
+    emoji: '⭕',
+    tagline: 'Three in a row. Classic. Best of 3.',
+    howToPlay: [
+      'Two players take turns marking the 3×3 grid — the inviter plays X, the partner plays O.',
+      'Get three of your marks in a row (horizontal, vertical, or diagonal) to win the match.',
+      'A full board with no three-in-a-row is a draw — counted but doesn\'t award a win.',
+      'It\'s a best-of-3 series — first player to win 2 matches takes the series.',
+      'The loser of each match opens the next one.',
+      'Hit End Game at any time to bail out.',
+    ],
+    duration: '3–6 min',
+    vibe: 'easy',
+  },
+  {
+    key: 'c4',
+    name: 'Connect Four',
+    emoji: '🔴',
+    tagline: 'Drop, stack, line up four. Best of 3.',
+    howToPlay: [
+      'Players take turns dropping a colored disc into one of the 7 columns — the inviter plays red, the partner plays yellow.',
+      'The disc falls to the lowest open slot in that column.',
+      'First player to get FOUR of their discs in a row (horizontal, vertical, or diagonal) wins the match.',
+      'It\'s a best-of-3 series — first to 2 wins takes it.',
+      'A full board with no four-in-a-row is a draw.',
+      'The loser of each match opens the next one.',
+      'Hit End Game at any time to bail out.',
+    ],
+    duration: '5–10 min',
+    vibe: 'medium',
   },
 ];
 

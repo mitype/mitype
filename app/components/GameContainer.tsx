@@ -21,6 +21,9 @@ import { GameInstructions } from './GameInstructions';
 import { GameLobby } from './GameLobby';
 import { getGame, type GameKey } from '../lib/gameCatalog';
 import { WouldYouRather } from './games/WouldYouRather';
+import { ThisOrThat } from './games/ThisOrThat';
+import { TicTacToe } from './games/TicTacToe';
+import { ConnectFour } from './games/ConnectFour';
 
 export interface GameSession {
   id: string;
@@ -265,6 +268,24 @@ export function GameContainer({
             currentUserId={currentUserId}
             updateState={updateState}
           />
+        ) : session.game_type === 'tot' ? (
+          <ThisOrThat
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
+        ) : session.game_type === 'ttt' ? (
+          <TicTacToe
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
+        ) : session.game_type === 'c4' ? (
+          <ConnectFour
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
         ) : (
           <div style={{ color: 'rgba(255,255,255,0.6)' }}>
             Unsupported game type.
@@ -350,13 +371,16 @@ function GameOverPanel({
   onPlayAnother: () => void;
   onClose: () => void;
 }) {
-  // Game-specific final summary. We try to pull a sensible score
-  // from session.state.scores if it's there.
+  // Game-specific final summary. For "in-sync" games (wyr/tot) we
+  // show matchCount; for competitive games (ttt/c4) we show the
+  // head-to-head match wins.
+  const isInSyncGame = session.game_type === 'wyr' || session.game_type === 'tot';
+  const totalRounds = session.state?.totalRounds as number | undefined;
   const scores = session.state?.scores as Record<string, number> | undefined;
-  const myScore = scores?.[currentUserId];
-  const partnerScore = scores
-    ? Object.entries(scores).find(([id]) => id !== currentUserId)?.[1]
-    : undefined;
+  const myScore = isInSyncGame ? undefined : scores?.[currentUserId];
+  const partnerScore = isInSyncGame
+    ? undefined
+    : (scores ? Object.entries(scores).find(([id]) => id !== currentUserId && id !== 'draws')?.[1] : undefined);
   const matches = session.state?.matchCount as number | undefined;
 
   let title: string;
@@ -413,7 +437,7 @@ function GameOverPanel({
                 In-sync score
               </div>
               <div style={{ fontSize: 32, fontWeight: 900, color: 'white' }}>
-                {matches}<span style={{ fontSize: 18, opacity: 0.6 }}> / 7</span>
+                {matches}<span style={{ fontSize: 18, opacity: 0.6 }}> / {totalRounds ?? 7}</span>
               </div>
             </div>
           )}
