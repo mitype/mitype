@@ -264,12 +264,16 @@ export function GameContainer({
         open={showLobby}
         onClose={() => setShowLobby(false)}
         partnerUsername={partnerUsername ?? undefined}
-        onPick={async (key) => {
+        onPickLive={async (key) => {
           setShowLobby(false);
           // Clean up the current ended session so we don't leak storage,
           // then ask the parent to spin up a fresh one of the picked type.
           await supabase.from('game_sessions').delete().eq('id', session.id);
           onStartNewGame(key);
+        }}
+        // Mini-games can't be launched from inside an active game.
+        onPickMini={() => {
+          setShowLobby(false);
         }}
       />
 

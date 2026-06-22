@@ -11,7 +11,7 @@ import { FeatureTutorial } from '../components/FeatureTutorial';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { VoiceNotePlayer } from '../components/VoiceNotePlayer';
 import { PhotoLightbox } from '../components/PhotoLightbox';
-import { GameLobby } from '../components/GameLobby';
+import { GameLobby, type MiniGameKey } from '../components/GameLobby';
 import { GameContainer, type GameSession } from '../components/GameContainer';
 import type { GameKey } from '../lib/gameCatalog';
 import { MatchCard } from '../components/MatchCard';
@@ -375,6 +375,9 @@ export default function MessagesPage() {
   // Game lobby + active game session state.
   const [showGameLobby, setShowGameLobby] = useState(false);
   const [activeGame, setActiveGame] = useState<GameSession | null>(null);
+  // When set, the GamePicker opens straight into this mini-game composer
+  // (used by the lobby's "Quick mini-games" section).
+  const [gamePickerInitialStep, setGamePickerInitialStep] = useState<'ttl' | 'wyr' | 'emoji' | undefined>(undefined);
   // Conversations silent for >30 days collapse behind a toggle so the inbox
   // doesn't feel like a graveyard. Unread chats are never hidden — even if
   // their updated_at is old, an unread message from the partner pulls them
@@ -2089,7 +2092,7 @@ export default function MessagesPage() {
                   selectedConvo.initiated_by === user?.id &&
                   messages.filter((m) => m.sender_id === user?.id).length === 0)) && (
                 <div style={{
-                  padding: '16px 24px',
+                  padding: '14px 16px max(14px, env(safe-area-inset-bottom))',
                   borderTop: '1px solid rgba(200,149,108,0.15)',
                   background: 'white',
                   flexShrink: 0,
@@ -2120,60 +2123,34 @@ export default function MessagesPage() {
                     </button>
                   )}
 
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    {/* Mini-game launcher — only when the chat is fully
-                        approved, since pending senders are rate-limited
-                        to one message until approved. */}
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    {/* Single game launcher — opens the game lobby which
+                        now contains BOTH live multiplayer games and the
+                        old one-shot mini-games. */}
                     {selectedConvo.status === 'approved' && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => setShowGamePicker(true)}
-                          aria-label="Send a mini-game"
-                          title="Send a quick mini-game"
-                          style={{
-                            width: 44,
-                            height: 44,
-                            flexShrink: 0,
-                            background: 'rgba(200,149,108,0.1)',
-                            border: '1px solid rgba(200,149,108,0.25)',
-                            borderRadius: '50%',
-                            color: '#c8956c',
-                            fontSize: 20,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <span aria-hidden="true">🎮</span>
-                        </button>
-                        {/* Live multiplayer game launcher — opens the game
-                            lobby + creates a real-time game session. */}
-                        <button
-                          type="button"
-                          onClick={() => setShowGameLobby(true)}
-                          aria-label="Start a live game"
-                          title="Play a live game"
-                          style={{
-                            width: 44,
-                            height: 44,
-                            flexShrink: 0,
-                            background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
-                            border: 'none',
-                            borderRadius: '50%',
-                            color: 'white',
-                            fontSize: 20,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 6px 16px rgba(200,149,108,0.35)',
-                          }}
-                        >
-                          <span aria-hidden="true">🎯</span>
-                        </button>
-                      </>
+                      <button
+                        type="button"
+                        onClick={() => setShowGameLobby(true)}
+                        aria-label="Pick a live game"
+                        title="Pick a live game"
+                        style={{
+                          width: 38,
+                          height: 38,
+                          flexShrink: 0,
+                          background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                          border: 'none',
+                          borderRadius: '50%',
+                          color: 'white',
+                          fontSize: 18,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 4px 12px rgba(200,149,108,0.32)',
+                        }}
+                      >
+                        <span aria-hidden="true">🎮</span>
+                      </button>
                     )}
 
                     {/* Photo attachment — accept any image format. */}
@@ -2181,14 +2158,14 @@ export default function MessagesPage() {
                       aria-label="Send a photo"
                       title="Send a photo"
                       style={{
-                        width: 40,
-                        height: 40,
+                        width: 38,
+                        height: 38,
                         flexShrink: 0,
                         background: 'white',
                         border: '1px solid rgba(200,149,108,0.35)',
                         borderRadius: '50%',
                         color: '#c8956c',
-                        fontSize: 20,
+                        fontSize: 18,
                         cursor: sending ? 'wait' : 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -2235,7 +2212,7 @@ export default function MessagesPage() {
                       disabled={sending || !newMessage.trim()}
                       aria-label="Send message"
                       style={{
-                        padding: '12px 24px',
+                        padding: '10px 18px',
                         background: sending || !newMessage.trim() ? '#d4a882' : '#c8956c',
                         color: 'white',
                         border: 'none',
@@ -2243,6 +2220,7 @@ export default function MessagesPage() {
                         fontSize: 14,
                         fontWeight: 700,
                         cursor: sending || !newMessage.trim() ? 'not-allowed' : 'pointer',
+                        flexShrink: 0,
                       }}
                     >
                       Send
@@ -2319,14 +2297,23 @@ export default function MessagesPage() {
         />
       )}
 
-      {/* Mini-game composer (one-shot in-chat games) */}
+      {/* Mini-game composer (one-shot in-chat games). The new lobby
+          launches this with initialStep set so we skip its own
+          internal picker and jump to the right composer screen. */}
       <GamePicker
         open={showGamePicker}
-        onClose={() => setShowGamePicker(false)}
+        onClose={() => {
+          setShowGamePicker(false);
+          setGamePickerInitialStep(undefined);
+        }}
         onSend={(encoded) => sendRawMessage(encoded)}
+        initialStep={gamePickerInitialStep}
       />
 
-      {/* Live multiplayer game lobby (picker for real-time games). */}
+      {/* Single game lobby — both LIVE multiplayer and QUICK mini-games
+          come from this one entry point. Live → starts a real-time game
+          session; Mini → opens the existing GamePicker pre-selected
+          into that mini-game's composer. */}
       <GameLobby
         open={showGameLobby}
         onClose={() => setShowGameLobby(false)}
@@ -2335,7 +2322,14 @@ export default function MessagesPage() {
           const other = getOtherUser(selectedConvo);
           return other?.username ?? null;
         })()}
-        onPick={(key) => startNewGame(key)}
+        onPickLive={(key) => startNewGame(key)}
+        onPickMini={(key: MiniGameKey) => {
+          // Map the lobby's mini-game key to the GamePicker step key.
+          const step = key === 'wyr_mini' ? 'wyr' : key;
+          setGamePickerInitialStep(step as 'ttl' | 'wyr' | 'emoji');
+          setShowGameLobby(false);
+          setShowGamePicker(true);
+        }}
       />
 
       {/* The active game itself — full-screen overlay over messages. */}

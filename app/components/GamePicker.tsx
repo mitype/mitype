@@ -23,19 +23,25 @@ interface GamePickerProps {
   open: boolean;
   onClose: () => void;
   onSend: (encodedContent: string) => Promise<void> | void;
+  /** Optional — open the picker straight into a specific mini-game's
+   *  composer. Used when the new GameLobby launches a mini-game by key. */
+  initialStep?: Step;
 }
 
-export function GamePicker({ open, onClose, onSend }: GamePickerProps) {
-  const [step, setStep] = useState<Step>('pick');
+export function GamePicker({ open, onClose, onSend, initialStep }: GamePickerProps) {
+  const [step, setStep] = useState<Step>(initialStep ?? 'pick');
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (!open) {
       // Reset state when the modal closes so the next open starts fresh.
-      setStep('pick');
+      setStep(initialStep ?? 'pick');
       setSending(false);
+    } else if (initialStep) {
+      // Honor a new initialStep when opening.
+      setStep(initialStep);
     }
-  }, [open]);
+  }, [open, initialStep]);
 
   useEffect(() => {
     if (!open) return;

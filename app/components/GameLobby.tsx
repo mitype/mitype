@@ -1,25 +1,59 @@
 'use client';
-// Game lobby — the picker the user sees when they want to invite the
-// other person to play. Lists every available game with a vibe pill
-// and a tap target. Tap → calls onPick with the game key.
+// Pick-a-game lobby — the SINGLE entry point for every game in the
+// chat. Shows live multiplayer games at the top, then a "Quick mini-
+// games" section at the bottom for the one-shot in-chat games.
 
 import { GAME_CATALOG, type GameKey } from '../lib/gameCatalog';
+
+/** The three mini-game keys come from the existing app/lib/games.ts.
+ *  Picking one of these closes the lobby and hands the key up to the
+ *  parent so it can open the appropriate mini-game composer. */
+export type MiniGameKey = 'ttl' | 'wyr_mini' | 'emoji';
+
+interface MiniGameEntry {
+  key: MiniGameKey;
+  name: string;
+  emoji: string;
+  tagline: string;
+}
+
+const MINI_GAMES: MiniGameEntry[] = [
+  {
+    key: 'ttl',
+    name: 'Two Truths & a Lie',
+    emoji: '🤥',
+    tagline: 'Type three things about you. They guess which is the lie.',
+  },
+  {
+    key: 'wyr_mini',
+    name: 'Would You Rather (one-shot)',
+    emoji: '💭',
+    tagline: 'Send a single this-or-that card right into the chat.',
+  },
+  {
+    key: 'emoji',
+    name: 'Emoji Movie',
+    emoji: '🍿',
+    tagline: 'Spell a movie in emojis. They guess the title.',
+  },
+];
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onPick: (key: GameKey) => void;
+  onPickLive: (key: GameKey) => void;
+  onPickMini: (key: MiniGameKey) => void;
   /** Optional context — the username of the person you'd invite. */
   partnerUsername?: string | null;
 }
 
-export function GameLobby({ open, onClose, onPick, partnerUsername }: Props) {
+export function GameLobby({ open, onClose, onPickLive, onPickMini, partnerUsername }: Props) {
   if (!open) return null;
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Pick a game to play"
+      aria-label="Pick a live game"
       onClick={onClose}
       style={{
         position: 'fixed',
@@ -39,7 +73,7 @@ export function GameLobby({ open, onClose, onPick, partnerUsername }: Props) {
         style={{
           width: '100%',
           maxWidth: 440,
-          maxHeight: 'min(90vh, 700px)',
+          maxHeight: 'min(90vh, 760px)',
           background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
           borderRadius: 24,
           padding: 24,
@@ -62,7 +96,7 @@ export function GameLobby({ open, onClose, onPick, partnerUsername }: Props) {
             color: '#1a1208',
             letterSpacing: '-0.5px',
           }}>
-            🎮 Pick a game
+            🎮 Pick a live game
           </h2>
           <button
             type="button"
@@ -98,70 +132,50 @@ export function GameLobby({ open, onClose, onPick, partnerUsername }: Props) {
           overflowY: 'auto',
           flex: 1,
         }}>
+          <SectionHeader>Live multiplayer</SectionHeader>
+
           {GAME_CATALOG.map((g) => (
             <button
               key={g.key}
               type="button"
-              onClick={() => onPick(g.key)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 14,
-                padding: 16,
-                background: 'white',
-                border: '1px solid rgba(200,149,108,0.25)',
-                borderRadius: 16,
-                cursor: 'pointer',
-                textAlign: 'left',
-                fontFamily: 'inherit',
-                boxShadow: '0 4px 14px rgba(200,149,108,0.07)',
-                transition: 'transform 0.1s ease, box-shadow 0.1s ease',
-              }}
+              onClick={() => onPickLive(g.key)}
+              style={liveCard}
             >
-              <div style={{
-                width: 50, height: 50, borderRadius: 14,
-                background: 'linear-gradient(135deg, #fff3ec, #ffe1c8)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 26,
-                flexShrink: 0,
-              }}>
-                {g.emoji}
-              </div>
+              <div style={iconBubble}>{g.emoji}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 16, fontWeight: 800, color: '#1a1208',
-                  letterSpacing: '-0.2px',
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  flexWrap: 'wrap',
-                }}>
+                <div style={cardTitle}>
                   {g.name}
-                  <span style={{
-                    fontSize: 10, fontWeight: 800,
-                    color: '#c8956c',
-                    background: 'rgba(200,149,108,0.12)',
-                    padding: '2px 7px',
-                    borderRadius: 100,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                  }}>
+                  <span style={pill}>
                     {g.duration}
                   </span>
                 </div>
-                <div style={{
-                  fontSize: 13, color: '#7a6a4f', marginTop: 3,
-                  lineHeight: 1.4,
-                }}>
-                  {g.tagline}
-                </div>
+                <div style={cardTagline}>{g.tagline}</div>
               </div>
-              <span aria-hidden="true" style={{
-                color: '#c8956c',
-                fontWeight: 800,
-                fontSize: 18,
-                flexShrink: 0,
-              }}>
-                →
-              </span>
+              <span aria-hidden="true" style={arrowStyle}>→</span>
+            </button>
+          ))}
+
+          <SectionHeader style={{ marginTop: 14 }}>Quick mini-games</SectionHeader>
+          <p style={miniBlurb}>
+            Send a single card straight into the chat — no live session,
+            partner replies right inside the message.
+          </p>
+
+          {MINI_GAMES.map((g) => (
+            <button
+              key={g.key}
+              type="button"
+              onClick={() => onPickMini(g.key)}
+              style={miniCard}
+            >
+              <div style={iconBubble}>{g.emoji}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={cardTitle}>
+                  {g.name}
+                </div>
+                <div style={cardTagline}>{g.tagline}</div>
+              </div>
+              <span aria-hidden="true" style={arrowStyle}>→</span>
             </button>
           ))}
         </div>
@@ -169,3 +183,79 @@ export function GameLobby({ open, onClose, onPick, partnerUsername }: Props) {
     </div>
   );
 }
+
+function SectionHeader({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div style={{
+      fontSize: 11, fontWeight: 800,
+      color: '#c8956c', textTransform: 'uppercase',
+      letterSpacing: '1.5px',
+      marginBottom: 4, marginTop: 2,
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+const liveCard: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 14,
+  padding: 16,
+  background: 'white',
+  border: '1px solid rgba(200,149,108,0.25)',
+  borderRadius: 16,
+  cursor: 'pointer',
+  textAlign: 'left',
+  fontFamily: 'inherit',
+  boxShadow: '0 4px 14px rgba(200,149,108,0.07)',
+};
+const miniCard: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 14,
+  padding: 14,
+  background: 'rgba(255,255,255,0.55)',
+  border: '1px dashed rgba(200,149,108,0.4)',
+  borderRadius: 14,
+  cursor: 'pointer',
+  textAlign: 'left',
+  fontFamily: 'inherit',
+};
+const iconBubble: React.CSSProperties = {
+  width: 50, height: 50, borderRadius: 14,
+  background: 'linear-gradient(135deg, #fff3ec, #ffe1c8)',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  fontSize: 26,
+  flexShrink: 0,
+};
+const cardTitle: React.CSSProperties = {
+  fontSize: 16, fontWeight: 800, color: '#1a1208',
+  letterSpacing: '-0.2px',
+  display: 'flex', alignItems: 'center', gap: 8,
+  flexWrap: 'wrap',
+};
+const cardTagline: React.CSSProperties = {
+  fontSize: 13, color: '#7a6a4f', marginTop: 3,
+  lineHeight: 1.4,
+};
+const pill: React.CSSProperties = {
+  fontSize: 10, fontWeight: 800,
+  color: '#c8956c',
+  background: 'rgba(200,149,108,0.12)',
+  padding: '2px 7px',
+  borderRadius: 100,
+  textTransform: 'uppercase',
+  letterSpacing: '0.5px',
+};
+const arrowStyle: React.CSSProperties = {
+  color: '#c8956c',
+  fontWeight: 800,
+  fontSize: 18,
+  flexShrink: 0,
+};
+const miniBlurb: React.CSSProperties = {
+  fontSize: 12, color: '#a89278',
+  margin: '0 0 4px 2px', lineHeight: 1.4,
+};

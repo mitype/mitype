@@ -203,7 +203,16 @@ export function VoiceRecorder({ onSend, maxSeconds = 600 }: Props) {
         title="Record a voice note"
         style={micButton}
       >
-        🎤
+        {/* Sound-bar icon — cleaner than the mic emoji and renders
+            identically on every device. Five vertical bars of varying
+            heights look like a live waveform. */}
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="2"  y="10" width="3" height="4"  rx="1.5" fill="currentColor" />
+          <rect x="7"  y="7"  width="3" height="10" rx="1.5" fill="currentColor" />
+          <rect x="12" y="3"  width="3" height="18" rx="1.5" fill="currentColor" />
+          <rect x="17" y="8"  width="3" height="8"  rx="1.5" fill="currentColor" />
+          <rect x="21" y="11" width="2.5" height="2"  rx="1.25" fill="currentColor" />
+        </svg>
       </button>
 
       {phase !== 'idle' && (
