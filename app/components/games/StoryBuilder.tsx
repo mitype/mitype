@@ -15,7 +15,11 @@
 // capped at 200 characters to keep the pace moving.
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { pickStoryOpener } from '../../lib/storyOpeners';
+import { supabase } from '../../lib/supabaseClient';
+import { toast } from '../../lib/toast';
+import { renderStoryImage, formatStoryText, downloadBlob } from '../../lib/storyExport';
 import type { GameSession } from '../GameContainer';
 
 interface Props {
@@ -52,8 +56,36 @@ function emptyState(inviterId: string): SbState {
 }
 
 export function StoryBuilder({ session, currentUserId, updateState }: Props) {
+  const router = useRouter();
   const [draft, setDraft] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  // Looked up once for export attribution (Built by @me × @partner).
+  const [usernames, setUsernames] = useState<{ me: string; partner: string } | null>(null);
+  // Action loading flags so the export buttons can show progress.
+  const [exporting, setExporting] = useState<'image' | 'copy' | 'wave' | null>(null);
+
+  // Resolve both usernames once on mount — kept local so we don't have
+  // to plumb extra props down through GameContainer.
+  useEffect(() => {
+    (async () => {
+      const partnerId = currentUserId === session.inviter_id
+        ? session.invitee_id
+        : session.inviter_id;
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, username')
+        .in('user_id', [currentUserId, partnerId]);
+      if (data) {
+        const map = new Map<string, string>(
+          (data as any[]).map((d) => [d.user_id, d.username ?? ''])
+        );
+        setUsernames({
+          me: map.get(currentUserId) || 'me',
+          partner: map.get(partnerId) || 'them',
+        });
+      }
+    })();
+  }, [currentUserId, session.inviter_id, session.invitee_id]);
 
   useEffect(() => {
     if (
@@ -111,6 +143,86 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
 
   async function endStoryNow() {
     await updateState(state, { setStatus: 'ended', reason: 'finished' });
+  }
+
+  // ---------- Export handlers ----------
+
+  function exportInput() {
+    return {
+      opener: state.opener,
+      sentences: state.turns.map((t) => t.text),
+      myUsername: usernames?.me ?? 'me',
+      partnerUsername: usernames?.partner ?? 'them',
+    };
+  }
+
+  async function handleDownloadImage() {
+    if (!usernames) return;
+    setExporting('image');
+    try {
+      const blob = await renderStoryImage(exportInput());
+      // Try Web Share API first on mobile so the user can pop it
+      // straight into Instagram, Messages, etc.; fall back to a
+      // direct download.
+      const file = new File([blob], 'mitype-story.png', { type: 'image/png' });
+      const navAny = navigator as Navigator & {
+        share?: (data: ShareData) => Promise<void>;
+        canShare?: (data: ShareData) => boolean;
+      };
+      if (typeof navAny.share === 'function' && navAny.canShare?.({ files: [file] })) {
+        try {
+          await navAny.share({ files: [file], title: 'Story Builder · Mitype' });
+          return;
+        } catch (e: any) {
+          if (e?.name === 'AbortError') return;
+          // Fall through to direct download on other share errors.
+        }
+      }
+      downloadBlob(blob, 'mitype-story.png');
+      toast.success('Story saved');
+    } catch (e) {
+      console.error('[story] image export error:', e);
+      toast.error('Could not save the image.');
+    } finally {
+      setExporting(null);
+    }
+  }
+
+  async function handleCopy() {
+    if (!usernames) return;
+    setExporting('copy');
+    try {
+      const text = formatStoryText(exportInput());
+      await navigator.clipboard.writeText(text);
+      toast.success('Story copied');
+      // Hold the visual "Copied!" state for a moment.
+      setTimeout(() => setExporting(null), 1200);
+      return;
+    } catch (e) {
+      console.error('[story] copy error:', e);
+      toast.error('Could not copy.');
+    } finally {
+      // We already cleared in the success branch via setTimeout; only
+      // clear here on failure.
+      if (exporting === 'copy') setExporting(null);
+    }
+  }
+
+  async function handleSendToWave() {
+    if (!usernames) return;
+    setExporting('wave');
+    try {
+      // The Wave caption is limited to 80 chars in the create flow,
+      // but we send the FULL story as the prefill and let /wave/create
+      // handle the truncation. Users can edit before posting.
+      const sentenceCaption = `${state.opener} ${state.turns.map((t) => t.text).join(' ')}`;
+      const url = `/wave/create?prefill_caption=${encodeURIComponent(sentenceCaption.slice(0, 500))}`;
+      router.push(url);
+    } catch (e) {
+      console.error('[story] send-to-wave error:', e);
+      toast.error('Could not open the Wave editor.');
+      setExporting(null);
+    }
   }
 
   return (
@@ -257,8 +369,8 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
       {seriesDone && (
         <div style={{
           display: 'flex', flexDirection: 'column',
-          alignItems: 'center', gap: 12,
-          padding: 16,
+          alignItems: 'center', gap: 14,
+          padding: 18,
           background: 'rgba(255,213,168,0.15)',
           border: '1px solid rgba(255,213,168,0.4)',
           borderRadius: 16,
@@ -267,9 +379,43 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
             ✨ The end.
           </div>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', textAlign: 'center', margin: 0 }}>
-            You built a {state.totalTurns}-sentence story together. Save it somewhere if you love it.
+            You built a {state.totalTurns}-sentence story together. Grab it before it&rsquo;s gone.
           </p>
-          <button type="button" onClick={endStoryNow} style={primaryBtn}>
+
+          {/* Three export options — each grabs the story before the
+              session row gets deleted. The Mitype watermark is baked
+              into the PNG so it travels with the story to any platform. */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+            gap: 8, width: '100%', marginTop: 4,
+          }}>
+            <button
+              type="button"
+              onClick={() => void handleDownloadImage()}
+              disabled={exporting !== null || !usernames}
+              style={exportBtn}
+            >
+              {exporting === 'image' ? '⏳ Saving…' : '📥 Download'}
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleCopy()}
+              disabled={exporting !== null || !usernames}
+              style={exportBtn}
+            >
+              {exporting === 'copy' ? '✓ Copied!' : '📋 Copy text'}
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleSendToWave()}
+              disabled={exporting !== null || !usernames}
+              style={exportBtn}
+            >
+              {exporting === 'wave' ? '⏳…' : '🌊 Send to Wave'}
+            </button>
+          </div>
+
+          <button type="button" onClick={endStoryNow} style={{ ...primaryBtn, marginTop: 6 }}>
             See summary →
           </button>
         </div>
@@ -277,6 +423,21 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
     </div>
   );
 }
+
+const exportBtn: React.CSSProperties = {
+  padding: '10px 12px',
+  background: 'rgba(255,255,255,0.1)',
+  color: 'white',
+  border: '1px solid rgba(255,255,255,0.2)',
+  borderRadius: 100,
+  fontSize: 12,
+  fontWeight: 800,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+};
 
 const primaryBtn: React.CSSProperties = {
   padding: '11px 26px',

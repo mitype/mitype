@@ -90,6 +90,23 @@ export default function WaveCreatePage() {
       setMyCategories(profile?.categories ?? []);
       if (profile?.categories?.length) setCategory(profile.categories[0]);
       if (!profile?.wave_editor_tutorial_seen) setShowTutorial(true);
+
+      // Hand-off support: if another page navigated here with a
+      // ?prefill_caption=... query param (e.g. Story Builder → Send
+      // to Wave), pre-fill the caption input. The caption is clamped
+      // to MAX_CAPTION at save time, so longer prefills just get the
+      // visible portion as a starting point.
+      if (typeof window !== 'undefined') {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const prefill = params.get('prefill_caption');
+          if (prefill) {
+            setCaption(prefill.slice(0, MAX_CAPTION));
+          }
+        } catch {
+          /* ignore */
+        }
+      }
     })();
   }, [router]);
 
