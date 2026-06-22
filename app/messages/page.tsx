@@ -1002,14 +1002,31 @@ export default function MessagesPage() {
     const next = [...arr, user.id];
     // Optimistic UI: hide immediately.
     setMessages((prev) => prev.map((x) => x.id === m.id ? { ...x, hidden_for_user_ids: next } : x));
-    const { error } = await supabase
+    // Update + read back the row so we can verify the column exists
+    // and the write actually persisted (RLS could silently 0-row this
+    // otherwise, and a missing column raises a clean error).
+    const { data, error } = await supabase
       .from('messages')
       .update({ hidden_for_user_ids: next })
-      .eq('id', m.id);
+      .eq('id', m.id)
+      .select('id, hidden_for_user_ids')
+      .single();
     if (error) {
       console.error('[messages] delete-for-me error:', error);
-      toast.error('Could not delete.');
-      // Roll back
+      // If the column is missing, the error message will mention
+      // hidden_for_user_ids — surface that clearly so it's obvious
+      // the message-delete SQL migration hasn't been run yet.
+      const msg = /hidden_for_user_ids/i.test(error.message ?? '')
+        ? 'Run the message-delete SQL migration in Supabase first.'
+        : 'Could not delete message.';
+      toast.error(msg);
+      setMessages((prev) => prev.map((x) => x.id === m.id ? { ...x, hidden_for_user_ids: arr } : x));
+      return;
+    }
+    // Server confirmed but the array doesn't include us → RLS blocked.
+    if (data && !(data.hidden_for_user_ids ?? []).includes(user.id)) {
+      console.error('[messages] delete-for-me blocked by RLS:', data);
+      toast.error('Could not delete (permission denied).');
       setMessages((prev) => prev.map((x) => x.id === m.id ? { ...x, hidden_for_user_ids: arr } : x));
     }
   }

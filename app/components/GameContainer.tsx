@@ -117,22 +117,41 @@ export function GameContainer({
     }
   }
 
-  // Quit handler — flips status to 'ended' and lets realtime tell the
-  // partner. Both screens then show the "Play another?" prompt.
+  // Quit handler — flips status to 'ended' AND updates local state
+  // immediately so the game-over panel appears without waiting for
+  // the Realtime round-trip. This makes the end-game button feel
+  // instant AND it works even if Supabase Realtime isn't enabled on
+  // the table yet (the partner still gets the update once Realtime
+  // catches up).
   async function quitGame() {
     setConfirmEnd(false);
+
+    // Snapshot for rollback in case the DB write fails.
+    const previousSession = session;
+    const endedAt = new Date().toISOString();
+
+    setSession((prev) => ({
+      ...prev,
+      status: 'ended',
+      ended_reason: 'quit',
+      ended_by_user_id: currentUserId,
+      ended_at: endedAt,
+    }));
+
     const { error } = await supabase
       .from('game_sessions')
       .update({
         status: 'ended',
         ended_reason: 'quit',
         ended_by_user_id: currentUserId,
-        ended_at: new Date().toISOString(),
+        ended_at: endedAt,
       })
       .eq('id', session.id);
     if (error) {
       console.error('[game-container] quit error:', error);
       toast.error('Could not end the game.');
+      // Roll the optimistic transition back.
+      setSession(previousSession);
       return;
     }
   }
