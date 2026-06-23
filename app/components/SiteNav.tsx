@@ -70,9 +70,21 @@ export function SiteNav({
     router.push('/');
   }
 
+  // Each drawer item renders as a soft, full-width pill — bronze (or
+  // purple on business pages) tinted background, accent-colored text,
+  // no emojis. Tight, professional, scannable. The unread badge for
+  // Messages still tucks into the right edge.
+  const pillBg = accent === 'purple'
+    ? 'rgba(139,92,246,0.08)'
+    : 'rgba(200,149,108,0.08)';
+  const pillBorder = accent === 'purple'
+    ? 'rgba(139,92,246,0.18)'
+    : 'rgba(200,149,108,0.2)';
+  const pillText = accent === 'purple' ? '#5b21b6' : '#6b4f33';
+
   function NavLink({
-    href, label, badge, icon,
-  }: { href: string; label: string; badge?: number; icon?: string }) {
+    href, label, badge,
+  }: { href: string; label: string; badge?: number }) {
     return (
       <Link
         href={href}
@@ -80,17 +92,18 @@ export function SiteNav({
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 12,
-          padding: '13px 16px',
-          color: '#1a1208',
+          gap: 10,
+          padding: '13px 20px',
+          color: pillText,
           fontSize: 15,
-          fontWeight: 600,
+          fontWeight: 700,
           textDecoration: 'none',
-          borderRadius: 12,
-          background: 'transparent',
+          borderRadius: 100,
+          background: pillBg,
+          border: `1px solid ${pillBorder}`,
+          letterSpacing: '0.1px',
         }}
       >
-        {icon && <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>{icon}</span>}
         <span>{label}</span>
         {badge !== undefined && badge > 0 && (
           <span style={{ marginLeft: 'auto' }}>
@@ -198,43 +211,40 @@ export function SiteNav({
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          padding: '6px 16px 16px',
-          gap: 2,
+          padding: '10px 16px 18px',
+          gap: 8,
           borderTop: `1px solid ${borderColor}`,
           maxWidth: 720,
           margin: '0 auto',
           width: '100%',
         }}>
-          <NavLink href="/dashboard"      label="Dashboard"      icon="🏠" />
-          <NavLink href="/discover"       label="Discover"       icon="🔍" />
-          <NavLink href="/wave"           label="The Wave Feed"  icon="🌊" />
-          <NavLink href="/spotlight"      label="Spotlight"      icon="✨" />
-          <NavLink href="/weekly"         label="Weekly"         icon="📅" />
-          <NavLink href="/messages"       label="Messages"       icon="💬" badge={unread.total} />
-          <NavLink href="/edit-profile"   label="Edit Profile"   icon="✏️" />
+          <NavLink href="/dashboard"    label="Dashboard" />
+          <NavLink href="/discover"     label="Discover" />
+          <NavLink href="/wave"         label="The Wave Feed" />
+          <NavLink href="/spotlight"    label="Spotlight" />
+          <NavLink href="/weekly"       label="Weekly" />
+          <NavLink href="/messages"     label="Messages" badge={unread.total} />
+          <NavLink href="/edit-profile" label="Edit Profile" />
           {!hideSignOut && userId && (
             <button
               type="button"
               onClick={handleSignOut}
               style={{
-                marginTop: 8,
-                padding: '13px 16px',
+                marginTop: 6,
+                padding: '13px 20px',
                 background: 'transparent',
                 border: `1px solid ${borderColor}`,
-                borderRadius: 12,
+                borderRadius: 100,
                 color: '#8a7560',
                 fontSize: 15,
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: 'pointer',
-                textAlign: 'left',
                 fontFamily: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
+                letterSpacing: '0.1px',
+                textAlign: 'left',
               }}
             >
-              <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>🚪</span>
-              <span>Sign Out</span>
+              Sign Out
             </button>
           )}
         </div>
