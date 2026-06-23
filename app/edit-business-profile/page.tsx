@@ -12,8 +12,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
-import { BackButton } from '../components/BackButton';
 import { BUSINESS_CATEGORIES } from '../lib/businessCategories';
+import { SiteNav } from '../components/SiteNav';
 
 interface BusinessEvent {
   id?: string;
@@ -133,17 +133,21 @@ export default function EditBusinessProfilePage() {
 
   async function handleLogoUpload(file: File) {
     if (!user) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Logo must be under 5 MB');
-      return;
-    }
+    // No client-side size cap — owners often have huge product/brand
+    // images straight off their camera roll. We let Supabase Storage's
+    // own per-bucket limit be the final word, and surface that error
+    // verbatim if it ever fires. Same goes for file type: we accept
+    // anything image/* (PNG, JPG, WEBP, HEIC, GIF, SVG, AVIF, etc.).
     setUploading(true);
     try {
       const ext = (file.name.split('.').pop() ?? 'png').toLowerCase();
       const path = `${user.id}/logo-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from('business-logos')
-        .upload(path, file, { upsert: false });
+        .upload(path, file, {
+          upsert: false,
+          contentType: file.type || undefined,
+        });
       if (upErr) {
         toast.error(upErr.message);
         return;
@@ -283,39 +287,13 @@ export default function EditBusinessProfilePage() {
         paddingBottom: 80,
       }}
     >
-      {/* Top nav */}
-      <nav style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '20px 40px', borderBottom: '1px solid rgba(139,92,246,0.18)',
-        background: 'rgba(250,246,240,0.95)', backdropFilter: 'blur(10px)',
-        position: 'sticky', top: 0, zIndex: 100,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <BackButton fallbackHref="/edit-profile" />
-          <Link href="/dashboard" style={{ fontSize: 22, fontWeight: 900, color: '#8b5cf6', letterSpacing: '-1px', textDecoration: 'none' }}>
-            mitype<span style={{ color: '#1a1208' }}> · business</span>
-          </Link>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          style={{
-            padding: '10px 22px',
-            background: '#8b5cf6',
-            color: 'white',
-            border: 'none',
-            borderRadius: 100,
-            fontSize: 14,
-            fontWeight: 800,
-            cursor: saving ? 'wait' : 'pointer',
-            opacity: saving ? 0.7 : 1,
-            fontFamily: 'inherit',
-            boxShadow: '0 8px 24px rgba(139,92,246,0.32)',
-          }}
-        >
-          {saving ? 'Saving…' : 'Save Business Profile'}
-        </button>
-      </nav>
+      <SiteNav
+        userId={user?.id}
+        showBack
+        backFallbackHref="/edit-profile"
+        accent="purple"
+        brandSuffix=" · business"
+      />
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
 
@@ -388,7 +366,8 @@ export default function EditBusinessProfilePage() {
                 />
               </label>
               <p style={{ color: '#7a6a85', fontSize: 12, marginTop: 8 }}>
-                Square images look best. Max 5 MB.
+                Square images look best. Any image file works — upload
+                whatever size and format you have, big or small.
               </p>
             </div>
           </div>

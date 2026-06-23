@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { toast } from '../lib/toast';
 import { BackButton } from '../components/BackButton';
+import { SiteNav } from '../components/SiteNav';
 import { BraintreeCheckout } from '../components/BraintreeCheckout';
 import { PayPalCheckout } from '../components/PayPalCheckout';
 
@@ -106,39 +107,7 @@ export default function SubscriptionPage() {
       paddingBottom: 80,
     }}>
 
-      <nav style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '20px 40px',
-        borderBottom: '1px solid rgba(200,149,108,0.15)',
-        background: 'rgba(250,246,240,0.9)',
-        backdropFilter: 'blur(10px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <BackButton fallbackHref="/dashboard" />
-          <Link href="/dashboard" style={{
-            fontSize: 24,
-            fontWeight: 900,
-            color: '#c8956c',
-            letterSpacing: '-1px',
-            textDecoration: 'none',
-          }}>
-            mitype
-          </Link>
-        </div>
-        <Link href="/dashboard" style={{
-          color: '#8a7560',
-          textDecoration: 'none',
-          fontSize: 14,
-          fontWeight: 600,
-        }}>
-          Back to Dashboard
-        </Link>
-      </nav>
+      <SiteNav userId={user?.id} showBack backFallbackHref="/dashboard" />
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '64px 24px' }}>
 

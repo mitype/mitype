@@ -13,13 +13,12 @@ import { InviteSharePanel } from '../components/InviteSharePanel';
 import { UnreadBadge } from '../components/UnreadBadge';
 import { useUnreadCounts } from '../lib/useUnreadCounts';
 import { Avatar } from '../components/Avatar';
-import { NotificationBell } from '../components/NotificationBell';
+import { SiteNav } from '../components/SiteNav';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   // True when this user has wave videos posted in the last 24h.
   // Drives the glowing bronze outline around their dashboard avatar.
@@ -71,29 +70,6 @@ export default function Dashboard() {
     getData();
   }, []);
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-  };
-
-  // Shared link styles so desktop nav and mobile drawer stay visually consistent.
-  const navLinkStyle: React.CSSProperties = {
-    color: '#8a7560',
-    textDecoration: 'none',
-    fontSize: 14,
-    fontWeight: 600,
-    padding: '8px 16px',
-    borderRadius: 100,
-  };
-  const mobileLinkStyle: React.CSSProperties = {
-    color: '#1a1208',
-    textDecoration: 'none',
-    fontSize: 16,
-    fontWeight: 600,
-    padding: '14px 16px',
-    borderRadius: 12,
-  };
-
   if (loading) return <DashboardSkeleton />;
 
   return (
@@ -134,151 +110,7 @@ export default function Dashboard() {
         Six live multiplayer games are now in Messages — Trivia, Story Builder, Connect Four, and more. Open a chat and tap the gold 🎮 button next to the message input to play.
       </Coachmark>
 
-      {/* Top Nav — responsive: horizontal on desktop, hamburger drawer on mobile */}
-      <nav style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        background: 'rgba(250,246,240,0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(200,149,108,0.15)',
-      }}>
-        <div className="mitype-dash-nav-row" style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '20px 40px',
-        }}>
-          <div style={{
-            fontSize: 24,
-            fontWeight: 900,
-            color: '#c8956c',
-            letterSpacing: '-1px',
-          }}>
-            mitype
-          </div>
-
-          {/* Hamburger button — visible on mobile only */}
-          <button
-            className="mitype-dash-hamburger"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-            style={{
-              display: 'none',
-              background: 'transparent',
-              border: 'none',
-              padding: 6,
-              cursor: 'pointer',
-              color: '#8a7560',
-              position: 'relative',
-            }}
-          >
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-              {mobileMenuOpen ? (
-                <>
-                  <path d="M7 7 L19 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M7 19 L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </>
-              ) : (
-                <>
-                  <path d="M4 8 H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M4 13 H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M4 18 H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </>
-              )}
-            </svg>
-            {unread.total > 0 && !mobileMenuOpen && (
-              <span style={{
-                position: 'absolute',
-                top: 2,
-                right: 2,
-                width: 8,
-                height: 8,
-                background: '#c8956c',
-                borderRadius: '50%',
-              }} />
-            )}
-          </button>
-
-          {/* Desktop nav links — hidden on mobile */}
-          <div className="mitype-dash-nav-links" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <Link href="/discover" style={navLinkStyle}>Discover</Link>
-            <Link href="/wave" style={navLinkStyle}>The Wave Feed</Link>
-            <Link href="/spotlight" style={navLinkStyle}>Spotlight</Link>
-            <Link href="/weekly" style={navLinkStyle}>Weekly</Link>
-            <Link href="/messages" style={{ ...navLinkStyle, display: 'inline-flex', alignItems: 'center' }}>
-              Messages
-              <UnreadBadge count={unread.total} />
-            </Link>
-            <Link href="/edit-profile" style={navLinkStyle}>Edit Profile</Link>
-            {user?.id && <NotificationBell userId={user.id} />}
-            <button
-              onClick={handleSignOut}
-              style={{
-                padding: '8px 20px',
-                background: 'transparent',
-                border: '1px solid rgba(200,149,108,0.3)',
-                borderRadius: 100,
-                color: '#8a7560',
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile drawer — only renders when open */}
-        {mobileMenuOpen && (
-          <div className="mitype-dash-mobile-drawer" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '8px 24px 20px',
-            gap: 4,
-            borderTop: '1px solid rgba(200,149,108,0.15)',
-          }}>
-            <Link href="/discover" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Discover</Link>
-            <Link href="/wave" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>The Wave Feed</Link>
-            <Link href="/spotlight" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Spotlight</Link>
-            <Link href="/weekly" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Weekly</Link>
-            <Link href="/messages" onClick={() => setMobileMenuOpen(false)} style={{ ...mobileLinkStyle, display: 'flex', alignItems: 'center', gap: 8 }}>
-              Messages
-              <UnreadBadge count={unread.total} />
-            </Link>
-            <Link href="/edit-profile" onClick={() => setMobileMenuOpen(false)} style={mobileLinkStyle}>Edit Profile</Link>
-            <button
-              onClick={() => { setMobileMenuOpen(false); handleSignOut(); }}
-              style={{
-                marginTop: 8,
-                padding: '12px 16px',
-                background: 'transparent',
-                border: '1px solid rgba(200,149,108,0.35)',
-                borderRadius: 12,
-                color: '#8a7560',
-                fontSize: 15,
-                fontWeight: 600,
-                cursor: 'pointer',
-                textAlign: 'left',
-                fontFamily: 'inherit',
-              }}
-            >
-              Sign Out
-            </button>
-          </div>
-        )}
-
-        {/* Responsive switch between desktop nav and mobile hamburger */}
-        <style>{`
-          @media (max-width: 768px) {
-            .mitype-dash-nav-row { padding: 16px 20px !important; }
-            .mitype-dash-hamburger { display: flex !important; align-items: center; }
-            .mitype-dash-nav-links { display: none !important; }
-          }
-        `}</style>
-      </nav>
+      <SiteNav userId={user?.id} />
 
       {/* Main Content */}
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 24px' }}>

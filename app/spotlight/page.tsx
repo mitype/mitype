@@ -14,6 +14,7 @@ import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { Skeleton } from '../components/Skeleton';
 import { BackButton } from '../components/BackButton';
+import { SiteNav } from '../components/SiteNav';
 import { sanitizeText, safeUrl } from '../lib/sanitize';
 
 const PORTFOLIO_TYPES = [
@@ -68,6 +69,7 @@ export default function SpotlightPage() {
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [authed, setAuthed] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -80,6 +82,7 @@ export default function SpotlightPage() {
         router.push('/login');
         return;
       }
+      setUserId(user.id);
 
       // Gate behind active/trialing subscription (same pattern as /discover).
       const { data: sub } = await supabase
@@ -168,38 +171,7 @@ export default function SpotlightPage() {
         portfolio link, or filter the chips up top.
       </Coachmark>
 
-      {/* Top nav — mirrors /dashboard so it feels like part of the app. */}
-      <nav style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '20px 40px',
-        borderBottom: '1px solid rgba(200,149,108,0.15)',
-        background: 'rgba(250,246,240,0.9)',
-        backdropFilter: 'blur(10px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        flexWrap: 'wrap',
-        gap: 12,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <BackButton fallbackHref="/dashboard" />
-          <Link href="/dashboard" style={{
-            fontSize: 24, fontWeight: 900, color: '#c8956c',
-            letterSpacing: '-1px', textDecoration: 'none',
-          }}>
-            mitype
-          </Link>
-        </div>
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link href="/discover" style={navLinkStyle}>Discover</Link>
-          <Link href="/spotlight" style={{ ...navLinkStyle, color: '#c8956c', background: 'rgba(200,149,108,0.1)' }}>Spotlight</Link>
-          <Link href="/weekly" style={navLinkStyle}>Weekly</Link>
-          <Link href="/messages" style={navLinkStyle}>Messages</Link>
-          <Link href="/dashboard" style={navLinkStyle}>Dashboard</Link>
-        </div>
-      </nav>
+      <SiteNav userId={userId} showBack backFallbackHref="/dashboard" />
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 0' }}>
         <h1 style={{

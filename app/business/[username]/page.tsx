@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from '../../lib/toast';
-import { BackButton } from '../../components/BackButton';
+import { SiteNav } from '../../components/SiteNav';
 
 interface BusinessProfile {
   id: string;
@@ -227,20 +227,13 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
-      {/* Nav */}
-      <nav style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '20px 40px', borderBottom: '1px solid rgba(139,92,246,0.18)',
-        background: 'rgba(246,243,251,0.95)', backdropFilter: 'blur(10px)',
-        position: 'sticky', top: 0, zIndex: 100,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <BackButton fallbackHref="/discover" />
-          <Link href="/dashboard" style={{ fontSize: 22, fontWeight: 900, color: '#8b5cf6', letterSpacing: '-1px', textDecoration: 'none' }}>
-            mitype<span style={{ color: '#1a1208' }}> · business</span>
-          </Link>
-        </div>
-      </nav>
+      <SiteNav
+        userId={user?.id}
+        showBack
+        backFallbackHref="/discover"
+        accent="purple"
+        brandSuffix=" · business"
+      />
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
 

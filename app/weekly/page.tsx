@@ -13,6 +13,7 @@ import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { Skeleton } from '../components/Skeleton';
 import { BackButton } from '../components/BackButton';
+import { SiteNav } from '../components/SiteNav';
 import { sanitizeText } from '../lib/sanitize';
 import { toast } from '../lib/toast';
 import {
@@ -278,51 +279,7 @@ export default function WeeklyPromptPage() {
         Fresh prompt every Monday.
       </Coachmark>
 
-      {/* Nav */}
-      <nav
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '20px 40px',
-          borderBottom: '1px solid rgba(200,149,108,0.15)',
-          background: 'rgba(250,246,240,0.9)',
-          backdropFilter: 'blur(10px)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          flexWrap: 'wrap',
-          gap: 12,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <BackButton fallbackHref="/dashboard" />
-          <Link
-            href="/dashboard"
-            style={{
-              fontSize: 24,
-              fontWeight: 900,
-              color: '#c8956c',
-              letterSpacing: '-1px',
-              textDecoration: 'none',
-            }}
-          >
-            mitype
-          </Link>
-        </div>
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link href="/dashboard" style={navLinkStyle}>Dashboard</Link>
-          <Link href="/discover" style={navLinkStyle}>Discover</Link>
-          <Link href="/spotlight" style={navLinkStyle}>Spotlight</Link>
-          <Link
-            href="/weekly"
-            style={{ ...navLinkStyle, color: '#c8956c', background: 'rgba(200,149,108,0.1)' }}
-          >
-            Weekly
-          </Link>
-          <Link href="/messages" style={navLinkStyle}>Messages</Link>
-        </div>
-      </nav>
+      <SiteNav userId={user?.id} showBack backFallbackHref="/dashboard" />
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 24px 0' }}>
         {/* Hero */}

@@ -17,6 +17,7 @@ import { normalizePhotos, type ProfilePhoto } from '../../lib/photos';
 import { PhotoGallery } from '../../components/PhotoGallery';
 import { OnlineDot } from '../../components/OnlineDot';
 import { usePresence } from '../../lib/usePresence';
+import { SiteNav } from '../../components/SiteNav';
 
 const PORTFOLIO_ICONS: Record<string, string> = {
   music:    '🎵',
@@ -461,32 +462,28 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         </div>
       )}
 
-      {/* Nav */}
-      <nav style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '20px 40px', borderBottom: '1px solid rgba(200,149,108,0.15)',
-        background: 'rgba(250,246,240,0.9)', backdropFilter: 'blur(10px)',
-        position: 'sticky', top: 0, zIndex: 100,
-      }}>
-        <Link href="/" style={{ fontSize: 24, fontWeight: 900, color: '#c8956c', letterSpacing: '-1px', textDecoration: 'none' }}>
-          mitype
-        </Link>
-        <div style={{ display: 'flex', gap: 12 }}>
-          {currentUser ? (
-            <>
-              <Link href="/discover" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Discover</Link>
-              <Link href="/dashboard" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Dashboard</Link>
-            </>
-          ) : (
-            <>
-              <Link href="/login" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Sign In</Link>
-              <Link href="/signup" style={{ background: '#c8956c', color: 'white', textDecoration: 'none', fontSize: 14, fontWeight: 700, padding: '8px 20px', borderRadius: 100 }}>
-                Join Free
-              </Link>
-            </>
-          )}
-        </div>
-      </nav>
+      {/* Nav — signed-in users get the universal SiteNav hamburger;
+          unauthenticated viewers get a slim sign-in/join CTA. */}
+      {currentUser ? (
+        <SiteNav userId={currentUser.id} showBack backFallbackHref="/discover" />
+      ) : (
+        <nav style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '20px 40px', borderBottom: '1px solid rgba(200,149,108,0.15)',
+          background: 'rgba(250,246,240,0.9)', backdropFilter: 'blur(10px)',
+          position: 'sticky', top: 0, zIndex: 100,
+        }}>
+          <Link href="/" style={{ fontSize: 24, fontWeight: 900, color: '#c8956c', letterSpacing: '-1px', textDecoration: 'none' }}>
+            mitype
+          </Link>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <Link href="/login" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Sign In</Link>
+            <Link href="/signup" style={{ background: '#c8956c', color: 'white', textDecoration: 'none', fontSize: 14, fontWeight: 700, padding: '8px 20px', borderRadius: 100 }}>
+              Join Free
+            </Link>
+          </div>
+        </nav>
+      )}
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '48px 24px' }}>
 

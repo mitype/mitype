@@ -7,6 +7,7 @@ import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { MessagesSkeleton } from '../components/Skeleton';
 import { BackButton } from '../components/BackButton';
+import { SiteNav } from '../components/SiteNav';
 import { FeatureTutorial } from '../components/FeatureTutorial';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { VoiceNotePlayer } from '../components/VoiceNotePlayer';
@@ -1157,36 +1158,7 @@ export default function MessagesPage() {
         <strong> mini-games</strong> together.
       </Coachmark>
 
-      {/* Nav */}
-      <nav style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '16px 32px',
-        borderBottom: '1px solid rgba(200,149,108,0.15)',
-        background: 'rgba(250,246,240,0.95)',
-        backdropFilter: 'blur(10px)',
-        flexShrink: 0,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <BackButton fallbackHref="/dashboard" />
-          <Link href="/dashboard" style={{
-            fontSize: 22,
-            fontWeight: 900,
-            color: '#c8956c',
-            letterSpacing: '-1px',
-            textDecoration: 'none',
-          }}>
-            mitype
-          </Link>
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Link href="/dashboard" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Dashboard</Link>
-          <Link href="/discover" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Discover</Link>
-          <Link href="/spotlight" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Spotlight</Link>
-          <Link href="/weekly" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Weekly</Link>
-        </div>
-      </nav>
+      <SiteNav userId={user?.id} showBack backFallbackHref="/dashboard" />
 
       {/* Chat Layout */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>

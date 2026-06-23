@@ -3,13 +3,21 @@
 //
 // Sits on the dashboard between the welcome header and the Daily Spark.
 // Renders a circular progress ring + a checklist of remaining steps so the
-// user knows exactly what to do next to round out their profile. When the
-// profile is 100% complete we render a celebratory pill instead of the
-// checklist (no need to nag people who are already done).
+// user knows exactly what to do next to round out their profile.
+//
+// Behavior at 100%:
+//   - The first time the user lands on the dashboard at 100%, we show a
+//     celebratory "Profile 100% complete" card so the moment is rewarded.
+//   - We immediately persist a localStorage flag so on the next login the
+//     card hides itself entirely and no longer takes up dashboard real estate.
+//   - If the user ever drops back below 100% (e.g., they removed a photo),
+//     we clear the flag so the celebration replays the next time they
+//     re-complete it.
 //
 // Pure UI — no DB calls. Takes the profile object the dashboard already
 // loaded.
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { scoreProfileCompleteness } from '../lib/profileCompleteness';
 
@@ -19,6 +27,7 @@ interface ProfileCompletenessProps {
 
 const RING_SIZE = 88;
 const RING_STROKE = 9;
+const SEEN_KEY = 'mitype-profile-complete-seen';
 
 export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
   const { percent, steps, doneCount, totalCount } = scoreProfileCompleteness(
@@ -26,6 +35,41 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
   );
   const isComplete = percent >= 100;
   const remaining = steps.filter((s) => !s.done);
+
+  // Track whether the user has already been shown the "complete"
+  // celebration on a previous login. Starts as null so we can render
+  // a stable first paint on the server (matching the not-yet-seen
+  // state) and only hide once the client has read localStorage.
+  const [hasSeenComplete, setHasSeenComplete] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const seen = window.localStorage.getItem(SEEN_KEY) === '1';
+      setHasSeenComplete(seen);
+
+      if (isComplete && !seen) {
+        // Mark immediately so a second tab / refresh hides the card.
+        window.localStorage.setItem(SEEN_KEY, '1');
+      } else if (!isComplete && seen) {
+        // Dropped back below 100% — clear the flag so the next
+        // time they hit 100 the celebration plays again.
+        window.localStorage.removeItem(SEEN_KEY);
+      }
+    } catch {
+      // localStorage can throw in privacy mode — fall back to showing
+      // the card (treat as not-yet-seen).
+      setHasSeenComplete(false);
+    }
+  }, [isComplete]);
+
+  // At 100% AND the user has already seen the celebration on a prior
+  // login — hide entirely. Note: we wait until hasSeenComplete is
+  // resolved (non-null) before hiding so the server-rendered version
+  // doesn't briefly show something inconsistent.
+  if (isComplete && hasSeenComplete === true) {
+    return null;
+  }
 
   // Stroke math for the circular ring.
   const radius = (RING_SIZE - RING_STROKE) / 2;
@@ -45,12 +89,18 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
   return (
     <div
       style={{
-        background: 'white',
-        border: '1px solid rgba(200,149,108,0.2)',
+        background: isComplete
+          ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
+          : 'white',
+        border: isComplete
+          ? '1px solid rgba(22,163,74,0.25)'
+          : '1px solid rgba(200,149,108,0.2)',
         borderRadius: 24,
         padding: '24px 28px',
         marginBottom: 24,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+        boxShadow: isComplete
+          ? '0 4px 20px rgba(22,163,74,0.12)'
+          : '0 4px 20px rgba(0,0,0,0.04)',
         display: 'flex',
         gap: 24,
         alignItems: 'flex-start',
@@ -76,7 +126,7 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
             cx={RING_SIZE / 2}
             cy={RING_SIZE / 2}
             r={radius}
-            stroke="rgba(200,149,108,0.15)"
+            stroke={isComplete ? 'rgba(22,163,74,0.18)' : 'rgba(200,149,108,0.15)'}
             strokeWidth={RING_STROKE}
             fill="none"
           />
@@ -117,7 +167,7 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: '#a89278',
+            color: isComplete ? '#15803d' : '#a89278',
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
             marginBottom: 4,
@@ -135,12 +185,19 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
           }}
         >
           {isComplete
-            ? 'Your profile looks great ✨'
+            ? 'Profile 100% complete 🎉'
             : `${doneCount} of ${totalCount} steps done`}
         </h3>
-        <p style={{ color: '#a89278', fontSize: 13, marginBottom: 14, lineHeight: 1.5 }}>
+        <p
+          style={{
+            color: isComplete ? '#15803d' : '#a89278',
+            fontSize: 13,
+            marginBottom: isComplete ? 0 : 14,
+            lineHeight: 1.5,
+          }}
+        >
           {isComplete
-            ? 'Strong profiles get better matches and richer Daily Spark openers — yours is set.'
+            ? "You're all set — strong profiles get better matches and richer Daily Spark openers. We'll keep this card tucked away from now on."
             : 'Filled-in profiles get better matches. Knock these out to give your Daily Spark openers more to work with.'}
         </p>
 
