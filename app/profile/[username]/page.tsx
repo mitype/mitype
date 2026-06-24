@@ -18,6 +18,7 @@ import { PhotoGallery } from '../../components/PhotoGallery';
 import { OnlineDot } from '../../components/OnlineDot';
 import { usePresence } from '../../lib/usePresence';
 import { SiteNav } from '../../components/SiteNav';
+import { EndorsementsSection } from '../../components/EndorsementsSection';
 
 const PORTFOLIO_ICONS: Record<string, string> = {
   music:    '🎵',
@@ -49,6 +50,10 @@ type PublicProfile = {
   travel_city?: string | null;
   travel_state?: string | null;
   travel_ends_at?: string | null;
+  open_to_collab?: boolean | null;
+  collab_pitch?: string | null;
+  featured_wave_id?: string | null;
+  created_at?: string | null;
   bio?: string | null;
   website_url?: string | null;
   portfolio_links?: PortfolioLink[] | null;
@@ -725,6 +730,39 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               })()}
             </h1>
 
+            {/* Open to collab pill — shows up first thing under the
+                handle when the creator has flipped the toggle on. */}
+            {profile.open_to_collab && (
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 12px',
+                background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                borderRadius: 100,
+                color: 'white',
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: '0.3px',
+                marginBottom: 12,
+                boxShadow: '0 6px 16px rgba(200,149,108,0.3)',
+              }}>
+                <span aria-hidden="true">✨</span>
+                Open to collab
+              </div>
+            )}
+            {profile.open_to_collab && profile.collab_pitch && (
+              <p style={{
+                fontSize: 13,
+                color: '#5b4a36',
+                lineHeight: 1.45,
+                margin: '-4px 0 12px',
+                fontStyle: 'italic',
+              }}>
+                "{profile.collab_pitch}"
+              </p>
+            )}
+
             <div style={{ marginBottom: 12 }}>
               <OnlineDot
                 userId={profile.user_id}
@@ -769,6 +807,45 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 </div>
               );
             })()}
+
+            {/* Member since YYYY */}
+            {profile.created_at && (
+              <p style={{
+                margin: '0 0 16px',
+                fontSize: 12,
+                color: '#a89278',
+                letterSpacing: '0.2px',
+              }}>
+                Member since {new Date(profile.created_at).getFullYear()}
+              </p>
+            )}
+
+            {/* Featured Wave video — bronze CTA links to the
+                creator's Wave feed, starting with that one. */}
+            {profile.featured_wave_id && (
+              <Link
+                href={`/wave?user=${profile.user_id}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '10px 16px',
+                  marginBottom: 16,
+                  background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 60%, #c8956c 100%)',
+                  borderRadius: 14,
+                  color: 'white',
+                  textDecoration: 'none',
+                  fontSize: 13,
+                  fontWeight: 800,
+                  letterSpacing: '0.2px',
+                  boxShadow: '0 8px 20px rgba(45,90,138,0.25)',
+                }}
+              >
+                <span aria-hidden="true">🎬</span>
+                Watch their featured Wave
+                <span aria-hidden="true" style={{ fontSize: 16 }}>→</span>
+              </Link>
+            )}
 
             {profile.bio && (
               <p style={{
@@ -827,6 +904,15 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
         {/* Photo Gallery */}
         <PhotoGallery photos={galleryPhotos} altPrefix={profile.username} />
+
+        {/* Endorsements — short notes from connected creators. Anyone
+            can read; only people you've messaged can write. */}
+        <EndorsementsSection
+          profileUserId={profile.user_id}
+          profileUsername={profile.username}
+          viewerId={currentUser?.id ?? null}
+          isOwnProfile={isOwnProfile}
+        />
 
         {/* Compatibility Score Card */}
         {!isOwnProfile && currentUser && score > 0 && (

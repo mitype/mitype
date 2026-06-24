@@ -141,6 +141,19 @@ export default function EditProfilePage() {
   const [travelCity, setTravelCity] = useState('');
   const [travelState, setTravelState] = useState('');
   const [travelEndsAt, setTravelEndsAt] = useState(''); // YYYY-MM-DD
+  // Open-to-collab toggle + free-text pitch. Surfaces as a bronze
+  // pill on the profile page so visitors immediately see they're
+  // looking for collaborators.
+  const [openToCollab, setOpenToCollab] = useState(false);
+  const [collabPitch, setCollabPitch] = useState('');
+  // Featured Wave video id. Pinned at the top of the profile page.
+  // Loaded from the user's own Wave catalog below.
+  const [featuredWaveId, setFeaturedWaveId] = useState<string | null>(null);
+  const [myWaveVideos, setMyWaveVideos] = useState<Array<{
+    id: string;
+    caption: string | null;
+    created_at: string;
+  }>>([]);
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [creativeStatus, setCreativeStatus] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
@@ -182,6 +195,22 @@ export default function EditProfilePage() {
             ? new Date(profile.travel_ends_at).toISOString().slice(0, 10)
             : ''
         );
+        setOpenToCollab(!!profile.open_to_collab);
+        setCollabPitch(profile.collab_pitch ?? '');
+        setFeaturedWaveId(profile.featured_wave_id ?? null);
+        // Pull the user's Wave catalog so they can pick a featured one.
+        try {
+          const { data: waves } = await supabase
+            .from('wave_videos')
+            .select('id, caption, created_at')
+            .eq('user_id', user.id)
+            .eq('is_removed', false)
+            .order('created_at', { ascending: false })
+            .limit(20);
+          setMyWaveVideos(waves ?? []);
+        } catch {
+          // Non-fatal — picker just stays empty.
+        }
         setWebsiteUrl(profile.website_url || '');
         setCreativeStatus(profile.creative_status || '');
         setDateOfBirth(profile.date_of_birth || '');
@@ -276,6 +305,9 @@ export default function EditProfilePage() {
         travelEndsAt && (travelCity.trim() || travelState.trim())
           ? new Date(travelEndsAt + 'T23:59:59').toISOString()
           : null,
+      open_to_collab: openToCollab,
+      collab_pitch: openToCollab ? (collabPitch.trim().slice(0, 240) || null) : null,
+      featured_wave_id: featuredWaveId,
       website_url: websiteUrl.trim(),
       creative_status: creativeStatus.trim(),
       date_of_birth: dateOfBirth || null,
@@ -786,6 +818,125 @@ export default function EditProfilePage() {
             )}
           </div>
 
+          {/* Open to collab */}
+          <div style={{
+            marginBottom: 24,
+            padding: 16,
+            background: 'rgba(255,213,168,0.12)',
+            border: '1px solid rgba(200,149,108,0.25)',
+            borderRadius: 16,
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: openToCollab ? 12 : 0,
+            }}>
+              <div>
+                <div style={fieldLabel}>Open to collab</div>
+                <p style={{ fontSize: 12, color: '#7a6a4f', margin: 0, lineHeight: 1.4 }}>
+                  Show a bronze pill on your profile so visitors know you're looking.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpenToCollab((v) => !v)}
+                aria-pressed={openToCollab}
+                aria-label="Toggle open to collab"
+                style={{
+                  width: 44,
+                  height: 26,
+                  borderRadius: 100,
+                  background: openToCollab ? '#c8956c' : 'rgba(200,149,108,0.25)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  flexShrink: 0,
+                  fontFamily: 'inherit',
+                  transition: 'background 0.2s',
+                }}
+              >
+                <span style={{
+                  position: 'absolute',
+                  top: 3,
+                  left: openToCollab ? 21 : 3,
+                  width: 20,
+                  height: 20,
+                  background: 'white',
+                  borderRadius: '50%',
+                  transition: 'left 0.2s',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                }} />
+              </button>
+            </div>
+            {openToCollab && (
+              <>
+                <label style={subLabel}>Looking for (optional)</label>
+                <textarea
+                  value={collabPitch}
+                  onChange={(e) => setCollabPitch(e.target.value.slice(0, 240))}
+                  placeholder="A photographer + MUA for a September shoot in Brooklyn…"
+                  rows={2}
+                  style={{ ...fieldInput, fontFamily: 'inherit', resize: 'vertical', minHeight: 56 }}
+                />
+                <div style={{ fontSize: 11, color: '#a89278', marginTop: 4 }}>
+                  {collabPitch.length}/240
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Featured Wave video */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={fieldLabel}>Featured Wave</label>
+            <p style={{ fontSize: 12, color: '#7a6a4f', margin: '0 0 10px', lineHeight: 1.4 }}>
+              Pin one of your recent Wave videos to the top of your profile.
+            </p>
+            {myWaveVideos.length === 0 ? (
+              <div style={{
+                padding: 14,
+                background: 'rgba(255,255,255,0.5)',
+                border: '1px dashed rgba(200,149,108,0.3)',
+                borderRadius: 12,
+                color: '#a89278',
+                fontSize: 13,
+              }}>
+                No Wave videos yet. Post one and come back to feature it.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => setFeaturedWaveId(null)}
+                  style={waveRowStyle(featuredWaveId === null)}
+                >
+                  <span style={{ fontSize: 14, fontWeight: 800 }}>No featured video</span>
+                  <span style={{ fontSize: 11, color: '#7a6a4f' }}>
+                    Don't pin anything to the top.
+                  </span>
+                </button>
+                {myWaveVideos.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => setFeaturedWaveId(v.id)}
+                    style={waveRowStyle(featuredWaveId === v.id)}
+                  >
+                    <span style={{
+                      fontSize: 14, fontWeight: 800, color: '#1a1208',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>
+                      {v.caption || 'Untitled Wave'}
+                    </span>
+                    <span style={{ fontSize: 11, color: '#7a6a4f' }}>
+                      {new Date(v.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Website */}
           <div style={{ marginBottom: 32 }}>
             <label style={{
@@ -1256,6 +1407,21 @@ const subLabel: React.CSSProperties = {
   textTransform: 'uppercase',
   letterSpacing: '0.4px',
 };
+function waveRowStyle(active: boolean): React.CSSProperties {
+  return {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 2,
+    padding: '10px 14px',
+    background: active ? 'rgba(200,149,108,0.18)' : 'white',
+    border: `1px solid ${active ? '#c8956c' : 'rgba(200,149,108,0.22)'}`,
+    borderRadius: 12,
+    cursor: 'pointer',
+    textAlign: 'left',
+    fontFamily: 'inherit',
+  };
+}
 const fieldInput: React.CSSProperties = {
   width: '100%',
   padding: '11px 14px',
