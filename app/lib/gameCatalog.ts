@@ -12,7 +12,8 @@ export type GameKey =
   | 'c4'
   | 'trivia'
   | 'story'
-  | 'hangman';
+  | 'hangman'
+  | 'checkers';
 
 export interface GameCatalogEntry {
   key: GameKey;
@@ -141,6 +142,23 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '4–7 min',
     vibe: 'easy',
+  },
+  {
+    key: 'checkers',
+    name: 'Checkers',
+    emoji: '🟤',
+    tagline: 'Diagonals, jumps, kings. Best of 3.',
+    howToPlay: [
+      'Inviter plays bronze pieces, partner plays cream. Bronze moves down the board, cream moves up.',
+      'Tap one of your pieces to select it — its legal landing squares glow with a dot.',
+      'Move diagonally to an empty dark square, OR jump diagonally over an adjacent enemy piece into the empty square beyond to capture it.',
+      'You can chain multi-jumps with the same piece — the board will keep prompting you until no more jumps are possible.',
+      'When one of your pieces reaches the far edge it gets crowned a king and can move in any of the four diagonals.',
+      'Win the match by capturing all of the opponent\'s pieces or leaving them with no legal moves. Best of 3 wins the series.',
+      'Hit End Game at any time to bail out.',
+    ],
+    duration: '6–12 min',
+    vibe: 'medium',
   },
 ];
 

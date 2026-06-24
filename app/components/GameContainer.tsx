@@ -27,6 +27,7 @@ import { ConnectFour } from './games/ConnectFour';
 import { TriviaBattle } from './games/TriviaBattle';
 import { StoryBuilder } from './games/StoryBuilder';
 import { Hangman } from './games/Hangman';
+import { Checkers } from './games/Checkers';
 
 export interface GameSession {
   id: string;
@@ -303,6 +304,12 @@ export function GameContainer({
           />
         ) : session.game_type === 'hangman' ? (
           <Hangman
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
+        ) : session.game_type === 'checkers' ? (
+          <Checkers
             session={session}
             currentUserId={currentUserId}
             updateState={updateState}
