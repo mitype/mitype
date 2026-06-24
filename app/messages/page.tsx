@@ -10,6 +10,7 @@ import { BackButton } from '../components/BackButton';
 import { SiteNav } from '../components/SiteNav';
 import { FeatureTutorial } from '../components/FeatureTutorial';
 import { CreateGroupModal } from '../components/CreateGroupModal';
+import { CreateRoomModal } from '../components/CreateRoomModal';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { VoiceNotePlayer } from '../components/VoiceNotePlayer';
 import { PhotoLightbox } from '../components/PhotoLightbox';
@@ -363,6 +364,8 @@ export default function MessagesPage() {
   const [showBusinessSaves, setShowBusinessSaves] = useState(false);
   // "New group" modal — opens from the "+" button in the sidebar header.
   const [showCreateGroup, setShowCreateGroup] = useState(false);
+  // "New room" modal — opens from the same area, separate trigger.
+  const [showCreateRoom, setShowCreateRoom] = useState(false);
   const [selectedConvo, setSelectedConvo] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -455,18 +458,26 @@ export default function MessagesPage() {
   }, [selectedConvo, messages, user]);
 
   // Deep-link from /profile/[username] — `?user=<id>` auto-selects that
-  // person's conversation, and `?prefill=…` pre-loads the compose box (used
-  // by the "Reply to a prompt" feature). We strip the params after applying
-  // so a refresh doesn't trigger again.
+  // person's conversation, `?convo=<id>` auto-selects a specific
+  // conversation by id (used by Discover's Join Room flow), and
+  // `?prefill=…` pre-loads the compose box (used by the "Reply to a
+  // prompt" feature). We strip the params after applying so a refresh
+  // doesn't trigger again.
   useEffect(() => {
     if (!user || conversations.length === 0) return;
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const targetUser = params.get('user');
+    const targetConvo = params.get('convo');
     const prefill = params.get('prefill');
-    if (!targetUser && !prefill) return;
+    if (!targetUser && !targetConvo && !prefill) return;
 
-    if (targetUser) {
+    if (targetConvo) {
+      const target = conversations.find((c: any) => c.id === targetConvo);
+      if (target) {
+        void selectConvo(target);
+      }
+    } else if (targetUser) {
       const target = conversations.find((c: any) =>
         Array.isArray(c.participant_ids) && c.participant_ids.includes(targetUser)
       );
@@ -1290,31 +1301,58 @@ export default function MessagesPage() {
             }}>
               Messages
             </h1>
-            <button
-              type="button"
-              onClick={() => setShowCreateGroup(true)}
-              aria-label="New group chat"
-              title="New group chat"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '6px 12px',
-                background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
-                border: 'none',
-                borderRadius: 100,
-                color: 'white',
-                fontSize: 12,
-                fontWeight: 800,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                boxShadow: '0 4px 12px rgba(200,149,108,0.35)',
-                letterSpacing: '0.3px',
-              }}
-            >
-              <span aria-hidden="true" style={{ fontSize: 14, lineHeight: 1 }}>+</span>
-              Group
-            </button>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                type="button"
+                onClick={() => setShowCreateGroup(true)}
+                aria-label="New group chat"
+                title="New group chat"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '6px 11px',
+                  background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                  border: 'none',
+                  borderRadius: 100,
+                  color: 'white',
+                  fontSize: 12,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  boxShadow: '0 4px 12px rgba(200,149,108,0.35)',
+                  letterSpacing: '0.3px',
+                }}
+              >
+                <span aria-hidden="true" style={{ fontSize: 14, lineHeight: 1 }}>+</span>
+                Group
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCreateRoom(true)}
+                aria-label="New room"
+                title="New room"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '6px 11px',
+                  background: 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                  border: 'none',
+                  borderRadius: 100,
+                  color: 'white',
+                  fontSize: 12,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  boxShadow: '0 4px 12px rgba(139,92,246,0.4)',
+                  letterSpacing: '0.3px',
+                }}
+              >
+                <span aria-hidden="true" style={{ fontSize: 14, lineHeight: 1 }}>+</span>
+                Room
+              </button>
+            </div>
           </div>
 
           {/* Small Business Saves — purple to differentiate from
@@ -2616,27 +2654,44 @@ export default function MessagesPage() {
         />
       )}
 
-      {/* Group chat creation modal. Opens from the "+ Group" pill in the
-          sidebar header. On success it reloads conversations and jumps
-          straight into the new group thread. */}
+      {/* Group chat + Room creation modals. Both open from the pills in
+          the sidebar header. On success they reload conversations and
+          jump straight into the new thread. */}
       {user && (
-        <CreateGroupModal
-          open={showCreateGroup}
-          onClose={() => setShowCreateGroup(false)}
-          currentUserId={user.id}
-          onCreated={async (newConvoId) => {
-            // Reload sidebar so the new group appears, then auto-open it.
-            await loadConversations(user);
-            const fresh = await supabase
-              .from('conversations')
-              .select('*')
-              .eq('id', newConvoId)
-              .maybeSingle();
-            if (fresh.data) {
-              await selectConvo(fresh.data);
-            }
-          }}
-        />
+        <>
+          <CreateGroupModal
+            open={showCreateGroup}
+            onClose={() => setShowCreateGroup(false)}
+            currentUserId={user.id}
+            onCreated={async (newConvoId) => {
+              await loadConversations(user);
+              const fresh = await supabase
+                .from('conversations')
+                .select('*')
+                .eq('id', newConvoId)
+                .maybeSingle();
+              if (fresh.data) {
+                await selectConvo(fresh.data);
+              }
+            }}
+          />
+          <CreateRoomModal
+            open={showCreateRoom}
+            onClose={() => setShowCreateRoom(false)}
+            currentUserId={user.id}
+            onCreated={async (newConvoId) => {
+              await loadConversations(user);
+              const fresh = await supabase
+                .from('conversations')
+                .select('*')
+                .eq('id', newConvoId)
+                .maybeSingle();
+              if (fresh.data) {
+                await selectConvo(fresh.data);
+              }
+            }}
+          />
+        </>
       )}
 
       {/* One-time tour of the new Messages additions.

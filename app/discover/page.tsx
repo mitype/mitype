@@ -15,6 +15,8 @@ import { ALL_CATEGORIES } from '../lib/categories';
 import { BackButton } from '../components/BackButton';
 import { WaveStoryRing } from '../components/WaveStoryRing';
 import { BUSINESS_CATEGORIES } from '../lib/businessCategories';
+import { ROOM_CATEGORIES, roomCategoryEmoji, roomCategoryLabel } from '../lib/roomCategories';
+import { toast } from '../lib/toast';
 import { FeatureTutorial } from '../components/FeatureTutorial';
 import { SiteNav } from '../components/SiteNav';
 
@@ -52,6 +54,13 @@ export default function DiscoverPage() {
   const [bizCategoryFilter, setBizCategoryFilter] = useState<string>('');
   // True when the local-business tab is expanded.
   const [showBusinessTab, setShowBusinessTab] = useState(false);
+  // Public rooms a user could join. Loaded lazily when the Rooms tab
+  // is first expanded.
+  const [publicRooms, setPublicRooms] = useState<any[]>([]);
+  const [showRoomsTab, setShowRoomsTab] = useState(false);
+  const [roomsLoaded, setRoomsLoaded] = useState(false);
+  const [roomCategoryFilter, setRoomCategoryFilter] = useState<string>('');
+  const [joiningRoomId, setJoiningRoomId] = useState<string | null>(null);
   // Daily-rotating featured business (everyone sees the same one today).
   const [dailyBusinessSpotlight, setDailyBusinessSpotlight] = useState<any | null>(null);
   // The category that has actually been applied (separate from the
@@ -273,6 +282,60 @@ export default function DiscoverPage() {
       } catch {
         // Try the next candidate.
       }
+    }
+  }
+
+  // Lazy-load public rooms when the user first expands the Rooms tab.
+  // Sorted by recent activity (updated_at desc) so the lively rooms
+  // float to the top.
+  async function loadPublicRooms() {
+    if (roomsLoaded) return;
+    const { data, error } = await supabase
+      .from('conversations')
+      .select('id, title, description, category, participant_ids, creator_id, updated_at, created_at')
+      .eq('kind', 'room')
+      .eq('is_public', true)
+      .order('updated_at', { ascending: false })
+      .limit(80);
+    if (error) {
+      console.error('[discover] load public rooms:', error);
+      return;
+    }
+    setPublicRooms(data ?? []);
+    setRoomsLoaded(true);
+  }
+
+  // Add the current user to a room's participant_ids. The "Anyone can
+  // join public rooms" RLS policy allows the update; the room creator
+  // doesn't need to approve.
+  async function handleJoinRoom(room: any) {
+    if (!user) return;
+    if (room.participant_ids.includes(user.id)) {
+      // Already a member — open the chat.
+      router.push(`/messages?convo=${room.id}`);
+      return;
+    }
+    setJoiningRoomId(room.id);
+    try {
+      const newIds = [...room.participant_ids, user.id];
+      const { error } = await supabase
+        .from('conversations')
+        .update({ participant_ids: newIds, updated_at: new Date().toISOString() })
+        .eq('id', room.id);
+      if (error) throw error;
+      toast.success(`Joined ${room.title}`);
+      // Optimistically reflect in local state
+      setPublicRooms((prev) =>
+        prev.map((r) => r.id === room.id
+          ? { ...r, participant_ids: newIds }
+          : r));
+      // Jump straight into the room conversation
+      router.push(`/messages?convo=${room.id}`);
+    } catch (e: any) {
+      console.error('[discover] join room failed:', e);
+      toast.error(e?.message ?? 'Could not join the room.');
+    } finally {
+      setJoiningRoomId(null);
     }
   }
 
@@ -892,6 +955,222 @@ export default function DiscoverPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* "Looking for a room to join?" tab — public rooms users can
+            discover and join. Bronze-themed to differentiate from the
+            purple business tab above. */}
+        <button
+          type="button"
+          onClick={() => {
+            const next = !showRoomsTab;
+            setShowRoomsTab(next);
+            if (next) void loadPublicRooms();
+          }}
+          style={{
+            width: '100%',
+            background: showRoomsTab
+              ? 'linear-gradient(135deg, #c8956c 0%, #ffb37c 100%)'
+              : 'white',
+            border: `1px solid ${showRoomsTab ? 'transparent' : 'rgba(200,149,108,0.35)'}`,
+            borderRadius: 20,
+            padding: '18px 22px',
+            marginBottom: showRoomsTab ? 16 : 32,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+            cursor: 'pointer',
+            color: showRoomsTab ? 'white' : '#6b4f33',
+            fontFamily: 'inherit',
+            boxShadow: showRoomsTab
+              ? '0 10px 28px rgba(200,149,108,0.35)'
+              : '0 2px 8px rgba(200,149,108,0.08)',
+          }}
+        >
+          <span style={{ fontSize: 22 }}>🏛️</span>
+          <span style={{ flex: 1, textAlign: 'left' }}>
+            <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
+              Looking for a room to join?
+            </span>
+            <span style={{ display: 'block', fontSize: 13, opacity: 0.9, marginTop: 2 }}>
+              Themed hangouts where Mitype creators meet up around shared interests.
+            </span>
+          </span>
+          <span aria-hidden="true" style={{ fontSize: 18, fontWeight: 800 }}>
+            {showRoomsTab ? '▲' : '▼'}
+          </span>
+        </button>
+
+        {showRoomsTab && (
+          <div style={{
+            background: '#fffaf2',
+            border: '1px solid rgba(200,149,108,0.2)',
+            borderRadius: 24,
+            padding: 18,
+            marginBottom: 40,
+          }}>
+            {/* Category filter — bronze chips */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#a07a4d', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
+                Filter by category
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxHeight: 100, overflowY: 'auto', padding: 2 }}>
+                <button
+                  onClick={() => setRoomCategoryFilter('')}
+                  style={{
+                    background: !roomCategoryFilter ? '#c8956c' : 'white',
+                    color: !roomCategoryFilter ? 'white' : '#6b4f33',
+                    border: '1px solid rgba(200,149,108,0.25)',
+                    padding: '5px 11px',
+                    borderRadius: 100,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  All
+                </button>
+                {ROOM_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.key}
+                    onClick={() => setRoomCategoryFilter(cat.key === roomCategoryFilter ? '' : cat.key)}
+                    style={{
+                      background: cat.key === roomCategoryFilter ? '#c8956c' : 'white',
+                      color: cat.key === roomCategoryFilter ? 'white' : '#6b4f33',
+                      border: '1px solid rgba(200,149,108,0.25)',
+                      padding: '5px 11px',
+                      borderRadius: 100,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <span aria-hidden="true">{cat.emoji}</span> {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Rooms list */}
+            {(() => {
+              const visible = roomCategoryFilter
+                ? publicRooms.filter((r) => r.category === roomCategoryFilter)
+                : publicRooms;
+              if (!roomsLoaded) {
+                return (
+                  <div style={{ padding: 30, textAlign: 'center', color: '#a89278', fontSize: 13 }}>
+                    Loading rooms…
+                  </div>
+                );
+              }
+              if (visible.length === 0) {
+                return (
+                  <div style={{
+                    padding: 30,
+                    textAlign: 'center',
+                    background: 'rgba(255,255,255,0.5)',
+                    border: '1px dashed rgba(200,149,108,0.3)',
+                    borderRadius: 16,
+                    color: '#a89278',
+                    fontSize: 13,
+                  }}>
+                    {roomCategoryFilter
+                      ? `No public rooms in ${roomCategoryLabel(roomCategoryFilter)} yet. Start one with the + Room button in Messages.`
+                      : 'No public rooms yet. Be the first — head to Messages and tap + Room.'}
+                  </div>
+                );
+              }
+              return (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                  gap: 10,
+                }}>
+                  {visible.map((room) => {
+                    const memberCount = room.participant_ids.length;
+                    const alreadyIn = user && room.participant_ids.includes(user.id);
+                    const isJoining = joiningRoomId === room.id;
+                    return (
+                      <div
+                        key={room.id}
+                        style={{
+                          background: 'white',
+                          border: '1px solid rgba(200,149,108,0.22)',
+                          borderRadius: 18,
+                          padding: 14,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 10,
+                          boxShadow: '0 6px 18px rgba(200,149,108,0.08)',
+                        }}
+                      >
+                        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                          <div style={{
+                            width: 44, height: 44, borderRadius: 12,
+                            background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 22, color: 'white', flexShrink: 0,
+                          }}>
+                            {roomCategoryEmoji(room.category)}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: 14, fontWeight: 800, color: '#1a1208',
+                              letterSpacing: '-0.2px',
+                              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                            }}>
+                              {room.title}
+                            </div>
+                            <div style={{ fontSize: 11, color: '#a89278' }}>
+                              {memberCount} member{memberCount === 1 ? '' : 's'} · {roomCategoryLabel(room.category)}
+                            </div>
+                          </div>
+                        </div>
+                        {room.description && (
+                          <p style={{
+                            fontSize: 12, color: '#7a6a4f',
+                            lineHeight: 1.4, margin: 0,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}>
+                            {room.description}
+                          </p>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleJoinRoom(room)}
+                          disabled={isJoining}
+                          style={{
+                            padding: '8px 14px',
+                            background: alreadyIn
+                              ? 'rgba(200,149,108,0.12)'
+                              : 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                            border: alreadyIn ? '1px solid rgba(200,149,108,0.4)' : 'none',
+                            color: alreadyIn ? '#6b4f33' : 'white',
+                            borderRadius: 100,
+                            fontSize: 12,
+                            fontWeight: 800,
+                            cursor: isJoining ? 'wait' : 'pointer',
+                            fontFamily: 'inherit',
+                            letterSpacing: '0.3px',
+                          }}
+                        >
+                          {isJoining ? 'Joining…' : alreadyIn ? 'Open chat →' : 'Join room'}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })()}
