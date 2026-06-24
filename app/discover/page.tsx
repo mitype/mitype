@@ -1079,6 +1079,39 @@ export default function DiscoverPage() {
           </span>
         </button>
 
+        {/* Mi Home Goods CTA — dark-green banner that links to the
+            marketplace. Always-visible (not collapsible) because the
+            marketplace itself is the destination. */}
+        <Link
+          href="/home-goods"
+          style={{
+            display: 'flex',
+            width: '100%',
+            background: 'linear-gradient(135deg, #15803d 0%, #22c55e 100%)',
+            border: '1px solid #15803d',
+            borderRadius: 20,
+            padding: '18px 22px',
+            marginBottom: 32,
+            alignItems: 'center',
+            gap: 14,
+            color: 'white',
+            fontFamily: 'inherit',
+            boxShadow: '0 10px 28px rgba(21,128,61,0.3)',
+            textDecoration: 'none',
+          }}
+        >
+          <span style={{ fontSize: 22 }}>🏡</span>
+          <span style={{ flex: 1, textAlign: 'left' }}>
+            <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
+              Mi Home Goods marketplace
+            </span>
+            <span style={{ display: 'block', fontSize: 13, opacity: 0.92, marginTop: 2 }}>
+              Buy and sell with your Mitype community — furniture, electronics, vintage finds, and more.
+            </span>
+          </span>
+          <span aria-hidden="true" style={{ fontSize: 18, fontWeight: 800 }}>→</span>
+        </Link>
+
         {showRoomsTab && (
           <div style={{
             background: '#fffaf2',

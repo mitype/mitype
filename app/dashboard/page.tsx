@@ -103,13 +103,13 @@ export default function Dashboard() {
           whenever there's a big new drop.
           v3 announces groups + rooms + 3 more games. */}
       <Coachmark
-        storageKey="mitype-coachmark-games-v3"
-        title="👥 Groups, rooms & 3 more games"
+        storageKey="mitype-coachmark-homegoods-v1"
+        title="🏡 Mi Home Goods is here"
         placement="top"
         delay={1200}
         duration={12000}
       >
-        Group chats, public rooms (browse them on Discover!), and 3 new games — Pictionary, Word Association, and Name That Quote — just landed. Mitype is officially a multi-creator playground now.
+        Buy and sell directly with your Mitype community — furniture, electronics, vintage finds, free stuff. Open the menu and tap Mi Home Goods to browse or list anything.
       </Coachmark>
 
       <SiteNav userId={user?.id} />

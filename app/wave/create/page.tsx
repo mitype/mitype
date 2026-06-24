@@ -81,6 +81,17 @@ export default function WaveCreatePage() {
         router.push('/login');
         return;
       }
+      // Subscription gate — same as the Wave feed itself.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!isSubscribed) {
+        router.push('/subscription');
+        return;
+      }
       setUser(user);
       const { data: profile } = await supabase
         .from('profiles')

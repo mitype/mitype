@@ -2778,9 +2778,14 @@ export default function MessagesPage() {
           v5 bump announces groups + rooms + 3 more games (Pictionary,
           Word Association, Name That Quote). */}
       <FeatureTutorial
-        storageKey="mitype-messages-features-v5"
+        storageKey="mitype-messages-features-v6"
         eyebrow="New in Messages"
         slides={[
+          {
+            icon: '🏡',
+            title: 'Mi Home Goods is here',
+            body: 'Buy and sell directly with your Mitype community — furniture, electronics, vintage finds, free stuff. Open the menu, tap Mi Home Goods, and list anything in under a minute with up to 4 photos.',
+          },
           {
             icon: '👥',
             title: 'Group chats are here',

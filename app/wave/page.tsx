@@ -160,6 +160,21 @@ export default function WavePage() {
         router.push('/login');
         return;
       }
+
+      // Subscription gate — Wave is a subscriber-only feature. Free
+      // users get bounced to /subscription. Same pattern as Discover
+      // and Spotlight.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!isSubscribed) {
+        router.push('/subscription');
+        return;
+      }
+
       setUser(user);
 
       const { data: profile } = await supabase

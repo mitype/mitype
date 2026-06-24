@@ -224,6 +224,29 @@ export function SiteNav({
           <NavLink href="/spotlight"    label="Spotlight" />
           <NavLink href="/weekly"       label="Weekly" />
           <NavLink href="/messages"     label="Messages" badge={unread.total} />
+          {/* Mi Home Goods — dark-green styling so the marketplace
+              entry visually separates from the bronze/purple surfaces. */}
+          <Link
+            href="/home-goods"
+            onClick={() => setOpen(false)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '13px 20px',
+              color: 'white',
+              fontSize: 15,
+              fontWeight: 800,
+              textDecoration: 'none',
+              borderRadius: 100,
+              background: 'linear-gradient(135deg, #15803d, #22c55e)',
+              border: '1px solid #15803d',
+              letterSpacing: '0.1px',
+              boxShadow: '0 6px 14px rgba(21,128,61,0.3)',
+            }}
+          >
+            <span>🏡 Mi Home Goods</span>
+          </Link>
           <NavLink href="/edit-profile" label="Edit Profile" />
           {!hideSignOut && userId && (
             <button

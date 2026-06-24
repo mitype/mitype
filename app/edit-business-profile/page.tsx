@@ -67,6 +67,17 @@ export default function EditBusinessProfilePage() {
         router.push('/login');
         return;
       }
+      // Subscription gate — setting up a business is subscriber-only.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!isSubscribed) {
+        router.push('/subscription');
+        return;
+      }
       setUser(user);
 
       // Load existing business profile if one exists.
