@@ -18,7 +18,8 @@ export type GameKey =
   | 'chess'
   | 'wordduel'
   | 'pictionary'
-  | 'wordassoc';
+  | 'wordassoc'
+  | 'lyricquote';
 
 // Lobby grouping. We bucket every game into one of four sections so
 // the lobby stays scannable as the catalog grows. Order matters here —
@@ -276,6 +277,23 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
       'Hit End Game to bail out at any time.',
     ],
     duration: '4–8 min',
+    vibe: 'medium',
+    category: 'word',
+  },
+  {
+    key: 'lyricquote',
+    name: 'Name That Quote',
+    emoji: '🎤',
+    tagline: 'Race to ID iconic lyrics, movie lines, and TV moments.',
+    howToPlay: [
+      'Each round both players see the same iconic quote — a song lyric, a movie line, or a famous TV moment from the 80s through today.',
+      'Type the TITLE of the song / movie / show. You don\'t need the artist — just the title is enough.',
+      'Race-to-type: the FASTER correct guess wins the round. If only one of you is right, that one wins. If neither is right, it\'s a draw.',
+      'Locking in a wrong answer locks you out — you don\'t get a second try in the same round.',
+      '25 seconds per clue. 7 rounds total. Highest score wins.',
+      'Hit End Game to bail out at any time.',
+    ],
+    duration: '5–8 min',
     vibe: 'medium',
     category: 'word',
   },

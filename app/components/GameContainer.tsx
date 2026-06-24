@@ -33,6 +33,7 @@ import { Chess } from './games/Chess';
 import { WordDuel } from './games/WordDuel';
 import { Pictionary } from './games/Pictionary';
 import { WordAssociation } from './games/WordAssociation';
+import { LyricQuoteGuess } from './games/LyricQuoteGuess';
 
 export interface GameSession {
   id: string;
@@ -345,6 +346,12 @@ export function GameContainer({
           />
         ) : session.game_type === 'wordassoc' ? (
           <WordAssociation
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
+        ) : session.game_type === 'lyricquote' ? (
+          <LyricQuoteGuess
             session={session}
             currentUserId={currentUserId}
             updateState={updateState}
