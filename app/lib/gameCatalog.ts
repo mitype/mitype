@@ -18,6 +18,20 @@ export type GameKey =
   | 'chess'
   | 'wordduel';
 
+// Lobby grouping. We bucket every game into one of four sections so
+// the lobby stays scannable as the catalog grows. Order matters here —
+// this is also the rendering order in the lobby.
+export type GameCategory = 'quick' | 'strategy' | 'word' | 'creative';
+
+export const GAME_CATEGORY_LABELS: Record<GameCategory, string> = {
+  quick:    'Quick & social',
+  strategy: 'Strategy & board',
+  word:     'Word & trivia',
+  creative: 'Creative & collab',
+};
+
+export const GAME_CATEGORY_ORDER: GameCategory[] = ['quick', 'strategy', 'word', 'creative'];
+
 export interface GameCatalogEntry {
   key: GameKey;
   name: string;
@@ -30,6 +44,8 @@ export interface GameCatalogEntry {
   duration: string;
   /** Difficulty / complexity hint. */
   vibe: 'easy' | 'medium' | 'hard';
+  /** Lobby section this game lives in. */
+  category: GameCategory;
 }
 
 export const GAME_CATALOG: GameCatalogEntry[] = [
@@ -48,6 +64,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '3–5 min',
     vibe: 'easy',
+    category: 'quick',
   },
   {
     key: 'tot',
@@ -64,6 +81,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '2–4 min',
     vibe: 'easy',
+    category: 'quick',
   },
   {
     key: 'ttt',
@@ -80,6 +98,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '3–6 min',
     vibe: 'easy',
+    category: 'strategy',
   },
   {
     key: 'c4',
@@ -97,6 +116,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '5–10 min',
     vibe: 'medium',
+    category: 'strategy',
   },
   {
     key: 'trivia',
@@ -113,6 +133,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '4–7 min',
     vibe: 'medium',
+    category: 'word',
   },
   {
     key: 'story',
@@ -129,6 +150,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '5–10 min',
     vibe: 'easy',
+    category: 'creative',
   },
   {
     key: 'hangman',
@@ -145,6 +167,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '4–7 min',
     vibe: 'easy',
+    category: 'word',
   },
   {
     key: 'checkers',
@@ -162,6 +185,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '6–12 min',
     vibe: 'medium',
+    category: 'strategy',
   },
   {
     key: 'battleship',
@@ -179,6 +203,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '6–14 min',
     vibe: 'medium',
+    category: 'strategy',
   },
   {
     key: 'chess',
@@ -196,6 +221,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '10–25 min',
     vibe: 'hard',
+    category: 'strategy',
   },
   {
     key: 'wordduel',
@@ -214,6 +240,7 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '15–35 min',
     vibe: 'hard',
+    category: 'word',
   },
 ];
 

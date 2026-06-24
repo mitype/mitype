@@ -693,10 +693,14 @@ export default function MessagesPage() {
     // Auto-resume any active or pending game in this conversation so
     // it pops back up if the user reloads or switches conversations.
     //
-    // Stale-pending cleanup: if a 'pending' session is older than
-    // 10 minutes AND still has no real game state in it, treat it as
-    // abandoned (likely a crash mid-launch) and delete it so it
-    // doesn't keep popping up when the user re-enters the chat.
+    // Two cleanup paths for sessions that are NOT going to come back:
+    //   1. Stale 'pending'  — older than 10 min with empty state. Likely
+    //      a crash mid-launch (we shipped two of these as Rules-of-Hooks
+    //      bugs in Hangman and Chess). Auto-deleted on entry.
+    //   2. Stale 'active'   — updated_at is older than 24 h. A real
+    //      game both players walked away from. Auto-flipped to 'ended'
+    //      with reason 'abandoned' so it doesn't keep auto-popping when
+    //      either player re-enters the chat days later.
     if (user) {
       const { data: liveGame } = await supabase
         .from('game_sessions')
@@ -709,17 +713,24 @@ export default function MessagesPage() {
         .maybeSingle();
 
       if (liveGame) {
-        const ageMs = Date.now() - new Date(liveGame.created_at).getTime();
+        const now = Date.now();
+        const createdAgeMs = now - new Date(liveGame.created_at).getTime();
+        const updatedAgeMs = liveGame.updated_at
+          ? now - new Date(liveGame.updated_at).getTime()
+          : createdAgeMs;
         const hasState = liveGame.state &&
           typeof liveGame.state === 'object' &&
           Object.keys(liveGame.state).length > 0;
-        const stale = liveGame.status === 'pending' && !hasState && ageMs > 10 * 60 * 1000;
 
-        if (stale) {
-          // Best-effort cleanup; if RLS prevents it for the invitee,
-          // we still skip showing it. The inviter's policy allows DELETE
-          // for ended sessions only — so we flip to 'ended' first and then
-          // delete in one round-trip.
+        const stalePending = liveGame.status === 'pending'
+          && !hasState
+          && createdAgeMs > 10 * 60 * 1000;
+        const staleActive = liveGame.status === 'active'
+          && updatedAgeMs > 24 * 60 * 60 * 1000;
+
+        if (stalePending) {
+          // The inviter's RLS policy allows DELETE only for ended
+          // sessions, so flip first, then delete in one round-trip.
           await supabase
             .from('game_sessions')
             .update({
@@ -729,6 +740,18 @@ export default function MessagesPage() {
             })
             .eq('id', liveGame.id);
           await supabase.from('game_sessions').delete().eq('id', liveGame.id);
+        } else if (staleActive) {
+          // Don't delete a real game's state — flip to 'ended' so it
+          // shows up as "abandoned" if anyone goes looking, but don't
+          // auto-resume it.
+          await supabase
+            .from('game_sessions')
+            .update({
+              status: 'ended',
+              ended_reason: 'abandoned',
+              ended_at: new Date().toISOString(),
+            })
+            .eq('id', liveGame.id);
         } else {
           setActiveGame(liveGame as GameSession);
         }
