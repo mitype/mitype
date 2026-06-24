@@ -118,7 +118,27 @@ export function WordAssociation({ session, currentUserId, updateState }: Props) 
     return () => clearInterval(t);
   }, []);
 
+  // Read raw state up here — every hook below this point must be
+  // called UNCONDITIONALLY on every render to keep React's hook-order
+  // contract intact. We do all conditional logic with null-safe access
+  // and skip the early return until after the last hook.
   const rawState = (session.state ?? null) as WaState | null;
+
+  // Active player's client triggers the timeout to flip phase. Lives
+  // ABOVE the early return so the hook count is consistent across the
+  // loading and loaded renders.
+  useEffect(() => {
+    if (!rawState || rawState.phase !== 'playing') return;
+    const myTurn = rawState.currentTurn === currentUserId;
+    if (!myTurn) return;
+    const ms = TURN_DURATION_MS - (now - rawState.turnStartedAt);
+    if (ms > 0) return;
+    void loseChainCurrent('timeout');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawState?.phase, rawState?.currentTurn, rawState?.turnStartedAt, currentUserId, now]);
+
+  // ─────────────── Below this line: no more hooks ───────────────
+
   if (!rawState || !rawState.phase) {
     return (
       <div style={{ marginTop: 60, color: 'rgba(255,255,255,0.55)', fontSize: 14, textAlign: 'center' }}>
@@ -137,14 +157,12 @@ export function WordAssociation({ session, currentUserId, updateState }: Props) 
     : 0;
   const seconds = (msLeft / 1000).toFixed(1);
 
-  // Active player's client triggers the timeout to flip phase.
-  useEffect(() => {
-    if (state.phase !== 'playing') return;
-    if (!isMyTurn) return;
-    if (msLeft > 0) return;
-    void loseChain('timeout');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [msLeft, state.phase, isMyTurn]);
+  // Tiny wrapper so the pre-return timer useEffect can call into the
+  // loseChain logic without depending on `state` being non-null.
+  async function loseChainCurrent(reason: LossReason) {
+    if (!rawState || rawState.phase !== 'playing') return;
+    await loseChain(reason);
+  }
 
   async function submitWord() {
     if (!isMyTurn || state.phase !== 'playing') return;

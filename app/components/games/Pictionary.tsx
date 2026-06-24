@@ -190,6 +190,20 @@ export function Pictionary({ session, currentUserId, updateState }: Props) {
     clearCanvas();
   }, [roundKey, rawState?.phase]);
 
+  // Drawer's client triggers the round timeout when the timer hits
+  // zero. Lives ABOVE the early return so the hook count stays
+  // identical across the loading and loaded renders — see the Rules
+  // of Hooks bug we fixed in Hangman / Chess for the cautionary tale.
+  useEffect(() => {
+    if (!rawState || rawState.phase !== 'drawing' || !rawState.roundStartedAt) return;
+    const drawerHere = rawState.drawerId === currentUserId;
+    if (!drawerHere) return;
+    const ms = ROUND_DURATION_MS - (Date.now() - rawState.roundStartedAt);
+    if (ms > 0) return;
+    void timeOutRoundFor(rawState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawState?.phase, rawState?.roundStartedAt, rawState?.drawerId, currentUserId, now]);
+
   if (!rawState || !rawState.phase) {
     return (
       <div style={{ marginTop: 60, color: 'rgba(255,255,255,0.55)', fontSize: 14, textAlign: 'center' }}>
@@ -317,23 +331,27 @@ export function Pictionary({ session, currentUserId, updateState }: Props) {
     await finishRound({ guesserCorrect: true, lastGuess: newGuess });
   }
 
-  async function timeOutRound() {
-    if (state.phase !== 'drawing') return;
-    await finishRound({ guesserCorrect: false });
+  async function finishRound(opts: { guesserCorrect: boolean; lastGuess?: PicGuess }) {
+    await finishRoundWith(state, opts);
   }
 
-  async function finishRound(opts: { guesserCorrect: boolean; lastGuess?: PicGuess }) {
-    const word = state.currentWord;
+  // Snapshot-driven version so the pre-return timeout effect (which
+  // doesn't have access to the narrowed `state` value) can call it.
+  async function finishRoundWith(
+    snapshot: PicState,
+    opts: { guesserCorrect: boolean; lastGuess?: PicGuess },
+  ) {
+    const word = snapshot.currentWord;
     if (!word) return;
     const pts = pointsFor(word.difficulty);
     const drawerPoints = opts.guesserCorrect ? pts.drawer : 0;
     const guesserPoints = opts.guesserCorrect ? pts.guesser : 0;
-    const guesserId = state.drawerId === session.inviter_id
+    const guesserId = snapshot.drawerId === session.inviter_id
       ? session.invitee_id
       : session.inviter_id;
 
-    const newScores = { ...state.scores };
-    newScores[state.drawerId] = (newScores[state.drawerId] ?? 0) + drawerPoints;
+    const newScores = { ...snapshot.scores };
+    newScores[snapshot.drawerId] = (newScores[snapshot.drawerId] ?? 0) + drawerPoints;
     newScores[guesserId] = (newScores[guesserId] ?? 0) + guesserPoints;
 
     const result: RoundResult = {
@@ -344,10 +362,10 @@ export function Pictionary({ session, currentUserId, updateState }: Props) {
       guesserPoints,
     };
     const updated: PicState = {
-      ...state,
+      ...snapshot,
       phase: 'round-end',
       scores: newScores,
-      guesses: opts.lastGuess ? [...state.guesses, opts.lastGuess] : state.guesses,
+      guesses: opts.lastGuess ? [...snapshot.guesses, opts.lastGuess] : snapshot.guesses,
       lastRoundResult: result,
     };
     await updateState(updated);
@@ -389,18 +407,20 @@ export function Pictionary({ session, currentUserId, updateState }: Props) {
     await updateState(state, { setStatus: 'ended', reason: 'finished' });
   }
 
-  // ─────────────── Timer effect: drawer triggers timeout ───────────────
+  // ─────────────── Timer derived value ───────────────
+  // (The actual useEffect that triggers timeOutRound lives above the
+  // early return so the hook count stays consistent — see the comment
+  // up there.)
   const msLeft = state.phase === 'drawing' && state.roundStartedAt
     ? Math.max(0, ROUND_DURATION_MS - (now - state.roundStartedAt))
     : 0;
 
-  useEffect(() => {
-    if (state.phase !== 'drawing') return;
-    if (!iAmDrawer) return;
-    if (msLeft > 0) return;
-    void timeOutRound();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [msLeft, state.phase, iAmDrawer]);
+  // Pre-return helper that takes a non-null snapshot so the timer
+  // useEffect above can fire even before `state` is in scope.
+  async function timeOutRoundFor(snapshot: PicState) {
+    if (snapshot.phase !== 'drawing') return;
+    await finishRoundWith(snapshot, { guesserCorrect: false });
+  }
 
   // ─────────────── Render ───────────────
   const isGameOver = state.phase === 'over' || session.status === 'ended';
