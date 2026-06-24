@@ -17,7 +17,8 @@ export type GameKey =
   | 'battleship'
   | 'chess'
   | 'wordduel'
-  | 'pictionary';
+  | 'pictionary'
+  | 'wordassoc';
 
 // Lobby grouping. We bucket every game into one of four sections so
 // the lobby stays scannable as the catalog grows. Order matters here —
@@ -259,6 +260,24 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     duration: '8–14 min',
     vibe: 'medium',
     category: 'creative',
+  },
+  {
+    key: 'wordassoc',
+    name: 'Word Association',
+    emoji: '🧠',
+    tagline: 'Chain words at speed. 8 seconds per turn.',
+    howToPlay: [
+      'One player types a starter word. The other has 8 seconds to type a word associated with it.',
+      'You alternate — every turn has an 8-second timer. The chain keeps growing as long as both of you keep up.',
+      'You break the chain if you: run out the clock, repeat any word that\'s already in the chain, or copy your opponent\'s last word.',
+      'Whoever breaks the chain LOSES that round. The other player banks 1 point plus a +1 bonus per 5 words in the chain — so a long, surviving chain is worth a lot.',
+      'It\'s a best of 3 chains. Starters alternate between rounds.',
+      'No "real" dictionary check — associations are subjective on purpose. Trust the wander.',
+      'Hit End Game to bail out at any time.',
+    ],
+    duration: '4–8 min',
+    vibe: 'medium',
+    category: 'word',
   },
 ];
 

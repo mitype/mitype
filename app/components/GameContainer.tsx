@@ -32,6 +32,7 @@ import { Battleship } from './games/Battleship';
 import { Chess } from './games/Chess';
 import { WordDuel } from './games/WordDuel';
 import { Pictionary } from './games/Pictionary';
+import { WordAssociation } from './games/WordAssociation';
 
 export interface GameSession {
   id: string;
@@ -338,6 +339,12 @@ export function GameContainer({
           />
         ) : session.game_type === 'pictionary' ? (
           <Pictionary
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
+        ) : session.game_type === 'wordassoc' ? (
+          <WordAssociation
             session={session}
             currentUserId={currentUserId}
             updateState={updateState}
