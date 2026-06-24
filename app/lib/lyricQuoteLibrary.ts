@@ -229,11 +229,17 @@ export const LYRIC_QUOTE_LIBRARY: LyricQuoteEntry[] = [
  * Loose match: lower-case, strip punctuation, drop leading articles
  * ("the", "a", "an"), collapse whitespace. Compares the guess against
  * the canonical title and any acceptable alternatives.
+ *
+ * Subtle but important: we STRIP apostrophes outright (delete, not
+ * replace with a space). Otherwise "Don't Stop Believin'" normalizes
+ * to "don t stop believin " while the user's guess "dont stop believin"
+ * normalizes to "dont stop believin" and they don't match.
  */
 export function quoteGuessMatches(guess: string, entry: LyricQuoteEntry): boolean {
   const norm = (s: string) =>
     s.toLowerCase()
-      .replace(/[^a-z0-9 ]/g, ' ')
+      .replace(/['’]/g, '')           // strip apostrophes (straight and curly)
+      .replace(/[^a-z0-9 ]/g, ' ')   // other punctuation → space
       .replace(/^\s*(the|a|an)\s+/, '')
       .replace(/\s+/g, ' ')
       .trim();
