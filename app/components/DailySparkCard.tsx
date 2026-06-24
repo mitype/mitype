@@ -295,7 +295,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
           borderRadius: 14,
           border: '1px solid rgba(200,149,108,0.25)',
           background: '#faf6f0',
-          fontSize: 14,
+          fontSize: 16,
           color: '#1a1208',
           fontFamily: 'inherit',
           resize: 'vertical',

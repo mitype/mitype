@@ -321,7 +321,7 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
                   border: '1px solid rgba(255,213,168,0.4)',
                   borderRadius: 12,
                   color: 'white',
-                  fontSize: 15,
+                  fontSize: 16,
                   lineHeight: 1.5,
                   outline: 'none',
                   resize: 'vertical',

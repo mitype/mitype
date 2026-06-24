@@ -361,7 +361,7 @@ const fieldStyle: React.CSSProperties = {
   background: 'white',
   border: '1px solid rgba(200,149,108,0.3)',
   borderRadius: 12,
-  fontSize: 15,
+  fontSize: 16,
   outline: 'none',
   color: '#1a1208',
 };

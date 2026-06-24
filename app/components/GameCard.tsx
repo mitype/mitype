@@ -337,7 +337,7 @@ function EmojiMovieCard({
               padding: '10px 12px',
               border: `1px solid ${PEACH}33`,
               borderRadius: 100,
-              fontSize: 13,
+              fontSize: 16,
               background: 'white',
               color: INK,
               outline: 'none',

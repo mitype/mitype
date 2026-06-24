@@ -578,7 +578,7 @@ export function Pictionary({ session, currentUserId, updateState }: Props) {
                   border: '1px solid rgba(255,213,168,0.35)',
                   borderRadius: 100,
                   color: 'white',
-                  fontSize: 15,
+                  fontSize: 16,
                   fontFamily: 'inherit',
                   outline: 'none',
                 }}

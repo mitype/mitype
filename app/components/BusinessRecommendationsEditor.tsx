@@ -341,7 +341,7 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
                 borderRadius: 12,
                 border: '1px solid rgba(139,92,246,0.25)',
                 background: '#fbfaff',
-                fontSize: 14,
+                fontSize: 16,
                 outline: 'none',
                 color: '#1a1208',
                 boxSizing: 'border-box',

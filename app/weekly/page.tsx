@@ -546,7 +546,7 @@ function ComposeBlock({
           borderRadius: 14,
           border: `1px solid ${overLimit ? '#c07070' : 'rgba(200,149,108,0.25)'}`,
           background: '#faf6f0',
-          fontSize: 15,
+          fontSize: 16,
           color: '#1a1208',
           fontFamily: 'inherit',
           resize: 'vertical',
