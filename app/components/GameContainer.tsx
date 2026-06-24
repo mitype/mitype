@@ -28,6 +28,7 @@ import { TriviaBattle } from './games/TriviaBattle';
 import { StoryBuilder } from './games/StoryBuilder';
 import { Hangman } from './games/Hangman';
 import { Checkers } from './games/Checkers';
+import { Battleship } from './games/Battleship';
 
 export interface GameSession {
   id: string;
@@ -310,6 +311,12 @@ export function GameContainer({
           />
         ) : session.game_type === 'checkers' ? (
           <Checkers
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
+        ) : session.game_type === 'battleship' ? (
+          <Battleship
             session={session}
             currentUserId={currentUserId}
             updateState={updateState}

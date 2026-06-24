@@ -13,7 +13,8 @@ export type GameKey =
   | 'trivia'
   | 'story'
   | 'hangman'
-  | 'checkers';
+  | 'checkers'
+  | 'battleship';
 
 export interface GameCatalogEntry {
   key: GameKey;
@@ -158,6 +159,23 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
       'Hit End Game at any time to bail out.',
     ],
     duration: '6–12 min',
+    vibe: 'medium',
+  },
+  {
+    key: 'battleship',
+    name: 'Battleship',
+    emoji: '🚢',
+    tagline: 'Place your fleet. Sink theirs. Classic.',
+    howToPlay: [
+      'Both players start in placement mode. Tap "Roll fleet" to auto-place your five ships (Carrier, Battleship, Cruiser, Submarine, Destroyer). Re-roll as many times as you like, then "Lock in" when you\'re happy.',
+      'Once both fleets are locked, the inviter fires first. Tap any unmarked cell on "Their waters" to fire a shot.',
+      'Direct hit: the cell turns red and you take ANOTHER shot. Splash (miss): turn passes to your opponent.',
+      'Sink an enemy ship by hitting every one of its cells. The game announces the sinking and what kind it was.',
+      'Sink all 17 enemy cells across all 5 ships to win.',
+      'Your fleet shows below — when they hit it, you\'ll see the damage in real time.',
+      'Hit End Game at any time to bail out.',
+    ],
+    duration: '6–14 min',
     vibe: 'medium',
   },
 ];
