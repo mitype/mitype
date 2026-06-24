@@ -14,7 +14,8 @@ export type GameKey =
   | 'story'
   | 'hangman'
   | 'checkers'
-  | 'battleship';
+  | 'battleship'
+  | 'chess';
 
 export interface GameCatalogEntry {
   key: GameKey;
@@ -177,6 +178,23 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     ],
     duration: '6–14 min',
     vibe: 'medium',
+  },
+  {
+    key: 'chess',
+    name: 'Chess',
+    emoji: '♟️',
+    tagline: 'Full chess. Castling, en passant, the works.',
+    howToPlay: [
+      'Inviter plays White and moves first. Your color\'s pieces sit at the bottom of the board.',
+      'Tap one of your pieces to see its legal moves — empty target squares glow with a dot, capturable enemy pieces get a red ring.',
+      'Tap a highlighted square to move. All standard chess rules apply: castling (just move the king two squares — the rook teleports), en passant, pawn promotion (we auto-queen for you to keep it simple).',
+      'A move that would leave your king in check is automatically blocked. When your king IS in check, the turn pill says so.',
+      'Win by checkmate — when the opponent has no legal moves and their king is under attack.',
+      'Stalemate, insufficient material, threefold repetition, and the 50-move rule all auto-declare a draw.',
+      'A move history strip shows the last few moves in standard notation. Hit End Game at any time to bail out.',
+    ],
+    duration: '10–25 min',
+    vibe: 'hard',
   },
 ];
 
