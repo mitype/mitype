@@ -97,19 +97,18 @@ export default function Dashboard() {
         Swipe <strong>left</strong> on any page to go back to where you came from — works everywhere except this dashboard.
       </Coachmark>
 
-      {/* "What's new" coachmark — announces the live games. Drops in
-          on the user's next login and fades after 10s. Bump the v
-          suffix in the storageKey whenever there's a big new drop.
-          v2 announces the second wave: Hangman, Checkers, Battleship,
-          Chess, and Word Duel. */}
+      {/* "What's new" coachmark — drops in on the user's next login
+          and fades after 10s. Bump the v suffix in the storageKey
+          whenever there's a big new drop.
+          v3 announces groups + rooms + 3 more games. */}
       <Coachmark
-        storageKey="mitype-coachmark-games-v2"
-        title="🎮 5 new games in Messages"
+        storageKey="mitype-coachmark-games-v3"
+        title="👥 Groups, rooms & 3 more games"
         placement="top"
         delay={1200}
-        duration={10000}
+        duration={12000}
       >
-        Hangman, Checkers, Battleship, Chess, and Word Duel just joined the lobby — eleven live games in all. Open any chat and tap the gold 🎮 button next to the message input to play.
+        Group chats, public rooms (browse them on Discover!), and 3 new games — Pictionary, Word Association, and Name That Quote — just landed. Mitype is officially a multi-creator playground now.
       </Coachmark>
 
       <SiteNav userId={user?.id} />

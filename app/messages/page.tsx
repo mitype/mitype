@@ -11,6 +11,7 @@ import { SiteNav } from '../components/SiteNav';
 import { FeatureTutorial } from '../components/FeatureTutorial';
 import { CreateGroupModal } from '../components/CreateGroupModal';
 import { CreateRoomModal } from '../components/CreateRoomModal';
+import { ManageRoomModal } from '../components/ManageRoomModal';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { VoiceNotePlayer } from '../components/VoiceNotePlayer';
 import { PhotoLightbox } from '../components/PhotoLightbox';
@@ -366,6 +367,9 @@ export default function MessagesPage() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   // "New room" modal — opens from the same area, separate trigger.
   const [showCreateRoom, setShowCreateRoom] = useState(false);
+  // "Manage room/group" modal — opens by tapping the title in a group
+  // or room chat header.
+  const [showManageRoom, setShowManageRoom] = useState(false);
   const [selectedConvo, setSelectedConvo] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -1903,12 +1907,23 @@ export default function MessagesPage() {
                       where Block + Report live. Lets users escape an active
                       conversation safely without digging through settings. */}
                   {selectedConvo.kind === 'group' || selectedConvo.kind === 'room' ? (
-                    /* Group/room header — avatar stack + title + member count. */
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                    }}>
+                    /* Group/room header — avatar stack + title + member count.
+                       Tap anywhere to open the Manage modal. */
+                    <button
+                      type="button"
+                      onClick={() => setShowManageRoom(true)}
+                      aria-label="Manage room or group"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        background: 'transparent',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        textAlign: 'left',
+                      }}>
                       {(() => {
                         const members = getGroupMembers(selectedConvo).slice(0, 3);
                         const overflow = selectedConvo.participant_ids.length - members.length - 1;
@@ -1966,13 +1981,15 @@ export default function MessagesPage() {
                       <div>
                         <p style={{ fontWeight: 800, color: '#1a1208', fontSize: 15, letterSpacing: '-0.2px' }}>
                           {selectedConvo.title || 'Group chat'}
+                          <span aria-hidden="true" style={{ marginLeft: 6, color: '#c8956c', fontSize: 12 }}>⚙</span>
                         </p>
                         <p style={{ fontSize: 12, color: '#a89278' }}>
                           {selectedConvo.participant_ids.length} member{selectedConvo.participant_ids.length === 1 ? '' : 's'}
-                          {selectedConvo.kind === 'room' && ' · Room'}
+                          {selectedConvo.kind === 'room' && ' · Room · tap to manage'}
+                          {selectedConvo.kind === 'group' && ' · tap to manage'}
                         </p>
                       </div>
-                    </div>
+                    </button>
                   ) : (
                   /* DM header — single partner profile link (existing). */
                   <Link
@@ -2183,6 +2200,40 @@ export default function MessagesPage() {
                   </div>
                 )}
 
+                {/* Daily prompt banner — rooms only. Visible to every
+                    member; only mods can edit it via the Manage modal. */}
+                {selectedConvo.kind === 'room' && selectedConvo.daily_prompt && (
+                  <div style={{
+                    margin: '0 0 14px',
+                    padding: '12px 14px',
+                    background: 'linear-gradient(135deg, rgba(255,213,168,0.25), rgba(200,149,108,0.12))',
+                    border: '1px solid rgba(200,149,108,0.3)',
+                    borderRadius: 14,
+                    display: 'flex',
+                    gap: 10,
+                    alignItems: 'flex-start',
+                  }}>
+                    <span aria-hidden="true" style={{ fontSize: 18 }}>💡</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: 10, fontWeight: 800,
+                        color: '#a07a4d', textTransform: 'uppercase',
+                        letterSpacing: '1px', marginBottom: 2,
+                      }}>
+                        Today's prompt
+                      </div>
+                      <p style={{
+                        margin: 0,
+                        fontSize: 14,
+                        color: '#5b4a36',
+                        lineHeight: 1.4,
+                      }}>
+                        {selectedConvo.daily_prompt}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {messages.length === 0 && !showIcebreakers && (
                   <div style={{ textAlign: 'center', padding: '40px', color: '#a89278' }}>
                     <p style={{ fontSize: 14 }}>
@@ -2190,6 +2241,10 @@ export default function MessagesPage() {
                         ? 'Send your first message to start the conversation!'
                         : selectedConvo.status === 'pending'
                         ? 'This person wants to connect with you. Approve or decline above.'
+                        : selectedConvo.kind === 'room'
+                        ? 'No messages yet. Start the conversation in this room.'
+                        : selectedConvo.kind === 'group'
+                        ? "Group chat created. Drop the first message!"
                         : 'Say hello! 👋'}
                     </p>
                   </div>
@@ -2691,50 +2746,80 @@ export default function MessagesPage() {
               }
             }}
           />
+          {selectedConvo && (selectedConvo.kind === 'group' || selectedConvo.kind === 'room') && (
+            <ManageRoomModal
+              open={showManageRoom}
+              onClose={() => setShowManageRoom(false)}
+              convo={selectedConvo}
+              currentUserId={user.id}
+              onLeft={() => {
+                // Drop the current selection and reload conversations.
+                setSelectedConvo(null);
+                void loadConversations(user);
+              }}
+              onChanged={async () => {
+                // Refetch the convo row so prompt/title/member changes appear.
+                const fresh = await supabase
+                  .from('conversations')
+                  .select('*')
+                  .eq('id', selectedConvo.id)
+                  .maybeSingle();
+                if (fresh.data) {
+                  setSelectedConvo(fresh.data);
+                }
+                void loadConversations(user);
+              }}
+            />
+          )}
         </>
       )}
 
       {/* One-time tour of the new Messages additions.
-          v4 bump announces the second wave of games: Hangman, Checkers,
-          Battleship, Chess, and Word Duel. */}
+          v5 bump announces groups + rooms + 3 more games (Pictionary,
+          Word Association, Name That Quote). */}
       <FeatureTutorial
-        storageKey="mitype-messages-features-v4"
+        storageKey="mitype-messages-features-v5"
         eyebrow="New in Messages"
         slides={[
           {
+            icon: '👥',
+            title: 'Group chats are here',
+            body: 'Tap the bronze + Group pill at the top of your inbox to spin up a chat with up to 10 people. Pick any of your approved connections, name the group, and you\'re in.',
+          },
+          {
+            icon: '🏛️',
+            title: 'Rooms — themed creator hangouts',
+            body: 'Tap the purple + Room pill to create a public or invite-only room around a shared interest (LA filmmakers, home bakers, Etsy starters…). 21 categories to pick from. Up to 250 members per room.',
+          },
+          {
+            icon: '🔍',
+            title: 'Find rooms in Discover',
+            body: 'The new "Looking for a room to join?" tab on Discover lets you browse every public room by category. One tap to join — no creator approval needed.',
+          },
+          {
+            icon: '💡',
+            title: 'Daily prompts (rooms only)',
+            body: 'Room moderators can set a "today\'s prompt" that appears as a banner above the chat — a clean way to spark discussion without it getting buried.',
+          },
+          {
+            icon: '⚙',
+            title: 'Manage groups and rooms',
+            body: 'Tap a group or room title at the top of the chat to open the Manage panel: see members, set the daily prompt, kick someone (moderators), or leave the conversation.',
+          },
+          {
             icon: '🎮',
-            title: 'Five new games joined the lobby',
-            body: 'Tap the gold 🎮 button next to the message input. The lobby now has eleven live games — five fresh ones just landed: Hangman, Checkers, Battleship, Chess, and Word Duel.',
+            title: 'Three more games — 14 total',
+            body: 'Pictionary (live canvas drawing), Word Association (8-second turn chain), and Name That Quote (race-to-type lyrics, movie lines, TV quotes). Tap the gold 🎮 button to play any of them.',
           },
           {
-            icon: '🪢',
-            title: 'Hangman — together, not against',
-            body: 'Mitype picks a word from a category. You both share the keyboard and the wrong-guess counter — guess it together within 6 wrong tries. Best of 3 words. Stuck? Tap "Need a hint?" for a vague nudge.',
-          },
-          {
-            icon: '🟤',
-            title: 'Checkers with chained jumps',
-            body: 'Standard 8×8 checkers, best of 3 matches. Multi-jumps with the same piece chain automatically. Reach the far row for a king that moves all four diagonals.',
-          },
-          {
-            icon: '🚢',
-            title: 'Battleship — auto-place your fleet',
-            body: 'Skip the fiddly placement: tap "Roll fleet" to auto-place all 5 ships. Re-roll until you like the layout, then Lock in. Direct hit = you fire again. Sink all 17 enemy cells to win.',
-          },
-          {
-            icon: '♟️',
-            title: 'Real chess with the chess.js engine',
-            body: 'Full rules including castling, en passant, pawn promotion (auto-queens), check/checkmate detection, and every draw condition. The board orients to your color, with a live move log strip.',
+            icon: '🤔',
+            title: 'And all the games from before',
+            body: 'Would You Rather, This or That, Tic-Tac-Toe, Connect Four, Trivia Battle, Story Builder, Hangman, Checkers, Battleship, Chess, Word Duel — all still here. The lobby is now categorized so you can find them faster.',
           },
           {
             icon: '🔤',
             title: 'Word Duel — head-to-head Scrabble',
             body: '15×15 board with full premium squares (DL/TL/DW/TW), 100-tile bag, dictionary validation, and the 50-point bingo bonus when you place all 7 rack tiles in one turn. Blanks get a letter picker.',
-          },
-          {
-            icon: '🤔',
-            title: 'And the six original games',
-            body: 'Would You Rather, This or That, Tic-Tac-Toe, Connect Four, Trivia Battle, and Story Builder are all still in the lobby. Every game has its own How-to-Play card via the ⓘ button in-game.',
           },
           {
             icon: '✍️',
