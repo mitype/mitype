@@ -17,6 +17,7 @@ import { WaveStoryRing } from '../components/WaveStoryRing';
 import { BUSINESS_CATEGORIES } from '../lib/businessCategories';
 import { ROOM_CATEGORIES, roomCategoryEmoji, roomCategoryLabel } from '../lib/roomCategories';
 import { toast } from '../lib/toast';
+import { DiscoverSearch } from '../components/DiscoverSearch';
 import { FeatureTutorial } from '../components/FeatureTutorial';
 import { SiteNav } from '../components/SiteNav';
 
@@ -61,6 +62,10 @@ export default function DiscoverPage() {
   const [roomsLoaded, setRoomsLoaded] = useState(false);
   const [roomCategoryFilter, setRoomCategoryFilter] = useState<string>('');
   const [joiningRoomId, setJoiningRoomId] = useState<string | null>(null);
+  // True when DiscoverSearch has a non-empty query; the rest of the
+  // page hides while a search is active to avoid double-scrolling
+  // and visual overlap.
+  const [searchActive, setSearchActive] = useState(false);
   // Daily-rotating featured business (everyone sees the same one today).
   const [dailyBusinessSpotlight, setDailyBusinessSpotlight] = useState<any | null>(null);
   // The category that has actually been applied (separate from the
@@ -395,7 +400,14 @@ export default function DiscoverPage() {
         }
       `}</style>
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 24px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 48px' }}>
+
+        {/* Universal search — people / rooms / businesses. When the
+            user is searching, this component takes over the column
+            and we hide everything below it. */}
+        <DiscoverSearch onActiveChange={setSearchActive} />
+
+        {searchActive ? null : <>
 
         {/* Wave Feed entry point — jump straight to the scrolling video feed */}
         <Link
@@ -1689,32 +1701,29 @@ export default function DiscoverPage() {
             })}
           </div>
         )}
+
+        </>}
       </div>
 
       {/* One-time tour of the new Discover features. */}
       <FeatureTutorial
-        storageKey="mitype-discover-features-v1"
+        storageKey="mitype-discover-features-v2"
         eyebrow="New on Discover"
         slides={[
           {
-            icon: '🌊',
-            title: 'The Wave at the top',
-            body: 'A bronze "Fresh Wave" pill appears on any profile card whose creator has a Wave video in the last 24 hours. Tap it to jump straight into their personal feed.',
+            icon: '🔍',
+            title: 'Search anything',
+            body: 'A search bar sits at the top of Discover. Type a name or keyword to find people, public rooms, and small businesses. Switch between the result tabs to focus.',
+          },
+          {
+            icon: '🏛️',
+            title: 'Find rooms to join',
+            body: 'Tap the bronze "Looking for a room to join?" banner to browse public rooms by category. One tap to join — the chat opens straight away.',
           },
           {
             icon: '🏪',
-            title: 'Looking for a local small business?',
-            body: 'Tap the purple banner below the Wave Feed card to expand a list of every published business in your zip code. Filter by 60+ business categories (Salon, Plumber, Coffee Shop, Notary…).',
-          },
-          {
-            icon: '✨',
-            title: 'Daily Business Spotlight',
-            body: 'A different small business gets a hero card every single day — same one for every member, rotates at midnight. Free exposure for whoever owns it that day.',
-          },
-          {
-            icon: '☰',
-            title: 'Cleaner mobile nav',
-            body: 'On mobile, the top links collapsed into a hamburger menu. Tap the icon and you have one-tap access to Dashboard, The Wave Feed, Spotlight, Weekly, Messages, and Edit Profile.',
+            title: 'Local small businesses',
+            body: 'The purple banner expands to show businesses in your zip code, filterable by 60+ categories.',
           },
         ]}
       />
