@@ -30,6 +30,7 @@ import { Hangman } from './games/Hangman';
 import { Checkers } from './games/Checkers';
 import { Battleship } from './games/Battleship';
 import { Chess } from './games/Chess';
+import { WordDuel } from './games/WordDuel';
 
 export interface GameSession {
   id: string;
@@ -324,6 +325,12 @@ export function GameContainer({
           />
         ) : session.game_type === 'chess' ? (
           <Chess
+            session={session}
+            currentUserId={currentUserId}
+            updateState={updateState}
+          />
+        ) : session.game_type === 'wordduel' ? (
+          <WordDuel
             session={session}
             currentUserId={currentUserId}
             updateState={updateState}

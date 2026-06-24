@@ -15,7 +15,8 @@ export type GameKey =
   | 'hangman'
   | 'checkers'
   | 'battleship'
-  | 'chess';
+  | 'chess'
+  | 'wordduel';
 
 export interface GameCatalogEntry {
   key: GameKey;
@@ -194,6 +195,24 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
       'A move history strip shows the last few moves in standard notation. Hit End Game at any time to bail out.',
     ],
     duration: '10–25 min',
+    vibe: 'hard',
+  },
+  {
+    key: 'wordduel',
+    name: 'Word Duel',
+    emoji: '🔤',
+    tagline: 'Scrabble, head-to-head. 15×15 board, real scoring.',
+    howToPlay: [
+      'Both players draw 7 tiles from a 100-tile bag. Inviter plays first.',
+      'Tap a tile in your rack, then tap an empty board square to place it. Tap a placed tile again to send it back to your rack.',
+      'All your placed tiles each turn must form a single straight line (row or column) with no gaps. Your word must connect to letters already on the board — except the opening word, which has to cover the center star.',
+      'When you submit, every word formed (the main line plus any cross-words) is checked against the dictionary and scored, including premium squares: DL/TL double or triple the letter, DW/TW double or triple the whole word.',
+      'Use all 7 tiles in one turn for a +50 bingo bonus.',
+      'Blank tiles are worth 0 points but you pick which letter they represent when you place them.',
+      'You can Pass to skip your turn, or Swap to trade some tiles back into the bag (also uses your turn). Two passes in a row by both players ends the game.',
+      'Game ends when the bag is empty AND one player\'s rack is empty. Highest score wins.',
+    ],
+    duration: '15–35 min',
     vibe: 'hard',
   },
 ];

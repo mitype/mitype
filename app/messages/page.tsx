@@ -2370,20 +2370,46 @@ export default function MessagesPage() {
       )}
 
       {/* One-time tour of the new Messages additions.
-          v3 bump announces the live games + Story Builder exports. */}
+          v4 bump announces the second wave of games: Hangman, Checkers,
+          Battleship, Chess, and Word Duel. */}
       <FeatureTutorial
-        storageKey="mitype-messages-features-v3"
+        storageKey="mitype-messages-features-v4"
         eyebrow="New in Messages"
         slides={[
           {
             icon: '🎮',
-            title: 'Live games are here',
-            body: 'Tap the new gold 🎮 button next to the message input to open the Game Lobby. Invite the other person to a real-time game right inside the chat — your invite shows up on their screen instantly.',
+            title: 'Five new games joined the lobby',
+            body: 'Tap the gold 🎮 button next to the message input. The lobby now has eleven live games — five fresh ones just landed: Hangman, Checkers, Battleship, Chess, and Word Duel.',
+          },
+          {
+            icon: '🪢',
+            title: 'Hangman — together, not against',
+            body: 'Mitype picks a word from a category. You both share the keyboard and the wrong-guess counter — guess it together within 6 wrong tries. Best of 3 words. Stuck? Tap "Need a hint?" for a vague nudge.',
+          },
+          {
+            icon: '🟤',
+            title: 'Checkers with chained jumps',
+            body: 'Standard 8×8 checkers, best of 3 matches. Multi-jumps with the same piece chain automatically. Reach the far row for a king that moves all four diagonals.',
+          },
+          {
+            icon: '🚢',
+            title: 'Battleship — auto-place your fleet',
+            body: 'Skip the fiddly placement: tap "Roll fleet" to auto-place all 5 ships. Re-roll until you like the layout, then Lock in. Direct hit = you fire again. Sink all 17 enemy cells to win.',
+          },
+          {
+            icon: '♟️',
+            title: 'Real chess with the chess.js engine',
+            body: 'Full rules including castling, en passant, pawn promotion (auto-queens), check/checkmate detection, and every draw condition. The board orients to your color, with a live move log strip.',
+          },
+          {
+            icon: '🔤',
+            title: 'Word Duel — head-to-head Scrabble',
+            body: '15×15 board with full premium squares (DL/TL/DW/TW), 100-tile bag, dictionary validation, and the 50-point bingo bonus when you place all 7 rack tiles in one turn. Blanks get a letter picker.',
           },
           {
             icon: '🤔',
-            title: 'Six live games to choose from',
-            body: 'Would You Rather, This or That, Tic-Tac-Toe, Connect Four, Trivia Battle (345 questions across 12 categories), and Story Builder. Each has its own How-to-Play card via the ⓘ button in-game.',
+            title: 'And the six original games',
+            body: 'Would You Rather, This or That, Tic-Tac-Toe, Connect Four, Trivia Battle, and Story Builder are all still in the lobby. Every game has its own How-to-Play card via the ⓘ button in-game.',
           },
           {
             icon: '✍️',

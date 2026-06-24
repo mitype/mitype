@@ -99,15 +99,17 @@ export default function Dashboard() {
 
       {/* "What's new" coachmark — announces the live games. Drops in
           on the user's next login and fades after 10s. Bump the v
-          suffix in the storageKey whenever there's a big new drop. */}
+          suffix in the storageKey whenever there's a big new drop.
+          v2 announces the second wave: Hangman, Checkers, Battleship,
+          Chess, and Word Duel. */}
       <Coachmark
-        storageKey="mitype-coachmark-games-v1"
-        title="🎮 New: Live Games"
+        storageKey="mitype-coachmark-games-v2"
+        title="🎮 5 new games in Messages"
         placement="top"
         delay={1200}
         duration={10000}
       >
-        Six live multiplayer games are now in Messages — Trivia, Story Builder, Connect Four, and more. Open a chat and tap the gold 🎮 button next to the message input to play.
+        Hangman, Checkers, Battleship, Chess, and Word Duel just joined the lobby — eleven live games in all. Open any chat and tap the gold 🎮 button next to the message input to play.
       </Coachmark>
 
       <SiteNav userId={user?.id} />
