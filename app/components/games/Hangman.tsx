@@ -28,7 +28,7 @@
 // At the end of the series we show "You won 2 of 3 rounds." If both
 // players are tied we celebrate it as a team — "You crushed it together."
 
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import type { GameSession } from '../GameContainer';
 import { pickHangmanWords, type HangmanEntry } from '../../lib/hangmanWords';
 
@@ -135,11 +135,14 @@ export function Hangman({ session, currentUserId, updateState }: Props) {
     state.round >= state.totalRounds &&
     !!state.roundResult;
 
-  const wordDisplay = useMemo(() => {
-    return state.entry.word
-      .split('')
-      .map((ch) => (state.guessedLetters.includes(ch) ? ch : '_'));
-  }, [state.entry.word, state.guessedLetters]);
+  // Inlined (not memoized) on purpose — useMemo *after* the early
+  // return above would mean the hook count differs between the loading
+  // render and the loaded render, which violates the Rules of Hooks
+  // and crashes the route. The work is trivial — a couple dozen
+  // string-ops per render is fine.
+  const wordDisplay = state.entry.word
+    .split('')
+    .map((ch) => (state.guessedLetters.includes(ch) ? ch : '_'));
 
   async function guessLetter(letter: string) {
     if (state.roundResult) return;
