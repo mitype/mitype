@@ -8,6 +8,7 @@ import { DailySparkCard } from '../components/DailySparkCard';
 import { WeeklyPromptCard } from '../components/WeeklyPromptCard';
 import { Coachmark } from '../components/Coachmark';
 import { ProfileCompleteness } from '../components/ProfileCompleteness';
+import { ProfileStatsCard } from '../components/ProfileStatsCard';
 import { ShareMitypeButton } from '../components/ShareMitypeButton';
 import { InviteSharePanel } from '../components/InviteSharePanel';
 import { UnreadBadge } from '../components/UnreadBadge';
@@ -215,6 +216,9 @@ export default function Dashboard() {
 
         {/* Profile completeness — nudge users to fill in the gaps */}
         <ProfileCompleteness profile={profile} />
+
+        {/* Quick stats — your week at a glance */}
+        <ProfileStatsCard userId={user?.id} />
 
         {/* Share-with-friends invite — opens the multi-platform share panel. */}
         <button

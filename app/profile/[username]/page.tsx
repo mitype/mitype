@@ -117,6 +117,33 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         if (!profileData) { router.push('/discover'); return; }
         setProfile(profileData as PublicProfile);
 
+        // Track the view. We dedupe at the daily granularity by only
+        // inserting if there's no row from the same viewer→viewed pair
+        // in the last 24h. Self-views are skipped. Failure is silent
+        // so a broken insert never blocks the page load.
+        try {
+          const { data: meRes } = await supabase.auth.getUser();
+          const meId = meRes?.user?.id;
+          if (meId && meId !== profileData.user_id) {
+            const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            const { data: existing } = await supabase
+              .from('profile_views')
+              .select('id')
+              .eq('viewer_id', meId)
+              .eq('viewed_id', profileData.user_id)
+              .gte('viewed_at', dayAgo)
+              .limit(1)
+              .maybeSingle();
+            if (!existing) {
+              await supabase
+                .from('profile_views')
+                .insert({ viewer_id: meId, viewed_id: profileData.user_id });
+            }
+          }
+        } catch {
+          // Silent — non-critical telemetry.
+        }
+
         // Pull this user's business recommendations (purple section).
         // Join the businesses + their owner username for the deep link.
         try {
