@@ -5,7 +5,14 @@
 // Adding a new game = add a row here + add a renderer in
 // components/games/<NewGame>.tsx + register it in GameContainer.tsx.
 
-export type GameKey = 'wyr' | 'tot' | 'ttt' | 'c4' | 'trivia' | 'story';
+export type GameKey =
+  | 'wyr'
+  | 'tot'
+  | 'ttt'
+  | 'c4'
+  | 'trivia'
+  | 'story'
+  | 'hangman';
 
 export interface GameCatalogEntry {
   key: GameKey;
@@ -117,6 +124,22 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
       'Hit End Game at any time to cut the story short.',
     ],
     duration: '5–10 min',
+    vibe: 'easy',
+  },
+  {
+    key: 'hangman',
+    name: 'Hangman',
+    emoji: '🪢',
+    tagline: 'Crack the word together — 3 rounds, 6 wrong guesses each.',
+    howToPlay: [
+      'Mitype picks a word from a category — you both see the blanks at the same time.',
+      'Either of you can tap a letter to guess. Both players share the same guesses and the same wrong-count.',
+      'Wrong letters fill in the gallows. Six wrong guesses and the round is lost.',
+      'Stuck? Tap "Need a hint?" to reveal a vague nudge — using it doesn\'t cost anything.',
+      'Best of 3 rounds. Whoever closes out the most words (by guessing the final letter) wins the series.',
+      'Hit End Game at any time to bail out.',
+    ],
+    duration: '4–7 min',
     vibe: 'easy',
   },
 ];
