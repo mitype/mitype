@@ -16,7 +16,8 @@ export type GameKey =
   | 'checkers'
   | 'battleship'
   | 'chess'
-  | 'wordduel';
+  | 'wordduel'
+  | 'pictionary';
 
 // Lobby grouping. We bucket every game into one of four sections so
 // the lobby stays scannable as the catalog grows. Order matters here —
@@ -241,6 +242,23 @@ export const GAME_CATALOG: GameCatalogEntry[] = [
     duration: '15–35 min',
     vibe: 'hard',
     category: 'word',
+  },
+  {
+    key: 'pictionary',
+    name: 'Pictionary',
+    emoji: '🎨',
+    tagline: 'One draws, one guesses. Live canvas, 4 rounds.',
+    howToPlay: [
+      'Each round, one player draws and the other guesses. You swap roles every round, so each player draws twice across the 4 rounds.',
+      'The drawer picks one of three candidate words at the start of their turn — easy, medium, or hard, each worth more points.',
+      'You have 90 seconds per round. The drawer draws on the live canvas; the guesser watches in real time and types guesses.',
+      'Correct guess: the round ends immediately. Guesser earns 3/5/8 points (by difficulty) and the drawer earns 2/3/4 points for making it legible.',
+      'Time out: nobody scores. The word is revealed before the next round.',
+      'After 4 rounds, highest score wins. Hit End Game to bail out any time.',
+    ],
+    duration: '8–14 min',
+    vibe: 'medium',
+    category: 'creative',
   },
 ];
 
