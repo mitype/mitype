@@ -9,6 +9,7 @@ import { MessagesSkeleton } from '../components/Skeleton';
 import { BackButton } from '../components/BackButton';
 import { SiteNav } from '../components/SiteNav';
 import { FeatureTutorial } from '../components/FeatureTutorial';
+import { CreateGroupModal } from '../components/CreateGroupModal';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { VoiceNotePlayer } from '../components/VoiceNotePlayer';
 import { PhotoLightbox } from '../components/PhotoLightbox';
@@ -360,6 +361,8 @@ export default function MessagesPage() {
   // without an extra round-trip.
   const [businessSaves, setBusinessSaves] = useState<any[]>([]);
   const [showBusinessSaves, setShowBusinessSaves] = useState(false);
+  // "New group" modal — opens from the "+" button in the sidebar header.
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [selectedConvo, setSelectedConvo] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -1161,6 +1164,48 @@ export default function MessagesPage() {
     return profiles[otherId];
   }
 
+  // For groups + rooms — return all participant profiles other than the
+  // current user, in stable order. Missing profiles are dropped (they'll
+  // appear once `loadConversations` resolves them).
+  function getGroupMembers(convo: any) {
+    return (convo.participant_ids as string[])
+      .filter((id) => id !== user?.id)
+      .map((id) => profiles[id])
+      .filter(Boolean);
+  }
+
+  // The display name + subtitle shown in the sidebar row and chat header.
+  // Groups/rooms use the stored title; DMs fall back to the partner's
+  // @handle so we don't change behavior for existing conversations.
+  function getConvoDisplay(convo: any): {
+    title: string;
+    subtitle: string | null;
+    isGroup: boolean;
+    other?: any;
+  } {
+    if (convo.kind === 'group') {
+      return {
+        title: convo.title || 'Group chat',
+        subtitle: `${convo.participant_ids.length} member${convo.participant_ids.length === 1 ? '' : 's'}`,
+        isGroup: true,
+      };
+    }
+    if (convo.kind === 'room') {
+      return {
+        title: convo.title || 'Room',
+        subtitle: `${convo.participant_ids.length} member${convo.participant_ids.length === 1 ? '' : 's'}`,
+        isGroup: true,
+      };
+    }
+    const other = getOtherUser(convo);
+    return {
+      title: other?.username ? `@${other.username}` : 'Conversation',
+      subtitle: null,
+      isGroup: false,
+      other,
+    };
+  }
+
   function timeAgo(dateString: string) {
     const date = new Date(dateString);
     const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -1229,15 +1274,47 @@ export default function MessagesPage() {
             overflowY: 'auto',
           }}
         >
-          <div style={{ padding: '20px 20px 12px' }}>
+          <div style={{
+            padding: '20px 20px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 10,
+          }}>
             <h1 style={{
               fontSize: 22,
               fontWeight: 800,
               color: '#1a1208',
               letterSpacing: '-0.5px',
+              margin: 0,
             }}>
               Messages
             </h1>
+            <button
+              type="button"
+              onClick={() => setShowCreateGroup(true)}
+              aria-label="New group chat"
+              title="New group chat"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 12px',
+                background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                border: 'none',
+                borderRadius: 100,
+                color: 'white',
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                boxShadow: '0 4px 12px rgba(200,149,108,0.35)',
+                letterSpacing: '0.3px',
+              }}
+            >
+              <span aria-hidden="true" style={{ fontSize: 14, lineHeight: 1 }}>+</span>
+              Group
+            </button>
           </div>
 
           {/* Small Business Saves — purple to differentiate from
@@ -1490,7 +1567,8 @@ export default function MessagesPage() {
                 Conversations ({approvedActive.length})
               </p>
               {approvedActive.map((convo) => {
-                const other = getOtherUser(convo);
+                const display = getConvoDisplay(convo);
+                const other = display.other;
                 return (
                   <div
                     key={convo.id}
@@ -1511,30 +1589,78 @@ export default function MessagesPage() {
                       boxSizing: 'border-box',
                     }}
                   >
-                    <div style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
-                      background: '#f0e8df',
-                      overflow: 'hidden',
-                      flexShrink: 0,
-                    }}>
-                      <Avatar
-                        src={other?.avatar_url}
-                        alt={other?.username ? `@${other.username}` : 'User'}
-                        width={40}
-                        height={40}
-                        fallbackFontSize={18}
-                        sizes="40px"
-                      />
-                    </div>
+                    {display.isGroup ? (
+                      /* Group/room — show a small avatar stack instead of a single avatar. */
+                      (() => {
+                        const members = getGroupMembers(convo).slice(0, 3);
+                        const stackWidth = 40 + Math.max(0, members.length - 1) * 14;
+                        return (
+                          <div style={{
+                            position: 'relative',
+                            width: stackWidth,
+                            height: 40,
+                            flexShrink: 0,
+                          }}>
+                            {members.map((m, idx) => (
+                              <div
+                                key={m.user_id}
+                                style={{
+                                  position: 'absolute',
+                                  left: idx * 14,
+                                  width: 28,
+                                  height: 28,
+                                  borderRadius: '50%',
+                                  background: '#f0e8df',
+                                  border: '2px solid white',
+                                  overflow: 'hidden',
+                                  top: 6,
+                                  zIndex: members.length - idx,
+                                }}
+                              >
+                                <Avatar
+                                  src={m.avatar_url}
+                                  alt={`@${m.username}`}
+                                  width={28}
+                                  height={28}
+                                  fallbackFontSize={12}
+                                  sizes="28px"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <div style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        background: '#f0e8df',
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                      }}>
+                        <Avatar
+                          src={other?.avatar_url}
+                          alt={other?.username ? `@${other.username}` : 'User'}
+                          width={40}
+                          height={40}
+                          fallbackFontSize={18}
+                          sizes="40px"
+                        />
+                      </div>
+                    )}
                     <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
-                          @{other?.username ?? 'Unknown'}
+                        <p style={{
+                          fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2,
+                          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                        }}>
+                          {display.title}
                         </p>
                         <p style={{ fontSize: 12, color: '#a89278' }}>
-                          {timeAgo(convo.updated_at)}
+                          {display.isGroup
+                            ? `${display.subtitle} · ${timeAgo(convo.updated_at)}`
+                            : timeAgo(convo.updated_at)}
                         </p>
                       </div>
                       <UnreadBadge count={unread.perConvo[convo.id] ?? 0} />
@@ -1738,6 +1864,79 @@ export default function MessagesPage() {
                   {/* Tapping the avatar/username opens their profile, which is
                       where Block + Report live. Lets users escape an active
                       conversation safely without digging through settings. */}
+                  {selectedConvo.kind === 'group' || selectedConvo.kind === 'room' ? (
+                    /* Group/room header — avatar stack + title + member count. */
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                    }}>
+                      {(() => {
+                        const members = getGroupMembers(selectedConvo).slice(0, 3);
+                        const overflow = selectedConvo.participant_ids.length - members.length - 1;
+                        return (
+                          <div style={{
+                            display: 'flex',
+                            position: 'relative',
+                            flexShrink: 0,
+                            width: 40 + (members.length - 1) * 18,
+                            height: 40,
+                          }}>
+                            {members.map((m, idx) => (
+                              <div
+                                key={m.user_id}
+                                style={{
+                                  position: 'absolute',
+                                  left: idx * 18,
+                                  width: 32,
+                                  height: 32,
+                                  borderRadius: '50%',
+                                  background: '#f0e8df',
+                                  border: '2px solid white',
+                                  overflow: 'hidden',
+                                  zIndex: members.length - idx,
+                                }}
+                              >
+                                <Avatar
+                                  src={m.avatar_url}
+                                  alt={`@${m.username}`}
+                                  width={32}
+                                  height={32}
+                                  fallbackFontSize={14}
+                                  sizes="32px"
+                                />
+                              </div>
+                            ))}
+                            {overflow > 0 && (
+                              <div style={{
+                                position: 'absolute',
+                                left: members.length * 18,
+                                width: 32, height: 32,
+                                borderRadius: '50%',
+                                background: '#c8956c',
+                                color: 'white',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: 11, fontWeight: 900,
+                                border: '2px solid white',
+                              }}>
+                                +{overflow}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                      <div>
+                        <p style={{ fontWeight: 800, color: '#1a1208', fontSize: 15, letterSpacing: '-0.2px' }}>
+                          {selectedConvo.title || 'Group chat'}
+                        </p>
+                        <p style={{ fontSize: 12, color: '#a89278' }}>
+                          {selectedConvo.participant_ids.length} member{selectedConvo.participant_ids.length === 1 ? '' : 's'}
+                          {selectedConvo.kind === 'room' && ' · Room'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                  /* DM header — single partner profile link (existing). */
                   <Link
                     href={
                       getOtherUser(selectedConvo)?.username
@@ -1783,6 +1982,7 @@ export default function MessagesPage() {
                       </p>
                     </div>
                   </Link>
+                  )}
                 </div>
 
                 {/* Match card button — only after the match is approved. */}
@@ -1964,6 +2164,18 @@ export default function MessagesPage() {
                   if (isHiddenForMe(msg)) return null;
                   const isMine = msg.sender_id === user?.id;
                   const isGame = !msg.deleted_for_everyone && isGameMessage(msg.content);
+                  // In group/room chats, show the sender's @handle above
+                  // each INCOMING bubble so people know who's talking. We
+                  // also collapse adjacent messages from the same sender
+                  // (the label only shows on the FIRST message of a run).
+                  const isGroupChat = selectedConvo?.kind === 'group' || selectedConvo?.kind === 'room';
+                  const prev = idx > 0 ? arr[idx - 1] : null;
+                  const showSenderLabel =
+                    isGroupChat &&
+                    !isMine &&
+                    !msg.deleted_for_everyone &&
+                    (!prev || prev.sender_id !== msg.sender_id);
+                  const senderProfile = showSenderLabel ? profiles[msg.sender_id] : null;
                   // Walk back from the end, but only on the iteration where
                   // it could matter (the current msg is mine).
                   let isMyLast = false;
@@ -1987,9 +2199,21 @@ export default function MessagesPage() {
                       key={msg.id}
                       style={{
                         display: 'flex',
-                        justifyContent: isMine ? 'flex-end' : 'flex-start',
+                        flexDirection: 'column',
+                        alignItems: isMine ? 'flex-end' : 'flex-start',
                       }}
                     >
+                      {showSenderLabel && (
+                        <p style={{
+                          margin: '0 6px 3px',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: '#8a7560',
+                          letterSpacing: '0.2px',
+                        }}>
+                          @{senderProfile?.username ?? 'unknown'}
+                        </p>
+                      )}
                       {isGame ? (
                         <div style={{ maxWidth: '85%' }}>
                           <GameCard
@@ -2389,6 +2613,29 @@ export default function MessagesPage() {
             void startNewGame(key);
           }}
           onExit={() => setActiveGame(null)}
+        />
+      )}
+
+      {/* Group chat creation modal. Opens from the "+ Group" pill in the
+          sidebar header. On success it reloads conversations and jumps
+          straight into the new group thread. */}
+      {user && (
+        <CreateGroupModal
+          open={showCreateGroup}
+          onClose={() => setShowCreateGroup(false)}
+          currentUserId={user.id}
+          onCreated={async (newConvoId) => {
+            // Reload sidebar so the new group appears, then auto-open it.
+            await loadConversations(user);
+            const fresh = await supabase
+              .from('conversations')
+              .select('*')
+              .eq('id', newConvoId)
+              .maybeSingle();
+            if (fresh.data) {
+              await selectConvo(fresh.data);
+            }
+          }}
         />
       )}
 
