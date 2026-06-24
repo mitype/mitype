@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { OddcastPill } from './components/OddcastPill';
 import { ScrollIndicator } from './components/ScrollIndicator';
 import { RefBadge } from './components/RefBadge';
+import { SmallBusinessCta } from './components/SmallBusinessCta';
 
 export default function HomePage() {
   return (
@@ -72,7 +73,9 @@ export default function HomePage() {
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        padding: '140px 24px 80px',
+        // Bumped bottom padding so the small-business CTA + scroll
+        // pill never visually collide on tighter viewports.
+        padding: '140px 24px 130px',
         position: 'relative',
         background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
       }}>
@@ -170,6 +173,14 @@ export default function HomePage() {
             ))}
           </div>
           <span>Thousands of creatives already collaborating</span>
+        </div>
+
+        {/* Small-business CTA — opens an info modal explaining how
+            Mitype helps shop owners, side-hustlers, and online sellers.
+            Sits below the social proof so it's the last thing visitors
+            see in the hero before the scroll hint. */}
+        <div style={{ marginTop: 28 }}>
+          <SmallBusinessCta />
         </div>
 
         {/* Scroll-down hint — bounces gently, fades out on first scroll */}
