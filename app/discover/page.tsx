@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { calculateCompatibility, getCompatibilityColor, getSharedCategories } from '../lib/utils';
+import { rankCandidates } from '../lib/discoverRanking';
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
 import { DiscoverSkeleton } from '../components/Skeleton';
@@ -166,11 +167,41 @@ export default function DiscoverPage() {
         (p: any) => !swiped.includes(p.user_id)
       );
 
-      // Sort by compatibility score highest first
-      const sorted = filtered.sort((a: any, b: any) => {
-        const scoreA = calculateCompatibility(myProfile?.categories ?? [], a.categories ?? []);
-        const scoreB = calculateCompatibility(myProfile?.categories ?? [], b.categories ?? []);
-        return scoreB - scoreA;
+      // Fetch the fresh-wave signal FIRST so we can fold it into the
+      // ranking. Without this the initial sort would miss it and the
+      // feed would briefly reshuffle once the rings rendered.
+      let freshIds = new Set<string>();
+      try {
+        const sinceTs = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { data: freshWaves } = await supabase
+          .from('wave_videos')
+          .select('user_id')
+          .eq('is_removed', false)
+          .gte('created_at', sinceTs);
+        if (freshWaves) {
+          freshIds = new Set<string>(freshWaves.map((w: any) => w.user_id));
+        }
+      } catch {
+        // Non-fatal — rings + ranking will skip the signal.
+      }
+      setFreshWaveCreators(freshIds);
+
+      // Compute viewer's effective city/state for the ranker (same
+      // travel-mode rule we use for the filter chips).
+      const tEnd2 = myProfile?.travel_ends_at
+        ? new Date(myProfile.travel_ends_at).getTime()
+        : 0;
+      const travelLive2 = tEnd2 > Date.now();
+      const effectiveCity = (travelLive2 ? myProfile?.travel_city : myProfile?.city) ?? '';
+      const effectiveState = (travelLive2 ? myProfile?.travel_state : myProfile?.state) ?? '';
+
+      const sorted = rankCandidates(filtered, {
+        categories: myProfile?.categories ?? [],
+        effectiveCity,
+        effectiveState,
+      }, {
+        freshWaveCreators: freshIds,
+        now: Date.now(),
       });
 
       setProfiles(sorted);
@@ -216,23 +247,8 @@ export default function DiscoverPage() {
         console.warn('[discover] business load failed:', e);
       }
 
-      // Fresh-wave story-ring: figure out which of these creators has
-      // posted a Wave video in the last 24h. One round-trip — only the
-      // user_id column, no joins.
-      try {
-        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        const { data: freshWaves } = await supabase
-          .from('wave_videos')
-          .select('user_id')
-          .eq('is_removed', false)
-          .gte('created_at', since);
-        if (freshWaves) {
-          const ids = new Set<string>(freshWaves.map((w: any) => w.user_id));
-          setFreshWaveCreators(ids);
-        }
-      } catch {
-        // Non-fatal — rings just won't appear this session.
-      }
+      // Fresh-wave + ranking already computed above — see the
+      // rankCandidates() call earlier in this effect.
 
       setLoading(false);
     };
