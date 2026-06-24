@@ -132,6 +132,15 @@ export default function EditProfilePage() {
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [zipCode, setZipCode] = useState('');
+  // Location fields. City + state are display-friendly + filter-friendly
+  // companions to the canonical zip_code. Travel mode is an optional
+  // temporary override (with end date) for creators visiting another
+  // area for a shoot, festival, conference, etc.
+  const [city, setCity] = useState('');
+  const [stateField, setStateField] = useState('');
+  const [travelCity, setTravelCity] = useState('');
+  const [travelState, setTravelState] = useState('');
+  const [travelEndsAt, setTravelEndsAt] = useState(''); // YYYY-MM-DD
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [creativeStatus, setCreativeStatus] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
@@ -164,6 +173,15 @@ export default function EditProfilePage() {
         setUsername(profile.username || '');
         setBio(profile.bio || '');
         setZipCode(profile.zip_code || '');
+        setCity(profile.city || '');
+        setStateField(profile.state || '');
+        setTravelCity(profile.travel_city || '');
+        setTravelState(profile.travel_state || '');
+        setTravelEndsAt(
+          profile.travel_ends_at
+            ? new Date(profile.travel_ends_at).toISOString().slice(0, 10)
+            : ''
+        );
         setWebsiteUrl(profile.website_url || '');
         setCreativeStatus(profile.creative_status || '');
         setDateOfBirth(profile.date_of_birth || '');
@@ -248,6 +266,16 @@ export default function EditProfilePage() {
       bio: bio.trim(),
       categories: selectedCategories,
       zip_code: zipCode.trim(),
+      city: city.trim() || null,
+      state: stateField.trim() || null,
+      travel_city: travelCity.trim() || null,
+      travel_state: travelState.trim() || null,
+      // Travel mode is only persisted if there's both a destination
+      // AND an end date. Anything else clears it.
+      travel_ends_at:
+        travelEndsAt && (travelCity.trim() || travelState.trim())
+          ? new Date(travelEndsAt + 'T23:59:59').toISOString()
+          : null,
       website_url: websiteUrl.trim(),
       creative_status: creativeStatus.trim(),
       date_of_birth: dateOfBirth || null,
@@ -665,6 +693,97 @@ export default function EditProfilePage() {
                 boxSizing: 'border-box',
               }}
             />
+          </div>
+
+          {/* City + State */}
+          <div style={{ marginBottom: 24, display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+            <div>
+              <label style={fieldLabel}>City</label>
+              <input
+                type="text"
+                placeholder="Los Angeles"
+                value={city}
+                onChange={(e) => setCity(e.target.value.slice(0, 60))}
+                style={fieldInput}
+              />
+            </div>
+            <div>
+              <label style={fieldLabel}>State</label>
+              <input
+                type="text"
+                placeholder="CA"
+                value={stateField}
+                onChange={(e) => setStateField(e.target.value.slice(0, 40))}
+                style={fieldInput}
+              />
+            </div>
+          </div>
+
+          {/* Travel mode */}
+          <div style={{
+            marginBottom: 24,
+            padding: 16,
+            background: 'rgba(255,213,168,0.12)',
+            border: '1px solid rgba(200,149,108,0.25)',
+            borderRadius: 16,
+          }}>
+            <div style={{ ...fieldLabel, marginBottom: 4 }}>
+              Travel mode <span style={{ color: '#a89278', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
+            </div>
+            <p style={{ fontSize: 12, color: '#7a6a4f', margin: '0 0 12px', lineHeight: 1.4 }}>
+              Heading somewhere for a shoot, festival, or visit? Set where and when so creators there can find you.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10, marginBottom: 10 }}>
+              <div>
+                <label style={subLabel}>Destination city</label>
+                <input
+                  type="text"
+                  placeholder="New York"
+                  value={travelCity}
+                  onChange={(e) => setTravelCity(e.target.value.slice(0, 60))}
+                  style={fieldInput}
+                />
+              </div>
+              <div>
+                <label style={subLabel}>State</label>
+                <input
+                  type="text"
+                  placeholder="NY"
+                  value={travelState}
+                  onChange={(e) => setTravelState(e.target.value.slice(0, 40))}
+                  style={fieldInput}
+                />
+              </div>
+            </div>
+            <div>
+              <label style={subLabel}>Travel ends</label>
+              <input
+                type="date"
+                value={travelEndsAt}
+                onChange={(e) => setTravelEndsAt(e.target.value)}
+                style={fieldInput}
+              />
+            </div>
+            {(travelCity || travelState || travelEndsAt) && (
+              <button
+                type="button"
+                onClick={() => { setTravelCity(''); setTravelState(''); setTravelEndsAt(''); }}
+                style={{
+                  marginTop: 10,
+                  padding: '6px 12px',
+                  background: 'transparent',
+                  border: '1px solid rgba(200,149,108,0.35)',
+                  borderRadius: 100,
+                  color: '#8a7560',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Clear travel mode
+              </button>
+            )}
           </div>
 
           {/* Website */}
@@ -1118,3 +1237,34 @@ export default function EditProfilePage() {
     </main>
   );
 }
+
+const fieldLabel: React.CSSProperties = {
+  display: 'block',
+  fontSize: 13,
+  fontWeight: 700,
+  color: '#6b5744',
+  marginBottom: 8,
+  textTransform: 'uppercase',
+  letterSpacing: '0.5px',
+};
+const subLabel: React.CSSProperties = {
+  display: 'block',
+  fontSize: 11,
+  fontWeight: 700,
+  color: '#7a6a4f',
+  marginBottom: 4,
+  textTransform: 'uppercase',
+  letterSpacing: '0.4px',
+};
+const fieldInput: React.CSSProperties = {
+  width: '100%',
+  padding: '11px 14px',
+  borderRadius: 12,
+  border: '1px solid rgba(200,149,108,0.25)',
+  background: 'white',
+  fontSize: 15,
+  color: '#1a1208',
+  outline: 'none',
+  boxSizing: 'border-box',
+  fontFamily: 'inherit',
+};

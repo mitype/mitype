@@ -44,6 +44,11 @@ type PublicProfile = {
   avatar_url?: string | null;
   categories?: string[] | null;
   zip_code?: string | null;
+  city?: string | null;
+  state?: string | null;
+  travel_city?: string | null;
+  travel_state?: string | null;
+  travel_ends_at?: string | null;
   bio?: string | null;
   website_url?: string | null;
   portfolio_links?: PortfolioLink[] | null;
@@ -740,9 +745,30 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               </div>
             )}
 
-            {profile.zip_code && (
-              <p style={{ color: '#a89278', fontSize: 14, marginBottom: 16 }}>📍 {profile.zip_code}</p>
-            )}
+            {/* Location line. We prefer City, State when set; fall back
+                to the ZIP for older profiles. If travel mode is live we
+                surface where they're visiting and through when. */}
+            {(() => {
+              const hasCityState = !!(profile.city || profile.state);
+              const home = hasCityState
+                ? [profile.city, profile.state].filter(Boolean).join(', ')
+                : profile.zip_code ?? null;
+              const travelLive = profile.travel_ends_at
+                && new Date(profile.travel_ends_at).getTime() > Date.now()
+                && (profile.travel_city || profile.travel_state);
+              if (!home && !travelLive) return null;
+              return (
+                <div style={{ marginBottom: 16, color: '#a89278', fontSize: 14, lineHeight: 1.5 }}>
+                  {home && <p style={{ margin: 0 }}>📍 {home}</p>}
+                  {travelLive && (
+                    <p style={{ margin: '2px 0 0', color: '#c8956c', fontWeight: 700 }}>
+                      ✈️ In {[profile.travel_city, profile.travel_state].filter(Boolean).join(', ')} through {' '}
+                      {new Date(profile.travel_ends_at!).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
 
             {profile.bio && (
               <p style={{

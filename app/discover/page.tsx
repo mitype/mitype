@@ -66,6 +66,13 @@ export default function DiscoverPage() {
   // page hides while a search is active to avoid double-scrolling
   // and visual overlap.
   const [searchActive, setSearchActive] = useState(false);
+  // Location filter. 'anywhere' (default) shows all creators; 'state'
+  // narrows to the viewer's effective state; 'city' to their effective
+  // city. Effective = travel city/state if travel mode is live, else
+  // home city/state.
+  const [locationScope, setLocationScope] = useState<'anywhere' | 'state' | 'city'>('anywhere');
+  const [myEffectiveCity, setMyEffectiveCity] = useState<string>('');
+  const [myEffectiveState, setMyEffectiveState] = useState<string>('');
   // Daily-rotating featured business (everyone sees the same one today).
   const [dailyBusinessSpotlight, setDailyBusinessSpotlight] = useState<any | null>(null);
   // The category that has actually been applied (separate from the
@@ -107,7 +114,7 @@ export default function DiscoverPage() {
       // Get current user's profile and categories
       const { data: myProfile } = await supabase
         .from('profiles')
-        .select('categories, zip_code')
+        .select('categories, zip_code, city, state, travel_city, travel_state, travel_ends_at')
         .eq('user_id', user.id)
         .single();
 
@@ -116,6 +123,21 @@ export default function DiscoverPage() {
       }
       if (myProfile?.zip_code) {
         setMyZip(myProfile.zip_code);
+      }
+      // Compute the viewer's "effective" city/state for the
+      // location filter. Travel mode wins as long as the end date is
+      // in the future; otherwise fall back to the home city/state.
+      if (myProfile) {
+        const tEnd = myProfile.travel_ends_at
+          ? new Date(myProfile.travel_ends_at).getTime()
+          : 0;
+        const travelLive = tEnd > Date.now();
+        setMyEffectiveCity(
+          (travelLive ? myProfile.travel_city : myProfile.city) ?? ''
+        );
+        setMyEffectiveState(
+          (travelLive ? myProfile.travel_state : myProfile.state) ?? ''
+        );
       }
 
       // Get already swiped profiles
@@ -228,6 +250,30 @@ export default function DiscoverPage() {
     }
     if (zipFilter) {
       results = results.filter((p) => p.zip_code === zipFilter);
+    }
+    // Location-scope filter. A profile matches if EITHER their home
+    // city/state OR their active travel city/state lines up with the
+    // viewer's effective area. Case-insensitive trim-tolerant compare.
+    if (locationScope !== 'anywhere') {
+      const norm = (s: string | null | undefined) => (s ?? '').trim().toLowerCase();
+      const target = locationScope === 'city'
+        ? norm(myEffectiveCity)
+        : norm(myEffectiveState);
+      if (target.length > 0) {
+        results = results.filter((p) => {
+          const tEnd = p.travel_ends_at ? new Date(p.travel_ends_at).getTime() : 0;
+          const travelLive = tEnd > Date.now();
+          const cityCandidates = [norm(p.city)];
+          const stateCandidates = [norm(p.state)];
+          if (travelLive) {
+            cityCandidates.push(norm(p.travel_city));
+            stateCandidates.push(norm(p.travel_state));
+          }
+          return locationScope === 'city'
+            ? cityCandidates.includes(target)
+            : stateCandidates.includes(target);
+        });
+      }
     }
     setFilteredProfiles(results);
     setAppliedCategory(categoryFilter);
@@ -1313,6 +1359,45 @@ export default function DiscoverPage() {
               </div>
             </div>
 
+            {/* Location scope chips */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{
+                display: 'block',
+                fontSize: 12,
+                fontWeight: 700,
+                color: '#6b5744',
+                marginBottom: 8,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}>
+                Show creators in
+              </label>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <LocationChip
+                  label="Anywhere"
+                  active={locationScope === 'anywhere'}
+                  onClick={() => setLocationScope('anywhere')}
+                />
+                <LocationChip
+                  label={myEffectiveState ? `My state (${myEffectiveState})` : 'My state'}
+                  active={locationScope === 'state'}
+                  disabled={!myEffectiveState}
+                  onClick={() => myEffectiveState && setLocationScope('state')}
+                />
+                <LocationChip
+                  label={myEffectiveCity ? `My city (${myEffectiveCity})` : 'My city'}
+                  active={locationScope === 'city'}
+                  disabled={!myEffectiveCity}
+                  onClick={() => myEffectiveCity && setLocationScope('city')}
+                />
+              </div>
+              {!myEffectiveCity && !myEffectiveState && (
+                <p style={{ fontSize: 11, color: '#a89278', marginTop: 6 }}>
+                  Add your city and state in Edit Profile to use these filters.
+                </p>
+              )}
+            </div>
+
             <div style={{ display: 'flex', gap: 12 }}>
               <button
                 onClick={applyFilters}
@@ -1728,5 +1813,39 @@ export default function DiscoverPage() {
         ]}
       />
     </main>
+  );
+}
+
+function LocationChip({ label, active, disabled, onClick }: {
+  label: string; active: boolean; disabled?: boolean; onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        padding: '6px 12px',
+        background: disabled
+          ? 'rgba(200,149,108,0.06)'
+          : active
+            ? '#c8956c'
+            : 'white',
+        color: disabled
+          ? '#c8b8a4'
+          : active
+            ? 'white'
+            : '#6b4f33',
+        border: `1px solid ${active ? '#c8956c' : 'rgba(200,149,108,0.25)'}`,
+        borderRadius: 100,
+        fontSize: 12,
+        fontWeight: 700,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        fontFamily: 'inherit',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {label}
+    </button>
   );
 }
