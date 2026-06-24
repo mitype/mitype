@@ -294,14 +294,17 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
           />
         </div>
 
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '0 18px 6px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-        }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            // Side padding kept tight + `overflowX: hidden` together
+            // stop the horizontal shake the user reported when the
+            // grid items briefly overflow during a re-flow.
+            overflowX: 'hidden',
+            padding: '4px 18px 10px',
+          }}
+        >
           {loading ? (
             <div style={{ padding: 30, textAlign: 'center', color: '#a89278', fontSize: 13 }}>
               Loading your connections…
@@ -321,50 +324,126 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
                 : 'Connect with a few creators first — they\'ll appear here.'}
             </div>
           ) : (
-            filtered.map((c) => {
-              const isSelected = selected.has(c.user_id);
-              return (
-                <button
-                  key={c.user_id}
-                  type="button"
-                  onClick={() => toggleSelect(c.user_id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '10px 12px',
-                    background: isSelected ? 'rgba(200,149,108,0.18)' : 'white',
-                    border: `1px solid ${isSelected ? 'rgba(200,149,108,0.6)' : 'rgba(200,149,108,0.18)'}`,
-                    borderRadius: 14,
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    fontFamily: 'inherit',
-                  }}
-                >
-                  <Avatar
-                    src={c.avatar_url}
-                    alt={c.username}
-                    width={36}
-                  />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1208' }}>
-                      @{c.username}
+            <div
+              style={{
+                display: 'grid',
+                // Auto-fill keeps tiles 84px wide and wraps neatly on
+                // both phone and desktop. minmax avoids tiles ever
+                // growing wider than 96px which keeps the grid even.
+                gridTemplateColumns: 'repeat(auto-fill, minmax(84px, 1fr))',
+                gap: 10,
+              }}
+            >
+              {filtered.map((c) => {
+                const isSelected = selected.has(c.user_id);
+                return (
+                  <button
+                    key={c.user_id}
+                    type="button"
+                    onClick={() => toggleSelect(c.user_id)}
+                    aria-pressed={isSelected}
+                    aria-label={`${isSelected ? 'Remove' : 'Add'} @${c.username}`}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '10px 6px',
+                      background: isSelected ? 'rgba(200,149,108,0.16)' : 'transparent',
+                      border: `1px solid ${isSelected ? 'rgba(200,149,108,0.55)' : 'transparent'}`,
+                      borderRadius: 14,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      // Stop the button from getting taller than its
+                      // sibling tiles when usernames wrap — keeps the
+                      // grid baseline visually aligned.
+                      minHeight: 96,
+                    }}
+                  >
+                    {/* Avatar bubble — fixed square so the Avatar
+                        component's image is always a perfect circle.
+                        overflow:hidden + borderRadius:50% on the wrapper
+                        crops any aspect-ratio surprises that were
+                        causing the "distorted/blurry" look. */}
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: 56,
+                        height: 56,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 56,
+                          height: 56,
+                          borderRadius: '50%',
+                          overflow: 'hidden',
+                          background: '#f0e8df',
+                          border: isSelected
+                            ? '2px solid #c8956c'
+                            : '1px solid rgba(200,149,108,0.25)',
+                          boxShadow: isSelected
+                            ? '0 4px 14px rgba(200,149,108,0.35)'
+                            : '0 2px 6px rgba(200,149,108,0.1)',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        <Avatar
+                          src={c.avatar_url}
+                          alt={`@${c.username}`}
+                          width={56}
+                          height={56}
+                          fallbackFontSize={22}
+                          sizes="56px"
+                        />
+                      </div>
+                      {isSelected && (
+                        <span
+                          aria-hidden="true"
+                          style={{
+                            position: 'absolute',
+                            bottom: -2,
+                            right: -2,
+                            width: 20,
+                            height: 20,
+                            borderRadius: '50%',
+                            background: '#c8956c',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 12,
+                            fontWeight: 900,
+                            border: '2px solid white',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          }}
+                        >
+                          ✓
+                        </span>
+                      )}
                     </div>
-                  </div>
-                  <span style={{
-                    width: 22, height: 22,
-                    borderRadius: '50%',
-                    background: isSelected ? '#c8956c' : 'transparent',
-                    border: `2px solid ${isSelected ? '#c8956c' : '#c8956c66'}`,
-                    color: 'white',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 13, fontWeight: 900,
-                  }}>
-                    {isSelected ? '✓' : ''}
-                  </span>
-                </button>
-              );
-            })
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: '#1a1208',
+                        textAlign: 'center',
+                        lineHeight: 1.2,
+                        // Ellipsis on long usernames so they don't
+                        // wrap to 3 lines and break the grid rhythm.
+                        maxWidth: '100%',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      @{c.username}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           )}
         </div>
 
