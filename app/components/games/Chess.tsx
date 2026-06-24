@@ -129,11 +129,15 @@ export function Chess({ session, currentUserId, updateState }: Props) {
 
   // Compute the legal destination squares for whatever piece is
   // currently selected — used to highlight target squares.
-  const moveTargets = useMemo(() => {
-    if (!selected) return new Set<string>();
-    const moves = engine.moves({ square: selected, verbose: true }) as Move[];
-    return new Set(moves.map((m) => m.to));
-  }, [selected, engine]);
+  //
+  // Inlined (not memoized) on purpose: a useMemo *after* the early
+  // return above would mean the hook count differs between the
+  // loading render and the loaded render, which violates the Rules
+  // of Hooks and crashes the route. The chess.js .moves() call is
+  // cheap and only runs when something is selected.
+  const moveTargets: Set<string> = selected
+    ? new Set((engine.moves({ square: selected, verbose: true }) as Move[]).map((m) => m.to))
+    : new Set<string>();
 
   async function clickSquare(square: Square) {
     if (!isMyTurn) return;
