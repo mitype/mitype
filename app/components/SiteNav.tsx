@@ -224,6 +224,30 @@ export function SiteNav({
           <NavLink href="/spotlight"    label="Spotlight" />
           <NavLink href="/weekly"       label="Weekly" />
           <NavLink href="/messages"     label="Messages" badge={unread.total} />
+          {/* Small Businesses entry. Soft purple outline on white, mirroring
+              the Mi Home Goods entry beneath it. Routes to the dedicated
+              /businesses listing page (empty state if none yet). */}
+          <Link
+            href="/businesses"
+            onClick={() => setOpen(false)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '13px 20px',
+              color: '#5b21b6',
+              fontSize: 15,
+              fontWeight: 800,
+              textDecoration: 'none',
+              borderRadius: 100,
+              background: 'white',
+              border: '1px solid rgba(139,92,246,0.4)',
+              letterSpacing: '0.1px',
+              boxShadow: '0 8px 22px rgba(139,92,246,0.18)',
+            }}
+          >
+            <span>🏪 Small Businesses</span>
+          </Link>
           {/* Mi Home Goods. Soft green outline on white, matching the
               tone of the Small Business CTA on the landing page. */}
           <Link

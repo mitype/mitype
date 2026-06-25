@@ -82,7 +82,7 @@ export function scoreProfileCompleteness(profile: ProfileShape | null | undefine
     },
     {
       key: 'creative_status',
-      label: 'Set a creative status',
+      label: 'Add your latest project',
       done: !!(p.creative_status && p.creative_status.trim()),
       weight: 10,
       href: '/edit-profile',

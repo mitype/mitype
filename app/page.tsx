@@ -3,6 +3,7 @@ import { OddcastPill } from './components/OddcastPill';
 import { ScrollIndicator } from './components/ScrollIndicator';
 import { RefBadge } from './components/RefBadge';
 import { SmallBusinessCta } from './components/SmallBusinessCta';
+import { CategoryShowcase } from './components/CategoryShowcase';
 
 export default function HomePage() {
   return (
@@ -219,13 +220,11 @@ export default function HomePage() {
               a modal explaining the category. */}
           <OddcastPill />
 
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 10,
-            justifyContent: 'center',
-          }}>
-            {[
+          {/* CategoryShowcase keeps the page tight on mobile: it
+              shows the first 20 categories by default with a "+N more"
+              button that expands the full list on tap. */}
+          <CategoryShowcase
+            categories={[
               // 🎨 Creative Arts
               '🎨 Painters', '✍️ Writers', '📸 Photographers', '🎭 Actors',
               '💃 Dancers', '🎬 Filmmakers', '🖌️ Illustrators', '🗿 Sculptors',
@@ -292,21 +291,8 @@ export default function HomePage() {
               '🌐 Free Thinkers', '📡 Alternative Media', '🔍 Truth Seekers',
               '🌱 Minimalists', '💡 Visionaries',
               '✝️ Faith Based', '☮️ Activists', '🌍 Environmentalists',
-            ].map((cat) => (
-              <div key={cat} style={{
-                background: 'white',
-                border: '1px solid rgba(200,149,108,0.2)',
-                borderRadius: 100,
-                padding: '9px 18px',
-                fontSize: 13,
-                color: '#6b5744',
-                fontWeight: 500,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-              }}>
-                {cat}
-              </div>
-            ))}
-          </div>
+            ]}
+          />
         </div>
       </section>
 

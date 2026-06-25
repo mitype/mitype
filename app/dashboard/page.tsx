@@ -293,6 +293,7 @@ export default function Dashboard() {
         }}>
           {[
             { icon: '🌊', label: 'The Wave Feed', desc: 'Jump straight into the scrolling feed. Watch, like, and post your own', href: '/wave', color: '#ecf0f5' },
+            { icon: '🏡', label: 'Mi Home Goods', desc: 'Buy and sell with your Mitype community. Furniture, electronics, vintage finds', href: '/home-goods', color: '#ecfdf5' },
             { icon: '🔍', label: 'Discover Creators', desc: 'Browse profiles and connect with creators who share your craft', href: '/discover', color: '#fff3ec' },
             { icon: '✨', label: 'Spotlight', desc: 'Explore portfolio work from the community', href: '/spotlight', color: '#fff8ec' },
             { icon: '💬', label: 'Messages', desc: 'View your conversations', href: '/messages', color: '#f5f5ec' },

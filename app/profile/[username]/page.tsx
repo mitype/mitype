@@ -59,6 +59,7 @@ type PublicProfile = {
   portfolio_links?: PortfolioLink[] | null;
   profile_prompts?: ProfilePrompt[] | null;
   creative_status?: string | null;
+  latest_project_url?: string | null;
   date_of_birth?: string | null;
   photos?: ProfilePhoto[] | null;
   last_active_at?: string | null;
@@ -79,6 +80,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   // True when this profile owner has a published business profile.
   // Adds a purple "View Business" pill near the action buttons.
   const [hasBusiness, setHasBusiness] = useState(false);
+  // True when this profile owner has at least one active Mi Home Goods
+  // listing. Adds a soft-green "Mi Home Goods" pill next to View Business.
+  const [hasHomeGoods, setHasHomeGoods] = useState(false);
   // Pets — rendered as hanging dog tags off the top of the profile card.
   const [pets, setPets] = useState<Pet[]>([]);
   // Small Business Recommendations — purple cards rendered under
@@ -213,6 +217,19 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             .eq('is_published', true)
             .maybeSingle();
           if (!cancelled) setHasBusiness(Boolean(bizRow));
+        } catch {
+          // Non-fatal.
+        }
+
+        // Check if this user has any active Mi Home Goods listings.
+        // One cheap count.
+        try {
+          const { count: hgCount } = await supabase
+            .from('home_goods_listings')
+            .select('id', { count: 'exact', head: true })
+            .eq('seller_id', profileData.user_id)
+            .eq('status', 'active');
+          if (!cancelled) setHasHomeGoods((hgCount ?? 0) > 0);
         } catch {
           // Non-fatal.
         }
@@ -658,6 +675,27 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     🏪 View Business
                   </Link>
                 )}
+                {hasHomeGoods && (
+                  <Link
+                    href={`/home-goods/by/${profile.username}`}
+                    style={{
+                      padding: '10px 18px',
+                      background: 'white',
+                      border: '1px solid rgba(21,128,61,0.4)',
+                      borderRadius: 100,
+                      color: '#15803d',
+                      fontSize: 13,
+                      fontWeight: 800,
+                      textDecoration: 'none',
+                      boxShadow: '0 8px 22px rgba(21,128,61,0.18)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    🏡 Home Goods
+                  </Link>
+                )}
                 <button onClick={shareProfile} style={{
                   padding: '10px 20px', background: 'white',
                   border: '1px solid rgba(200,149,108,0.3)', borderRadius: 100,
@@ -774,12 +812,40 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
             {profile.creative_status && (
               <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: 'rgba(200,149,108,0.08)', border: '1px solid rgba(200,149,108,0.2)',
-                borderRadius: 100, padding: '6px 14px', marginBottom: 12,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                background: 'rgba(200,149,108,0.08)',
+                border: '1px solid rgba(200,149,108,0.2)',
+                borderRadius: 100,
+                padding: '6px 14px',
+                marginBottom: 12,
+                flexWrap: 'wrap',
+                maxWidth: '100%',
               }}>
                 <div style={{ width: 8, height: 8, background: '#c8956c', borderRadius: '50%', flexShrink: 0 }} />
                 <span style={{ color: '#6b5744', fontSize: 13, fontWeight: 600 }}>{profile.creative_status}</span>
+                {(() => {
+                  const projectHref = safeUrl(profile.latest_project_url);
+                  if (!projectHref) return null;
+                  return (
+                    <a
+                      href={projectHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: '#c8956c',
+                        fontSize: 12,
+                        fontWeight: 800,
+                        textDecoration: 'none',
+                        borderLeft: '1px solid rgba(200,149,108,0.4)',
+                        paddingLeft: 8,
+                      }}
+                    >
+                      View project →
+                    </a>
+                  );
+                })()}
               </div>
             )}
 

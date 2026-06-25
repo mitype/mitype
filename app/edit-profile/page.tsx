@@ -155,7 +155,14 @@ export default function EditProfilePage() {
     created_at: string;
   }>>([]);
   const [websiteUrl, setWebsiteUrl] = useState('');
+  // "Latest Project" (formerly "Creative Status"). Stored as `creative_status`
+  // text plus an optional clickable URL that displays on the public profile.
   const [creativeStatus, setCreativeStatus] = useState('');
+  const [latestProjectUrl, setLatestProjectUrl] = useState('');
+  // Tracks whether this user has a published Mi Home Goods shop set up
+  // (any home_goods_listing row, regardless of status). Drives the
+  // "Set up Mi Home Goods shop" vs "Manage your Mi Home Goods shop" CTA.
+  const [hasHomeGoodsShop, setHasHomeGoodsShop] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -213,12 +220,24 @@ export default function EditProfilePage() {
         }
         setWebsiteUrl(profile.website_url || '');
         setCreativeStatus(profile.creative_status || '');
+        setLatestProjectUrl(profile.latest_project_url || '');
         setDateOfBirth(profile.date_of_birth || '');
         setSelectedCategories(profile.categories || []);
         setAvatarUrl(profile.avatar_url || '');
         setPhotos(normalizePhotos(profile.photos));
         setPortfolioLinks(profile.portfolio_links || []);
         setProfilePrompts(normalizePrompts(profile.profile_prompts));
+      }
+
+      // Has this user ever set up a Mi Home Goods shop? One cheap count.
+      try {
+        const { count } = await supabase
+          .from('home_goods_listings')
+          .select('id', { count: 'exact', head: true })
+          .eq('seller_id', user.id);
+        setHasHomeGoodsShop((count ?? 0) > 0);
+      } catch {
+        // Non-fatal — CTA just stays in "Set up" mode.
       }
 
       setLoading(false);
@@ -310,6 +329,7 @@ export default function EditProfilePage() {
       featured_wave_id: featuredWaveId,
       website_url: websiteUrl.trim(),
       creative_status: creativeStatus.trim(),
+      latest_project_url: latestProjectUrl.trim() || null,
       date_of_birth: dateOfBirth || null,
       avatar_url: primaryAvatar,
       photos,
@@ -460,7 +480,7 @@ export default function EditProfilePage() {
             </p>
           </div>
 
-          {/* Creative Status */}
+          {/* Latest Project */}
           <div style={{ marginBottom: 24 }}>
             <label style={{
               display: 'block',
@@ -471,10 +491,10 @@ export default function EditProfilePage() {
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}>
-              Creative Status
+              Latest Project
             </label>
             <p style={{ color: '#b0967e', fontSize: 13, marginBottom: 10 }}>
-              What are you currently working on or excited about?
+              What are you currently working on or excited about? Paste a link to share it.
             </p>
             <input
               type="text"
@@ -485,6 +505,32 @@ export default function EditProfilePage() {
               style={{
                 width: '100%',
                 padding: '13px 16px',
+                borderRadius: 12,
+                border: '1px solid rgba(200,149,108,0.25)',
+                background: 'white',
+                fontSize: 16,
+                color: '#1a1208',
+                outline: 'none',
+                boxSizing: 'border-box',
+                marginBottom: 8,
+              }}
+            />
+            {/* Optional clickable link rendered next to the status on
+                the public profile. Pasting in a full https:// URL is the
+                cleanest path, but we also accept bare links and prepend
+                https:// on save if missing. */}
+            <input
+              type="url"
+              inputMode="url"
+              placeholder="https://link-to-your-project.com (optional)"
+              value={latestProjectUrl}
+              onChange={(e) => setLatestProjectUrl(e.target.value.slice(0, 300))}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              style={{
+                width: '100%',
+                padding: '11px 14px',
                 borderRadius: 12,
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
@@ -605,13 +651,54 @@ export default function EditProfilePage() {
             <span aria-hidden="true" style={{ fontSize: 22, fontWeight: 800, flexShrink: 0 }}>→</span>
           </Link>
 
+          {/* Small Business Recommendations — sits with the rest of the
+              business section so all small-business controls are grouped
+              together. Auto-saves on each action. */}
+          {user?.id && <BusinessRecommendationsEditor userId={user.id} />}
+
+          {/* Mi Home Goods shop entry — soft green outline matching the
+              tone of the Mi Home Goods CTA elsewhere on the site. Tap to
+              start your own listings (subscription-gated downstream). */}
+          <Link
+            href={hasHomeGoodsShop ? '/home-goods/mine' : '/home-goods/new'}
+            style={{
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              background: 'white',
+              color: '#15803d',
+              textDecoration: 'none',
+              borderRadius: 20,
+              padding: '18px 22px',
+              border: '1px solid rgba(21,128,61,0.4)',
+              boxShadow: '0 10px 24px rgba(21,128,61,0.18)',
+            }}
+          >
+            <span style={{
+              width: 44, height: 44, borderRadius: 14, fontSize: 24,
+              background: 'rgba(21,128,61,0.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              🏡
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
+                {hasHomeGoodsShop ? 'Manage your Mi Home Goods shop' : 'Set up Mi Home Goods shop'}
+              </span>
+              <span style={{ display: 'block', fontSize: 13, color: '#3a5d48', marginTop: 2, lineHeight: 1.4 }}>
+                {hasHomeGoodsShop
+                  ? 'View, edit, mark sold, or post a new listing.'
+                  : 'Post things for sale to your Mitype community. Furniture, electronics, vintage finds.'}
+              </span>
+            </span>
+            <span aria-hidden="true" style={{ fontSize: 22, fontWeight: 800, flexShrink: 0 }}>→</span>
+          </Link>
+
           {/* Pets — sits above Categories per spec. Rendered inside the
               form but the PetEditor has its own Save button. */}
           {user?.id && <PetEditor userId={user.id} />}
-
-          {/* Small Business Recommendations — purple section, lives
-              between Pets and Categories. Auto-saves on each action. */}
-          {user?.id && <BusinessRecommendationsEditor userId={user.id} />}
 
           {/* Categories */}
           <div style={{ marginBottom: 24 }}>

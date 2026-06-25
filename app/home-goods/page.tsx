@@ -311,13 +311,24 @@ export default function HomeGoodsBrowsePage() {
             lineHeight: 1.6,
           }}>
             <div style={{ fontSize: 38, marginBottom: 8 }}>🛍️</div>
-            {categoryFilter || debouncedSearch || nearMe
-              ? 'Nothing matches those filters yet.'
-              : (
-                <>
-                  No listings yet. {sellersTipShown && 'Be the first. Tap "+ Sell something" above.'}
-                </>
-              )}
+            {categoryFilter || debouncedSearch || nearMe ? (
+              <p style={{ margin: 0 }}>Nothing matches those filters yet.</p>
+            ) : (
+              <>
+                <p style={{ margin: '0 0 6px', fontWeight: 800, color: '#0f3a23' }}>
+                  No listings yet
+                </p>
+                <p style={{ margin: 0 }}>
+                  The marketplace is brand new. Items will appear here as Mitype
+                  members post their Mi Home Goods listings.
+                </p>
+                {sellersTipShown && (
+                  <p style={{ margin: '10px 0 0', fontWeight: 700, color: '#15803d' }}>
+                    Be the first. Tap "+ Sell something" above.
+                  </p>
+                )}
+              </>
+            )}
           </div>
         ) : (
           <div style={{
