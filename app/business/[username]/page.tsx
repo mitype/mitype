@@ -176,7 +176,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
         return;
       }
       setSaved(true);
-      toast.success('Saved — find it in Messages → Small Business Saves');
+      toast.success('Saved. Find it in Messages → Small Business Saves');
     }
   }
 
@@ -453,7 +453,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                   )}
                   {(ev.location_name || ev.location_address) && (
                     <div style={{ fontSize: 12, color: '#7a6a85', marginTop: 8 }}>
-                      📍 {[ev.location_name, ev.location_address].filter(Boolean).join(' — ')}
+                      📍 {[ev.location_name, ev.location_address].filter(Boolean).join('. ')}
                     </div>
                   )}
                 </div>

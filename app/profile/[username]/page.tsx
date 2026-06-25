@@ -316,7 +316,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     // Truncate the answer for the prefill — long answers blow out the
     // compose box. The "About" framing reads naturally in chat.
     const trimmed = answer.length > 140 ? answer.slice(0, 137) + '…' : answer;
-    const prefill = `About "${trimmed}" — `;
+    const prefill = `About "${trimmed}". `;
     const url = `/messages?user=${profile.user_id}&prefill=${encodeURIComponent(prefill)}`;
     router.push(url);
   }
@@ -1162,7 +1162,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           {
             icon: '💜',
             title: 'Small Businesses I Recommend',
-            body: 'Every profile can now showcase up to 10 small businesses they personally recommend, in a purple section above the Creative Portfolio. Tap any card to see the business — discover your favorites through people you trust.',
+            body: 'Every profile can now showcase up to 10 small businesses they personally recommend, in a purple section above the Creative Portfolio. Tap any card to see the business. Discover your favorites through people you trust.',
           },
           {
             icon: '🔔',

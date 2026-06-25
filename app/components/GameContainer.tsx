@@ -124,7 +124,7 @@ export function GameContainer({
       .eq('id', session.id);
     if (error) {
       console.error('[game-container] update error:', error);
-      toast.error("Game state didn't sync — your partner may need to refresh.");
+      toast.error("Game state didn't sync. Your partner may need to refresh.");
     } else {
       setSession((prev) => ({ ...prev, ...patch }));
     }
@@ -458,8 +458,8 @@ function GameOverPanel({
   if (quitByPartner) {
     title = 'Your partner ended the game';
     body = partnerUsername
-      ? `@${partnerUsername} called it. No worries — try a different one?`
-      : 'They called it. No worries — try a different one?';
+      ? `@${partnerUsername} called it. No worries. Try a different one?`
+      : 'They called it. No worries. Try a different one?';
   } else if (session.ended_reason === 'quit') {
     title = 'Game ended';
     body = 'You called it. Want to play something else?';

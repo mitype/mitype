@@ -184,16 +184,16 @@ export function Chess({ session, currentUserId, updateState }: Props) {
         updated.winnerId = currentUserId;
         endStatus = 'ended';
       } else if (engine.isStalemate()) {
-        updated.drawReason = 'Stalemate — no legal moves.';
+        updated.drawReason = 'Stalemate. No legal moves.';
         endStatus = 'ended';
       } else if (engine.isInsufficientMaterial()) {
-        updated.drawReason = 'Draw — insufficient material.';
+        updated.drawReason = 'Draw. Insufficient material.';
         endStatus = 'ended';
       } else if (engine.isThreefoldRepetition()) {
-        updated.drawReason = 'Draw — threefold repetition.';
+        updated.drawReason = 'Draw. Threefold repetition.';
         endStatus = 'ended';
       } else if (engine.isDraw()) {
-        updated.drawReason = 'Draw — 50-move rule.';
+        updated.drawReason = 'Draw. 50-move rule.';
         endStatus = 'ended';
       }
       setSelected(null);
@@ -248,8 +248,8 @@ export function Chess({ session, currentUserId, updateState }: Props) {
         }}>
           {isMyTurn ? 'Your move' : 'Their move'}
           {inCheck && (engine.turn() === mySide
-            ? <span style={{ marginLeft: 8, color: '#fca5a5' }}>— check</span>
-            : <span style={{ marginLeft: 8, color: '#fcd34d' }}>— check</span>)}
+            ? <span style={{ marginLeft: 8, color: '#fca5a5' }}>- check</span>
+            : <span style={{ marginLeft: 8, color: '#fcd34d' }}>- check</span>)}
         </div>
       )}
 
@@ -395,9 +395,9 @@ export function Chess({ session, currentUserId, updateState }: Props) {
             {state.drawReason
               ? `🤝 ${state.drawReason}`
               : youWon
-                ? '🏆 Checkmate — you win!'
+                ? '🏆 Checkmate. You win!'
                 : youLost
-                  ? '👑 Checkmate — they win.'
+                  ? '👑 Checkmate. They win.'
                   : 'Game over.'}
           </div>
           <button type="button" onClick={finishGame} style={primaryBtn}>

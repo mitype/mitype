@@ -13,7 +13,7 @@ interface Props {
 const SLIDES: Array<{ title: string; body: string; icon: string }> = [
   {
     title: 'Welcome to The Wave',
-    body: "Swipe up to see what creators are sharing right now. Every video disappears after 24 hours — so what you see is fresh.",
+    body: "Swipe up to see what creators are sharing right now. Every video disappears after 24 hours. So what you see is fresh.",
     icon: '🌊',
   },
   {
@@ -23,7 +23,7 @@ const SLIDES: Array<{ title: string; body: string; icon: string }> = [
   },
   {
     title: 'Like, message, or skip',
-    body: 'Tap the heart to like. Tap the message bubble to start a private conversation. Tap the X to dismiss — that creator won\'t show in your feed again.',
+    body: 'Tap the heart to like. Tap the message bubble to start a private conversation. Tap the X to dismiss. That creator won\'t show in your feed again.',
     icon: '💬',
   },
   {
@@ -33,7 +33,7 @@ const SLIDES: Array<{ title: string; body: string; icon: string }> = [
   },
   {
     title: 'Post your own',
-    body: "Tap the camera icon at the top to post a video of your craft — anything under 60 seconds. You can post up to 3 videos every 24 hours.",
+    body: "Tap the camera icon at the top to post a video of your craft. Anything under 60 seconds. You can post up to 3 videos every 24 hours.",
     icon: '📹',
   },
 ];

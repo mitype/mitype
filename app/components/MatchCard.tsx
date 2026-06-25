@@ -229,7 +229,7 @@ export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
           textAlign: 'center',
           marginTop: 12,
         }}>
-          The downloaded image is 1080×1080 — perfect for an Instagram story.
+          The downloaded image is 1080×1080. Perfect for an Instagram story.
         </p>
 
         {/* Hidden canvas used for PNG generation. */}

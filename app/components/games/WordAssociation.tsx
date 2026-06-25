@@ -348,7 +348,7 @@ export function WordAssociation({ session, currentUserId, updateState }: Props) 
               color: 'rgba(255,255,255,0.7)',
               fontSize: 13, textAlign: 'center', width: '100%',
             }}>
-              {lastWord ? 'Their turn — waiting…' : 'Waiting for them to start…'}
+              {lastWord ? 'Their turn. Waiting…' : 'Waiting for them to start…'}
             </div>
           )}
 

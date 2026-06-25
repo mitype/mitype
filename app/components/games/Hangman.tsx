@@ -388,7 +388,7 @@ export function Hangman({ session, currentUserId, updateState }: Props) {
         }}>
           <div style={{ fontSize: 18, fontWeight: 900, color: 'white', textAlign: 'center' }}>
             {myScore + partnerScore === 0
-              ? "🫠 Tough series — better luck next time."
+              ? "🫠 Tough series. Better luck next time."
               : myScore === partnerScore
                 ? "🤝 You crushed it together."
                 : myScore > partnerScore

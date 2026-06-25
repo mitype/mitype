@@ -153,7 +153,7 @@ export function ProfileStatsCard({ userId }: { userId: string | null | undefined
             stats.loading ? '–' :
             stats.latestWave
               ? `${stats.latestWave.views} · ${stats.latestWave.likes}♥`
-              : '—'
+              : '-'
           }
         />
       </div>

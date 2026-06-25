@@ -377,7 +377,7 @@ export default function EditBusinessProfilePage() {
                 />
               </label>
               <p style={{ color: '#7a6a85', fontSize: 12, marginTop: 8 }}>
-                Square images look best. Any image file works — upload
+                Square images look best. Any image file works. Upload
                 whatever size and format you have, big or small.
               </p>
             </div>

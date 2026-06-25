@@ -197,7 +197,7 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
           }}
         >
           {isComplete
-            ? "You're all set — strong profiles get better matches and richer Daily Spark openers. We'll keep this card tucked away from now on."
+            ? "You're all set. Strong profiles get better matches and richer Daily Spark openers. We'll keep this card tucked away from now on."
             : 'Filled-in profiles get better matches. Knock these out to give your Daily Spark openers more to work with.'}
         </p>
 

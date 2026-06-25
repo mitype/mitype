@@ -59,7 +59,7 @@ export function RouteErrorFallback({ error, retry, routeLabel }: Props) {
         </h2>
         <p style={{ color: '#8a7560', fontSize: 14, lineHeight: 1.5, marginBottom: 24 }}>
           {routeLabel ? `The ${routeLabel} page hit an unexpected error.` : 'This page hit an unexpected error.'}{' '}
-          Try reloading — if it keeps happening, we&rsquo;ve been notified.
+          Try reloading. If it keeps happening, we&rsquo;ve been notified.
         </p>
         {error?.digest && (
           <p style={{ color: '#a89278', fontSize: 11, fontFamily: 'monospace', marginBottom: 20 }}>

@@ -413,7 +413,7 @@ export function Checkers({ session, currentUserId, updateState }: Props) {
           textAlign: 'center',
         }}>
           {state.mustContinueFrom !== null && isMyTurn
-            ? 'Chain jump — keep going'
+            ? 'Chain jump. Keep going'
             : isMyTurn ? 'Your turn' : 'Their turn'}
         </div>
       )}

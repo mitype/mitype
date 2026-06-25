@@ -10,7 +10,7 @@ import { PageTransition } from "./components/PageTransition";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
-  title: "Mitype — Find Your Type",
+  title: "Mitype. Find Your Type",
   description:
     "For both creative and professional musicians, writers, artists, photographers, and more. Connect with people who share your world.",
   manifest: "/manifest.json",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: "Mitype",
   },
   openGraph: {
-    title: "Mitype — Find Your Type",
+    title: "Mitype. Find Your Type",
     description:
       "For both creative and professional musicians, writers, artists, photographers, and more. Connect with people who share your world.",
     type: "website",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mitype — Find Your Type",
+    title: "Mitype. Find Your Type",
     description:
       "For both creative and professional musicians, writers, artists, photographers, and more. Connect with people who share your world.",
   },

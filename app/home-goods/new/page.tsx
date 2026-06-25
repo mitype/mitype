@@ -217,7 +217,7 @@ export default function CreateListingPage() {
           <div style={{ fontSize: 22, flexShrink: 0 }}>💡</div>
           <div style={{ fontSize: 13, color: '#0f3a23', lineHeight: 1.5 }}>
             <strong>Setup tips:</strong> Take photos in daylight. Use a clean
-            background. Include any damage or wear in your description — it
+            background. Include any damage or wear in your description. It
             builds trust and reduces returns. Set a fair price and mark it OBO
             ("or best offer") if you're open to negotiation.
           </div>
@@ -435,7 +435,7 @@ export default function CreateListingPage() {
             />
           </div>
           <p style={{ fontSize: 11, color: '#5b7a68', marginTop: 6 }}>
-            Helps local buyers find you. Don't share your home address publicly — coordinate a public meetup in chat.
+            Helps local buyers find you. Don't share your home address publicly. Coordinate a public meetup in chat.
           </p>
         </Section>
 

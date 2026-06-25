@@ -210,7 +210,7 @@ export default function SubscriptionPage() {
                   'Full messaging after approval',
                   'Filter by category and ZIP code',
                   'Share your public profile link',
-                  'Cancel anytime — no commitment',
+                  'Cancel anytime. No commitment',
                 ].map((item) => (
                   <li key={item} style={{
                     display: 'flex',

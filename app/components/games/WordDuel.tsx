@@ -656,7 +656,7 @@ export function WordDuel({ session, currentUserId, updateState }: Props) {
               textAlign: 'center', marginBottom: 10,
               letterSpacing: '1px', textTransform: 'uppercase',
             }}>
-              Blank tile — pick a letter
+              Blank tile. Pick a letter
             </div>
             <div style={{
               display: 'grid',

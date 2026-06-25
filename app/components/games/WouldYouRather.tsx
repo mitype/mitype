@@ -195,7 +195,7 @@ export function WouldYouRather({ session, currentUserId, updateState }: Props) {
         fontWeight: 800,
         letterSpacing: 2,
       }}>
-        — OR —
+       . OR -
       </div>
       <ChoiceCard
         label="B"
@@ -244,7 +244,7 @@ export function WouldYouRather({ session, currentUserId, updateState }: Props) {
             }}>
               {myPick === partnerPick
                 ? '🎉 In sync! Both picked ' + (myPick === 'a' ? 'A' : 'B')
-                : '🔀 Split — different picks'}
+                : '🔀 Split. Different picks'}
             </div>
             <button
               type="button"

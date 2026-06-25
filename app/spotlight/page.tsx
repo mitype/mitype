@@ -166,7 +166,7 @@ export default function SpotlightPage() {
     }}>
 
       <Coachmark storageKey="mitype-coachmark-spotlight-v1" title="The Spotlight feed">
-        Browse the actual <strong>work</strong> the community is making —
+        Browse the actual <strong>work</strong> the community is making -
         music, video, photos, writing, more. Tap a card to open a creator&rsquo;s
         portfolio link, or filter the chips up top.
       </Coachmark>
@@ -184,7 +184,7 @@ export default function SpotlightPage() {
           ✨ Spotlight
         </h1>
         <p style={{ color: '#8a7560', fontSize: 16, maxWidth: 640, marginBottom: 28 }}>
-          A feed of work from mitype members — music, films, photos, writing, and more.
+          A feed of work from mitype members. Music, films, photos, writing, and more.
           Tap a card to open the creator&apos;s portfolio, or tap the avatar to see their profile.
         </p>
 
@@ -428,7 +428,7 @@ function EmptyState({ typeFilter }: { typeFilter: string }) {
       </h2>
       <p style={{ fontSize: 14, maxWidth: 360, margin: '0 auto' }}>
         {typeFilter === 'all'
-          ? "No one's shared portfolio links yet — be the first!"
+          ? "No one's shared portfolio links yet. Be the first!"
           : `No ${label} portfolios yet. Check back soon, or try another filter.`}
       </p>
       <Link

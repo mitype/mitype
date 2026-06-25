@@ -12,7 +12,7 @@ interface Props {
 const SLIDES: Array<{ title: string; body: string; icon: string }> = [
   {
     title: 'Edit before you post',
-    body: 'Mitype now has a built-in video editor. Trim your clip, pick a vibe, add a caption — all in one screen, all before anything goes live.',
+    body: 'Mitype now has a built-in video editor. Trim your clip, pick a vibe, add a caption. All in one screen, all before anything goes live.',
     icon: '✨',
   },
   {
@@ -22,12 +22,12 @@ const SLIDES: Array<{ title: string; body: string; icon: string }> = [
   },
   {
     title: 'Pick a vibe',
-    body: 'Tap through the filters — Warm Cinema, Moody, Black & White, Sepia, Cool Tone, Faded Film. Preview is live; pick the one that fits your moment.',
+    body: 'Tap through the filters. Warm Cinema, Moody, Black & White, Sepia, Cool Tone, Faded Film. Preview is live; pick the one that fits your moment.',
     icon: '🎨',
   },
   {
     title: 'Add a caption',
-    body: 'Drop a short line of text on the video. Shows up in a clean pill at the bottom. Optional — but a great hook.',
+    body: 'Drop a short line of text on the video. Shows up in a clean pill at the bottom. Optional. But a great hook.',
     icon: '💬',
   },
   {

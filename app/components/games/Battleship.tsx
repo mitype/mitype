@@ -275,7 +275,7 @@ export function Battleship({ session, currentUserId, updateState }: Props) {
         }}>
           <div style={{ fontSize: 24, marginBottom: 6 }}>{youWon ? '🏆' : '🚢'}</div>
           <div style={{ fontSize: 18, fontWeight: 900, color: 'white' }}>
-            {youWon ? 'Fleet down — you win!' : 'They sunk your fleet.'}
+            {youWon ? 'Fleet down. You win!' : 'They sunk your fleet.'}
           </div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 6 }}>
             Hits: you {myHits} / 17 · them {partnerHits} / 17
@@ -327,7 +327,7 @@ export function Battleship({ session, currentUserId, updateState }: Props) {
           {state.lastShot.by === currentUserId
             ? state.lastShot.sunk
               ? `You sunk their ${state.lastShot.sunk}!`
-              : state.lastShot.hit ? 'Direct hit!' : 'Splash — miss.'
+              : state.lastShot.hit ? 'Direct hit!' : 'Splash. Miss.'
             : state.lastShot.sunk
               ? `They sunk your ${state.lastShot.sunk}.`
               : state.lastShot.hit ? 'They hit you.' : 'They missed.'}
@@ -396,11 +396,11 @@ function PlacementPanel({ myFleet, partnerLocked, draftShips, onRoll, onLock }: 
       }}>
         {myLocked
           ? partnerLocked
-            ? 'Both fleets locked in — starting now…'
+            ? 'Both fleets locked in. Starting now…'
             : 'Locked in. Waiting for your opponent to lock theirs.'
           : draftShips
             ? 'Like the layout? Lock it in. Or re-roll for a new one.'
-            : 'Tap below — we\'ll randomize a five-ship fleet for you.'}
+            : 'Tap below. We\'ll randomize a five-ship fleet for you.'}
       </p>
 
       <GridSection title={myLocked ? 'Your fleet (locked)' : 'Draft fleet'}>

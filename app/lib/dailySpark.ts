@@ -253,7 +253,7 @@ export function generateOpener(p: SparkProfile): string {
   }
 
   // Last resort.
-  return 'Hey — what are you working on lately?';
+  return 'Hey. What are you working on lately?';
 }
 
 function openerFromPrompt(p: ProfilePrompt): string {
@@ -261,10 +261,10 @@ function openerFromPrompt(p: ProfilePrompt): string {
   // Phrase a follow-up that references the prompt without quoting their full
   // answer back at them — leaves them room to expand naturally.
   const variants = [
-    `Saw your "${q}" answer — had to ask: what's the backstory there?`,
+    `Saw your "${q}" answer. Had to ask: what's the backstory there?`,
     `Your "${q}" answer made me curious. Tell me more?`,
     `Loved your take on "${q}". What inspired that?`,
-    `"${q}" — your answer was a vibe. How'd you arrive at that?`,
+    `"${q}". Your answer was a vibe. How'd you arrive at that?`,
   ];
   return variants[Math.floor(Math.random() * variants.length)];
 }
@@ -273,16 +273,16 @@ function openerFromPortfolio(linkType: string | null): string {
   const t = (linkType ?? '').toLowerCase();
 
   if (t.includes('music') || t.includes('soundcloud') || t.includes('spotify')) {
-    return "Listening to one of your tracks now — what's the story behind your sound?";
+    return "Listening to one of your tracks now. What's the story behind your sound?";
   }
   if (t.includes('photo') || t.includes('instagram')) {
     return 'Your photography has a real point of view. What were you chasing when you shot it?';
   }
   if (t.includes('writing') || t.includes('blog') || t.includes('substack')) {
-    return "Your writing pulled me in — what's a piece you're particularly proud of?";
+    return "Your writing pulled me in. What's a piece you're particularly proud of?";
   }
   if (t.includes('film') || t.includes('video') || t.includes('youtube') || t.includes('vimeo')) {
-    return "I dug into your reel — what's the project you'd most like to make next?";
+    return "I dug into your reel. What's the project you'd most like to make next?";
   }
   if (t.includes('design') || t.includes('dribbble') || t.includes('behance')) {
     return 'Your design work has range. What kind of brief gets you most excited?';
@@ -291,10 +291,10 @@ function openerFromPortfolio(linkType: string | null): string {
     return 'Your work has a really distinct hand. How would you describe your style to someone who hasn\'t seen it?';
   }
   if (t.includes('code') || t.includes('github')) {
-    return "Peeked at your projects — what are you building right now?";
+    return "Peeked at your projects. What are you building right now?";
   }
 
-  return 'Just looked through your portfolio — which piece are you proudest of right now?';
+  return 'Just looked through your portfolio. Which piece are you proudest of right now?';
 }
 
 // ---------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'Mitype — Find Your Type. For both creative and professional musicians, writers, artists, photographers, and more.';
+export const alt = 'Mitype. Find Your Type. For both creative and professional musicians, writers, artists, photographers, and more.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 

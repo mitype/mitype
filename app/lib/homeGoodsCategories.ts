@@ -81,7 +81,7 @@ export const HOME_GOODS_CONDITION_BY_KEY: Record<string, ConditionEntry> =
   Object.fromEntries(HOME_GOODS_CONDITIONS.map((c) => [c.key, c]));
 
 export function conditionLabel(key: string | null | undefined): string {
-  if (!key) return '—';
+  if (!key) return '-';
   return HOME_GOODS_CONDITION_BY_KEY[key]?.label ?? key;
 }
 
@@ -91,7 +91,7 @@ export function formatPrice(priceCents: number | null | undefined, kind?: string
   if (kind === 'free' || (priceCents !== null && priceCents !== undefined && priceCents === 0)) {
     return 'Free';
   }
-  if (priceCents === null || priceCents === undefined) return '—';
+  if (priceCents === null || priceCents === undefined) return '-';
   const dollars = priceCents / 100;
   const formatted = dollars.toLocaleString('en-US', {
     minimumFractionDigits: dollars % 1 === 0 ? 0 : 2,

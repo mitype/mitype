@@ -353,7 +353,7 @@ export default function EditProfilePage() {
       <Coachmark storageKey="mitype-coachmark-edit-profile-v1" title="Make your profile shine">
         Strong <strong>prompts</strong>, a real <strong>bio</strong>, and a
         <strong> portfolio link</strong> all feed into the personalized openers
-        people send through your Daily Spark — fill them in to get noticed.
+        people send through your Daily Spark. Fill them in to get noticed.
       </Coachmark>
 
       <SiteNav userId={user?.id} showBack backFallbackHref="/dashboard" />
@@ -599,7 +599,7 @@ export default function EditProfilePage() {
                 Run a small business?
               </span>
               <span style={{ display: 'block', fontSize: 13, opacity: 0.92, marginTop: 2, lineHeight: 1.4 }}>
-                Set up a business profile — local Mitype members in your zip will see it.
+                Set up a business profile. Local Mitype members in your zip will see it.
               </span>
             </span>
             <span aria-hidden="true" style={{ fontSize: 22, fontWeight: 800, flexShrink: 0 }}>→</span>
@@ -1286,7 +1286,7 @@ export default function EditProfilePage() {
                         onChange={(e) => updateProfilePrompt(index, 'answer', e.target.value.slice(0, MAX_ANSWER_LENGTH))}
                         maxLength={MAX_ANSWER_LENGTH}
                         rows={2}
-                        placeholder="Keep it short and you — one or two sentences."
+                        placeholder="Keep it short and you. One or two sentences."
                         style={{
                           width: '100%',
                           padding: '10px 14px',
@@ -1356,32 +1356,32 @@ export default function EditProfilePage() {
           {
             icon: '📸',
             title: 'Full photo editor',
-            body: 'Every photo you upload now opens in a built-in editor — crop with aspect locks, rotate, flip, color filters, adjustment sliders, and beauty enhancements. Tap "Edit" on any existing photo to re-edit it later.',
+            body: 'Every photo you upload now opens in a built-in editor. Crop with aspect locks, rotate, flip, color filters, adjustment sliders, and beauty enhancements. Tap "Edit" on any existing photo to re-edit it later.',
           },
           {
             icon: '🏪',
             title: 'Small Business profile',
-            body: 'Run a business? The purple "Run a small business?" card opens a dedicated editor — logo, services, contact info, social, and upcoming events.',
+            body: 'Run a business? The purple "Run a small business?" card opens a dedicated editor. Logo, services, contact info, social, and upcoming events.',
           },
           {
             icon: '🌐',
             title: 'Online-only businesses',
-            body: 'Brick-and-mortar isn’t required. Flip the new "online-only" toggle inside the business editor and pick a label like Online Store, Boutique, Service, or Coaching — your website becomes your storefront.',
+            body: 'Brick-and-mortar isn’t required. Flip the new "online-only" toggle inside the business editor and pick a label like Online Store, Boutique, Service, or Coaching. Your website becomes your storefront.',
           },
           {
             icon: '🏪',
             title: 'Recommend small businesses',
-            body: 'Save a business on Mitype, then recommend it on your profile. Up to 10 picks — they appear in a purple section on your profile to help your favorite small businesses reach more people.',
+            body: 'Save a business on Mitype, then recommend it on your profile. Up to 10 picks. They appear in a purple section on your profile to help your favorite small businesses reach more people.',
           },
           {
             icon: '🐾',
             title: 'Got a pet? Add Mipet tags',
-            body: 'Flip the "Got a pet?" toggle to add your pet — name, type, birthday, favorite activity, food, photo, and a 200-char bio. A bronze Mipet dog tag will hang from your profile card.',
+            body: 'Flip the "Got a pet?" toggle to add your pet. Name, type, birthday, favorite activity, food, photo, and a 200-char bio. A bronze Mipet dog tag will hang from your profile card.',
           },
           {
             icon: '🎨',
             title: 'Pick your tag bezel color',
-            body: 'Choose any of 10 outer-ring colors for your pet’s tag — gold, silver, rose, black, pink, red, blue, teal, green, or purple.',
+            body: 'Choose any of 10 outer-ring colors for your pet’s tag. Gold, silver, rose, black, pink, red, blue, teal, green, or purple.',
           },
         ]}
       />

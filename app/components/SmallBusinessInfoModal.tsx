@@ -21,12 +21,12 @@ const BENEFITS: Benefit[] = [
   {
     icon: '🏪',
     title: 'Your own business profile',
-    body: 'A clean page for your shop — logo, services, contact buttons, hours, links, and events. Free to set up.',
+    body: 'A clean page for your shop. Logo, services, contact buttons, hours, links, and events. Free to set up.',
   },
   {
     icon: '📍',
     title: 'Discoverable in your zip code',
-    body: 'When Mitype members in your area open Discover, your business shows up in the local list — filterable by category.',
+    body: 'When Mitype members in your area open Discover, your business shows up in the local list. Filterable by category.',
   },
   {
     icon: '✨',
@@ -36,12 +36,12 @@ const BENEFITS: Benefit[] = [
   {
     icon: '💜',
     title: 'Customer recommendations',
-    body: 'Your existing connections can recommend your business right on their own profile — word-of-mouth, made visible.',
+    body: 'Your existing connections can recommend your business right on their own profile. Word-of-mouth, made visible.',
   },
   {
     icon: '🌐',
     title: 'Online-only? Totally fine',
-    body: 'Etsy, Shopify, custom clothing, e-books, online courses — pick from 130+ business types, no storefront required.',
+    body: 'Etsy, Shopify, custom clothing, e-books, online courses. Pick from 130+ business types, no storefront required.',
   },
   {
     icon: '💬',

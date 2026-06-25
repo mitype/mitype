@@ -117,7 +117,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
             color: '#3a5d48',
             lineHeight: 1.55,
           }}>
-            Mi Home Goods lets members buy and sell goods directly. We connect you with each other — what happens after that is up to you. Please read these guidelines once, and you won't see them again.
+            Mi Home Goods lets members buy and sell goods directly. We connect you with each other. What happens after that is up to you. Please read these guidelines once, and you won't see them again.
           </p>
         </div>
 
@@ -138,7 +138,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
           <Guideline
             icon="📍"
             title="Meet in public, well-lit places"
-            body={<>Many police departments offer free "Safe Trade Zones" with cameras — search your city's department site, or meet at busy public places: shopping mall entrances, libraries, big-box-store parking lots during business hours, busy coffee shops, or fire station lobbies. Avoid private homes unless you've established trust over several transactions.</>}
+            body={<>Many police departments offer free "Safe Trade Zones" with cameras. Search your city's department site, or meet at busy public places: shopping mall entrances, libraries, big-box-store parking lots during business hours, busy coffee shops, or fire station lobbies. Avoid private homes unless you've established trust over several transactions.</>}
           />
           <Guideline
             icon="👥"
@@ -153,7 +153,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
           <Guideline
             icon="💵"
             title="Verify before you pay"
-            body="Inspect the item in person. Test electronics if you can. Cash and well-known payment apps work fine for casual sales — never wire money or buy a gift card for an unfamiliar buyer or seller."
+            body="Inspect the item in person. Test electronics if you can. Cash and well-known payment apps work fine for casual sales. Never wire money or buy a gift card for an unfamiliar buyer or seller."
           />
           <Guideline
             icon="🧭"
@@ -212,7 +212,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
                 letterSpacing: '0.3px',
               }}
             >
-              {saving ? 'Saving…' : 'I understand — continue'}
+              {saving ? 'Saving…' : 'I understand. Continue'}
             </button>
             <button
               type="button"

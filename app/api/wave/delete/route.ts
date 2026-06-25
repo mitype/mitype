@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            'This video is more than an hour old — it can no longer be deleted. It will auto-expire 24 hours after posting.',
+            'This video is more than an hour old. It can no longer be deleted. It will auto-expire 24 hours after posting.',
         },
         { status: 403 }
       );

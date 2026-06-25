@@ -83,7 +83,7 @@ export default function Dashboard() {
 
       <Coachmark storageKey="mitype-coachmark-dashboard-v1" title="Welcome to Mitype">
         This is your home base. Your <strong>Daily Spark</strong> and the
-        <strong> Weekly Prompt</strong> live here — explore the nav above to
+        <strong> Weekly Prompt</strong> live here. Explore the nav above to
         discover people, browse Spotlight, or check Messages.
       </Coachmark>
 
@@ -95,7 +95,7 @@ export default function Dashboard() {
         delay={1800}
         duration={9000}
       >
-        Swipe <strong>left</strong> on any page to go back to where you came from — works everywhere except this dashboard.
+        Swipe <strong>left</strong> on any page to go back to where you came from. Works everywhere except this dashboard.
       </Coachmark>
 
       {/* "What's new" coachmark — drops in on the user's next login
@@ -109,7 +109,7 @@ export default function Dashboard() {
         delay={1200}
         duration={12000}
       >
-        Buy and sell directly with your Mitype community — furniture, electronics, vintage finds, free stuff. Open the menu and tap Mi Home Goods to browse or list anything.
+        Buy and sell directly with your Mitype community. Furniture, electronics, vintage finds, free stuff. Open the menu and tap Mi Home Goods to browse or list anything.
       </Coachmark>
 
       <SiteNav userId={user?.id} />
@@ -202,7 +202,7 @@ export default function Dashboard() {
             </h1>
             <p style={{ color: '#a89278', fontSize: 16, margin: 0 }}>
               {hasFreshWave
-                ? 'Your Wave is live — tap your avatar to watch your own videos.'
+                ? 'Your Wave is live. Tap your avatar to watch your own videos.'
                 : "Here's what's happening on your Mitype profile."}
             </p>
           </div>
@@ -292,7 +292,7 @@ export default function Dashboard() {
           marginBottom: 48,
         }}>
           {[
-            { icon: '🌊', label: 'The Wave Feed', desc: 'Jump straight into the scrolling feed — watch, like, and post your own', href: '/wave', color: '#ecf0f5' },
+            { icon: '🌊', label: 'The Wave Feed', desc: 'Jump straight into the scrolling feed. Watch, like, and post your own', href: '/wave', color: '#ecf0f5' },
             { icon: '🔍', label: 'Discover Creators', desc: 'Browse profiles and connect with creators who share your craft', href: '/discover', color: '#fff3ec' },
             { icon: '✨', label: 'Spotlight', desc: 'Explore portfolio work from the community', href: '/spotlight', color: '#fff8ec' },
             { icon: '💬', label: 'Messages', desc: 'View your conversations', href: '/messages', color: '#f5f5ec' },

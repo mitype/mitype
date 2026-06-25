@@ -168,7 +168,7 @@ export function OddcastPill() {
                 textAlign: 'right',
               }}
             >
-              — stay odd
+             . Stay odd
             </p>
           </div>
 

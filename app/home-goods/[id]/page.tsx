@@ -145,7 +145,7 @@ export default function ListingDetailPage() {
       return;
     }
     const prefill =
-      `Hi! I'm interested in your "${listing.title}" — ${formatPrice(listing.price_cents, listing.price_kind)}. Is it still available?`;
+      `Hi! I'm interested in your "${listing.title}". ${formatPrice(listing.price_cents, listing.price_kind)}. Is it still available?`;
     router.push(
       `/messages?user=${encodeURIComponent(seller.user_id)}&prefill=${encodeURIComponent(prefill)}`
     );

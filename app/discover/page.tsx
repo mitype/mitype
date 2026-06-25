@@ -450,7 +450,7 @@ export default function DiscoverPage() {
     }}>
 
       <Coachmark storageKey="mitype-coachmark-discover-v2" title="How discover works">
-        Tap to connect with a creator you&rsquo;d like to collaborate with — your
+        Tap to connect with a creator you&rsquo;d like to collaborate with. Your
         connection request lands in their <strong>Messages</strong> for them to approve.
       </Coachmark>
 
@@ -520,7 +520,7 @@ export default function DiscoverPage() {
               margin: 0,
               lineHeight: 1.4,
             }}>
-              Scroll, watch, and post quick videos — fresh creative moments from the community.
+              Scroll, watch, and post quick videos. Fresh creative moments from the community.
             </p>
           </div>
           <div aria-hidden="true" style={{
@@ -553,7 +553,7 @@ export default function DiscoverPage() {
                   Spotlight Profiles
                 </h2>
                 <p style={{ color: '#a89278', fontSize: 13 }}>
-                  Featured creatives today — refreshes daily
+                  Featured creatives today. Refreshes daily
                 </p>
               </div>
             </div>
@@ -788,7 +788,7 @@ export default function DiscoverPage() {
                   Today&rsquo;s Business Spotlight
                 </h2>
                 <p style={{ color: '#7a6a85', fontSize: 13, margin: 0 }}>
-                  A different small business every day — rotates at midnight.
+                  A different small business every day. Rotates at midnight.
                 </p>
               </div>
             </div>
@@ -940,7 +940,7 @@ export default function DiscoverPage() {
                     {myZip
                       ? bizCategoryFilter
                         ? `No ${bizCategoryFilter} businesses in ${myZip} yet.`
-                        : `No local businesses in ${myZip} yet — be the first.`
+                        : `No local businesses in ${myZip} yet. Be the first.`
                       : 'Add a zip code to your profile to see local businesses.'}
                   </div>
                 );
@@ -1079,24 +1079,24 @@ export default function DiscoverPage() {
           </span>
         </button>
 
-        {/* Mi Home Goods CTA — dark-green banner that links to the
-            marketplace. Always-visible (not collapsible) because the
-            marketplace itself is the destination. */}
+        {/* Mi Home Goods CTA. Soft green outline on white, glowing
+            shadow. Same visual language as the Small Business CTA so
+            the two marketplace surfaces feel like a set. */}
         <Link
           href="/home-goods"
           style={{
             display: 'flex',
             width: '100%',
-            background: 'linear-gradient(135deg, #15803d 0%, #22c55e 100%)',
-            border: '1px solid #15803d',
+            background: 'white',
+            border: '1px solid rgba(21,128,61,0.4)',
             borderRadius: 20,
             padding: '18px 22px',
             marginBottom: 32,
             alignItems: 'center',
             gap: 14,
-            color: 'white',
+            color: '#15803d',
             fontFamily: 'inherit',
-            boxShadow: '0 10px 28px rgba(21,128,61,0.3)',
+            boxShadow: '0 10px 28px rgba(21,128,61,0.18)',
             textDecoration: 'none',
           }}
         >
@@ -1105,8 +1105,8 @@ export default function DiscoverPage() {
             <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
               Mi Home Goods marketplace
             </span>
-            <span style={{ display: 'block', fontSize: 13, opacity: 0.92, marginTop: 2 }}>
-              Buy and sell with your Mitype community — furniture, electronics, vintage finds, and more.
+            <span style={{ display: 'block', fontSize: 13, color: '#3a5d48', marginTop: 2 }}>
+              Buy and sell with your Mitype community. Furniture, electronics, vintage finds, and more.
             </span>
           </span>
           <span aria-hidden="true" style={{ fontSize: 18, fontWeight: 800 }}>→</span>
@@ -1192,7 +1192,7 @@ export default function DiscoverPage() {
                   }}>
                     {roomCategoryFilter
                       ? `No public rooms in ${roomCategoryLabel(roomCategoryFilter)} yet. Start one with the + Room button in Messages.`
-                      : 'No public rooms yet. Be the first — head to Messages and tap + Room.'}
+                      : 'No public rooms yet. Be the first. Head to Messages and tap + Room.'}
                   </div>
                 );
               }
@@ -1304,7 +1304,7 @@ export default function DiscoverPage() {
               Discover
             </h1>
             <p style={{ color: '#a89278', fontSize: 16 }}>
-              {filteredProfiles.length} creative{filteredProfiles.length !== 1 ? 's' : ''} — sorted by compatibility
+              {filteredProfiles.length} creative{filteredProfiles.length !== 1 ? 's' : ''}. Sorted by compatibility
             </p>
           </div>
 
@@ -1586,7 +1586,7 @@ export default function DiscoverPage() {
                 }}
               >
                 {waveCategoryPreview.creator
-                  ? `Starting with @${waveCategoryPreview.creator.username} — tap to start watching.`
+                  ? `Starting with @${waveCategoryPreview.creator.username}. Tap to start watching.`
                   : 'Tap to start watching.'}
               </p>
             </div>
@@ -1852,7 +1852,7 @@ export default function DiscoverPage() {
           {
             icon: '🏛️',
             title: 'Find rooms to join',
-            body: 'Tap the bronze "Looking for a room to join?" banner to browse public rooms by category. One tap to join — the chat opens straight away.',
+            body: 'Tap the bronze "Looking for a room to join?" banner to browse public rooms by category. One tap to join. The chat opens straight away.',
           },
           {
             icon: '🏪',

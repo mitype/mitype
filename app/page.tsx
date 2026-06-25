@@ -115,7 +115,7 @@ export default function HomePage() {
           lineHeight: 1.8,
           marginBottom: 48,
         }}>
-          Mitype connects creative professionals, hobbyists, and passionate people based on what they actually love doing — not just how they look.
+          Mitype connects creative professionals, hobbyists, and passionate people based on what they actually love doing. Not just how they look.
         </p>
 
         {/* CTA */}
@@ -453,7 +453,7 @@ export default function HomePage() {
               'Full messaging after approval',
               'Filter by category & ZIP code',
               'Share your public profile link',
-              'Cancel anytime — no commitment',
+              'Cancel anytime. No commitment',
             ].map((item) => (
               <li key={item} style={{
                 display: 'flex',

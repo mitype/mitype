@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       });
     if (statErr || !fileInfo?.length) {
       return NextResponse.json(
-        { error: 'Upload not found in storage — try again' },
+        { error: 'Upload not found in storage. Try again' },
         { status: 400 }
       );
     }

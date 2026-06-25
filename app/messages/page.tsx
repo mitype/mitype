@@ -91,7 +91,7 @@ const ICEBREAKERS = [
   "What's your favorite way to spend a Sunday? ☀️",
   "What's your favorite way to recharge after a long day? 🌙",
   "What does your perfect Saturday morning look like? ☕",
-  "Coffee or tea — and what does your order say about you? ☕",
+  "Coffee or tea. And what does your order say about you? ☕",
   "What's your strangest routine? 🌀",
   "What's a guilty pleasure you don't feel guilty about? 🍰",
   "What's the most underrated meal of the day? 🥞",
@@ -1267,7 +1267,7 @@ export default function MessagesPage() {
 
       <Coachmark storageKey="mitype-coachmark-messages-v1" title="Your inbox">
         New connection requests show up here. Tap a request to approve or
-        decline — once approved, you can chat freely and even start
+        decline. Once approved, you can chat freely and even start
         <strong> mini-games</strong> together.
       </Coachmark>
 
@@ -1420,7 +1420,7 @@ export default function MessagesPage() {
               }}>
                 {businessSaves.length === 0 ? (
                   <div style={{ padding: '20px 8px', fontSize: 12, color: '#7a6a85', textAlign: 'center', lineHeight: 1.5 }}>
-                    No saved businesses yet — tap the ☆ Save button on any
+                    No saved businesses yet. Tap the ☆ Save button on any
                     business profile to add it here.
                   </div>
                 ) : (
@@ -2784,7 +2784,7 @@ export default function MessagesPage() {
           {
             icon: '🏡',
             title: 'Mi Home Goods is here',
-            body: 'Buy and sell directly with your Mitype community — furniture, electronics, vintage finds, free stuff. Open the menu, tap Mi Home Goods, and list anything in under a minute with up to 4 photos.',
+            body: 'Buy and sell directly with your Mitype community. Furniture, electronics, vintage finds, free stuff. Open the menu, tap Mi Home Goods, and list anything in under a minute with up to 4 photos.',
           },
           {
             icon: '👥',
@@ -2793,18 +2793,18 @@ export default function MessagesPage() {
           },
           {
             icon: '🏛️',
-            title: 'Rooms — themed creator hangouts',
+            title: 'Rooms. Themed creator hangouts',
             body: 'Tap the purple + Room pill to create a public or invite-only room around a shared interest (LA filmmakers, home bakers, Etsy starters…). 21 categories to pick from. Up to 250 members per room.',
           },
           {
             icon: '🔍',
             title: 'Find rooms in Discover',
-            body: 'The new "Looking for a room to join?" tab on Discover lets you browse every public room by category. One tap to join — no creator approval needed.',
+            body: 'The new "Looking for a room to join?" tab on Discover lets you browse every public room by category. One tap to join. No creator approval needed.',
           },
           {
             icon: '💡',
             title: 'Daily prompts (rooms only)',
-            body: 'Room moderators can set a "today\'s prompt" that appears as a banner above the chat — a clean way to spark discussion without it getting buried.',
+            body: 'Room moderators can set a "today\'s prompt" that appears as a banner above the chat. A clean way to spark discussion without it getting buried.',
           },
           {
             icon: '⚙',
@@ -2813,17 +2813,17 @@ export default function MessagesPage() {
           },
           {
             icon: '🎮',
-            title: 'Three more games — 14 total',
+            title: 'Three more games. 14 total',
             body: 'Pictionary (live canvas drawing), Word Association (8-second turn chain), and Name That Quote (race-to-type lyrics, movie lines, TV quotes). Tap the gold 🎮 button to play any of them.',
           },
           {
             icon: '🤔',
             title: 'And all the games from before',
-            body: 'Would You Rather, This or That, Tic-Tac-Toe, Connect Four, Trivia Battle, Story Builder, Hangman, Checkers, Battleship, Chess, Word Duel — all still here. The lobby is now categorized so you can find them faster.',
+            body: 'Would You Rather, This or That, Tic-Tac-Toe, Connect Four, Trivia Battle, Story Builder, Hangman, Checkers, Battleship, Chess, Word Duel. All still here. The lobby is now categorized so you can find them faster.',
           },
           {
             icon: '🔤',
-            title: 'Word Duel — head-to-head Scrabble',
+            title: 'Word Duel. Head-to-head Scrabble',
             body: '15×15 board with full premium squares (DL/TL/DW/TW), 100-tile bag, dictionary validation, and the 50-point bingo bonus when you place all 7 rack tiles in one turn. Blanks get a letter picker.',
           },
           {
@@ -2834,22 +2834,22 @@ export default function MessagesPage() {
           {
             icon: '🚪',
             title: 'End game any time',
-            body: 'Every game has an ✕ in the top right. Tap it and your partner is told you ended the game — both of you get a "Play another game?" prompt. Games are NOT saved, so close out cleanly.',
+            body: 'Every game has an ✕ in the top right. Tap it and your partner is told you ended the game. Both of you get a "Play another game?" prompt. Games are NOT saved, so close out cleanly.',
           },
           {
             icon: '📷',
             title: 'Send photos',
-            body: 'Tap the 📷 button next to the message input to send a photo. Any image format — JPEG, PNG, HEIC from iPhone, even GIFs. Photos auto-convert so everyone can view them on every device.',
+            body: 'Tap the 📷 button next to the message input to send a photo. Any image format. JPEG, PNG, HEIC from iPhone, even GIFs. Photos auto-convert so everyone can view them on every device.',
           },
           {
             icon: '🔊',
             title: 'Send voice notes',
-            body: 'Tap the sound-bar icon to record a voice note. A panel opens with a live waveform — tap Start, talk, tap Stop. Listen back, then Send or Re-record. Up to 10 minutes per voice note.',
+            body: 'Tap the sound-bar icon to record a voice note. A panel opens with a live waveform. Tap Start, talk, tap Stop. Listen back, then Send or Re-record. Up to 10 minutes per voice note.',
           },
           {
             icon: '⏱️',
             title: 'Photos & voice auto-expire in 24h',
-            body: 'Photos and voice notes vanish from the chat 24 hours after sending — the file is deleted from our servers and the bubble shows "Photo expired" or "Voice note expired."',
+            body: 'Photos and voice notes vanish from the chat 24 hours after sending. The file is deleted from our servers and the bubble shows "Photo expired" or "Voice note expired."',
           },
           {
             icon: '🗑️',

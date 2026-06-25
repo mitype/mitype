@@ -22,7 +22,7 @@ export function formatStoryText({
 }: StoryExportInput): string {
   const body = sentences.join(' ');
   const credit = `Built together by @${myUsername} × @${partnerUsername}`;
-  return `"${opener}" ${body}\n\n— ${credit}\n✨ Made on Mitype · mitypeapp.com`;
+  return `"${opener}" ${body}\n\n- ${credit}\n✨ Made on Mitype · mitypeapp.com`;
 }
 
 /** Renders the story as a 1080x1350 PNG. Returns a Blob ready for

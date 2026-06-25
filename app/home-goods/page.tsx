@@ -165,7 +165,7 @@ export default function HomeGoodsBrowsePage() {
               lineHeight: 1.5,
               maxWidth: 560,
             }}>
-              Furniture, electronics, instruments, vintage finds — list it, browse it, message the seller, and meet up safely.
+              Furniture, electronics, instruments, vintage finds. List it, browse it, message the seller, and meet up safely.
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -315,7 +315,7 @@ export default function HomeGoodsBrowsePage() {
               ? 'Nothing matches those filters yet.'
               : (
                 <>
-                  No listings yet. {sellersTipShown && 'Be the first — tap "+ Sell something" above.'}
+                  No listings yet. {sellersTipShown && 'Be the first. Tap "+ Sell something" above.'}
                 </>
               )}
           </div>

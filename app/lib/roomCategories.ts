@@ -28,7 +28,7 @@ export const ROOM_CATEGORIES: RoomCategoryEntry[] = [
 
   // ─── Digital / content ───
   { key: 'creators',       emoji: '🤳', label: 'Creators & influencers', tagline: 'TikTok, IG, YouTube, Twitch.' },
-  { key: 'podcasters',     emoji: '🎙️', label: 'Podcasters',       tagline: 'Solo, panel, narrative — all welcome.' },
+  { key: 'podcasters',     emoji: '🎙️', label: 'Podcasters',       tagline: 'Solo, panel, narrative. All welcome.' },
   { key: 'gamers',         emoji: '🎮', label: 'Gamers',           tagline: 'Streamers, esports, casual play, devs.' },
   { key: 'tech',           emoji: '💻', label: 'Tech & dev',       tagline: 'Web, app, AI, hardware tinkerers.' },
 

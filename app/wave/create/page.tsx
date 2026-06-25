@@ -885,7 +885,7 @@ function CategoryPicker({
     <div style={cardStyle}>
       <div style={sectionLabel}>Tag a category</div>
       <p style={{ fontSize: 13, color: '#8a7560', margin: '0 0 12px', lineHeight: 1.4 }}>
-        Pick any category that fits your video — it doesn&rsquo;t have to be one of yours.
+        Pick any category that fits your video. It doesn&rsquo;t have to be one of yours.
         Your video will show up when other creatives filter by this category.
       </p>
 

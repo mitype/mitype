@@ -238,7 +238,7 @@ export default function WavePage() {
         if (retried) outcome = retried;
       }
       if (!outcome) {
-        toast.error('Network hiccup loading the wave — try again in a moment.');
+        toast.error('Network hiccup loading the wave. Try again in a moment.');
         return;
       }
       const { ok, json } = outcome;
@@ -580,7 +580,7 @@ export default function WavePage() {
       // Server-side undo failed — leave the local re-insert in place
       // because the user clearly wants this video back, but warn so they
       // know the dismissal might come back on next refresh.
-      toast.error('Could not fully undo — refresh to recheck.');
+      toast.error('Could not fully undo. Refresh to recheck.');
     }
   }
 
@@ -919,7 +919,7 @@ export default function WavePage() {
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 15, lineHeight: 1.6, maxWidth: 320, marginBottom: 28 }}>
               {categoryFilter
-                ? 'Be the first to tag a video with this category — or browse the whole feed.'
+                ? 'Be the first to tag a video with this category. Or browse the whole feed.'
                 : 'Be the first to post a video. Show your craft. Your people are waiting.'}
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -1047,7 +1047,7 @@ export default function WavePage() {
 
             {/* Pause overlay — large centered play button shown while
                 the user has manually paused this video. Tapping it
-                resumes playback (no double-tap detection here — the
+                resumes playback (no double-tap detection here. The
                 user clearly wants to resume). Uses an inline SVG
                 triangle so iOS doesn't render the emoji square. */}
             {pausedId === item.id && (
@@ -1446,7 +1446,7 @@ export default function WavePage() {
                 }}
               >
                 {/* OWN video: always surface the Delete state so the
-                    creator understands the 1-hour window — clickable
+                    creator understands the 1-hour window. Clickable
                     inside the window, greyed-out + explanatory outside. */}
                 {isOwnVideo(item) ? (
                   canDelete(item) ? (
@@ -1470,7 +1470,7 @@ export default function WavePage() {
                     >
                       🗑️ Delete window closed
                       <div style={{ fontSize: 11, marginTop: 2, fontWeight: 400 }}>
-                        Posted {minutesSincePost(item)} min ago — videos can only
+                        Posted {minutesSincePost(item)} min ago. Videos can only
                         be deleted within 1 hour of posting. This video will
                         auto-expire 24 hours after posting.
                       </div>
@@ -1692,7 +1692,7 @@ export default function WavePage() {
                   fontSize: 13,
                   color: 'rgba(255,255,255,0.7)',
                 }}>
-                  You don&rsquo;t share categories yet — but recency and the
+                  You don&rsquo;t share categories yet. But recency and the
                   community&rsquo;s overall energy bring this onto your feed.
                 </div>
               )}
@@ -1819,7 +1819,7 @@ export default function WavePage() {
           {
             icon: '⏸️',
             title: 'Tap to pause',
-            body: 'One tap pauses the video. The play button appears in the middle — tap it (or the video) again to resume.',
+            body: 'One tap pauses the video. The play button appears in the middle. Tap it (or the video) again to resume.',
           },
           {
             icon: '👈',
@@ -1829,27 +1829,27 @@ export default function WavePage() {
           {
             icon: '🔊',
             title: 'Tap to unmute',
-            body: 'Videos start muted because of phone autoplay rules. Tap the gold "Tap to unmute" pill at the bottom-left once — sound stays on for every video, every visit.',
+            body: 'Videos start muted because of phone autoplay rules. Tap the gold "Tap to unmute" pill at the bottom-left once. Sound stays on for every video, every visit.',
           },
           {
             icon: 'ⓘ',
             title: 'Why this video?',
-            body: "Tap the small ⓘ on the right side to see exactly why we surfaced this creator — shared categories, your compatibility score, and a bit about who they are.",
+            body: "Tap the small ⓘ on the right side to see exactly why we surfaced this creator. Shared categories, your compatibility score, and a bit about who they are.",
           },
           {
             icon: '↩️',
             title: 'Undo Skip',
-            body: "Tapped Skip by mistake? A small Undo pill pops up for 5 seconds at the bottom — tap it and the video reappears right where it was.",
+            body: "Tapped Skip by mistake? A small Undo pill pops up for 5 seconds at the bottom. Tap it and the video reappears right where it was.",
           },
           {
             icon: '⏱️',
             title: 'Expiring soon',
-            body: 'Every Wave video lives 24 hours. When less than an hour remains, the timer badge pulses red and the video glows red around the edge — catch it before it disappears.',
+            body: 'Every Wave video lives 24 hours. When less than an hour remains, the timer badge pulses red and the video glows red around the edge. Catch it before it disappears.',
           },
           {
             icon: '🌊',
             title: 'Fresh Wave avatars',
-            body: 'Any avatar with a bronze glow has a fresh Wave video posted today. Tap it to dive straight into that creator’s feed — works on Discover, on profile pages, and your own dashboard.',
+            body: 'Any avatar with a bronze glow has a fresh Wave video posted today. Tap it to dive straight into that creator’s feed. Works on Discover, on profile pages, and your own dashboard.',
           },
         ]}
       />

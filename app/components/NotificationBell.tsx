@@ -163,7 +163,7 @@ export function NotificationBell({ userId, tone = 'bronze' }: {
           <div style={{ maxHeight: 380, overflowY: 'auto' }}>
             {items.length === 0 ? (
               <div style={{ padding: 28, textAlign: 'center', color: '#a89278', fontSize: 13 }}>
-                Nothing here yet — when someone recommends your business or
+                Nothing here yet. When someone recommends your business or
                 interacts with you, you&rsquo;ll see it here.
               </div>
             ) : (

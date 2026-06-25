@@ -133,7 +133,7 @@ export function ThisOrThat({ session, currentUserId, updateState }: Props) {
         color: 'white', textAlign: 'center',
         letterSpacing: '-0.4px',
       }}>
-        Pick one — fast!
+        Pick one. Fast!
       </h2>
 
       <div style={{

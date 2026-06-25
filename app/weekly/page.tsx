@@ -274,7 +274,7 @@ export default function WeeklyPromptPage() {
     >
 
       <Coachmark storageKey="mitype-coachmark-weekly-v1" title="The Weekly prompt">
-        Each week we drop a creative prompt. Post <strong>one answer</strong> —
+        Each week we drop a creative prompt. Post <strong>one answer</strong> -
         upvote the ones you love, and the highest-voted rises to the top.
         Fresh prompt every Monday.
       </Coachmark>

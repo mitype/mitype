@@ -321,7 +321,7 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
             }}>
               {search
                 ? 'No connections match that name.'
-                : 'Connect with a few creators first — they\'ll appear here.'}
+                : 'Connect with a few creators first. They\'ll appear here.'}
             </div>
           ) : (
             <div

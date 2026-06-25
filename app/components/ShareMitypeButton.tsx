@@ -13,9 +13,9 @@ interface Props {
   username: string | undefined;
 }
 
-const SHARE_TITLE = 'Mitype — Find Your Type of Creator';
+const SHARE_TITLE = 'Mitype. Find Your Type of Creator';
 const SHARE_TEXT =
-  'Mitype is a creative networking platform for friendships and collaboration — connect with creators based on the craft they actually practice. You should join.';
+  'Mitype is a creative networking platform for friendships and collaboration. Connect with creators based on the craft they actually practice. You should join.';
 
 export function ShareMitypeButton({ username }: Props) {
   const [hover, setHover] = useState(false);
@@ -50,7 +50,7 @@ export function ShareMitypeButton({ username }: Props) {
     // Desktop / browsers without share API → copy the link.
     try {
       await navigator.clipboard.writeText(link);
-      toast.success('Link copied — paste it anywhere');
+      toast.success('Link copied. Paste it anywhere');
     } catch {
       // Last resort: a tiny prompt with the link selected so the user
       // can copy manually. Rare, but covers locked-down environments.

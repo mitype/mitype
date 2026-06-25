@@ -120,7 +120,7 @@ export default function TermsOfServicePage() {
           },
           {
             title: '11. Safety for Collaborations and In-Person Meetings',
-            content: `Mitype facilitates online connections between creators for the purposes of collaboration, networking, and friendship. The Platform has no control over interactions or meetings that occur outside of the Platform. Always exercise caution when meeting collaborators in person — we recommend meeting in public places, in professional settings such as studios or workshops, and informing a trusted person of your plans. Mitype is not responsible for any interactions or outcomes that occur outside the Platform.`,
+            content: `Mitype facilitates online connections between creators for the purposes of collaboration, networking, and friendship. The Platform has no control over interactions or meetings that occur outside of the Platform. Always exercise caution when meeting collaborators in person. We recommend meeting in public places, in professional settings such as studios or workshops, and informing a trusted person of your plans. Mitype is not responsible for any interactions or outcomes that occur outside the Platform.`,
           },
           {
             title: '12. Governing Law',

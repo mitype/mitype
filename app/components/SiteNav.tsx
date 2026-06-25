@@ -224,8 +224,8 @@ export function SiteNav({
           <NavLink href="/spotlight"    label="Spotlight" />
           <NavLink href="/weekly"       label="Weekly" />
           <NavLink href="/messages"     label="Messages" badge={unread.total} />
-          {/* Mi Home Goods — dark-green styling so the marketplace
-              entry visually separates from the bronze/purple surfaces. */}
+          {/* Mi Home Goods. Soft green outline on white, matching the
+              tone of the Small Business CTA on the landing page. */}
           <Link
             href="/home-goods"
             onClick={() => setOpen(false)}
@@ -234,15 +234,15 @@ export function SiteNav({
               alignItems: 'center',
               gap: 10,
               padding: '13px 20px',
-              color: 'white',
+              color: '#15803d',
               fontSize: 15,
               fontWeight: 800,
               textDecoration: 'none',
               borderRadius: 100,
-              background: 'linear-gradient(135deg, #15803d, #22c55e)',
-              border: '1px solid #15803d',
+              background: 'white',
+              border: '1px solid rgba(21,128,61,0.4)',
               letterSpacing: '0.1px',
-              boxShadow: '0 6px 14px rgba(21,128,61,0.3)',
+              boxShadow: '0 8px 22px rgba(21,128,61,0.18)',
             }}
           >
             <span>🏡 Mi Home Goods</span>

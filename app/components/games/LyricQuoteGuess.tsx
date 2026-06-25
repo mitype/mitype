@@ -421,7 +421,7 @@ export function LyricQuoteGuess({ session, currentUserId, updateState }: Props) 
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)' }}>
               Answer: <strong style={{ color: '#ffd5a8' }}>{clueEntry.title}</strong>
               {clueEntry.artist && (
-                <span style={{ color: 'rgba(255,255,255,0.7)' }}> — {clueEntry.artist}</span>
+                <span style={{ color: 'rgba(255,255,255,0.7)' }}>. {clueEntry.artist}</span>
               )}
               {' · '}
               <span style={{ color: 'rgba(255,255,255,0.6)' }}>{clueEntry.year}</span>

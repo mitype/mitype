@@ -360,7 +360,7 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
             </div>
           ) : (
             <p style={{ textAlign: 'center', fontSize: 14, color: '#ffd5a8', fontWeight: 700, margin: '8px 0' }}>
-              ✍️ Partner&rsquo;s turn — waiting on them…
+              ✍️ Partner&rsquo;s turn. Waiting on them…
             </p>
           )}
         </div>

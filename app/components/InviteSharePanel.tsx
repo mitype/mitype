@@ -25,7 +25,7 @@ interface Props {
 }
 
 const BASE = 'https://www.mitypeapp.com';
-const SHARE_TEXT = 'I found my type of people on Mitype — join me.';
+const SHARE_TEXT = 'I found my type of people on Mitype. Join me.';
 
 export function InviteSharePanel({ username, open, onClose }: Props) {
   const [downloading, setDownloading] = useState(false);
@@ -148,7 +148,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
       label: 'Story / Reel',
       icon: '📲',
       onClick: handleNativeShareWithImage,
-      desc: 'Instagram, TikTok, Snapchat — opens your share sheet with the image',
+      desc: 'Instagram, TikTok, Snapchat. Opens your share sheet with the image',
     },
     {
       key: 'sms',
@@ -265,7 +265,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
             margin: '0 0 18px',
           }}
         >
-          Share your invite — Mitype gets better as your scene grows.
+          Share your invite. Mitype gets better as your scene grows.
         </p>
 
         {/* Preview of the share image */}

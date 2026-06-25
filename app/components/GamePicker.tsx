@@ -146,9 +146,9 @@ function gameTitle(step: Step) {
 
 function Picker({ onPick }: { onPick: (s: Step) => void }) {
   const options: Array<{ key: Step; title: string; desc: string; emoji: string }> = [
-    { key: 'ttl',   title: 'Two Truths & a Lie', emoji: '🎭', desc: 'Write three things — one is fake. Can they spot it?' },
+    { key: 'ttl',   title: 'Two Truths & a Lie', emoji: '🎭', desc: 'Write three things. One is fake. Can they spot it?' },
     { key: 'wyr',   title: 'Would You Rather',   emoji: '🤔', desc: 'Pick a prompt and see what they choose.' },
-    { key: 'emoji', title: 'Emoji Movie',        emoji: '🎬', desc: 'Describe a movie in emojis — see if they can guess it.' },
+    { key: 'emoji', title: 'Emoji Movie',        emoji: '🎬', desc: 'Describe a movie in emojis. See if they can guess it.' },
   ];
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -278,7 +278,7 @@ function BuildWyr({
             onClick={() => usePrompt(pair)}
             style={suggestionStyle}
           >
-            <span style={{ color: PEACH, fontWeight: 800 }}>A</span> {pair[0]} <span style={{ color: MUTED }}>—</span> <span style={{ color: PEACH, fontWeight: 800 }}>B</span> {pair[1]}
+            <span style={{ color: PEACH, fontWeight: 800 }}>A</span> {pair[0]} <span style={{ color: MUTED }}>-</span> <span style={{ color: PEACH, fontWeight: 800 }}>B</span> {pair[1]}
           </button>
         ))}
       </div>
@@ -307,7 +307,7 @@ function BuildEmoji({
   const ready = emoji.trim() && answer.trim();
   return (
     <div>
-      <p style={helperText}>Describe a movie in emojis — they&apos;ll guess the title.</p>
+      <p style={helperText}>Describe a movie in emojis. They&apos;ll guess the title.</p>
       <label style={labelStyle}>Emoji clue</label>
       <input
         value={emoji}
@@ -333,7 +333,7 @@ function BuildEmoji({
             type="button"
             onClick={() => setEmoji(idea.emoji)}
             title={idea.hint}
-            aria-label={`Use ${idea.emoji} — ${idea.hint}`}
+            aria-label={`Use ${idea.emoji}. ${idea.hint}`}
             style={{
               padding: '6px 12px',
               background: CREAM,

@@ -242,7 +242,7 @@ export function GameLobby({ open, onClose, onPickLive, onPickMini, partnerUserna
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <SectionHeader>Quick mini-games</SectionHeader>
             <p style={miniBlurb}>
-              Send a single card straight into the chat — no live session,
+              Send a single card straight into the chat. No live session,
               partner replies inside the message.
             </p>
             {MINI_GAMES.map((g) => (
