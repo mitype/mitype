@@ -35,6 +35,21 @@ interface WaveItem {
     avatarUrl: string | null;
     bio: string | null;
   } | null;
+  /** Bridge chips: only one is non-null at a time. Set when the creator
+   *  attached a Mi Home Goods listing or a business profile at upload time. */
+  linkedListing?: {
+    id: string;
+    title: string;
+    priceCents: number | null;
+    priceKind: string | null;
+    photoUrl: string | null;
+  } | null;
+  linkedBusiness?: {
+    id: string;
+    name: string;
+    logoUrl: string | null;
+    ownerUsername: string | null;
+  } | null;
 }
 
 // Heart animation rendered when a user double-taps to like.
@@ -1254,6 +1269,60 @@ export default function WavePage() {
                   ✓ You both create {item.sharedCategories.slice(0, 2).join(' · ')}
                   {item.sharedCategories.length > 2 && ` +${item.sharedCategories.length - 2}`}
                 </p>
+              )}
+              {/* Bridge chips. Only one of the two is non-null at a
+                  time. Renders a small soft pill that deep-links to the
+                  attached Mi Home Goods listing or the creator's small
+                  business. */}
+              {item.linkedListing && (
+                <Link
+                  href={`/home-goods/${item.linkedListing.id}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    color: 'white',
+                    textDecoration: 'none',
+                    background: 'linear-gradient(135deg, rgba(21,128,61,0.95), rgba(34,197,94,0.95))',
+                    padding: '6px 12px',
+                    borderRadius: 100,
+                    fontSize: 12,
+                    fontWeight: 800,
+                    boxShadow: '0 6px 18px rgba(21,128,61,0.45)',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
+                  <span aria-hidden="true">🏡</span>
+                  <span style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    Shop: {item.linkedListing.title}
+                  </span>
+                  <span aria-hidden="true">→</span>
+                </Link>
+              )}
+              {item.linkedBusiness && item.linkedBusiness.ownerUsername && (
+                <Link
+                  href={`/business/${item.linkedBusiness.ownerUsername}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    color: 'white',
+                    textDecoration: 'none',
+                    background: 'linear-gradient(135deg, rgba(139,92,246,0.95), rgba(192,132,252,0.95))',
+                    padding: '6px 12px',
+                    borderRadius: 100,
+                    fontSize: 12,
+                    fontWeight: 800,
+                    boxShadow: '0 6px 18px rgba(139,92,246,0.4)',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
+                  <span aria-hidden="true">🏪</span>
+                  <span style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    Visit: {item.linkedBusiness.name}
+                  </span>
+                  <span aria-hidden="true">→</span>
+                </Link>
               )}
             </div>
 

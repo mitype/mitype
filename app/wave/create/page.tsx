@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from '../../lib/toast';
 import { WaveEditorTutorial } from '../../components/WaveEditorTutorial';
+import { WaveLinkPicker, type WaveLink } from '../../components/WaveLinkPicker';
 import { ALL_CATEGORIES } from '../../lib/categories';
 
 const MAX_DURATION = 60;
@@ -67,6 +68,9 @@ export default function WaveCreatePage() {
   const [filterIdx, setFilterIdx] = useState(0);
   const [caption, setCaption] = useState('');
   const [category, setCategory] = useState('');
+  // Optional bridge link: Mi Home Goods listing OR business profile.
+  // Renders a chip on the Wave feed that deep-links to the entity.
+  const [link, setLink] = useState<WaveLink>({ kind: 'none' });
   const [progress, setProgress] = useState(0);
   const [progressLabel, setProgressLabel] = useState('');
   const [showTutorial, setShowTutorial] = useState(false);
@@ -501,6 +505,8 @@ export default function WaveCreatePage() {
           durationSeconds: Math.round(trimEnd - trimStart),
           width: dims.w,
           height: dims.h,
+          linkedListingId: link.kind === 'listing' ? link.id : null,
+          linkedBusinessId: link.kind === 'business' ? link.id : null,
         }),
       });
       const finalJson = await finalRes.json();
@@ -827,6 +833,13 @@ export default function WaveCreatePage() {
         myCategories={myCategories}
       />
 
+      {/* Optional bridge link — if this creator has a published business
+          or active Mi Home Goods listings, let them attach one. Renders a
+          chip on the Wave feed that deep-links to the entity. Auto-hides
+          for users with neither. */}
+      {user?.id && (
+        <WaveLinkPicker userId={user.id} value={link} onChange={setLink} />
+      )}
 
       {/* Post + discard */}
       <button type="button" onClick={handlePost} style={postButtonStyle}>

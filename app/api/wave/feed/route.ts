@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
     // post sitting in the same feed, and helps when the feed is still small.
     let query = supabaseAdmin
       .from('wave_videos')
-      .select('id, user_id, storage_path, caption, category, duration_seconds, width, height, created_at, expires_at, like_count, view_count')
+      .select('id, user_id, storage_path, caption, category, duration_seconds, width, height, created_at, expires_at, like_count, view_count, linked_listing_id, linked_business_id')
       .eq('is_removed', false)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
@@ -143,9 +143,48 @@ export async function GET(req: NextRequest) {
 
     const page = scored.slice(0, PAGE_SIZE);
 
+    // Hydrate linked Mi Home Goods listings + business profiles for the
+    // page (bulk lookup, one query each). We render a small chip on the
+    // Wave feed that deep-links to the entity.
+    const listingIds = Array.from(
+      new Set(page.map((v: any) => v.linked_listing_id).filter(Boolean))
+    );
+    const businessIds = Array.from(
+      new Set(page.map((v: any) => v.linked_business_id).filter(Boolean))
+    );
+    const [{ data: listings }, { data: businesses }] = await Promise.all([
+      listingIds.length > 0
+        ? supabaseAdmin
+            .from('home_goods_listings')
+            .select('id, title, price_cents, price_kind, status, photo_urls')
+            .in('id', listingIds)
+        : Promise.resolve({ data: [] as any[] }),
+      businessIds.length > 0
+        ? supabaseAdmin
+            .from('business_profiles')
+            .select('id, user_id, business_name, logo_url, is_published')
+            .in('id', businessIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const listingMap = new Map<string, any>((listings ?? []).map((l: any) => [l.id, l]));
+    const businessMap = new Map<string, any>((businesses ?? []).map((b: any) => [b.id, b]));
+    // Map business owner → username so the chip can deep-link to
+    // /business/<username>.
+    const ownerUserIds = Array.from(
+      new Set((businesses ?? []).map((b: any) => b.user_id))
+    );
+    const { data: ownerRows } = ownerUserIds.length > 0
+      ? await supabaseAdmin.from('profiles').select('user_id, username').in('user_id', ownerUserIds)
+      : { data: [] as any[] };
+    const ownerUsername = new Map<string, string>(
+      (ownerRows ?? []).map((r: any) => [r.user_id, r.username])
+    );
+
     // Generate public URLs for the videos. The bucket is public so this is direct.
     const items = page.map((v: any) => {
       const { data: pub } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(v.storage_path);
+      const linkedListing = v.linked_listing_id ? listingMap.get(v.linked_listing_id) : null;
+      const linkedBiz = v.linked_business_id ? businessMap.get(v.linked_business_id) : null;
       return {
         id: v.id,
         videoUrl: pub.publicUrl,
@@ -162,6 +201,26 @@ export async function GET(req: NextRequest) {
         creator: v.creator
           ? { ...v.creator, userId: v.user_id }
           : null,
+        // Bridge chips. Null when no link, hidden by the player.
+        linkedListing:
+          linkedListing && linkedListing.status === 'active'
+            ? {
+                id: linkedListing.id,
+                title: linkedListing.title,
+                priceCents: linkedListing.price_cents,
+                priceKind: linkedListing.price_kind,
+                photoUrl: Array.isArray(linkedListing.photo_urls) ? linkedListing.photo_urls[0] : null,
+              }
+            : null,
+        linkedBusiness:
+          linkedBiz && linkedBiz.is_published
+            ? {
+                id: linkedBiz.id,
+                name: linkedBiz.business_name,
+                logoUrl: linkedBiz.logo_url,
+                ownerUsername: ownerUsername.get(linkedBiz.user_id) ?? null,
+              }
+            : null,
       };
     });
 

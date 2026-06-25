@@ -16,6 +16,7 @@ import { supabase } from '../lib/supabaseClient';
 import { SiteNav } from '../components/SiteNav';
 import { HomeGoodsListingCard, type HomeGoodsListingLite } from '../components/HomeGoodsListingCard';
 import { HomeGoodsSafetyModal } from '../components/HomeGoodsSafetyModal';
+import { EmptyState } from '../components/EmptyState';
 import { HOME_GOODS_CATEGORIES } from '../lib/homeGoodsCategories';
 import { toast } from '../lib/toast';
 
@@ -300,36 +301,30 @@ export default function HomeGoodsBrowsePage() {
             Loading…
           </p>
         ) : listings.length === 0 ? (
-          <div style={{
-            padding: 40,
-            textAlign: 'center',
-            background: 'rgba(255,255,255,0.6)',
-            border: '1px dashed rgba(21,128,61,0.3)',
-            borderRadius: 18,
-            color: 'var(--brand-market-text-mid)',
-            fontSize: 14,
-            lineHeight: 1.6,
-          }}>
-            <div style={{ fontSize: 38, marginBottom: 8 }}>🛍️</div>
-            {categoryFilter || debouncedSearch || nearMe ? (
-              <p style={{ margin: 0 }}>Nothing matches those filters yet.</p>
-            ) : (
-              <>
-                <p style={{ margin: '0 0 6px', fontWeight: 800, color: 'var(--brand-market-deep)' }}>
-                  No listings yet
-                </p>
+          categoryFilter || debouncedSearch || nearMe ? (
+            <EmptyState
+              tone="market"
+              icon="🛍️"
+              title="Nothing matches those filters yet."
+            />
+          ) : (
+            <EmptyState
+              tone="market"
+              icon="🛍️"
+              title="No listings yet"
+              body={
                 <p style={{ margin: 0 }}>
                   The marketplace is brand new. Items will appear here as Mitype
                   members post their Mi Home Goods listings.
                 </p>
-                {sellersTipShown && (
-                  <p style={{ margin: '10px 0 0', fontWeight: 700, color: 'var(--brand-market)' }}>
-                    Be the first. Tap "+ Sell something" above.
-                  </p>
-                )}
-              </>
-            )}
-          </div>
+              }
+              action={sellersTipShown ? (
+                <p style={{ margin: 0, fontWeight: 700, color: 'var(--brand-market)' }}>
+                  Be the first. Tap &quot;+ Sell something&quot; above.
+                </p>
+              ) : undefined}
+            />
+          )
         ) : (
           <div style={{
             display: 'grid',

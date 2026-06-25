@@ -15,6 +15,8 @@ import {
   HomeGoodsListingCard,
   type HomeGoodsListingLite,
 } from '../../../components/HomeGoodsListingCard';
+import { HomeGoodsSellerStats } from '../../../components/HomeGoodsSellerStats';
+import { EmptyState } from '../../../components/EmptyState';
 
 interface SellerProfile {
   user_id: string;
@@ -22,6 +24,7 @@ interface SellerProfile {
   avatar_url: string | null;
   city: string | null;
   state: string | null;
+  created_at: string | null;
 }
 
 export default function SellerListingsPage({
@@ -34,6 +37,7 @@ export default function SellerListingsPage({
   const [user, setUser] = useState<any>(null);
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [listings, setListings] = useState<HomeGoodsListingLite[]>([]);
+  const [recentlySold, setRecentlySold] = useState<HomeGoodsListingLite[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,7 +51,7 @@ export default function SellerListingsPage({
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('user_id, username, avatar_url, city, state')
+        .select('user_id, username, avatar_url, city, state, created_at')
         .eq('username', username.toLowerCase())
         .maybeSingle();
       if (!profile) {
@@ -56,14 +60,25 @@ export default function SellerListingsPage({
       }
       setSeller(profile as SellerProfile);
 
-      const { data: rows } = await supabase
-        .from('home_goods_listings')
-        .select('id, title, price_cents, price_kind, category, photo_urls, city, state, status, created_at')
-        .eq('seller_id', profile.user_id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(120);
-      setListings((rows ?? []) as HomeGoodsListingLite[]);
+      // Active listings + recently sold archive in parallel.
+      const [activeRes, soldRes] = await Promise.all([
+        supabase
+          .from('home_goods_listings')
+          .select('id, title, price_cents, price_kind, category, photo_urls, city, state, status, created_at')
+          .eq('seller_id', profile.user_id)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .limit(120),
+        supabase
+          .from('home_goods_listings')
+          .select('id, title, price_cents, price_kind, category, photo_urls, city, state, status, created_at')
+          .eq('seller_id', profile.user_id)
+          .eq('status', 'sold')
+          .order('updated_at', { ascending: false })
+          .limit(8),
+      ]);
+      setListings((activeRes.data ?? []) as HomeGoodsListingLite[]);
+      setRecentlySold((soldRes.data ?? []) as HomeGoodsListingLite[]);
       setLoading(false);
     })();
   }, [username, router]);
@@ -132,6 +147,13 @@ export default function SellerListingsPage({
                 📍 {[seller?.city, seller?.state].filter(Boolean).join(', ')}
               </p>
             )}
+            {/* Trust pills sit under the location line. */}
+            {seller && (
+              <HomeGoodsSellerStats
+                sellerId={seller.user_id}
+                memberSinceIso={seller.created_at}
+              />
+            )}
           </div>
         </div>
 
@@ -139,27 +161,18 @@ export default function SellerListingsPage({
         {loading ? (
           <p style={{ color: '#5b7a68', textAlign: 'center', padding: 40 }}>Loading…</p>
         ) : listings.length === 0 ? (
-          <div style={{
-            padding: 40,
-            textAlign: 'center',
-            background: 'rgba(255,255,255,0.6)',
-            border: '1px dashed rgba(21,128,61,0.3)',
-            borderRadius: 18,
-            color: 'var(--brand-market-text-mid)',
-            fontSize: 14,
-            lineHeight: 1.6,
-          }}>
-            <div style={{ fontSize: 38, marginBottom: 8 }}>🛍️</div>
-            <p style={{ margin: 0 }}>
-              @{seller?.username} doesn&apos;t have any active listings right now.
-            </p>
-            <Link href="/home-goods" style={{
-              display: 'inline-block', marginTop: 12,
-              color: 'var(--brand-market)', fontWeight: 800, textDecoration: 'none',
-            }}>
-              Browse the full marketplace →
-            </Link>
-          </div>
+          <EmptyState
+            tone="market"
+            icon="🛍️"
+            title={`@${seller?.username} doesn't have any active listings right now.`}
+            action={(
+              <Link href="/home-goods" style={{
+                color: 'var(--brand-market)', fontWeight: 800, textDecoration: 'none',
+              }}>
+                Browse the full marketplace →
+              </Link>
+            )}
+          />
         ) : (
           <div style={{
             display: 'grid',
@@ -169,6 +182,33 @@ export default function SellerListingsPage({
             {listings.map((l) => (
               <HomeGoodsListingCard key={l.id} listing={l} />
             ))}
+          </div>
+        )}
+
+        {/* Recently sold archive — trust signal showing the seller has
+            actually completed transactions. Up to 8 most recent. */}
+        {!loading && recentlySold.length > 0 && (
+          <div style={{ marginTop: 32 }}>
+            <h2 style={{
+              margin: '0 0 12px',
+              fontSize: 14,
+              fontWeight: 800,
+              letterSpacing: '0.4px',
+              textTransform: 'uppercase',
+              color: 'var(--brand-market-text-mid)',
+            }}>
+              ✅ Recently sold
+            </h2>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+              gap: 14,
+              opacity: 0.85,
+            }}>
+              {recentlySold.map((l) => (
+                <HomeGoodsListingCard key={l.id} listing={l} />
+              ))}
+            </div>
           </div>
         )}
       </div>

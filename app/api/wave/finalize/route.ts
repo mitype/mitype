@@ -31,6 +31,8 @@ export async function POST(req: NextRequest) {
       durationSeconds,
       width,
       height,
+      linkedListingId,
+      linkedBusinessId,
     } = body as {
       storagePath?: string;
       caption?: string;
@@ -38,6 +40,11 @@ export async function POST(req: NextRequest) {
       durationSeconds?: number;
       width?: number;
       height?: number;
+      // Bridge features: optional pointer to one of the creator's own
+      // Mi Home Goods listings or business profile. UI shows a chip on
+      // the Wave feed that deep-links to the entity.
+      linkedListingId?: string | null;
+      linkedBusinessId?: string | null;
     };
 
     if (!storagePath || typeof storagePath !== 'string') {
@@ -69,6 +76,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Optional linked entities — verify the creator actually owns them
+    // before persisting (defense in depth, even though the picker only
+    // surfaces their own listings/business).
+    let safeLinkedListingId: string | null = null;
+    if (linkedListingId) {
+      const { data: l } = await supabaseAdmin
+        .from('home_goods_listings')
+        .select('id, seller_id')
+        .eq('id', linkedListingId)
+        .maybeSingle();
+      if (l && l.seller_id === user.id) safeLinkedListingId = l.id;
+    }
+    let safeLinkedBusinessId: string | null = null;
+    if (linkedBusinessId) {
+      const { data: b } = await supabaseAdmin
+        .from('business_profiles')
+        .select('id, user_id')
+        .eq('id', linkedBusinessId)
+        .maybeSingle();
+      if (b && b.user_id === user.id) safeLinkedBusinessId = b.id;
+    }
+
     // Create the video row. expires_at defaults to now + 24h via the schema.
     const { data: video, error: insertErr } = await supabaseAdmin
       .from('wave_videos')
@@ -80,6 +109,8 @@ export async function POST(req: NextRequest) {
         duration_seconds: durationSeconds ?? null,
         width: width ?? null,
         height: height ?? null,
+        linked_listing_id: safeLinkedListingId,
+        linked_business_id: safeLinkedBusinessId,
       })
       .select('id, expires_at')
       .single();

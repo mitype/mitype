@@ -14,6 +14,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { toast } from '../../lib/toast';
 import { SiteNav } from '../../components/SiteNav';
 import { Avatar } from '../../components/Avatar';
+import { HomeGoodsSellerStats } from '../../components/HomeGoodsSellerStats';
 import {
   categoryEmoji,
   categoryLabel,
@@ -125,6 +126,21 @@ export default function ListingDetailPage() {
         if (error) throw error;
         setSaved(true);
         toast.success('Saved');
+        // Light-touch engagement loop: ping the seller that someone
+        // saved their listing (unless it's their own).
+        if (listing.seller_id !== user.id) {
+          try {
+            await supabase.from('notifications').insert({
+              user_id: listing.seller_id,
+              type: 'home_goods_save',
+              title: 'Someone saved your listing',
+              body: `"${listing.title}" was added to a Mitype member's saved items.`,
+              action_url: `/home-goods/${listing.id}`,
+            });
+          } catch {
+            // Non-fatal — the save still worked.
+          }
+        }
       }
     } catch (e: any) {
       console.error('[home-goods/detail] save toggle failed:', e);
@@ -491,6 +507,14 @@ export default function ListingDetailPage() {
             </div>
             <span aria-hidden="true" style={{ color: 'var(--brand-market)', fontWeight: 800 }}>→</span>
           </Link>
+        )}
+
+        {/* Seller trust signals — member since, active listings, sold count.
+            Hides automatically for brand-new sellers with no history. */}
+        {seller && (
+          <div style={{ marginTop: 10 }}>
+            <HomeGoodsSellerStats sellerId={seller.user_id} />
+          </div>
         )}
 
         {/* Safety footer */}
