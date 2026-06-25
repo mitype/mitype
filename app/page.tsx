@@ -69,13 +69,12 @@ const FEATURES: Feature[] = [
     tone: 'personal',
     title: 'The Current',
     blurb: 'Text drops with rich entity embeds. A feed unlike any other.',
-    body: 'The Current is Mitype\'s text-post feed. Drop a thought up to 500 characters, reply in threads, and Echo posts you like. The signature: you can @mention any user, small business, or Mi Home Goods listing and the feed renders a rich card for it inline. Open the feed for a one-time water-vortex transition and an ocean-depth gradient that darkens as you scroll deeper.',
+    body: 'The Current is Mitype\'s text-post feed. Drop a thought up to 500 characters, reply in threads, and Echo posts you like. The signature: you can @mention any user, small business, or Mi Home Goods listing and the feed renders a rich card for it inline.',
     bullets: [
       '500-character drops with threaded replies.',
       'Echoes instead of likes. No public follower counts, no view counters.',
       '@username, @biz/business-handle, and @goods/listing-id all render as rich embed cards inline.',
       'Subscription-gated for posting to keep the feed bot-free and signal-heavy.',
-      'Vortex entry animation and a dark ocean background that deepens as you scroll.',
     ],
   },
   {
