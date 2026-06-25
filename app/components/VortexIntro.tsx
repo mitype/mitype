@@ -1,33 +1,27 @@
 'use client';
 // VortexIntro — WebGL fragment-shader vortex.
 //
-// Earlier passes used Canvas2D. This rewrite renders the entire effect
-// inside a GLSL fragment shader on a full-screen quad — the same
-// pipeline modern game water shaders use. The shader runs once per
-// pixel per frame on the GPU, which is the only way to get genuinely
-// photoreal procedural water at 60fps on a phone.
+// Photoreal-style procedural water rendered entirely in a fragment
+// shader on a single full-screen quad. Same family of techniques used
+// in modern game water shaders.
 //
-// What the shader does, in order, per pixel:
-//   1. Convert UV to polar coords (distance + angle).
-//   2. Logarithmic-spiral coordinate warp — gives water the whirlpool
-//      rotation that accelerates toward the center.
-//   3. Domain-warp the warped coords through fbm noise so the surface
-//      is chaotic instead of mathematically smooth.
-//   4. Sample three octaves of fbm at different scales for water-
-//      surface texture, mid-detail, and foam-frequency detail.
-//   5. Mix three water colors (deep, mid, surface) using a radial
-//      gradient — this is the underlying ocean color.
-//   6. Compute foam = (spiral-arm threshold) × (high-frequency noise) ×
-//      (radial mask). Foam is brightest white near outer rim and absent
-//      near the void.
-//   7. Compute a screen-space normal from foam height-field derivatives,
-//      then a phong specular highlight from an upper-right "sun." This
-//      catchlight is what sells the photoreal water look.
-//   8. Apply the center void mask — pure black at center, gradient out.
-//   9. Final-quarter fade-to-black for a clean page seam.
-//
-// Audio: synthesized whoosh, same Web-Audio approach as before.
-// Reduced-motion: skip the whole thing.
+// What the shader does per pixel:
+//   1. Convert UV to polar coords, then apply a vortex transform whose
+//      angular velocity grows toward the center (real whirlpool physics).
+//   2. Sample 8 octaves of quintic-interpolated value noise with a
+//      rotated-basis fbm for a non-axis-aligned natural look.
+//   3. Double-domain-warp the surface — sample noise at coords offset
+//      by another noise sample. This is what gives the water its
+//      chaotic, organic, non-mathematical look.
+//   4. Add an independently-moving caustic layer for the moving bright
+//      sunlight-through-water streaks.
+//   5. Mix four water colors (void, deep, mid, surface) by radius.
+//   6. Foam = (spiral-arm height threshold) × (high-freq detail) ×
+//      (radial mask). Foam color is brilliant near-white.
+//   7. Screen-space normal from foam height derivatives, then Blinn-
+//      Phong specular from an upper-right "sun." Plus directional rim
+//      lighting on arms facing the sun.
+//   8. Center void mask + outer vignette + final fade-to-black.
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -36,9 +30,7 @@ interface Props {
   onDone?: () => void;
 }
 
-const DEFAULT_DURATION = 2200;
-
-// ---------- shaders -----------------------------------------------------
+const DEFAULT_DURATION = 2400;
 
 const VERT = `
 attribute vec2 aPos;
@@ -59,122 +51,171 @@ uniform float uTime;
 uniform float uProgress;
 
 // ---- hash + noise + fbm ---------------------------------------------
+
+// Better-distribution hash for cleaner noise.
 float hash21(vec2 p) {
-  p = fract(p * vec2(123.34, 456.21));
-  p += dot(p, p + 45.32);
-  return fract(p.x * p.y);
+  p = fract(p * vec2(443.897, 441.423));
+  p += dot(p, p.yx + 19.19);
+  return fract((p.x + p.y) * p.x);
 }
+
+// Quintic-interpolation value noise — smoother than the standard cubic
+// smoothstep, which makes the water look soft and "wet" instead of
+// faceted.
 float noise(vec2 p) {
   vec2 i = floor(p);
   vec2 f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
+  vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
   float a = hash21(i);
   float b = hash21(i + vec2(1.0, 0.0));
   float c = hash21(i + vec2(0.0, 1.0));
   float d = hash21(i + vec2(1.0, 1.0));
   return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
+
+// Rotated-basis fbm — at each octave, rotate the sample space ~37° so
+// noise features don't align with the grid axes. Without this you get
+// visible diamond patterns at low frequencies.
 float fbm(vec2 p) {
   float v = 0.0;
-  float amp = 0.5;
-  for (int i = 0; i < 6; i++) {
-    v += amp * noise(p);
-    p *= 2.02;
-    amp *= 0.5;
+  float a = 0.5;
+  mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
+  for (int i = 0; i < 8; i++) {
+    v += a * noise(p);
+    p = rot * p * 2.04;
+    a *= 0.5;
   }
   return v;
 }
 
-// ---- whirlpool swirl --------------------------------------------------
-// Logarithmic spiral: angle += k * log(radius). The further from center,
-// the slower the rotation — exactly how real whirlpools behave.
-vec2 swirl(vec2 p, float tightness, float spin) {
+// ---- vortex coordinate transform ------------------------------------
+// Logarithmic spiral PLUS an inverse-radius rotation term so the water
+// near the center spins much faster than the outer water (genuine
+// whirlpool behavior).
+vec2 vortex(vec2 p, float time) {
   float r = length(p);
   float a = atan(p.y, p.x);
-  a += -log(r + 0.001) * tightness + spin;
+  a += -log(r + 0.001) * 1.8 - 0.45 / (r + 0.12) + time * 1.45;
   return vec2(r * cos(a), r * sin(a));
 }
 
-// Spiral-arm height field — used both for foam masking and to drive the
-// screen-space normal for specular highlights.
-float armField(vec2 p, float time) {
-  vec2 s = swirl(p, 2.6, time * 1.4);
-  // Domain warp: offset the sample by another noise sample for chaos.
-  vec2 w = vec2(fbm(s * 3.0 + vec2(time * 0.3, 0.0)),
-                fbm(s * 3.0 + vec2(0.0, time * 0.3) + 5.2));
-  s += (w - 0.5) * 0.55;
-  float detail = fbm(s * 6.0);
-  float fine = fbm(s * 16.0 + time * 0.4);
-  return detail * 0.7 + fine * 0.3;
+// ---- surface height field -------------------------------------------
+// Double-domain-warped multi-octave fbm. The double warp is the trick
+// that gives water its chaotic organic look — you sample noise at
+// coordinates that were themselves offset by another noise sample.
+float surface(vec2 p, float time) {
+  vec2 v = vortex(p, time);
+  vec2 q = vec2(fbm(v * 1.8 + vec2(0.0, time * 0.2)),
+                fbm(v * 1.8 + vec2(5.3, 1.7) + time * 0.2));
+  vec2 r = vec2(fbm(v * 1.8 + q * 4.0 + vec2(time * 0.3, 0.0)),
+                fbm(v * 1.8 + q * 4.0 + vec2(8.3, 2.8)));
+  float base = fbm(v * 2.6 + r * 3.5);
+  float detail = fbm(v * 14.0 + r * 2.0 + time * 0.4);
+  return base * 0.72 + detail * 0.28;
+}
+
+// ---- moving caustics ------------------------------------------------
+// Two independently animated fbm layers, multiplied and threshold-cut
+// to look like moving sunlight streaks underwater.
+float caustics(vec2 p, float time) {
+  vec2 v = vortex(p, time * 0.7);
+  float c1 = fbm(v * 8.0 + vec2(time, time * 0.5));
+  float c2 = fbm(v * 11.0 - vec2(time * 0.7, time * 0.3));
+  float c = c1 * c2 * 2.6;
+  return pow(smoothstep(0.45, 1.0, c), 2.0);
 }
 
 void main() {
   vec2 res = uRes;
   vec2 fragCoord = vUv * res;
-  // Center-relative, aspect-normalized coords. p=(0,0) is the center.
   vec2 p = (fragCoord - 0.5 * res) / min(res.x, res.y);
 
-  // Animation zoom: scale the world coords down over time so the viewer
-  // "falls into" the vortex (everything appears to grow).
+  // Zoom: viewer falls into the vortex over the animation lifetime.
   float zoomEase = uProgress * uProgress * (3.0 - 2.0 * uProgress);
-  float zoom = 0.85 + zoomEase * 5.6;
+  float zoom = 0.78 + zoomEase * 6.0;
   p /= zoom;
 
   float dist = length(p);
 
-  // ---- 1. Water surface texture (swirled fbm) -----------------------
-  float h = armField(p, uTime);
+  // ---- 1. Surface height -------------------------------------------
+  float h = surface(p, uTime);
 
-  // ---- 2. Base ocean color (radial gradient) ------------------------
-  vec3 cVoid    = vec3(0.00, 0.00, 0.01);
-  vec3 cDeep    = vec3(0.02, 0.10, 0.22);
-  vec3 cMid     = vec3(0.06, 0.30, 0.50);
-  vec3 cSurface = vec3(0.18, 0.55, 0.78);
-  vec3 cFoam    = vec3(0.95, 0.98, 1.00);
+  // ---- 2. Caustic light streaks ------------------------------------
+  float caust = caustics(p, uTime);
 
-  vec3 col = mix(cVoid,    cDeep,    smoothstep(0.05, 0.25, dist));
-  col      = mix(col,      cMid,     smoothstep(0.20, 0.55, dist));
-  col      = mix(col,      cSurface, smoothstep(0.50, 1.10, dist));
+  // ---- 3. Base ocean color (radial) --------------------------------
+  vec3 cVoid    = vec3(0.000, 0.005, 0.010);
+  vec3 cDeep    = vec3(0.015, 0.085, 0.190);
+  vec3 cMid     = vec3(0.055, 0.300, 0.500);
+  vec3 cSurface = vec3(0.220, 0.620, 0.860);
+  vec3 cFoam    = vec3(0.970, 0.990, 1.000);
 
-  // Add the water-surface texture as subtle blue ripple variation.
-  col += (h - 0.5) * 0.20 * vec3(0.4, 0.7, 1.0);
+  vec3 col = mix(cVoid,    cDeep,    smoothstep(0.04, 0.22, dist));
+  col      = mix(col,      cMid,     smoothstep(0.18, 0.55, dist));
+  col      = mix(col,      cSurface, smoothstep(0.50, 1.05, dist));
 
-  // ---- 3. Foam mask --------------------------------------------------
-  // Foam appears where the arm-field is bright AND we are not in the
-  // center void AND we are not past the outer rim. Mixed in as bright
-  // white.
-  float foamSpiral = pow(smoothstep(0.55, 0.85, h), 1.4);
-  float radialMask = smoothstep(0.18, 0.40, dist) * (1.0 - smoothstep(1.0, 1.4, dist));
-  float foam = foamSpiral * radialMask;
+  // Subtle surface tint variation from the height field.
+  col += (h - 0.5) * 0.24 * vec3(0.35, 0.62, 1.00);
+
+  // Caustic light brighten — only visible in mid-radius water where
+  // light would actually penetrate.
+  float caustMask = smoothstep(0.18, 0.45, dist) * (1.0 - smoothstep(0.85, 1.15, dist));
+  col += caust * 0.35 * caustMask * vec3(1.0, 1.0, 0.94);
+
+  // ---- 4. Foam mask --------------------------------------------------
+  // Foam where the height field is high, with a smaller-scale detail
+  // noise to give the foam itself fine white-cap structure.
+  float foamDetail = noise(vortex(p, uTime) * 30.0);
+  float foamBase = pow(smoothstep(0.56, 0.86, h), 1.5);
+  float radialMask = smoothstep(0.22, 0.42, dist) * (1.0 - smoothstep(1.0, 1.45, dist));
+  float foam = foamBase * radialMask * mix(0.7, 1.0, foamDetail);
   col = mix(col, cFoam, foam);
 
-  // ---- 4. Specular highlight from upper-right light -----------------
-  // Use screen-space derivatives of the arm field to fake a surface
-  // normal. Dot it with a light direction; pow for a tight catchlight.
-  vec3 normal = normalize(vec3(-dFdx(h) * 60.0, -dFdy(h) * 60.0, 1.0));
-  vec3 lightDir = normalize(vec3(0.55, -0.55, 0.62));
-  float spec = pow(max(0.0, dot(normal, lightDir)), 18.0);
-  col += vec3(1.0, 0.96, 0.86) * spec * 0.8 * radialMask;
+  // ---- 5. Specular highlight (Blinn-Phong) -------------------------
+  // Screen-space derivatives of the height field stand in for the real
+  // surface normal. Blinn-Phong with a tight exponent gives a sharp
+  // catchlight that sells the wet look.
+  vec3 normal = normalize(vec3(-dFdx(h) * 80.0, -dFdy(h) * 80.0, 1.0));
+  vec3 lightDir = normalize(vec3(0.55, -0.65, 0.55));
+  vec3 viewDir = vec3(0.0, 0.0, 1.0);
+  vec3 halfVec = normalize(lightDir + viewDir);
+  float spec = pow(max(0.0, dot(normal, halfVec)), 36.0);
+  col += vec3(1.0, 0.96, 0.88) * spec * 1.2 * radialMask;
 
-  // Soft directional brightening so arms facing the sun read warmer.
-  float dirBright = max(0.0, dot(normalize(p + 0.001), normalize(vec2(0.7, -0.7))));
-  col += vec3(1.0, 0.92, 0.78) * dirBright * 0.05 * smoothstep(0.2, 0.9, dist);
+  // ---- 6. Rim light on outer arms facing the sun -------------------
+  vec2 sunDir2 = normalize(vec2(0.7, -0.7));
+  float rimDot = max(0.0, dot(normalize(p + 0.0001), sunDir2));
+  col += vec3(1.0, 0.94, 0.80) * rimDot * 0.10 * smoothstep(0.30, 0.95, dist);
 
-  // ---- 5. Outer wave ripples (waves heading into the vortex) -------
-  float outerRipples = sin(dist * 32.0 - uTime * 2.0 + atan(p.y, p.x) * 6.0);
-  outerRipples = smoothstep(0.6, 0.95, outerRipples);
-  col += outerRipples * 0.08 * smoothstep(0.85, 1.3, dist) * vec3(0.8, 0.95, 1.0);
+  // ---- 7. Bloom approximation around bright foam -------------------
+  // Cheap single-tap bloom — bright foam gets a warm halo by sampling
+  // the height field at an offset and adding back where it's bright.
+  float halo = pow(smoothstep(0.45, 0.85, h), 4.0);
+  col += halo * 0.18 * vec3(0.95, 0.98, 1.00) * radialMask;
 
-  // ---- 6. Center void --------------------------------------------
-  float voidMask = smoothstep(0.0, 0.22, dist);
+  // ---- 8. Outer wave ripples (waves heading INTO the vortex) ------
+  float outerRipples = sin(dist * 38.0 - uTime * 2.5 + atan(p.y, p.x) * 6.0);
+  outerRipples = smoothstep(0.7, 0.97, outerRipples);
+  col += outerRipples * 0.10 * smoothstep(0.90, 1.30, dist) * vec3(0.85, 0.95, 1.00);
+
+  // ---- 9. Center void with strong falloff -------------------------
+  float voidMask = smoothstep(0.0, 0.20, dist);
   col *= voidMask;
-  // Inner halo to keep the black abyss reading deep, not flat.
   col = mix(vec3(0.0), col, smoothstep(0.0, 0.35, dist));
 
-  // ---- 7. Outer vignette so the canvas seams cleanly with the page --
+  // ---- 10. Outer vignette -----------------------------------------
   col *= 1.0 - smoothstep(1.05, 1.55, dist);
 
-  // ---- 8. Final fade-to-black ----------------------------------------
+  // ---- 11. Chromatic aberration on bright bits --------------------
+  // Brighten the red channel slightly on bright pixels, the blue on
+  // others — fakes the look of a lens slightly defocusing the spec.
+  float bright = (col.r + col.g + col.b) / 3.0;
+  if (bright > 0.6) {
+    col.r *= 1.02;
+    col.b *= 0.99;
+  }
+
+  // ---- 12. Final fade-to-black ------------------------------------
   if (uProgress > 0.8) {
     float fadeT = (uProgress - 0.8) / 0.2;
     col = mix(col, vec3(0.0, 0.015, 0.045), fadeT * fadeT);
@@ -198,14 +239,12 @@ export function VortexIntro({ durationMs = DEFAULT_DURATION, onDone }: Props) {
     const canvas = canvasRef.current;
     if (!canvas) { setShown(false); onDone?.(); return; }
 
-    // ---------- WebGL setup ----------
     const gl = (canvas.getContext('webgl', { antialias: true, premultipliedAlpha: false }) ||
                 canvas.getContext('experimental-webgl', { antialias: true })) as WebGLRenderingContext | null;
     if (!gl) {
       console.warn('[VortexIntro] WebGL unavailable — skipping vortex.');
       setShown(false); onDone?.(); return;
     }
-    // Required for dFdx/dFdy in fragment shader.
     gl.getExtension('OES_standard_derivatives');
 
     function compile(type: number, src: string): WebGLShader | null {
@@ -236,7 +275,6 @@ export function VortexIntro({ durationMs = DEFAULT_DURATION, onDone }: Props) {
     }
     gl.useProgram(prog);
 
-    // Full-screen quad.
     const buf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -288,8 +326,8 @@ export function VortexIntro({ durationMs = DEFAULT_DURATION, onDone }: Props) {
         bp.frequency.exponentialRampToValueAtTime(360, ctx.currentTime + sec);
         const gain = ctx.createGain();
         gain.gain.setValueAtTime(0, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.2);
-        gain.gain.linearRampToValueAtTime(0.32, ctx.currentTime + sec * 0.75);
+        gain.gain.linearRampToValueAtTime(0.42, ctx.currentTime + 0.2);
+        gain.gain.linearRampToValueAtTime(0.34, ctx.currentTime + sec * 0.75);
         gain.gain.linearRampToValueAtTime(0, ctx.currentTime + sec + 0.05);
         src.connect(bp); bp.connect(gain); gain.connect(ctx.destination);
         src.start();
@@ -325,7 +363,6 @@ export function VortexIntro({ durationMs = DEFAULT_DURATION, onDone }: Props) {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
       audioCtx?.close().catch(() => {});
-      // Best-effort GL cleanup.
       try {
         gl.deleteProgram(prog);
         gl.deleteShader(vs);
