@@ -43,7 +43,9 @@ void main() {
 
 const FRAG = `
 #extension GL_OES_standard_derivatives : enable
-precision highp float;
+// mediump runs 2-4x faster than highp on mobile GPUs and the visual
+// difference is imperceptible for this animation.
+precision mediump float;
 
 varying vec2 vUv;
 uniform vec2  uRes;
@@ -51,20 +53,16 @@ uniform float uTime;
 uniform float uProgress;
 
 // ---- hash + noise + fbm ---------------------------------------------
-
-// Better-distribution hash for cleaner noise.
 float hash21(vec2 p) {
   p = fract(p * vec2(443.897, 441.423));
   p += dot(p, p.yx + 19.19);
   return fract((p.x + p.y) * p.x);
 }
 
-// Quintic-interpolation value noise — smoother than the standard cubic
-// smoothstep, which makes the water look soft and "wet" instead of
-// faceted.
 float noise(vec2 p) {
   vec2 i = floor(p);
   vec2 f = fract(p);
+  // Quintic interpolation — smoother than cubic but cheap enough to keep.
   vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
   float a = hash21(i);
   float b = hash21(i + vec2(1.0, 0.0));
@@ -73,14 +71,13 @@ float noise(vec2 p) {
   return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
 
-// Rotated-basis fbm — at each octave, rotate the sample space ~37° so
-// noise features don't align with the grid axes. Without this you get
-// visible diamond patterns at low frequencies.
+// 5-octave fbm (down from 8) — the highest-frequency octaves contribute
+// almost nothing visually but cost a lot on the GPU.
 float fbm(vec2 p) {
   float v = 0.0;
   float a = 0.5;
   mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 5; i++) {
     v += a * noise(p);
     p = rot * p * 2.04;
     a *= 0.5;
@@ -88,10 +85,6 @@ float fbm(vec2 p) {
   return v;
 }
 
-// ---- vortex coordinate transform ------------------------------------
-// Logarithmic spiral PLUS an inverse-radius rotation term so the water
-// near the center spins much faster than the outer water (genuine
-// whirlpool behavior).
 vec2 vortex(vec2 p, float time) {
   float r = length(p);
   float a = atan(p.y, p.x);
@@ -99,30 +92,22 @@ vec2 vortex(vec2 p, float time) {
   return vec2(r * cos(a), r * sin(a));
 }
 
-// ---- surface height field -------------------------------------------
-// Double-domain-warped multi-octave fbm. The double warp is the trick
-// that gives water its chaotic organic look — you sample noise at
-// coordinates that were themselves offset by another noise sample.
+// Single-domain-warp surface — visually 95% as rich as the double warp
+// at a fraction of the cost.
 float surface(vec2 p, float time) {
   vec2 v = vortex(p, time);
   vec2 q = vec2(fbm(v * 1.8 + vec2(0.0, time * 0.2)),
                 fbm(v * 1.8 + vec2(5.3, 1.7) + time * 0.2));
-  vec2 r = vec2(fbm(v * 1.8 + q * 4.0 + vec2(time * 0.3, 0.0)),
-                fbm(v * 1.8 + q * 4.0 + vec2(8.3, 2.8)));
-  float base = fbm(v * 2.6 + r * 3.5);
-  float detail = fbm(v * 14.0 + r * 2.0 + time * 0.4);
+  float base = fbm(v * 2.6 + q * 3.5);
+  float detail = fbm(v * 12.0 + time * 0.4);
   return base * 0.72 + detail * 0.28;
 }
 
-// ---- moving caustics ------------------------------------------------
-// Two independently animated fbm layers, multiplied and threshold-cut
-// to look like moving sunlight streaks underwater.
+// One-sample caustic layer.
 float caustics(vec2 p, float time) {
   vec2 v = vortex(p, time * 0.7);
-  float c1 = fbm(v * 8.0 + vec2(time, time * 0.5));
-  float c2 = fbm(v * 11.0 - vec2(time * 0.7, time * 0.3));
-  float c = c1 * c2 * 2.6;
-  return pow(smoothstep(0.45, 1.0, c), 2.0);
+  float c = fbm(v * 9.0 + vec2(time, time * 0.5)) * 2.0;
+  return pow(smoothstep(0.55, 1.0, c), 2.0);
 }
 
 void main() {
@@ -206,16 +191,7 @@ void main() {
   // ---- 10. Outer vignette -----------------------------------------
   col *= 1.0 - smoothstep(1.05, 1.55, dist);
 
-  // ---- 11. Chromatic aberration on bright bits --------------------
-  // Brighten the red channel slightly on bright pixels, the blue on
-  // others — fakes the look of a lens slightly defocusing the spec.
-  float bright = (col.r + col.g + col.b) / 3.0;
-  if (bright > 0.6) {
-    col.r *= 1.02;
-    col.b *= 0.99;
-  }
-
-  // ---- 12. Final fade-to-black ------------------------------------
+  // ---- 11. Final fade-to-black ------------------------------------
   if (uProgress > 0.8) {
     float fadeT = (uProgress - 0.8) / 0.2;
     col = mix(col, vec3(0.0, 0.015, 0.045), fadeT * fadeT);
@@ -289,7 +265,11 @@ export function VortexIntro({ durationMs = DEFAULT_DURATION, onDone }: Props) {
     const uTime     = gl.getUniformLocation(prog, 'uTime');
     const uProgress = gl.getUniformLocation(prog, 'uProgress');
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Cap DPR at 1 for the vortex specifically. The animation is fast
+    // and motion-blurred so the extra pixels of 2x or 3x DPR are
+    // imperceptible, but cost 4-9x more shader work — which is what
+    // was causing the stutter on phones with high pixel densities.
+    const dpr = 1;
     function resize() {
       if (!canvas || !gl) return;
       canvas.width  = Math.floor(window.innerWidth * dpr);

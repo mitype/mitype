@@ -83,13 +83,22 @@ export function SiteNav({
   const pillText = accent === 'purple' ? 'var(--brand-business-deep)' : '#6b4f33';
 
   function NavLink({
-    href, label, badge,
-  }: { href: string; label: string; badge?: number }) {
+    href, label, badge, accent,
+  }: {
+    href: string;
+    label: string;
+    badge?: number;
+    /** Optional small colored side indicator — matches the dashboard
+     *  quick-action accent stripes. Pill background stays bronze so the
+     *  drawer reads as one cohesive list. */
+    accent?: string;
+  }) {
     return (
       <Link
         href={href}
         onClick={() => setOpen(false)}
         style={{
+          position: 'relative',
           display: 'flex',
           alignItems: 'center',
           gap: 10,
@@ -102,9 +111,22 @@ export function SiteNav({
           background: pillBg,
           border: `1px solid ${pillBorder}`,
           letterSpacing: '0.1px',
+          overflow: 'hidden',
         }}
       >
-        <span>{label}</span>
+        {accent && (
+          <span
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: 8, top: 10, bottom: 10,
+              width: 3,
+              borderRadius: 2,
+              background: accent,
+            }}
+          />
+        )}
+        <span style={{ marginLeft: accent ? 6 : 0 }}>{label}</span>
         {badge !== undefined && badge > 0 && (
           <span style={{ marginLeft: 'auto' }}>
             <UnreadBadge count={badge} />
@@ -224,87 +246,13 @@ export function SiteNav({
           <NavLink href="/weekly"       label="Weekly" />
           <NavLink href="/messages"     label="Messages" badge={unread.total} />
 
-          {/* Feature pills — Wave (light blue), Current (dark navy),
-              Small Businesses (purple), Mi Home Goods (green). Each is
-              a soft glowing outline button matching its brand family. */}
-          <Link
-            href="/wave"
-            onClick={() => setOpen(false)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '13px 20px',
-              color: '#0284c7',
-              fontSize: 15, fontWeight: 800,
-              textDecoration: 'none',
-              borderRadius: 100,
-              background: 'white',
-              border: '1px solid rgba(56,189,248,0.45)',
-              letterSpacing: '0.1px',
-              boxShadow: '0 8px 22px rgba(56,189,248,0.20)',
-            }}
-          >
-            <span>🌊 The Wave Feed</span>
-          </Link>
-          <Link
-            href="/currents"
-            onClick={() => setOpen(false)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '13px 20px',
-              color: '#1e3a8a',
-              fontSize: 15, fontWeight: 800,
-              textDecoration: 'none',
-              borderRadius: 100,
-              background: 'white',
-              border: '1px solid rgba(30,58,138,0.50)',
-              letterSpacing: '0.1px',
-              boxShadow: '0 8px 22px rgba(30,58,138,0.18)',
-            }}
-          >
-            <span>🌀 The Current</span>
-          </Link>
-          <Link
-            href="/businesses"
-            onClick={() => setOpen(false)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '13px 20px',
-              color: 'var(--brand-business-deep)',
-              fontSize: 15,
-              fontWeight: 800,
-              textDecoration: 'none',
-              borderRadius: 100,
-              background: 'white',
-              border: '1px solid rgba(139,92,246,0.4)',
-              letterSpacing: '0.1px',
-              boxShadow: '0 8px 22px rgba(139,92,246,0.18)',
-            }}
-          >
-            <span>🏪 Small Businesses</span>
-          </Link>
-          <Link
-            href="/home-goods"
-            onClick={() => setOpen(false)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '13px 20px',
-              color: 'var(--brand-market)',
-              fontSize: 15,
-              fontWeight: 800,
-              textDecoration: 'none',
-              borderRadius: 100,
-              background: 'white',
-              border: '1px solid rgba(21,128,61,0.4)',
-              letterSpacing: '0.1px',
-              boxShadow: '0 8px 22px rgba(21,128,61,0.18)',
-            }}
-          >
-            <span>🏡 Mi Home Goods</span>
-          </Link>
+          {/* Feature pills — same shape as the regular nav items, just
+              with a tiny colored accent stripe on the left. Mirrors the
+              dashboard quick-action design language. */}
+          <NavLink href="/wave"       label="The Wave Feed"    accent="#38bdf8" />
+          <NavLink href="/currents"   label="The Current"      accent="#1e3a8a" />
+          <NavLink href="/businesses" label="Small Businesses" accent="var(--brand-business)" />
+          <NavLink href="/home-goods" label="Mi Home Goods"    accent="var(--brand-market)" />
           <NavLink href="/edit-profile" label="Edit Profile" />
           {!hideSignOut && userId && (
             <button
