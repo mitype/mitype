@@ -221,6 +221,7 @@ export function SiteNav({
           <NavLink href="/dashboard"    label="Dashboard" />
           <NavLink href="/discover"     label="Discover" />
           <NavLink href="/wave"         label="The Wave Feed" />
+          <NavLink href="/currents"     label="The Current" />
           <NavLink href="/spotlight"    label="Spotlight" />
           <NavLink href="/weekly"       label="Weekly" />
           <NavLink href="/messages"     label="Messages" badge={unread.total} />

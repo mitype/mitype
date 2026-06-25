@@ -65,6 +65,20 @@ const FEATURES: Feature[] = [
     body: 'Post a 60-second clip of what you are working on. The Wave Feed surfaces fresh videos from creators you are compatible with, ranked by craft overlap. Likes, undo skips, and double-tap-to-like are built in.',
   },
   {
+    icon: '🌀',
+    tone: 'personal',
+    title: 'The Current',
+    blurb: 'Text drops with rich entity embeds. A feed unlike any other.',
+    body: 'The Current is Mitype\'s text-post feed. Drop a thought up to 500 characters, reply in threads, and Echo posts you like. The signature: you can @mention any user, small business, or Mi Home Goods listing and the feed renders a rich card for it inline. Open the feed for a one-time water-vortex transition and an ocean-depth gradient that darkens as you scroll deeper.',
+    bullets: [
+      '500-character drops with threaded replies.',
+      'Echoes instead of likes. No public follower counts, no view counters.',
+      '@username, @biz/business-handle, and @goods/listing-id all render as rich embed cards inline.',
+      'Subscription-gated for posting to keep the feed bot-free and signal-heavy.',
+      'Vortex entry animation and a dark ocean background that deepens as you scroll.',
+    ],
+  },
+  {
     icon: '✨',
     tone: 'personal',
     title: 'Daily Spark',
@@ -518,6 +532,7 @@ export default function HomePage() {
           <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px' }}>
             {[
               'Full Wave Feed access — post, watch, and connect',
+              'The Current — text drops, replies, and rich entity embeds',
               'Unlimited Discover + a personalized Daily Spark each day',
               'Run a Small Business profile (local or online-only)',
               'Featured in the Daily Business Spotlight rotation',

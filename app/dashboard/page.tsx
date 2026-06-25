@@ -300,6 +300,7 @@ export default function Dashboard() {
             label: string; desc: string; href: string; tone: ActionTone;
           }> = [
             { label: 'The Wave Feed',     desc: 'Scrolling video feed. Watch, like, and post your own.', href: '/wave',         tone: 'personal' },
+            { label: 'The Current',       desc: 'Text drops, replies, and rich entity embeds.',          href: '/currents',     tone: 'personal' },
             { label: 'Discover Creators', desc: 'Browse profiles and connect by craft and city.',         href: '/discover',     tone: 'personal' },
             { label: 'Spotlight',         desc: 'Portfolio work from the community.',                     href: '/spotlight',    tone: 'personal' },
             { label: 'Messages',          desc: 'Your conversations, groups, and rooms.',                 href: '/messages',     tone: 'personal' },
