@@ -180,6 +180,7 @@ export default function CurrentsFeedPage() {
                 key={c.id}
                 current={c}
                 viewerId={viewerId}
+                onMutated={refresh}
               />
             ))}
           </div>

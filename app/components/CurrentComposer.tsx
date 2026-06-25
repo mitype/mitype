@@ -36,12 +36,13 @@ export function CurrentComposer({
   const [posting, setPosting] = useState(false);
   const ref = useRef<HTMLTextAreaElement | null>(null);
 
-  // Auto-grow the textarea up to ~7 lines tall.
+  // Auto-grow the textarea up to ~4 lines tall. Kept small per spec —
+  // the input bar should feel like a tweet box, not a journal page.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
   }, [body]);
 
   async function handlePost() {
@@ -103,8 +104,8 @@ export function CurrentComposer({
       style={{
         background: 'rgba(255,255,255,0.08)',
         border: '1px solid rgba(255,255,255,0.18)',
-        borderRadius: 18,
-        padding: 14,
+        borderRadius: 14,
+        padding: '10px 12px',
         backdropFilter: 'blur(10px)',
         color: 'white',
       }}
@@ -113,8 +114,8 @@ export function CurrentComposer({
         ref={ref}
         value={body}
         onChange={(e) => setBody(e.target.value.slice(0, MAX_CURRENT_LENGTH + 50))}
-        placeholder={placeholder ?? "What's running through the Current?"}
-        rows={3}
+        placeholder={placeholder ?? "What's floating through your mind?"}
+        rows={2}
         className="mitype-current-composer-textarea"
         style={{
           width: '100%',
@@ -125,9 +126,9 @@ export function CurrentComposer({
           color: 'white',
           fontSize: 16,
           fontFamily: 'inherit',
-          lineHeight: 1.5,
+          lineHeight: 1.45,
           padding: 0,
-          minHeight: 60,
+          minHeight: 38,
         }}
       />
       {/* Scoped placeholder color — the browser default gray is nearly

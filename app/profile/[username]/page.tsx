@@ -18,7 +18,7 @@ import { PhotoGallery } from '../../components/PhotoGallery';
 import { OnlineDot } from '../../components/OnlineDot';
 import { usePresence } from '../../lib/usePresence';
 import { SiteNav } from '../../components/SiteNav';
-import { EndorsementsSection } from '../../components/EndorsementsSection';
+import { PositivityScore } from '../../components/PositivityScore';
 
 const PORTFOLIO_ICONS: Record<string, string> = {
   music:    '🎵',
@@ -971,11 +971,11 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         {/* Photo Gallery */}
         <PhotoGallery photos={galleryPhotos} altPrefix={profile.username} />
 
-        {/* Endorsements — short notes from connected creators. Anyone
-            can read; only people you've messaged can write. */}
-        <EndorsementsSection
+        {/* Positivity Score — anonymous peer rating. 8 stars, 0.5 fill
+            per vote. Tap once to send a positivity vote. Replaces the
+            old Endorsements section. */}
+        <PositivityScore
           profileUserId={profile.user_id}
-          profileUsername={profile.username}
           viewerId={currentUser?.id ?? null}
           isOwnProfile={isOwnProfile}
         />

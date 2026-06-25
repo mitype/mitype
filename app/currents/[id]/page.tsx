@@ -139,6 +139,11 @@ export default function CurrentDetailPage() {
               current={parent}
               viewerId={viewerId}
               linkBody={false}
+              onMutated={() => {
+                // If parent got deleted, bounce back to feed.
+                refresh();
+                router.push('/currents');
+              }}
             />
 
             <div style={{ margin: '18px 0' }}>
@@ -163,6 +168,7 @@ export default function CurrentDetailPage() {
                     current={r}
                     viewerId={viewerId}
                     compact
+                    onMutated={refresh}
                   />
                 ))}
               </div>

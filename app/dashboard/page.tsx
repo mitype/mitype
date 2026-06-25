@@ -295,17 +295,17 @@ export default function Dashboard() {
         {(() => {
           // Map of href → display config. Keeping this as a single source
           // of truth means we can re-order or reshuffle sections cheaply.
-          type ActionTone = 'personal' | 'business' | 'market' | 'account';
+          type ActionTone = 'personal' | 'business' | 'market' | 'account' | 'wave' | 'current';
           const explore: Array<{
             label: string; desc: string; href: string; tone: ActionTone;
           }> = [
-            { label: 'The Wave Feed',     desc: 'Scrolling video feed. Watch, like, and post your own.', href: '/wave',         tone: 'personal' },
-            { label: 'The Current',       desc: 'Text drops, replies, and rich entity embeds.',          href: '/currents',     tone: 'personal' },
             { label: 'Discover Creators', desc: 'Browse profiles and connect by craft and city.',         href: '/discover',     tone: 'personal' },
             { label: 'Spotlight',         desc: 'Portfolio work from the community.',                     href: '/spotlight',    tone: 'personal' },
             { label: 'Messages',          desc: 'Your conversations, groups, and rooms.',                 href: '/messages',     tone: 'personal' },
-            { label: 'Mi Home Goods',     desc: 'Buy and sell with your Mitype community.',               href: '/home-goods',   tone: 'market'   },
+            { label: 'The Wave Feed',     desc: 'Scrolling video feed. Watch, like, and post your own.', href: '/wave',         tone: 'wave'     },
+            { label: 'The Current',       desc: 'Text drops, replies, and rich entity embeds.',          href: '/currents',     tone: 'current'  },
             { label: 'Small Businesses',  desc: 'Discover small businesses on Mitype.',                   href: '/businesses',   tone: 'business' },
+            { label: 'Mi Home Goods',     desc: 'Buy and sell with your Mitype community.',               href: '/home-goods',   tone: 'market'   },
           ];
           const account: Array<{
             label: string; desc: string; href: string; tone: ActionTone;
@@ -320,12 +320,16 @@ export default function Dashboard() {
             business: 'var(--brand-business)',
             market:   'var(--brand-market)',
             account:  'var(--brand-personal-text-light)',
+            wave:     '#38bdf8',  // light blue
+            current:  '#1e3a8a',  // dark blue (navy)
           };
           const BORDER: Record<ActionTone, string> = {
             personal: 'rgba(200,149,108,0.22)',
             business: 'rgba(139,92,246,0.22)',
             market:   'rgba(21,128,61,0.22)',
             account:  'rgba(168,146,120,0.22)',
+            wave:     'rgba(56,189,248,0.32)',
+            current:  'rgba(30,58,138,0.32)',
           };
 
           function ActionCard({ a }: { a: { label: string; desc: string; href: string; tone: ActionTone } }) {

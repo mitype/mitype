@@ -220,14 +220,49 @@ export function SiteNav({
         }}>
           <NavLink href="/dashboard"    label="Dashboard" />
           <NavLink href="/discover"     label="Discover" />
-          <NavLink href="/wave"         label="The Wave Feed" />
-          <NavLink href="/currents"     label="The Current" />
           <NavLink href="/spotlight"    label="Spotlight" />
           <NavLink href="/weekly"       label="Weekly" />
           <NavLink href="/messages"     label="Messages" badge={unread.total} />
-          {/* Small Businesses entry. Soft purple outline on white, mirroring
-              the Mi Home Goods entry beneath it. Routes to the dedicated
-              /businesses listing page (empty state if none yet). */}
+
+          {/* Feature pills — Wave (light blue), Current (dark navy),
+              Small Businesses (purple), Mi Home Goods (green). Each is
+              a soft glowing outline button matching its brand family. */}
+          <Link
+            href="/wave"
+            onClick={() => setOpen(false)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '13px 20px',
+              color: '#0284c7',
+              fontSize: 15, fontWeight: 800,
+              textDecoration: 'none',
+              borderRadius: 100,
+              background: 'white',
+              border: '1px solid rgba(56,189,248,0.45)',
+              letterSpacing: '0.1px',
+              boxShadow: '0 8px 22px rgba(56,189,248,0.20)',
+            }}
+          >
+            <span>🌊 The Wave Feed</span>
+          </Link>
+          <Link
+            href="/currents"
+            onClick={() => setOpen(false)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '13px 20px',
+              color: '#1e3a8a',
+              fontSize: 15, fontWeight: 800,
+              textDecoration: 'none',
+              borderRadius: 100,
+              background: 'white',
+              border: '1px solid rgba(30,58,138,0.50)',
+              letterSpacing: '0.1px',
+              boxShadow: '0 8px 22px rgba(30,58,138,0.18)',
+            }}
+          >
+            <span>🌀 The Current</span>
+          </Link>
           <Link
             href="/businesses"
             onClick={() => setOpen(false)}
@@ -249,8 +284,6 @@ export function SiteNav({
           >
             <span>🏪 Small Businesses</span>
           </Link>
-          {/* Mi Home Goods. Soft green outline on white, matching the
-              tone of the Small Business CTA on the landing page. */}
           <Link
             href="/home-goods"
             onClick={() => setOpen(false)}
