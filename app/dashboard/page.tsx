@@ -115,16 +115,16 @@ export default function Dashboard() {
       <SiteNav userId={user?.id} />
 
       {/* Main Content */}
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 24px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px' }}>
 
         {/* Welcome — when this user has Wave videos in the last 24h,
             their avatar lights up with a bronze glow. Tapping it goes
             straight into their own Wave feed (just their videos). */}
         <div style={{
-          marginBottom: 48,
+          marginBottom: 28,
           display: 'flex',
           alignItems: 'center',
-          gap: 18,
+          gap: 14,
           flexWrap: 'wrap',
         }}>
           {hasFreshWave ? (
@@ -191,16 +191,17 @@ export default function Dashboard() {
           )}
           <div style={{ flex: 1, minWidth: 220 }}>
             <h1 style={{
-              fontSize: 40,
+              fontSize: 30,
               fontWeight: 900,
               color: 'var(--brand-text-primary)',
-              letterSpacing: '-1px',
-              marginBottom: 8,
+              letterSpacing: '-0.8px',
+              marginBottom: 4,
               marginTop: 0,
+              lineHeight: 1.15,
             }}>
-              Welcome back, <span style={{ color: 'var(--brand-personal)' }}>@{profile?.username}</span> 👋
+              Welcome back, <span style={{ color: 'var(--brand-personal)' }}>@{profile?.username}</span>
             </h1>
-            <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 16, margin: 0 }}>
+            <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 14, margin: 0, lineHeight: 1.45 }}>
               {hasFreshWave
                 ? 'Your Wave is live. Tap your avatar to watch your own videos.'
                 : "Here's what's happening on your Mitype profile."}
@@ -284,54 +285,146 @@ export default function Dashboard() {
         {/* Weekly Creative Prompt — community thread of the week */}
         <WeeklyPromptCard />
 
-        {/* Quick Actions */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 20,
-          marginBottom: 48,
-        }}>
-          {[
-            { icon: '🌊', label: 'The Wave Feed', desc: 'Jump straight into the scrolling feed. Watch, like, and post your own', href: '/wave', color: '#ecf0f5' },
-            { icon: '🏡', label: 'Mi Home Goods', desc: 'Buy and sell with your Mitype community. Furniture, electronics, vintage finds', href: '/home-goods', color: 'var(--brand-market-bg-mint)' },
-            { icon: '🔍', label: 'Discover Creators', desc: 'Browse profiles and connect with creators who share your craft', href: '/discover', color: 'var(--brand-personal-bg-peach)' },
-            { icon: '✨', label: 'Spotlight', desc: 'Explore portfolio work from the community', href: '/spotlight', color: 'var(--brand-personal-bg-peach-warm)' },
-            { icon: '💬', label: 'Messages', desc: 'View your conversations', href: '/messages', color: '#f5f5ec' },
-            { icon: '👤', label: 'My Profile', desc: 'See how others see you', href: `/profile/${profile?.username}`, color: '#ecf5f0' },
-            { icon: '✏️', label: 'Edit Profile', desc: 'Update your info and photo', href: '/edit-profile', color: '#f0ecf5' },
-            { icon: '💳', label: 'Subscription', desc: 'Manage your plan', href: '/subscription', color: '#f5ecec' },
-          ].map((action) => (
-            <Link
-              key={action.href}
-              href={action.href}
-              style={{
-                background: action.color,
-                border: '1px solid rgba(200,149,108,0.15)',
-                borderRadius: 20,
-                padding: '28px 24px',
-                textDecoration: 'none',
-                display: 'block',
-                transition: 'transform 0.15s',
-              }}
-            >
-              <div style={{ fontSize: 32, marginBottom: 12 }}>{action.icon}</div>
-              <h3 style={{
-                fontSize: 16,
-                fontWeight: 700,
-                color: 'var(--brand-text-primary)',
-                marginBottom: 6,
-                display: 'inline-flex',
-                alignItems: 'center',
+        {/* Quick actions — grouped into two quiet sections so the
+            surface area feels organized without hiding anything. Cards
+            are slim: no emoji, a 3px brand-accent stripe on the left
+            indicates which family the destination belongs to (bronze
+            personal, purple business, green Mi Home Goods, slate
+            account). Tighter padding + smaller minmax lets more cards
+            fit per row on every breakpoint. */}
+        {(() => {
+          // Map of href → display config. Keeping this as a single source
+          // of truth means we can re-order or reshuffle sections cheaply.
+          type ActionTone = 'personal' | 'business' | 'market' | 'account';
+          const explore: Array<{
+            label: string; desc: string; href: string; tone: ActionTone;
+          }> = [
+            { label: 'The Wave Feed',     desc: 'Scrolling video feed. Watch, like, and post your own.', href: '/wave',         tone: 'personal' },
+            { label: 'Discover Creators', desc: 'Browse profiles and connect by craft and city.',         href: '/discover',     tone: 'personal' },
+            { label: 'Spotlight',         desc: 'Portfolio work from the community.',                     href: '/spotlight',    tone: 'personal' },
+            { label: 'Messages',          desc: 'Your conversations, groups, and rooms.',                 href: '/messages',     tone: 'personal' },
+            { label: 'Mi Home Goods',     desc: 'Buy and sell with your Mitype community.',               href: '/home-goods',   tone: 'market'   },
+            { label: 'Small Businesses',  desc: 'Discover small businesses on Mitype.',                   href: '/businesses',   tone: 'business' },
+          ];
+          const account: Array<{
+            label: string; desc: string; href: string; tone: ActionTone;
+          }> = [
+            { label: 'My Profile',    desc: 'See how others see you.',           href: `/profile/${profile?.username}`, tone: 'account' },
+            { label: 'Edit Profile',  desc: 'Update info, photos, and prompts.', href: '/edit-profile',                  tone: 'account' },
+            { label: 'Subscription',  desc: 'Manage your plan.',                 href: '/subscription',                  tone: 'account' },
+          ];
+
+          const ACCENT: Record<ActionTone, string> = {
+            personal: 'var(--brand-personal)',
+            business: 'var(--brand-business)',
+            market:   'var(--brand-market)',
+            account:  'var(--brand-personal-text-light)',
+          };
+          const BORDER: Record<ActionTone, string> = {
+            personal: 'rgba(200,149,108,0.22)',
+            business: 'rgba(139,92,246,0.22)',
+            market:   'rgba(21,128,61,0.22)',
+            account:  'rgba(168,146,120,0.22)',
+          };
+
+          function ActionCard({ a }: { a: { label: string; desc: string; href: string; tone: ActionTone } }) {
+            return (
+              <Link
+                href={a.href}
+                style={{
+                  background: 'white',
+                  border: `1px solid ${BORDER[a.tone]}`,
+                  borderRadius: 14,
+                  padding: '14px 16px 14px 18px',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  position: 'relative',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                  transition: 'transform 0.12s, box-shadow 0.12s',
+                }}
+              >
+                {/* Left brand-accent stripe — replaces the icon */}
+                <span aria-hidden="true" style={{
+                  position: 'absolute',
+                  left: 0, top: 14, bottom: 14,
+                  width: 3,
+                  borderRadius: 2,
+                  background: ACCENT[a.tone],
+                }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: 'var(--brand-text-primary)',
+                    margin: 0,
+                    letterSpacing: '-0.2px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    lineHeight: 1.2,
+                  }}>
+                    {a.label}
+                    {a.href === '/messages' && (
+                      <UnreadBadge count={unread.total} size="md" />
+                    )}
+                  </h3>
+                  <p style={{
+                    color: 'var(--brand-personal-text-light)',
+                    fontSize: 12,
+                    margin: '3px 0 0',
+                    lineHeight: 1.35,
+                  }}>
+                    {a.desc}
+                  </p>
+                </div>
+                <span aria-hidden="true" style={{
+                  color: ACCENT[a.tone], fontSize: 18, fontWeight: 800, flexShrink: 0,
+                }}>
+                  ›
+                </span>
+              </Link>
+            );
+          }
+
+          function SectionLabel({ children }: { children: React.ReactNode }) {
+            return (
+              <p style={{
+                margin: '0 0 10px',
+                fontSize: 11,
+                fontWeight: 800,
+                color: 'var(--brand-personal-text-light)',
+                letterSpacing: '1.4px',
+                textTransform: 'uppercase',
               }}>
-                {action.label}
-                {action.href === '/messages' && (
-                  <UnreadBadge count={unread.total} size="md" />
-                )}
-              </h3>
-              <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 13 }}>{action.desc}</p>
-            </Link>
-          ))}
-        </div>
+                {children}
+              </p>
+            );
+          }
+
+          const grid: React.CSSProperties = {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            gap: 10,
+          };
+
+          return (
+            <>
+              <div style={{ marginBottom: 28 }}>
+                <SectionLabel>Explore Mitype</SectionLabel>
+                <div style={grid}>
+                  {explore.map((a) => <ActionCard key={a.href} a={a} />)}
+                </div>
+              </div>
+              <div style={{ marginBottom: 36 }}>
+                <SectionLabel>Account</SectionLabel>
+                <div style={grid}>
+                  {account.map((a) => <ActionCard key={a.href} a={a} />)}
+                </div>
+              </div>
+            </>
+          );
+        })()}
 
         {/* Profile summary */}
         <div style={{
