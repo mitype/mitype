@@ -2,8 +2,134 @@ import Link from 'next/link';
 import { OddcastPill } from './components/OddcastPill';
 import { ScrollIndicator } from './components/ScrollIndicator';
 import { RefBadge } from './components/RefBadge';
-import { SmallBusinessCta } from './components/SmallBusinessCta';
 import { CategoryShowcase } from './components/CategoryShowcase';
+import { FeatureExplorer, type Feature } from './components/FeatureExplorer';
+
+// Full feature roster shown in the "Why Mitype" explorer. Each card is
+// clickable and opens a modal with the long-form pitch. We surface the
+// original 6 trust pillars plus every major feature shipped since
+// (Wave, Daily Spark, Small Business, Mi Home Goods, Messages + games,
+// Rooms/Groups, Endorsements, Mipets) so curious visitors can see the
+// full breadth without scrolling four screens.
+const FEATURES: Feature[] = [
+  // Original trust pillars (smaller cards, full pitch on click).
+  {
+    icon: '🤝',
+    tone: 'personal',
+    title: 'Connect With Purpose',
+    blurb: 'Real profiles of creators who share your craft.',
+    body: 'Mitype is built around real, considered profiles, not endless swipes. Browse creators in your area, see what they actually do, and reach out when you find someone you click with.',
+  },
+  {
+    icon: '🔐',
+    tone: 'personal',
+    title: 'You Control Your Inbox',
+    blurb: 'Every message request needs your approval first.',
+    body: 'No spam, no cold openers piling up. Every new conversation lands as a request you can accept or skip. Your inbox stays yours.',
+  },
+  {
+    icon: '🎯',
+    tone: 'personal',
+    title: 'Filter By What Matters',
+    blurb: 'Search by category, city, distance, and ZIP.',
+    body: 'Find a guitarist in your neighborhood, a chef across town, or a photographer in the next state over. Filter Discover by category, ZIP, city, or distance — and toggle a "near me" view that respects how far you actually want to travel.',
+  },
+  {
+    icon: '🔗',
+    tone: 'personal',
+    title: 'Share Your Profile',
+    blurb: 'One public link for any social platform.',
+    body: 'Your Mitype URL is portable. Drop it in an Instagram bio, a TikTok pinned comment, or a business card. People who tap it land on your profile no matter where they came from.',
+  },
+  {
+    icon: '🛡️',
+    tone: 'personal',
+    title: 'Safe & Private',
+    blurb: 'Your email and personal details stay yours.',
+    body: 'We never expose your email, phone number, or location beyond what you choose to display. Block and report are one tap away on every profile and every video.',
+  },
+  {
+    icon: '📍',
+    tone: 'personal',
+    title: 'Local First',
+    blurb: 'Find creators in your actual neighborhood.',
+    body: 'Distance-aware feeds make sure your daily picks include people you could realistically meet. Heading somewhere new? Travel mode tells the local Mitype crowd you\'re in town.',
+  },
+
+  // New features.
+  {
+    icon: '🌊',
+    tone: 'personal',
+    title: 'The Wave Feed',
+    blurb: 'Short, 60-second videos from your community.',
+    body: 'Post a 60-second clip of what you are working on. The Wave Feed surfaces fresh videos from creators you are compatible with, ranked by craft overlap. Likes, undo skips, and double-tap-to-like are built in.',
+  },
+  {
+    icon: '✨',
+    tone: 'personal',
+    title: 'Daily Spark',
+    blurb: 'One hand-picked profile per day, with an opener.',
+    body: 'Every morning Mitype picks one creator we think you should meet and writes a personalized icebreaker based on their profile prompts. Edit the opener, send it, or skip — your call.',
+  },
+  {
+    icon: '🏪',
+    tone: 'business',
+    title: 'Small Business profiles',
+    blurb: 'Run a shop, online or local.',
+    body: 'Mitype gives small businesses a clean home: logo, services, hours, contact buttons, social links, and events. Local discovery + word-of-mouth recommendations make sure the right people find you.',
+    bullets: [
+      'Your own business page. Logo, services, contact buttons, hours, links, and events. Free to set up.',
+      'Discoverable in your zip code — Mitype members in your area see your business in the local list, filterable by category.',
+      'Daily Business Spotlight — one small business gets a hero card on Discover seen by every member, every day. Free exposure on rotation.',
+      'Customer recommendations — your connections can recommend your business right on their own profile. Word-of-mouth, made visible.',
+      'Online-only? Totally fine. Etsy, Shopify, custom clothing, e-books, online courses — pick from 130+ business types, no storefront required.',
+      'Direct messages from real members. No DM spam, no bot inbox.',
+    ],
+  },
+  {
+    icon: '🏡',
+    tone: 'market',
+    title: 'Mi Home Goods',
+    blurb: 'Buy and sell with your Mitype community.',
+    body: 'A peer-to-peer marketplace for furniture, electronics, vintage finds, free stuff, and more. Post up to 4 photos per listing, set a price (or mark it free / OBO), and meet in person. Mitype is not the middleman — just the introduction.',
+    bullets: [
+      'Up to 4 photos and a clear description per listing.',
+      'Brand new, like-new, gently used, used, or for parts — be honest, sell faster.',
+      'Save items you\'re watching, message sellers directly through Mitype.',
+      'Seller stats card on every listing: member-since, active listings, sold count.',
+      'Safety guidelines baked in. Meet in public, bring a friend, trust your gut.',
+    ],
+  },
+  {
+    icon: '💬',
+    tone: 'personal',
+    title: 'Messages, Games & Voice',
+    blurb: '14 mini-games, Story Builder, voice notes, photos.',
+    body: 'Mitype messaging is a real chat, not a stripped-down DM box. Send voice notes, share photos, and challenge a friend to one of 14 built-in games (Chess, Battleship, Pictionary, Word Duel, Trivia Battle, Hangman, and more). The collaborative Story Builder lets you co-write a story and export it as a shareable image.',
+  },
+  {
+    icon: '🛋️',
+    tone: 'personal',
+    title: 'Rooms & Groups',
+    blurb: 'Open chat by interest. Private group chats.',
+    body: 'Rooms are public chat lounges organized by interest — film geeks, beat-makers, plant parents — with daily prompts to keep conversation alive. Groups are private chats for your crew. Both come with the full messaging toolkit.',
+  },
+  {
+    icon: '💜',
+    tone: 'personal',
+    title: 'Endorsements',
+    blurb: 'Peer testimonials on your profile.',
+    body: 'Anyone you\'ve messaged can leave a short endorsement on your profile — the social proof that says "I worked with this person and here\'s what they\'re actually like." Public, honest, and stackable.',
+  },
+  {
+    icon: '🐾',
+    tone: 'personal',
+    title: 'Mipets',
+    blurb: 'Show off your pet with a hanging tag.',
+    body: 'Add your pet\'s name, type, birthday, favorite snack, and a short bio. A small tag hangs from the top of your profile card with your choice of bezel color. A simple way to add character to your profile.',
+  },
+];
+
 
 export default function HomePage() {
   return (
@@ -131,7 +257,7 @@ export default function HomePage() {
             borderRadius: 100,
             boxShadow: '0 8px 32px rgba(200,149,108,0.35)',
           }}>
-            Find Your Type →
+            Create a profile →
           </Link>
           <Link href="/login" style={{
             border: '1px solid rgba(138,117,96,0.3)',
@@ -176,13 +302,8 @@ export default function HomePage() {
           <span>Thousands of creatives already collaborating</span>
         </div>
 
-        {/* Small-business CTA — opens an info modal explaining how
-            Mitype helps shop owners, side-hustlers, and online sellers.
-            Sits below the social proof so it's the last thing visitors
-            see in the hero before the scroll hint. */}
-        <div style={{ marginTop: 28 }}>
-          <SmallBusinessCta />
-        </div>
+        {/* Small Business content moved into the Why Mitype explorer
+            below so the hero stays focused on the headline + sign-up. */}
 
         {/* Scroll-down hint — bounces gently, fades out on first scroll */}
         <ScrollIndicator />
@@ -296,90 +417,42 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section style={{ padding: '100px 24px', maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+      {/* Why Mitype — clickable feature explorer. Each tile opens a
+          modal with the longer pitch so the page stays compact while
+          still surfacing every feature on the platform. */}
+      <section style={{ padding: '80px 24px', maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <p style={{
             color: 'var(--brand-personal)',
             fontSize: 12,
             letterSpacing: 4,
             textTransform: 'uppercase',
             fontWeight: 700,
-            marginBottom: 16,
+            marginBottom: 14,
           }}>
             Why Mitype
           </p>
           <h2 style={{
-            fontSize: 'clamp(28px, 4vw, 48px)',
+            fontSize: 'clamp(28px, 4vw, 42px)',
             fontWeight: 800,
-            letterSpacing: '-1px',
+            letterSpacing: '-0.8px',
             color: 'var(--brand-text-primary)',
+            margin: 0,
           }}>
             Built different. On purpose.
           </h2>
+          <p style={{
+            margin: '12px auto 0',
+            maxWidth: 540,
+            color: 'var(--brand-personal-text-mid)',
+            fontSize: 15,
+            lineHeight: 1.55,
+          }}>
+            Tap any card to see how it works.
+          </p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 24,
-        }}>
-          {[
-            {
-              icon: '🤝',
-              title: 'Connect With Purpose',
-              desc: 'Browse real profiles of creators who share your craft. Tap to show interest in collaboration, or skip to keep browsing.',
-              bg: 'var(--brand-personal-bg-peach)',
-              border: 'rgba(200,149,108,0.2)',
-            },
-            {
-              icon: '🔐',
-              title: 'You Control Who Talks to You',
-              desc: 'Every message request needs your approval first. You are always in control of your inbox.',
-              bg: '#f5f5ec',
-              border: 'rgba(180,175,130,0.25)',
-            },
-            {
-              icon: '🎯',
-              title: 'Filter By What Matters',
-              desc: 'Search by creative category and ZIP code. Find a guitarist in your city or a chef across town.',
-              bg: '#ecf5f0',
-              border: 'rgba(130,175,150,0.25)',
-            },
-            {
-              icon: '🔗',
-              title: 'Share Your Profile',
-              desc: 'Get a public profile link to share on social media so people can find you outside the app.',
-              bg: '#f0ecf5',
-              border: 'rgba(160,130,200,0.25)',
-            },
-            {
-              icon: '🛡️',
-              title: 'Safe & Private',
-              desc: 'Your email and personal details are never shared. We only show what you choose to display.',
-              bg: '#f5ecec',
-              border: 'rgba(200,130,130,0.25)',
-            },
-            {
-              icon: '📍',
-              title: 'Local First',
-              desc: 'Find creatives and passionate people right in your neighborhood or nearby ZIP codes.',
-              bg: '#ecf2f5',
-              border: 'rgba(130,160,200,0.25)',
-            },
-          ].map((f) => (
-            <div key={f.title} style={{
-              background: f.bg,
-              border: `1px solid ${f.border}`,
-              borderRadius: 24,
-              padding: '36px 32px',
-            }}>
-              <div style={{ fontSize: 36, marginBottom: 20 }}>{f.icon}</div>
-              <h3 style={{ fontSize: 19, fontWeight: 700, marginBottom: 12, color: 'var(--brand-text-primary)' }}>{f.title}</h3>
-              <p style={{ color: 'var(--brand-personal-text-mid)', lineHeight: 1.7, fontSize: 15 }}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
+        <FeatureExplorer features={FEATURES} />
       </section>
 
       {/* Pricing */}
@@ -400,69 +473,88 @@ export default function HomePage() {
           Pricing
         </p>
         <h2 style={{
-          fontSize: 'clamp(28px, 4vw, 48px)',
+          fontSize: 'clamp(28px, 4vw, 44px)',
           fontWeight: 800,
           letterSpacing: '-1px',
-          marginBottom: 48,
+          marginBottom: 36,
           color: 'var(--brand-text-primary)',
         }}>
-          Simple. Affordable. Worth it.
+          One subscription. Every feature.
         </h2>
 
         <div style={{
-          maxWidth: 460,
+          maxWidth: 480,
           margin: '0 auto',
           background: 'white',
           border: '1px solid rgba(200,149,108,0.25)',
-          borderRadius: 32,
-          padding: '52px 40px',
+          borderRadius: 28,
+          padding: '44px 36px 36px',
           boxShadow: '0 20px 60px rgba(200,149,108,0.1)',
+          textAlign: 'left',
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'baseline',
             justifyContent: 'center',
             gap: 4,
-            marginBottom: 6,
+            marginBottom: 4,
           }}>
-            <span style={{ fontSize: 72, fontWeight: 900, color: 'var(--brand-text-primary)', letterSpacing: '-2px' }}>$5</span>
-            <span style={{ color: 'var(--brand-personal-text-light)', fontSize: 18 }}>/month</span>
+            <span style={{ fontSize: 64, fontWeight: 900, color: 'var(--brand-text-primary)', letterSpacing: '-2px' }}>$5</span>
+            <span style={{ color: 'var(--brand-personal-text-light)', fontSize: 17 }}>/month</span>
           </div>
-          <p style={{ color: 'var(--brand-personal)', fontWeight: 700, fontSize: 16, marginBottom: 40 }}>
-            🎉 First month completely FREE
+          <p style={{
+            color: 'var(--brand-personal)',
+            fontWeight: 800,
+            fontSize: 14,
+            marginBottom: 28,
+            textAlign: 'center',
+            letterSpacing: '0.3px',
+          }}>
+            First month free. Cancel anytime.
           </p>
 
-          <ul style={{ listStyle: 'none', padding: 0, marginBottom: 40, textAlign: 'left' }}>
+          {/* Comprehensive feature list. Short bullets, no paragraphs.
+              Grouped subtly (no headers) so the eye reads fast. */}
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px' }}>
             {[
-              'Unlimited profile browsing',
-              'Connect with any creator on the platform',
-              'Full messaging after approval',
-              'Filter by category & ZIP code',
-              'Share your public profile link',
-              'Cancel anytime. No commitment',
+              'Full Wave Feed access — post, watch, and connect',
+              'Unlimited Discover + a personalized Daily Spark each day',
+              'Run a Small Business profile (local or online-only)',
+              'Featured in the Daily Business Spotlight rotation',
+              'Sell on Mi Home Goods, the community marketplace',
+              'Unlimited messaging with voice notes and photos',
+              '14 mini-games + collaborative Story Builder in chat',
+              'Create unlimited Rooms and private Groups',
+              'Endorsements, Mipets, and Featured Wave on your profile',
+              'Filter people by category, city, distance, and ZIP',
+              'Travel mode and Open-to-collab signaling',
+              'Cancel anytime. No commitment.',
             ].map((item) => (
               <li key={item} style={{
                 display: 'flex',
-                alignItems: 'center',
-                gap: 14,
-                padding: '12px 0',
-                borderBottom: '1px solid rgba(200,149,108,0.1)',
+                alignItems: 'flex-start',
+                gap: 12,
+                padding: '9px 0',
+                borderBottom: '1px solid rgba(200,149,108,0.08)',
                 color: 'var(--brand-personal-text-head)',
-                fontSize: 15,
+                fontSize: 14,
+                lineHeight: 1.4,
               }}>
-                <span style={{
-                  width: 22,
-                  height: 22,
+                <span aria-hidden="true" style={{
+                  width: 18,
+                  height: 18,
                   background: 'rgba(200,149,108,0.15)',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: 'var(--brand-personal)',
-                  fontSize: 13,
+                  fontSize: 11,
+                  fontWeight: 800,
                   flexShrink: 0,
+                  marginTop: 2,
                 }}>✓</span>
-                {item}
+                <span>{item}</span>
               </li>
             ))}
           </ul>
@@ -472,17 +564,16 @@ export default function HomePage() {
             background: 'var(--brand-personal)',
             color: 'white',
             textDecoration: 'none',
-            fontSize: 17,
-            fontWeight: 700,
-            padding: '17px 40px',
+            fontSize: 16,
+            fontWeight: 800,
+            padding: '15px 32px',
             borderRadius: 100,
             boxShadow: '0 8px 24px rgba(200,149,108,0.3)',
+            textAlign: 'center',
+            letterSpacing: '0.3px',
           }}>
-            Start Free Trial
+            Start your free month
           </Link>
-          <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginTop: 16 }}>
-            
-          </p>
         </div>
       </section>
 
@@ -521,7 +612,7 @@ export default function HomePage() {
           boxShadow: '0 8px 32px rgba(200,149,108,0.35)',
           display: 'inline-block',
         }}>
-          Find Your Type →
+          Create a profile →
         </Link>
       </section>
 
