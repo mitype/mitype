@@ -49,6 +49,16 @@ export default function BusinessesPage() {
         router.push('/login');
         return;
       }
+      // Paywall: only subscribers can browse the business directory.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (sub?.status !== 'active' && sub?.status !== 'trialing') {
+        router.push('/subscription');
+        return;
+      }
       setUser(user);
 
       // All published business profiles. Two-step: fetch businesses, then

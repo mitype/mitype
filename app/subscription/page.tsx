@@ -107,7 +107,7 @@ export default function SubscriptionPage() {
       paddingBottom: 80,
     }}>
 
-      <SiteNav userId={user?.id} showBack backFallbackHref="/dashboard" />
+      <SiteNav userId={user?.id} showBack backFallbackHref="/dashboard" backForceFallback />
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '64px 24px' }}>
 

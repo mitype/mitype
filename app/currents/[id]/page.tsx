@@ -101,13 +101,18 @@ export default function CurrentDetailPage() {
         router.push('/login');
         return;
       }
-      setViewerId(user.id);
       const { data: sub } = await supabase
         .from('subscriptions')
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      setIsSubscribed(sub?.status === 'active' || sub?.status === 'trialing');
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+      setViewerId(user.id);
+      setIsSubscribed(subscribed);
       await loadAll(user.id);
       setLoading(false);
     })();

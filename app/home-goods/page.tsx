@@ -46,16 +46,19 @@ export default function HomeGoodsBrowsePage() {
         router.push('/login');
         return;
       }
-      setUser(user);
-
-      // Subscription status (controls whether "Sell something" CTA
-      // takes the user straight into the create flow or to /subscription).
+      // Paywall: marketplace browsing is subscriber-only.
       const { data: sub } = await supabase
         .from('subscriptions')
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      setIsSubscribed(sub?.status === 'active' || sub?.status === 'trialing');
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+      setUser(user);
+      setIsSubscribed(subscribed);
 
       // First-time safety acknowledgement.
       const { data: profile } = await supabase

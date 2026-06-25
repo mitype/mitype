@@ -29,6 +29,10 @@ interface Props {
   userId?: string | null;
   showBack?: boolean;
   backFallbackHref?: string;
+  /** When true, the back arrow always goes to backFallbackHref instead
+   *  of popping history. Use this on pages where popping history would
+   *  re-trigger a paywall redirect loop (e.g. /subscription). */
+  backForceFallback?: boolean;
   /** Brand accent — 'bronze' (default) or 'purple' for business pages. */
   accent?: 'bronze' | 'purple';
   /** Whether to render the notification bell next to the hamburger.
@@ -44,6 +48,7 @@ export function SiteNav({
   userId,
   showBack = false,
   backFallbackHref = '/dashboard',
+  backForceFallback = false,
   accent = 'bronze',
   showBell,
   brandSuffix,
@@ -156,7 +161,7 @@ export function SiteNav({
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
           {showBack && (
-            <BackButton fallbackHref={backFallbackHref} />
+            <BackButton fallbackHref={backFallbackHref} forceFallback={backForceFallback} />
           )}
           <Link href="/dashboard" style={{
             fontSize: 22,

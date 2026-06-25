@@ -47,6 +47,15 @@ export default function SellerListingsPage({
         router.push('/login');
         return;
       }
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (sub?.status !== 'active' && sub?.status !== 'trialing') {
+        router.push('/subscription');
+        return;
+      }
       setUser(user);
 
       const { data: profile } = await supabase

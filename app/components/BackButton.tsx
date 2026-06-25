@@ -16,12 +16,18 @@ interface Props {
   fallbackHref?: string;
   variant?: 'light' | 'dark';
   ariaLabel?: string;
+  /** When true, ALWAYS navigate to fallbackHref instead of popping
+   *  history. Used on pages like /subscription where the previous page
+   *  was a paywalled redirect and going back would re-trigger the same
+   *  redirect, creating a loop. */
+  forceFallback?: boolean;
 }
 
 export function BackButton({
   fallbackHref = '/dashboard',
   variant = 'light',
   ariaLabel = 'Back',
+  forceFallback = false,
 }: Props) {
   const router = useRouter();
   // Only show after mount so SSR markup doesn't render arrow + history
@@ -30,6 +36,10 @@ export function BackButton({
   useEffect(() => setMounted(true), []);
 
   function onClick() {
+    if (forceFallback) {
+      router.push(fallbackHref);
+      return;
+    }
     if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back();
     } else {
