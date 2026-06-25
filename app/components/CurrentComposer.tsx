@@ -137,15 +137,9 @@ export function CurrentComposer({
           color: rgba(255, 255, 255, 0.45);
         }
       `}</style>
-      {/* Tiny mention hint — keeps users discovering the @biz/ and @goods/ syntax. */}
-      <p style={{
-        margin: '4px 0 8px',
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.5)',
-        letterSpacing: '0.2px',
-      }}>
-        Tip: tag people with <code style={hintCode}>@username</code>, businesses with <code style={hintCode}>@biz/handle</code>, or a Mi Home Goods listing with <code style={hintCode}>@goods/id</code>.
-      </p>
+      <div style={{
+        height: 8,
+      }} />
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -181,17 +175,9 @@ export function CurrentComposer({
               : '0 8px 22px rgba(14,165,233,0.4)',
           }}
         >
-          {posting ? 'Posting…' : (parentId ? 'Reply' : 'Drop')}
+          {posting ? 'Posting…' : (parentId ? 'Reply' : 'Float')}
         </button>
       </div>
     </div>
   );
 }
-
-const hintCode: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.1)',
-  borderRadius: 6,
-  padding: '1px 5px',
-  fontSize: 10.5,
-  color: 'rgba(255,255,255,0.85)',
-};

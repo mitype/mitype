@@ -13,6 +13,7 @@ import { OceanBackground } from '../components/OceanBackground';
 import { VortexIntro } from '../components/VortexIntro';
 import { CurrentCard, type CurrentRecord } from '../components/CurrentCard';
 import { CurrentComposer } from '../components/CurrentComposer';
+import { CurrentTutorial } from '../components/CurrentTutorial';
 import { hydrateMentions, type HydratedEmbeds } from '../lib/currentsHydrate';
 
 const PAGE_SIZE = 25;
@@ -116,8 +117,13 @@ export default function CurrentsFeedPage() {
       <SiteNav userId={viewerId ?? undefined} showBack backFallbackHref="/dashboard" />
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '20px 16px 0' }}>
-        {/* Header */}
-        <div style={{ marginBottom: 16, textAlign: 'center' }}>
+        {/* First-time tutorial — all "how to use The Current" content
+            lives here so the feed itself stays uncluttered. Shows once
+            per device (localStorage gated). */}
+        <CurrentTutorial />
+
+        {/* The Current eyebrow chip — the only chrome on the feed. */}
+        <div style={{ marginBottom: 18, textAlign: 'center' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             padding: '4px 12px',
@@ -130,24 +136,6 @@ export default function CurrentsFeedPage() {
           }}>
             The Current
           </div>
-          <h1 style={{
-            margin: '10px 0 4px',
-            fontSize: 26,
-            fontWeight: 900,
-            color: 'white',
-            letterSpacing: '-0.6px',
-            textShadow: '0 2px 14px rgba(0,0,0,0.4)',
-          }}>
-            What's running through Mitype
-          </h1>
-          <p style={{
-            margin: 0,
-            fontSize: 13,
-            color: 'rgba(255,255,255,0.7)',
-            lineHeight: 1.5,
-          }}>
-            500-character drops. Echoes, replies, and rich embeds.
-          </p>
         </div>
 
         {/* Composer */}
@@ -175,9 +163,9 @@ export default function CurrentsFeedPage() {
             borderRadius: 18,
             color: 'rgba(255,255,255,0.8)',
           }}>
-            <p style={{ margin: 0, fontWeight: 800 }}>Still waters.</p>
+            <p style={{ margin: 0, fontWeight: 800 }}>No currents yet.</p>
             <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
-              No currents yet. Drop the first one above.
+              Float the first one above.
             </p>
           </div>
         ) : (
