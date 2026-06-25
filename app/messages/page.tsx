@@ -174,8 +174,8 @@ function AttachmentBubble({
       borderRadius: isMine
         ? '18px 18px 4px 18px'
         : '18px 18px 18px 4px',
-      background: isMine ? '#c8956c' : 'white',
-      color: isMine ? 'white' : '#1a1208',
+      background: isMine ? 'var(--brand-personal)' : 'white',
+      color: isMine ? 'white' : 'var(--brand-text-primary)',
       boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
     }}>
       {expired ? (
@@ -272,7 +272,7 @@ function MessageMenuButton({
           borderRadius: '50%',
           background: 'rgba(0,0,0,0.06)',
           border: 'none',
-          color: '#8a7560',
+          color: 'var(--brand-personal-text-mid)',
           fontSize: 14,
           fontWeight: 700,
           cursor: 'pointer',
@@ -316,7 +316,7 @@ function MessageMenuButton({
           <button
             type="button"
             onClick={onDeleteForMe}
-            style={menuActionBtn('#8a7560')}
+            style={menuActionBtn('var(--brand-personal-text-mid)')}
           >
             🗑️ Delete for me
           </button>
@@ -1259,7 +1259,7 @@ export default function MessagesPage() {
   return (
     <main style={{
       height: '100vh',
-      background: '#faf6f0',
+      background: 'var(--brand-personal-bg-cream)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       display: 'flex',
       flexDirection: 'column',
@@ -1299,7 +1299,7 @@ export default function MessagesPage() {
             <h1 style={{
               fontSize: 22,
               fontWeight: 800,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: '-0.5px',
               margin: 0,
             }}>
@@ -1316,7 +1316,7 @@ export default function MessagesPage() {
                   alignItems: 'center',
                   gap: 4,
                   padding: '6px 11px',
-                  background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                  background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
                   border: 'none',
                   borderRadius: 100,
                   color: 'white',
@@ -1341,7 +1341,7 @@ export default function MessagesPage() {
                   alignItems: 'center',
                   gap: 4,
                   padding: '6px 11px',
-                  background: 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                  background: 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
                   border: 'none',
                   borderRadius: 100,
                   color: 'white',
@@ -1369,7 +1369,7 @@ export default function MessagesPage() {
               style={{
                 width: '100%',
                 background: showBusinessSaves
-                  ? 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)'
+                  ? 'linear-gradient(135deg, var(--brand-business) 0%, var(--brand-business-light) 100%)'
                   : 'rgba(139,92,246,0.08)',
                 border: showBusinessSaves
                   ? 'none'
@@ -1380,7 +1380,7 @@ export default function MessagesPage() {
                 alignItems: 'center',
                 gap: 10,
                 cursor: 'pointer',
-                color: showBusinessSaves ? 'white' : '#5b21b6',
+                color: showBusinessSaves ? 'white' : 'var(--brand-business-deep)',
                 fontFamily: 'inherit',
                 boxShadow: showBusinessSaves
                   ? '0 8px 22px rgba(139,92,246,0.32)'
@@ -1394,7 +1394,7 @@ export default function MessagesPage() {
                   <span style={{
                     marginLeft: 6,
                     background: showBusinessSaves ? 'rgba(255,255,255,0.25)' : 'rgba(139,92,246,0.2)',
-                    color: showBusinessSaves ? 'white' : '#5b21b6',
+                    color: showBusinessSaves ? 'white' : 'var(--brand-business-deep)',
                     padding: '1px 7px',
                     borderRadius: 100,
                     fontSize: 11,
@@ -1419,7 +1419,7 @@ export default function MessagesPage() {
                 overflowY: 'auto',
               }}>
                 {businessSaves.length === 0 ? (
-                  <div style={{ padding: '20px 8px', fontSize: 12, color: '#7a6a85', textAlign: 'center', lineHeight: 1.5 }}>
+                  <div style={{ padding: '20px 8px', fontSize: 12, color: 'var(--brand-business-text-mid)', textAlign: 'center', lineHeight: 1.5 }}>
                     No saved businesses yet. Tap the ☆ Save button on any
                     business profile to add it here.
                   </div>
@@ -1442,7 +1442,7 @@ export default function MessagesPage() {
                         width: 36, height: 36, borderRadius: 10,
                         background: save.business.logo_url
                           ? `url(${save.business.logo_url})`
-                          : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                          : 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
                         backgroundSize: 'cover', backgroundPosition: 'center',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 16, color: 'white', flexShrink: 0,
@@ -1450,16 +1450,16 @@ export default function MessagesPage() {
                         {!save.business.logo_url && '🏪'}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#1a1208', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--brand-text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {save.business.business_name}
                         </div>
                         {save.business.category && (
-                          <div style={{ fontSize: 11, color: '#7a6a85', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <div style={{ fontSize: 11, color: 'var(--brand-business-text-mid)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {save.business.category}
                           </div>
                         )}
                       </div>
-                      <span aria-hidden="true" style={{ color: '#8b5cf6', fontWeight: 800, fontSize: 14 }}>→</span>
+                      <span aria-hidden="true" style={{ color: 'var(--brand-business)', fontWeight: 800, fontSize: 14 }}>→</span>
                     </Link>
                   ))
                 )}
@@ -1474,7 +1474,7 @@ export default function MessagesPage() {
                 padding: '8px 20px 6px',
                 fontSize: 11,
                 fontWeight: 700,
-                color: '#c8956c',
+                color: 'var(--brand-personal)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
               }}>
@@ -1489,9 +1489,9 @@ export default function MessagesPage() {
                     style={{
                       width: '100%',
                       padding: '12px 20px',
-                      background: selectedConvo?.id === convo.id ? '#fff3ec' : 'transparent',
+                      background: selectedConvo?.id === convo.id ? 'var(--brand-personal-bg-peach)' : 'transparent',
                       border: 'none',
-                      borderLeft: selectedConvo?.id === convo.id ? '3px solid #c8956c' : '3px solid transparent',
+                      borderLeft: selectedConvo?.id === convo.id ? '3px solid var(--brand-personal)' : '3px solid transparent',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -1503,7 +1503,7 @@ export default function MessagesPage() {
                       width: 40,
                       height: 40,
                       borderRadius: '50%',
-                      background: '#f0e8df',
+                      background: 'var(--brand-personal-bg-pale)',
                       overflow: 'hidden',
                       flexShrink: 0,
                     }}>
@@ -1518,10 +1518,10 @@ export default function MessagesPage() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand-text-primary)', marginBottom: 2 }}>
                           @{other?.username ?? 'Unknown'}
                         </p>
-                        <p style={{ fontSize: 12, color: '#c8956c', fontWeight: 600 }}>New request</p>
+                        <p style={{ fontSize: 12, color: 'var(--brand-personal)', fontWeight: 600 }}>New request</p>
                       </div>
                       <UnreadBadge count={unread.perConvo[convo.id] ?? 0} />
                     </div>
@@ -1538,7 +1538,7 @@ export default function MessagesPage() {
                 padding: '8px 20px 6px',
                 fontSize: 11,
                 fontWeight: 700,
-                color: '#a89278',
+                color: 'var(--brand-personal-text-light)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
               }}>
@@ -1553,9 +1553,9 @@ export default function MessagesPage() {
                     style={{
                       width: '100%',
                       padding: '12px 20px',
-                      background: selectedConvo?.id === convo.id ? '#fff3ec' : 'transparent',
+                      background: selectedConvo?.id === convo.id ? 'var(--brand-personal-bg-peach)' : 'transparent',
                       border: 'none',
-                      borderLeft: selectedConvo?.id === convo.id ? '3px solid #c8956c' : '3px solid transparent',
+                      borderLeft: selectedConvo?.id === convo.id ? '3px solid var(--brand-personal)' : '3px solid transparent',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -1567,7 +1567,7 @@ export default function MessagesPage() {
                       width: 40,
                       height: 40,
                       borderRadius: '50%',
-                      background: '#f0e8df',
+                      background: 'var(--brand-personal-bg-pale)',
                       overflow: 'hidden',
                       flexShrink: 0,
                     }}>
@@ -1582,10 +1582,10 @@ export default function MessagesPage() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand-text-primary)', marginBottom: 2 }}>
                           @{other?.username ?? 'Unknown'}
                         </p>
-                        <p style={{ fontSize: 12, color: '#a89278' }}>Pending approval</p>
+                        <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)' }}>Pending approval</p>
                       </div>
                       <UnreadBadge count={unread.perConvo[convo.id] ?? 0} />
                     </div>
@@ -1602,7 +1602,7 @@ export default function MessagesPage() {
                 padding: '8px 20px 6px',
                 fontSize: 11,
                 fontWeight: 700,
-                color: '#a89278',
+                color: 'var(--brand-personal-text-light)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
               }}>
@@ -1621,8 +1621,8 @@ export default function MessagesPage() {
                     style={{
                       width: '100%',
                       padding: '12px 20px',
-                      background: selectedConvo?.id === convo.id ? '#fff3ec' : 'transparent',
-                      borderLeft: selectedConvo?.id === convo.id ? '3px solid #c8956c' : '3px solid transparent',
+                      background: selectedConvo?.id === convo.id ? 'var(--brand-personal-bg-peach)' : 'transparent',
+                      borderLeft: selectedConvo?.id === convo.id ? '3px solid var(--brand-personal)' : '3px solid transparent',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -1652,7 +1652,7 @@ export default function MessagesPage() {
                                   width: 28,
                                   height: 28,
                                   borderRadius: '50%',
-                                  background: '#f0e8df',
+                                  background: 'var(--brand-personal-bg-pale)',
                                   border: '2px solid white',
                                   overflow: 'hidden',
                                   top: 6,
@@ -1677,7 +1677,7 @@ export default function MessagesPage() {
                         width: 40,
                         height: 40,
                         borderRadius: '50%',
-                        background: '#f0e8df',
+                        background: 'var(--brand-personal-bg-pale)',
                         overflow: 'hidden',
                         flexShrink: 0,
                       }}>
@@ -1694,12 +1694,12 @@ export default function MessagesPage() {
                     <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <div style={{ minWidth: 0 }}>
                         <p style={{
-                          fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2,
+                          fontSize: 14, fontWeight: 700, color: 'var(--brand-text-primary)', marginBottom: 2,
                           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                         }}>
                           {display.title}
                         </p>
-                        <p style={{ fontSize: 12, color: '#a89278' }}>
+                        <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)' }}>
                           {display.isGroup
                             ? `${display.subtitle} · ${timeAgo(convo.updated_at)}`
                             : timeAgo(convo.updated_at)}
@@ -1717,7 +1717,7 @@ export default function MessagesPage() {
                           background: 'rgba(0,0,0,0.04)',
                           border: 'none',
                           borderRadius: '50%',
-                          color: '#a89278',
+                          color: 'var(--brand-personal-text-light)',
                           fontSize: 14,
                           cursor: 'pointer',
                           display: 'inline-flex',
@@ -1756,7 +1756,7 @@ export default function MessagesPage() {
                   justifyContent: 'space-between',
                   fontSize: 11,
                   fontWeight: 700,
-                  color: '#a89278',
+                  color: 'var(--brand-personal-text-light)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                   fontFamily: 'inherit',
@@ -1779,11 +1779,11 @@ export default function MessagesPage() {
                         width: '100%',
                         padding: '12px 20px',
                         background:
-                          selectedConvo?.id === convo.id ? '#fff3ec' : 'transparent',
+                          selectedConvo?.id === convo.id ? 'var(--brand-personal-bg-peach)' : 'transparent',
                         border: 'none',
                         borderLeft:
                           selectedConvo?.id === convo.id
-                            ? '3px solid #c8956c'
+                            ? '3px solid var(--brand-personal)'
                             : '3px solid transparent',
                         cursor: 'pointer',
                         display: 'flex',
@@ -1798,7 +1798,7 @@ export default function MessagesPage() {
                           width: 40,
                           height: 40,
                           borderRadius: '50%',
-                          background: '#f0e8df',
+                          background: 'var(--brand-personal-bg-pale)',
                           overflow: 'hidden',
                           flexShrink: 0,
                         }}
@@ -1827,13 +1827,13 @@ export default function MessagesPage() {
                             style={{
                               fontSize: 14,
                               fontWeight: 700,
-                              color: '#1a1208',
+                              color: 'var(--brand-text-primary)',
                               marginBottom: 2,
                             }}
                           >
                             @{other?.username ?? 'Unknown'}
                           </p>
-                          <p style={{ fontSize: 12, color: '#a89278' }}>
+                          <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)' }}>
                             {timeAgo(convo.updated_at)}
                           </p>
                         </div>
@@ -1848,14 +1848,14 @@ export default function MessagesPage() {
           {conversations.length === 0 && (
             <div style={{ padding: '40px 20px', textAlign: 'center' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>💬</div>
-              <p style={{ color: '#a89278', fontSize: 14, lineHeight: 1.6 }}>
+              <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 14, lineHeight: 1.6 }}>
                 No messages yet. Start by connecting with creators in Discover!
               </p>
               <Link href="/discover" style={{
                 display: 'inline-block',
                 marginTop: 16,
                 padding: '10px 20px',
-                background: '#c8956c',
+                background: 'var(--brand-personal)',
                 color: 'white',
                 borderRadius: 100,
                 textDecoration: 'none',
@@ -1896,7 +1896,7 @@ export default function MessagesPage() {
                       border: 'none',
                       padding: '4px 8px',
                       fontSize: 22,
-                      color: '#c8956c',
+                      color: 'var(--brand-personal)',
                       cursor: 'pointer',
                       marginRight: 4,
                     }}
@@ -1944,7 +1944,7 @@ export default function MessagesPage() {
                                   width: 32,
                                   height: 32,
                                   borderRadius: '50%',
-                                  background: '#f0e8df',
+                                  background: 'var(--brand-personal-bg-pale)',
                                   border: '2px solid white',
                                   overflow: 'hidden',
                                   zIndex: members.length - idx,
@@ -1966,7 +1966,7 @@ export default function MessagesPage() {
                                 left: members.length * 18,
                                 width: 32, height: 32,
                                 borderRadius: '50%',
-                                background: '#c8956c',
+                                background: 'var(--brand-personal)',
                                 color: 'white',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 fontSize: 11, fontWeight: 900,
@@ -1979,11 +1979,11 @@ export default function MessagesPage() {
                         );
                       })()}
                       <div>
-                        <p style={{ fontWeight: 800, color: '#1a1208', fontSize: 15, letterSpacing: '-0.2px' }}>
+                        <p style={{ fontWeight: 800, color: 'var(--brand-text-primary)', fontSize: 15, letterSpacing: '-0.2px' }}>
                           {selectedConvo.title || 'Group chat'}
-                          <span aria-hidden="true" style={{ marginLeft: 6, color: '#c8956c', fontSize: 12 }}>⚙</span>
+                          <span aria-hidden="true" style={{ marginLeft: 6, color: 'var(--brand-personal)', fontSize: 12 }}>⚙</span>
                         </p>
-                        <p style={{ fontSize: 12, color: '#a89278' }}>
+                        <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)' }}>
                           {selectedConvo.participant_ids.length} member{selectedConvo.participant_ids.length === 1 ? '' : 's'}
                           {selectedConvo.kind === 'room' && ' · Room · tap to manage'}
                           {selectedConvo.kind === 'group' && ' · tap to manage'}
@@ -2011,7 +2011,7 @@ export default function MessagesPage() {
                       width: 40,
                       height: 40,
                       borderRadius: '50%',
-                      background: '#f0e8df',
+                      background: 'var(--brand-personal-bg-pale)',
                       overflow: 'hidden',
                       flexShrink: 0,
                     }}>
@@ -2029,10 +2029,10 @@ export default function MessagesPage() {
                       />
                     </div>
                     <div>
-                      <p style={{ fontWeight: 700, color: '#1a1208', fontSize: 15 }}>
+                      <p style={{ fontWeight: 700, color: 'var(--brand-text-primary)', fontSize: 15 }}>
                         @{getOtherUser(selectedConvo)?.username ?? 'Unknown'}
                       </p>
-                      <p style={{ fontSize: 12, color: '#a89278' }}>
+                      <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)' }}>
                         {selectedConvo.status === 'pending' ? '⏳ Pending approval' : 'Tap to view profile'}
                       </p>
                     </div>
@@ -2052,7 +2052,7 @@ export default function MessagesPage() {
                       background: 'rgba(200,149,108,0.1)',
                       border: '1px solid rgba(200,149,108,0.25)',
                       borderRadius: 100,
-                      color: '#c8956c',
+                      color: 'var(--brand-personal)',
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: 'pointer',
@@ -2073,10 +2073,10 @@ export default function MessagesPage() {
                       aria-label="Decline message request"
                       style={{
                         padding: '8px 18px',
-                        background: '#fff0f0',
+                        background: 'var(--brand-danger-bg)',
                         border: '1px solid rgba(220,100,100,0.2)',
                         borderRadius: 100,
-                        color: '#c07070',
+                        color: 'var(--brand-danger-text)',
                         fontSize: 13,
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -2089,7 +2089,7 @@ export default function MessagesPage() {
                       aria-label="Approve message request"
                       style={{
                         padding: '8px 18px',
-                        background: '#c8956c',
+                        background: 'var(--brand-personal)',
                         border: 'none',
                         borderRadius: 100,
                         color: 'white',
@@ -2112,7 +2112,7 @@ export default function MessagesPage() {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 12,
-                background: '#faf6f0',
+                background: 'var(--brand-personal-bg-cream)',
               }}>
 
                 {/* Icebreaker Suggestions */}
@@ -2131,10 +2131,10 @@ export default function MessagesPage() {
                       marginBottom: 14,
                     }}>
                       <div>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand-text-primary)', marginBottom: 2 }}>
                           ❄️ Need an icebreaker?
                         </p>
-                        <p style={{ fontSize: 12, color: '#a89278' }}>
+                        <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)' }}>
                           Pick a prompt or write your own message below
                         </p>
                       </div>
@@ -2146,7 +2146,7 @@ export default function MessagesPage() {
                           background: 'transparent',
                           border: '1px solid rgba(200,149,108,0.3)',
                           borderRadius: 100,
-                          color: '#c8956c',
+                          color: 'var(--brand-personal)',
                           fontSize: 12,
                           fontWeight: 600,
                           cursor: 'pointer',
@@ -2164,10 +2164,10 @@ export default function MessagesPage() {
                           onClick={() => useIcebreaker(prompt)}
                           style={{
                             padding: '12px 16px',
-                            background: '#faf6f0',
+                            background: 'var(--brand-personal-bg-cream)',
                             border: '1px solid rgba(200,149,108,0.2)',
                             borderRadius: 12,
-                            color: '#6b5744',
+                            color: 'var(--brand-personal-text-head)',
                             fontSize: 13,
                             fontWeight: 500,
                             cursor: 'pointer',
@@ -2189,7 +2189,7 @@ export default function MessagesPage() {
                         padding: '6px 0',
                         background: 'transparent',
                         border: 'none',
-                        color: '#a89278',
+                        color: 'var(--brand-personal-text-light)',
                         fontSize: 12,
                         cursor: 'pointer',
                         textDecoration: 'underline',
@@ -2217,7 +2217,7 @@ export default function MessagesPage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
                         fontSize: 10, fontWeight: 800,
-                        color: '#a07a4d', textTransform: 'uppercase',
+                        color: 'var(--brand-personal-deep)', textTransform: 'uppercase',
                         letterSpacing: '1px', marginBottom: 2,
                       }}>
                         Today's prompt
@@ -2225,7 +2225,7 @@ export default function MessagesPage() {
                       <p style={{
                         margin: 0,
                         fontSize: 14,
-                        color: '#5b4a36',
+                        color: 'var(--brand-personal-text-deep)',
                         lineHeight: 1.4,
                       }}>
                         {selectedConvo.daily_prompt}
@@ -2235,7 +2235,7 @@ export default function MessagesPage() {
                 )}
 
                 {messages.length === 0 && !showIcebreakers && (
-                  <div style={{ textAlign: 'center', padding: '40px', color: '#a89278' }}>
+                  <div style={{ textAlign: 'center', padding: '40px', color: 'var(--brand-personal-text-light)' }}>
                     <p style={{ fontSize: 14 }}>
                       {selectedConvo.status === 'pending' && selectedConvo.initiated_by === user?.id
                         ? 'Send your first message to start the conversation!'
@@ -2301,7 +2301,7 @@ export default function MessagesPage() {
                           margin: '0 6px 3px',
                           fontSize: 11,
                           fontWeight: 700,
-                          color: '#8a7560',
+                          color: 'var(--brand-personal-text-mid)',
                           letterSpacing: '0.2px',
                         }}>
                           @{senderProfile?.username ?? 'unknown'}
@@ -2319,12 +2319,12 @@ export default function MessagesPage() {
                             fontSize: 11,
                             margin: '4px 6px 0',
                             opacity: 0.55,
-                            color: '#8a7560',
+                            color: 'var(--brand-personal-text-mid)',
                             textAlign: isMine ? 'right' : 'left',
                           }}>
                             {timeAgo(msg.created_at)}
                             {showReadReceipt && (
-                              <span style={{ marginLeft: 6, color: '#16a34a', fontWeight: 600 }}>
+                              <span style={{ marginLeft: 6, color: 'var(--brand-market-success)', fontWeight: 600 }}>
                                 ✓ Read
                               </span>
                             )}
@@ -2336,7 +2336,7 @@ export default function MessagesPage() {
                           padding: '10px 16px',
                           borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                           background: 'rgba(0,0,0,0.04)',
-                          color: '#8a7560',
+                          color: 'var(--brand-personal-text-mid)',
                           fontSize: 13,
                           fontStyle: 'italic',
                           border: '1px dashed rgba(200,149,108,0.3)',
@@ -2380,8 +2380,8 @@ export default function MessagesPage() {
                             borderRadius: isMine
                               ? '18px 18px 4px 18px'
                               : '18px 18px 18px 4px',
-                            background: isMine ? '#c8956c' : 'white',
-                            color: isMine ? 'white' : '#1a1208',
+                            background: isMine ? 'var(--brand-personal)' : 'white',
+                            color: isMine ? 'white' : 'var(--brand-text-primary)',
                             fontSize: 14,
                             lineHeight: 1.5,
                             boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
@@ -2428,7 +2428,7 @@ export default function MessagesPage() {
                       padding: '10px 14px',
                       borderRadius: '18px 18px 18px 4px',
                       background: 'white',
-                      color: '#a89278',
+                      color: 'var(--brand-personal-text-light)',
                       fontSize: 13,
                       fontStyle: 'italic',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
@@ -2472,7 +2472,7 @@ export default function MessagesPage() {
                         background: 'rgba(200,149,108,0.1)',
                         border: '1px solid rgba(200,149,108,0.2)',
                         borderRadius: 100,
-                        color: '#c8956c',
+                        color: 'var(--brand-personal)',
                         fontSize: 12,
                         fontWeight: 600,
                         cursor: 'pointer',
@@ -2496,7 +2496,7 @@ export default function MessagesPage() {
                           width: 38,
                           height: 38,
                           flexShrink: 0,
-                          background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                          background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
                           border: 'none',
                           borderRadius: '50%',
                           color: 'white',
@@ -2523,7 +2523,7 @@ export default function MessagesPage() {
                         background: 'white',
                         border: '1px solid rgba(200,149,108,0.35)',
                         borderRadius: '50%',
-                        color: '#c8956c',
+                        color: 'var(--brand-personal)',
                         fontSize: 18,
                         cursor: sending ? 'wait' : 'pointer',
                         display: 'inline-flex',
@@ -2560,9 +2560,9 @@ export default function MessagesPage() {
                         padding: '12px 16px',
                         borderRadius: 100,
                         border: '1px solid rgba(200,149,108,0.25)',
-                        background: '#faf6f0',
+                        background: 'var(--brand-personal-bg-cream)',
                         fontSize: 16,
-                        color: '#1a1208',
+                        color: 'var(--brand-text-primary)',
                         outline: 'none',
                       }}
                     />
@@ -2572,7 +2572,7 @@ export default function MessagesPage() {
                       aria-label="Send message"
                       style={{
                         padding: '10px 18px',
-                        background: sending || !newMessage.trim() ? '#d4a882' : '#c8956c',
+                        background: sending || !newMessage.trim() ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
                         color: 'white',
                         border: 'none',
                         borderRadius: 100,
@@ -2596,7 +2596,7 @@ export default function MessagesPage() {
                   borderTop: '1px solid rgba(200,149,108,0.15)',
                   background: 'white',
                   textAlign: 'center',
-                  color: '#a89278',
+                  color: 'var(--brand-personal-text-light)',
                   fontSize: 14,
                   flexShrink: 0,
                 }}>
@@ -2610,7 +2610,7 @@ export default function MessagesPage() {
                   borderTop: '1px solid rgba(200,149,108,0.15)',
                   background: 'white',
                   textAlign: 'center',
-                  color: '#c07070',
+                  color: 'var(--brand-danger-text)',
                   fontSize: 14,
                   flexShrink: 0,
                 }}>
@@ -2625,11 +2625,11 @@ export default function MessagesPage() {
               alignItems: 'center',
               justifyContent: 'center',
               flexDirection: 'column',
-              color: '#a89278',
+              color: 'var(--brand-personal-text-light)',
               gap: 12,
             }}>
               <div style={{ fontSize: 56 }}>💌</div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1208' }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--brand-text-primary)' }}>
                 Select a conversation
               </h2>
               <p style={{ fontSize: 14 }}>

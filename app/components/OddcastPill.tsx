@@ -49,12 +49,12 @@ export function OddcastPill() {
             // Match the size of the regular category pills (padding + fontSize)
             // but keep the gradient, border, shadow, and hover lift so this
             // one still reads as the "featured" pill.
-            background: 'linear-gradient(135deg, #fff3ec 0%, #ffe1c8 100%)',
+            background: 'linear-gradient(135deg, var(--brand-personal-bg-peach) 0%, #ffe1c8 100%)',
             border: '1.5px solid rgba(200,149,108,0.45)',
             borderRadius: 100,
             padding: '9px 18px',
             fontSize: 13,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             fontWeight: 800,
             boxShadow: hover
               ? '0 4px 14px rgba(200,149,108,0.25)'
@@ -94,7 +94,7 @@ export function OddcastPill() {
             onClick={(e) => e.stopPropagation()}
             style={{
               background:
-                'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+                'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
               border: '1px solid rgba(200,149,108,0.3)',
               borderRadius: 28,
               maxWidth: 480,
@@ -118,7 +118,7 @@ export function OddcastPill() {
                 borderRadius: '50%',
                 border: 'none',
                 background: 'rgba(200,149,108,0.12)',
-                color: '#8a7560',
+                color: 'var(--brand-personal-text-mid)',
                 fontSize: 18,
                 cursor: 'pointer',
                 display: 'flex',
@@ -133,7 +133,7 @@ export function OddcastPill() {
 
             <p
               style={{
-                color: '#c8956c',
+                color: 'var(--brand-personal)',
                 fontSize: 12,
                 fontWeight: 800,
                 textTransform: 'uppercase',
@@ -160,7 +160,7 @@ export function OddcastPill() {
 
             <p
               style={{
-                color: '#c8956c',
+                color: 'var(--brand-personal)',
                 fontSize: 13,
                 fontWeight: 700,
                 letterSpacing: '0.5px',

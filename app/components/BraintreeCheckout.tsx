@@ -152,10 +152,10 @@ export function BraintreeCheckout({ userId, email, onSuccess }: Props) {
     return (
       <div style={{
         padding: 20,
-        background: '#fff0f0',
+        background: 'var(--brand-danger-bg)',
         border: '1px solid rgba(220,100,100,0.3)',
         borderRadius: 16,
-        color: '#c07070',
+        color: 'var(--brand-danger-text)',
         fontSize: 14,
         textAlign: 'center',
       }}>
@@ -176,7 +176,7 @@ export function BraintreeCheckout({ userId, email, onSuccess }: Props) {
       />
 
       {loadingDropin && (
-        <p style={{ color: '#a89278', fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
+        <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
           Loading secure checkout…
         </p>
       )}
@@ -188,7 +188,7 @@ export function BraintreeCheckout({ userId, email, onSuccess }: Props) {
           style={{
             width: '100%',
             padding: '17px',
-            background: submitting ? '#d4a882' : '#c8956c',
+            background: submitting ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
             color: 'white',
             border: 'none',
             borderRadius: 100,
@@ -205,7 +205,7 @@ export function BraintreeCheckout({ userId, email, onSuccess }: Props) {
 
       <p style={{
         textAlign: 'center',
-        color: '#b0967e',
+        color: 'var(--brand-personal-text-lighter)',
         fontSize: 13,
       }}>
         Your card will not be charged during your 30 day free trial · Cancel anytime

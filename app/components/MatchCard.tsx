@@ -22,10 +22,10 @@ interface MatchCardProps {
   onClose: () => void;
 }
 
-const PEACH = '#c8956c';
-const CREAM = '#faf6f0';
-const INK = '#1a1208';
-const MUTED = '#8a7560';
+const PEACH = 'var(--brand-personal)';
+const CREAM = 'var(--brand-personal-bg-cream)';
+const INK = 'var(--brand-text-primary)';
+const MUTED = 'var(--brand-personal-text-mid)';
 
 export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
   const [downloading, setDownloading] = useState(false);
@@ -112,7 +112,7 @@ export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
             width: 32,
             height: 32,
             border: 'none',
-            background: '#faf6f0',
+            background: 'var(--brand-personal-bg-cream)',
             borderRadius: '50%',
             fontSize: 18,
             color: MUTED,
@@ -128,7 +128,7 @@ export function MatchCard({ me, them, matchedOn, onClose }: MatchCardProps) {
         {/* Preview card — HTML/CSS mirror of what we'll render to canvas. */}
         <div
           style={{
-            background: `linear-gradient(135deg, ${CREAM} 0%, #fff3ec 100%)`,
+            background: `linear-gradient(135deg, ${CREAM} 0%, var(--brand-personal-bg-peach) 100%)`,
             border: `1px solid ${PEACH}33`,
             borderRadius: 20,
             padding: '32px 20px 24px',
@@ -263,7 +263,7 @@ function AvatarCircle({ person }: { person: Person }) {
       height: 96,
       borderRadius: '50%',
       overflow: 'hidden',
-      background: '#f0e8df',
+      background: 'var(--brand-personal-bg-pale)',
       border: `3px solid ${PEACH}`,
       boxShadow: '0 8px 20px rgba(200,149,108,0.25)',
       flexShrink: 0,

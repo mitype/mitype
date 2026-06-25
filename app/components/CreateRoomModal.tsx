@@ -111,7 +111,7 @@ export function CreateRoomModal({ open, onClose, currentUserId, onCreated }: Pro
           width: '100%',
           maxWidth: 460,
           maxHeight: 'min(92vh, 820px)',
-          background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+          background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           borderRadius: 24,
           boxShadow: '0 24px 60px rgba(0,0,0,0.4)',
           display: 'flex',
@@ -131,12 +131,12 @@ export function CreateRoomModal({ open, onClose, currentUserId, onCreated }: Pro
               margin: 0,
               fontSize: 21,
               fontWeight: 900,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: '-0.5px',
             }}>
               New room
             </h2>
-            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#7a6a4f' }}>
+            <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--brand-personal-text-amber)' }}>
               A persistent space where creators with a shared interest can hang out.
             </p>
           </div>
@@ -147,7 +147,7 @@ export function CreateRoomModal({ open, onClose, currentUserId, onCreated }: Pro
             style={{
               width: 32, height: 32, borderRadius: '50%',
               background: 'rgba(0,0,0,0.06)',
-              border: 'none', color: '#1a1208',
+              border: 'none', color: 'var(--brand-text-primary)',
               fontSize: 16, cursor: 'pointer',
               fontFamily: 'inherit',
               flexShrink: 0,
@@ -212,13 +212,13 @@ export function CreateRoomModal({ open, onClose, currentUserId, onCreated }: Pro
                       gap: 6,
                       padding: '8px 10px',
                       background: active
-                        ? 'linear-gradient(135deg, #c8956c, #ffb37c)'
+                        ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))'
                         : 'white',
                       border: active
-                        ? '1px solid #c8956c'
+                        ? '1px solid var(--brand-personal)'
                         : '1px solid rgba(200,149,108,0.25)',
                       borderRadius: 100,
-                      color: active ? 'white' : '#5b4a36',
+                      color: active ? 'white' : 'var(--brand-personal-text-deep)',
                       fontSize: 12,
                       fontWeight: 700,
                       cursor: 'pointer',
@@ -237,7 +237,7 @@ export function CreateRoomModal({ open, onClose, currentUserId, onCreated }: Pro
               })}
             </div>
             {category && (
-              <p style={{ fontSize: 11, color: '#a07a4d', marginTop: 6 }}>
+              <p style={{ fontSize: 11, color: 'var(--brand-personal-deep)', marginTop: 6 }}>
                 {category.tagline}
               </p>
             )}
@@ -277,7 +277,7 @@ export function CreateRoomModal({ open, onClose, currentUserId, onCreated }: Pro
               padding: 14,
               background: (creating || !valid)
                 ? 'rgba(200,149,108,0.4)'
-                : 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                : 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
               color: 'white',
               border: 'none',
               borderRadius: 100,
@@ -302,7 +302,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
     <label style={{
       display: 'block',
       fontSize: 11, fontWeight: 800,
-      color: '#a07a4d', textTransform: 'uppercase',
+      color: 'var(--brand-personal-deep)', textTransform: 'uppercase',
       letterSpacing: '1.4px',
       marginBottom: 6,
     }}>
@@ -315,7 +315,7 @@ function CharCount({ value, max }: { value: number; max: number }) {
   return (
     <div style={{
       fontSize: 11,
-      color: value > max * 0.9 ? '#dc2626' : '#a89278',
+      color: value > max * 0.9 ? '#dc2626' : 'var(--brand-personal-text-light)',
       marginTop: 4,
     }}>
       {value}/{max}
@@ -337,7 +337,7 @@ function VisibilityToggle({ label, desc, active, onClick }: {
           ? 'linear-gradient(135deg, rgba(200,149,108,0.18), rgba(255,179,124,0.12))'
           : 'white',
         border: active
-          ? '1.5px solid #c8956c'
+          ? '1.5px solid var(--brand-personal)'
           : '1px solid rgba(200,149,108,0.25)',
         borderRadius: 14,
         cursor: 'pointer',
@@ -345,10 +345,10 @@ function VisibilityToggle({ label, desc, active, onClick }: {
         fontFamily: 'inherit',
       }}
     >
-      <div style={{ fontSize: 14, fontWeight: 800, color: active ? '#5b4a36' : '#1a1208', marginBottom: 2 }}>
+      <div style={{ fontSize: 14, fontWeight: 800, color: active ? 'var(--brand-personal-text-deep)' : 'var(--brand-text-primary)', marginBottom: 2 }}>
         {label}
       </div>
-      <div style={{ fontSize: 11, color: '#8a7560', lineHeight: 1.3 }}>
+      <div style={{ fontSize: 11, color: 'var(--brand-personal-text-mid)', lineHeight: 1.3 }}>
         {desc}
       </div>
     </button>
@@ -363,5 +363,5 @@ const fieldStyle: React.CSSProperties = {
   borderRadius: 12,
   fontSize: 16,
   outline: 'none',
-  color: '#1a1208',
+  color: 'var(--brand-text-primary)',
 };

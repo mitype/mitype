@@ -444,7 +444,7 @@ export default function DiscoverPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -478,7 +478,7 @@ export default function DiscoverPage() {
             display: 'flex',
             alignItems: 'center',
             gap: 18,
-            background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 60%, #c8956c 100%)',
+            background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 60%, var(--brand-personal) 100%)',
             border: '1px solid rgba(200,149,108,0.35)',
             borderRadius: 24,
             padding: '24px 28px',
@@ -547,12 +547,12 @@ export default function DiscoverPage() {
                 <h2 style={{
                   fontSize: 22,
                   fontWeight: 800,
-                  color: '#1a1208',
+                  color: 'var(--brand-text-primary)',
                   letterSpacing: '-0.5px',
                 }}>
                   Spotlight Profiles
                 </h2>
-                <p style={{ color: '#a89278', fontSize: 13 }}>
+                <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 13 }}>
                   Featured creatives today. Refreshes daily
                 </p>
               </div>
@@ -582,7 +582,7 @@ export default function DiscoverPage() {
                   >
                     {/* Spotlight banner */}
                     <div style={{
-                      background: 'linear-gradient(135deg, #c8956c, #e8b490)',
+                      background: 'linear-gradient(135deg, var(--brand-personal), #e8b490)',
                       padding: '8px 16px',
                       display: 'flex',
                       alignItems: 'center',
@@ -605,7 +605,7 @@ export default function DiscoverPage() {
                       <div style={{
                         width: 110,
                         flexShrink: 0,
-                        background: '#f0e8df',
+                        background: 'var(--brand-personal-bg-pale)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -646,7 +646,7 @@ export default function DiscoverPage() {
                           style={{
                             fontSize: 16,
                             fontWeight: 800,
-                            color: '#1a1208',
+                            color: 'var(--brand-text-primary)',
                             textDecoration: 'none',
                             display: 'block',
                             marginBottom: 4,
@@ -656,13 +656,13 @@ export default function DiscoverPage() {
                           {(() => {
                             const age = calculateAge(profile.date_of_birth);
                             return age !== null ? (
-                              <span style={{ color: '#a89278', fontWeight: 600 }}> · {age}</span>
+                              <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600 }}> · {age}</span>
                             ) : null;
                           })()}
                         </Link>
 
                         {profile.zip_code && (
-                          <p style={{ color: '#a89278', fontSize: 12, marginBottom: 4 }}>
+                          <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 12, marginBottom: 4 }}>
                             📍 {profile.zip_code}
                           </p>
                         )}
@@ -677,7 +677,7 @@ export default function DiscoverPage() {
 
                         {profile.bio && (
                           <p style={{
-                            color: '#6b5744',
+                            color: 'var(--brand-personal-text-head)',
                             fontSize: 13,
                             lineHeight: 1.5,
                             marginBottom: 10,
@@ -692,7 +692,7 @@ export default function DiscoverPage() {
 
                         {shared.length > 0 && (
                           <p style={{
-                            color: '#16a34a',
+                            color: 'var(--brand-market-success)',
                             fontSize: 12,
                             fontWeight: 600,
                             marginBottom: 8,
@@ -708,7 +708,7 @@ export default function DiscoverPage() {
                             <span key={cat} style={{
                               background: 'rgba(200,149,108,0.1)',
                               border: '1px solid rgba(200,149,108,0.2)',
-                              color: '#c8956c',
+                              color: 'var(--brand-personal)',
                               padding: '3px 10px',
                               borderRadius: 100,
                               fontSize: 11,
@@ -729,7 +729,7 @@ export default function DiscoverPage() {
                               background: 'white',
                               border: '1px solid rgba(200,149,108,0.3)',
                               borderRadius: 10,
-                              color: '#c8956c',
+                              color: 'var(--brand-personal)',
                               fontSize: 12,
                               fontWeight: 700,
                               textDecoration: 'none',
@@ -744,7 +744,7 @@ export default function DiscoverPage() {
                             style={{
                               flex: 1,
                               padding: '8px',
-                              background: '#c8956c',
+                              background: 'var(--brand-personal)',
                               border: 'none',
                               borderRadius: 10,
                               color: 'white',
@@ -770,7 +770,7 @@ export default function DiscoverPage() {
               marginTop: 40,
             }}>
               <div style={{ flex: 1, height: 1, background: 'rgba(200,149,108,0.15)' }} />
-              <span style={{ color: '#a89278', fontSize: 13, fontWeight: 600 }}>All Profiles</span>
+              <span style={{ color: 'var(--brand-personal-text-light)', fontSize: 13, fontWeight: 600 }}>All Profiles</span>
               <div style={{ flex: 1, height: 1, background: 'rgba(200,149,108,0.15)' }} />
             </div>
           </div>
@@ -784,10 +784,10 @@ export default function DiscoverPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <span style={{ fontSize: 20 }}>🏪</span>
               <div>
-                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1208', letterSpacing: '-0.5px', margin: 0 }}>
+                <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--brand-text-primary)', letterSpacing: '-0.5px', margin: 0 }}>
                   Today&rsquo;s Business Spotlight
                 </h2>
-                <p style={{ color: '#7a6a85', fontSize: 13, margin: 0 }}>
+                <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 13, margin: 0 }}>
                   A different small business every day. Rotates at midnight.
                 </p>
               </div>
@@ -798,7 +798,7 @@ export default function DiscoverPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 18,
-                background: 'linear-gradient(135deg, #5b21b6 0%, #8b5cf6 60%, #c084fc 100%)',
+                background: 'linear-gradient(135deg, var(--brand-business-deep) 0%, var(--brand-business) 60%, var(--brand-business-light) 100%)',
                 color: 'white',
                 textDecoration: 'none',
                 borderRadius: 24,
@@ -844,7 +844,7 @@ export default function DiscoverPage() {
           style={{
             width: '100%',
             background: showBusinessTab
-              ? 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)'
+              ? 'linear-gradient(135deg, var(--brand-business) 0%, var(--brand-business-light) 100%)'
               : 'white',
             border: `1px solid ${showBusinessTab ? 'transparent' : 'rgba(139,92,246,0.35)'}`,
             borderRadius: 20,
@@ -854,7 +854,7 @@ export default function DiscoverPage() {
             alignItems: 'center',
             gap: 14,
             cursor: 'pointer',
-            color: showBusinessTab ? 'white' : '#5b21b6',
+            color: showBusinessTab ? 'white' : 'var(--brand-business-deep)',
             fontFamily: 'inherit',
             boxShadow: showBusinessTab
               ? '0 10px 28px rgba(139,92,246,0.35)'
@@ -887,15 +887,15 @@ export default function DiscoverPage() {
           }}>
             {/* Category filter — purple chips */}
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#5b21b6', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--brand-business-deep)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
                 Filter by type
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxHeight: 110, overflowY: 'auto', padding: 2 }}>
                 <button
                   onClick={() => setBizCategoryFilter('')}
                   style={{
-                    background: !bizCategoryFilter ? '#8b5cf6' : 'white',
-                    color: !bizCategoryFilter ? 'white' : '#5b21b6',
+                    background: !bizCategoryFilter ? 'var(--brand-business)' : 'white',
+                    color: !bizCategoryFilter ? 'white' : 'var(--brand-business-deep)',
                     border: '1px solid rgba(139,92,246,0.25)',
                     padding: '5px 11px',
                     borderRadius: 100,
@@ -912,8 +912,8 @@ export default function DiscoverPage() {
                     key={cat}
                     onClick={() => setBizCategoryFilter(cat === bizCategoryFilter ? '' : cat)}
                     style={{
-                      background: cat === bizCategoryFilter ? '#8b5cf6' : 'white',
-                      color: cat === bizCategoryFilter ? 'white' : '#5b21b6',
+                      background: cat === bizCategoryFilter ? 'var(--brand-business)' : 'white',
+                      color: cat === bizCategoryFilter ? 'white' : 'var(--brand-business-deep)',
                       border: '1px solid rgba(139,92,246,0.25)',
                       padding: '5px 11px',
                       borderRadius: 100,
@@ -936,7 +936,7 @@ export default function DiscoverPage() {
                 : localBusinesses;
               if (visible.length === 0) {
                 return (
-                  <div style={{ padding: '40px 16px', textAlign: 'center', color: '#7a6a85', fontSize: 14 }}>
+                  <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--brand-business-text-mid)', fontSize: 14 }}>
                     {myZip
                       ? bizCategoryFilter
                         ? `No ${bizCategoryFilter} businesses in ${myZip} yet.`
@@ -968,7 +968,7 @@ export default function DiscoverPage() {
                       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                         <div style={{
                           width: 44, height: 44, borderRadius: 12,
-                          background: b.logo_url ? `url(${b.logo_url})` : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                          background: b.logo_url ? `url(${b.logo_url})` : 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
                           backgroundSize: 'cover', backgroundPosition: 'center',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 18, color: 'white', flexShrink: 0,
@@ -976,11 +976,11 @@ export default function DiscoverPage() {
                           {!b.logo_url && '🏪'}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1208', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {b.business_name}
                           </div>
                           {b.category && (
-                            <div style={{ fontSize: 11, color: '#7a6a85', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <div style={{ fontSize: 11, color: 'var(--brand-business-text-mid)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {b.category}
                             </div>
                           )}
@@ -993,7 +993,7 @@ export default function DiscoverPage() {
                           style={{
                             flex: 1,
                             padding: '8px 10px',
-                            background: '#8b5cf6',
+                            background: 'var(--brand-business)',
                             color: 'white',
                             border: 'none',
                             borderRadius: 100,
@@ -1015,7 +1015,7 @@ export default function DiscoverPage() {
                           style={{
                             padding: '8px 12px',
                             background: 'rgba(139,92,246,0.1)',
-                            color: '#5b21b6',
+                            color: 'var(--brand-business-deep)',
                             border: '1px solid rgba(139,92,246,0.3)',
                             borderRadius: 100,
                             fontSize: 12,
@@ -1048,7 +1048,7 @@ export default function DiscoverPage() {
           style={{
             width: '100%',
             background: showRoomsTab
-              ? 'linear-gradient(135deg, #c8956c 0%, #ffb37c 100%)'
+              ? 'linear-gradient(135deg, var(--brand-personal) 0%, var(--brand-personal-light) 100%)'
               : 'white',
             border: `1px solid ${showRoomsTab ? 'transparent' : 'rgba(200,149,108,0.35)'}`,
             borderRadius: 20,
@@ -1094,7 +1094,7 @@ export default function DiscoverPage() {
             marginBottom: 32,
             alignItems: 'center',
             gap: 14,
-            color: '#15803d',
+            color: 'var(--brand-market)',
             fontFamily: 'inherit',
             boxShadow: '0 10px 28px rgba(21,128,61,0.18)',
             textDecoration: 'none',
@@ -1105,7 +1105,7 @@ export default function DiscoverPage() {
             <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
               Mi Home Goods marketplace
             </span>
-            <span style={{ display: 'block', fontSize: 13, color: '#3a5d48', marginTop: 2 }}>
+            <span style={{ display: 'block', fontSize: 13, color: 'var(--brand-market-text-mid)', marginTop: 2 }}>
               Buy and sell with your Mitype community. Furniture, electronics, vintage finds, and more.
             </span>
           </span>
@@ -1122,14 +1122,14 @@ export default function DiscoverPage() {
           }}>
             {/* Category filter — bronze chips */}
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#a07a4d', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--brand-personal-deep)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
                 Filter by category
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxHeight: 100, overflowY: 'auto', padding: 2 }}>
                 <button
                   onClick={() => setRoomCategoryFilter('')}
                   style={{
-                    background: !roomCategoryFilter ? '#c8956c' : 'white',
+                    background: !roomCategoryFilter ? 'var(--brand-personal)' : 'white',
                     color: !roomCategoryFilter ? 'white' : '#6b4f33',
                     border: '1px solid rgba(200,149,108,0.25)',
                     padding: '5px 11px',
@@ -1147,7 +1147,7 @@ export default function DiscoverPage() {
                     key={cat.key}
                     onClick={() => setRoomCategoryFilter(cat.key === roomCategoryFilter ? '' : cat.key)}
                     style={{
-                      background: cat.key === roomCategoryFilter ? '#c8956c' : 'white',
+                      background: cat.key === roomCategoryFilter ? 'var(--brand-personal)' : 'white',
                       color: cat.key === roomCategoryFilter ? 'white' : '#6b4f33',
                       border: '1px solid rgba(200,149,108,0.25)',
                       padding: '5px 11px',
@@ -1174,7 +1174,7 @@ export default function DiscoverPage() {
                 : publicRooms;
               if (!roomsLoaded) {
                 return (
-                  <div style={{ padding: 30, textAlign: 'center', color: '#a89278', fontSize: 13 }}>
+                  <div style={{ padding: 30, textAlign: 'center', color: 'var(--brand-personal-text-light)', fontSize: 13 }}>
                     Loading rooms…
                   </div>
                 );
@@ -1187,7 +1187,7 @@ export default function DiscoverPage() {
                     background: 'rgba(255,255,255,0.5)',
                     border: '1px dashed rgba(200,149,108,0.3)',
                     borderRadius: 16,
-                    color: '#a89278',
+                    color: 'var(--brand-personal-text-light)',
                     fontSize: 13,
                   }}>
                     {roomCategoryFilter
@@ -1223,7 +1223,7 @@ export default function DiscoverPage() {
                         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                           <div style={{
                             width: 44, height: 44, borderRadius: 12,
-                            background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                            background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontSize: 22, color: 'white', flexShrink: 0,
                           }}>
@@ -1231,20 +1231,20 @@ export default function DiscoverPage() {
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{
-                              fontSize: 14, fontWeight: 800, color: '#1a1208',
+                              fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
                               letterSpacing: '-0.2px',
                               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                             }}>
                               {room.title}
                             </div>
-                            <div style={{ fontSize: 11, color: '#a89278' }}>
+                            <div style={{ fontSize: 11, color: 'var(--brand-personal-text-light)' }}>
                               {memberCount} member{memberCount === 1 ? '' : 's'} · {roomCategoryLabel(room.category)}
                             </div>
                           </div>
                         </div>
                         {room.description && (
                           <p style={{
-                            fontSize: 12, color: '#7a6a4f',
+                            fontSize: 12, color: 'var(--brand-personal-text-amber)',
                             lineHeight: 1.4, margin: 0,
                             display: '-webkit-box',
                             WebkitLineClamp: 3,
@@ -1262,7 +1262,7 @@ export default function DiscoverPage() {
                             padding: '8px 14px',
                             background: alreadyIn
                               ? 'rgba(200,149,108,0.12)'
-                              : 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                              : 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
                             border: alreadyIn ? '1px solid rgba(200,149,108,0.4)' : 'none',
                             color: alreadyIn ? '#6b4f33' : 'white',
                             borderRadius: 100,
@@ -1297,13 +1297,13 @@ export default function DiscoverPage() {
             <h1 style={{
               fontSize: 40,
               fontWeight: 900,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: '-1px',
               marginBottom: 8,
             }}>
               Discover
             </h1>
-            <p style={{ color: '#a89278', fontSize: 16 }}>
+            <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 16 }}>
               {filteredProfiles.length} creative{filteredProfiles.length !== 1 ? 's' : ''}. Sorted by compatibility
             </p>
           </div>
@@ -1314,10 +1314,10 @@ export default function DiscoverPage() {
             aria-expanded={showFilters}
             style={{
               padding: '12px 24px',
-              background: showFilters ? '#c8956c' : 'white',
+              background: showFilters ? 'var(--brand-personal)' : 'white',
               border: '1px solid rgba(200,149,108,0.3)',
               borderRadius: 100,
-              color: showFilters ? 'white' : '#8a7560',
+              color: showFilters ? 'white' : 'var(--brand-personal-text-mid)',
               fontSize: 14,
               fontWeight: 600,
               cursor: 'pointer',
@@ -1347,7 +1347,7 @@ export default function DiscoverPage() {
                   display: 'block',
                   fontSize: 12,
                   fontWeight: 700,
-                  color: '#6b5744',
+                  color: 'var(--brand-personal-text-head)',
                   marginBottom: 8,
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
@@ -1362,9 +1362,9 @@ export default function DiscoverPage() {
                     padding: '12px 16px',
                     borderRadius: 12,
                     border: '1px solid rgba(200,149,108,0.25)',
-                    background: '#faf6f0',
+                    background: 'var(--brand-personal-bg-cream)',
                     fontSize: 14,
-                    color: '#1a1208',
+                    color: 'var(--brand-text-primary)',
                     outline: 'none',
                   }}
                 >
@@ -1380,7 +1380,7 @@ export default function DiscoverPage() {
                   display: 'block',
                   fontSize: 12,
                   fontWeight: 700,
-                  color: '#6b5744',
+                  color: 'var(--brand-personal-text-head)',
                   marginBottom: 8,
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
@@ -1398,9 +1398,9 @@ export default function DiscoverPage() {
                     padding: '12px 16px',
                     borderRadius: 12,
                     border: '1px solid rgba(200,149,108,0.25)',
-                    background: '#faf6f0',
+                    background: 'var(--brand-personal-bg-cream)',
                     fontSize: 16,
-                    color: '#1a1208',
+                    color: 'var(--brand-text-primary)',
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
@@ -1414,7 +1414,7 @@ export default function DiscoverPage() {
                 display: 'block',
                 fontSize: 12,
                 fontWeight: 700,
-                color: '#6b5744',
+                color: 'var(--brand-personal-text-head)',
                 marginBottom: 8,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
@@ -1441,7 +1441,7 @@ export default function DiscoverPage() {
                 />
               </div>
               {!myEffectiveCity && !myEffectiveState && (
-                <p style={{ fontSize: 11, color: '#a89278', marginTop: 6 }}>
+                <p style={{ fontSize: 11, color: 'var(--brand-personal-text-light)', marginTop: 6 }}>
                   Add your city and state in Edit Profile to use these filters.
                 </p>
               )}
@@ -1452,7 +1452,7 @@ export default function DiscoverPage() {
                 onClick={applyFilters}
                 style={{
                   padding: '10px 28px',
-                  background: '#c8956c',
+                  background: 'var(--brand-personal)',
                   color: 'white',
                   border: 'none',
                   borderRadius: 100,
@@ -1468,7 +1468,7 @@ export default function DiscoverPage() {
                 style={{
                   padding: '10px 28px',
                   background: 'transparent',
-                  color: '#8a7560',
+                  color: 'var(--brand-personal-text-mid)',
                   border: '1px solid rgba(200,149,108,0.3)',
                   borderRadius: 100,
                   fontSize: 14,
@@ -1496,7 +1496,7 @@ export default function DiscoverPage() {
               display: 'flex',
               alignItems: 'stretch',
               gap: 18,
-              background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 60%, #c8956c 100%)',
+              background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 60%, var(--brand-personal) 100%)',
               border: '1px solid rgba(200,149,108,0.35)',
               borderRadius: 24,
               padding: 16,
@@ -1613,12 +1613,12 @@ export default function DiscoverPage() {
             <h2 style={{
               fontSize: 28,
               fontWeight: 800,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               marginBottom: 8,
             }}>
               No profiles yet
             </h2>
-            <p style={{ color: '#a89278', fontSize: 16 }}>
+            <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 16 }}>
               Check back soon as more people join Mitype!
             </p>
           </div>
@@ -1648,7 +1648,7 @@ export default function DiscoverPage() {
                   <div style={{
                     width: '100%',
                     aspectRatio: '3/4',
-                    background: '#f0e8df',
+                    background: 'var(--brand-personal-bg-pale)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1692,7 +1692,7 @@ export default function DiscoverPage() {
                           position: 'absolute',
                           top: 10,
                           left: 10,
-                          background: 'linear-gradient(135deg, #c8956c 0%, #ffb37c 100%)',
+                          background: 'linear-gradient(135deg, var(--brand-personal) 0%, var(--brand-personal-light) 100%)',
                           color: 'white',
                           padding: '5px 11px',
                           borderRadius: 100,
@@ -1744,7 +1744,7 @@ export default function DiscoverPage() {
                       style={{
                         fontSize: 16,
                         fontWeight: 700,
-                        color: '#1a1208',
+                        color: 'var(--brand-text-primary)',
                         textDecoration: 'none',
                       }}
                     >
@@ -1752,12 +1752,12 @@ export default function DiscoverPage() {
                       {(() => {
                         const age = calculateAge(profile.date_of_birth);
                         return age !== null ? (
-                          <span style={{ color: '#a89278', fontWeight: 600 }}> · {age}</span>
+                          <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600 }}> · {age}</span>
                         ) : null;
                       })()}
                     </Link>
                     {profile.zip_code && (
-                      <p style={{ color: '#a89278', fontSize: 12, marginTop: 2 }}>
+                      <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 12, marginTop: 2 }}>
                         📍 {profile.zip_code}
                       </p>
                     )}
@@ -1770,7 +1770,7 @@ export default function DiscoverPage() {
                     </div>
                     {profile.bio && (
                       <p style={{
-                        color: '#8a7560',
+                        color: 'var(--brand-personal-text-mid)',
                         fontSize: 13,
                         lineHeight: 1.5,
                         margin: '8px 0 16px',
@@ -1785,7 +1785,7 @@ export default function DiscoverPage() {
 
                     {shared.length > 0 && (
                       <p style={{
-                        color: '#16a34a',
+                        color: 'var(--brand-market-success)',
                         fontSize: 12,
                         fontWeight: 600,
                         margin: '0 0 12px',
@@ -1802,10 +1802,10 @@ export default function DiscoverPage() {
                         style={{
                           flex: 1,
                           padding: '10px',
-                          background: '#fff0f0',
+                          background: 'var(--brand-danger-bg)',
                           border: '1px solid rgba(220,100,100,0.2)',
                           borderRadius: 12,
-                          color: '#c07070',
+                          color: 'var(--brand-danger-text)',
                           fontSize: 20,
                           cursor: 'pointer',
                         }}
@@ -1818,7 +1818,7 @@ export default function DiscoverPage() {
                         style={{
                           flex: 1,
                           padding: '10px',
-                          background: '#c8956c',
+                          background: 'var(--brand-personal)',
                           border: 'none',
                           borderRadius: 12,
                           color: 'white',
@@ -1878,14 +1878,14 @@ function LocationChip({ label, active, disabled, onClick }: {
         background: disabled
           ? 'rgba(200,149,108,0.06)'
           : active
-            ? '#c8956c'
+            ? 'var(--brand-personal)'
             : 'white',
         color: disabled
           ? '#c8b8a4'
           : active
             ? 'white'
             : '#6b4f33',
-        border: `1px solid ${active ? '#c8956c' : 'rgba(200,149,108,0.25)'}`,
+        border: `1px solid ${active ? 'var(--brand-personal)' : 'rgba(200,149,108,0.25)'}`,
         borderRadius: 100,
         fontSize: 12,
         fontWeight: 700,

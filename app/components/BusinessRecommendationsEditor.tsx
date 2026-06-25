@@ -162,7 +162,7 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <span style={{ fontSize: 28 }}>🏪</span>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1a1208' }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--brand-text-primary)' }}>
               Small Businesses I Recommend
             </div>
             <div style={{ fontSize: 13, color: '#5b4a6e', lineHeight: 1.4, marginTop: 2 }}>
@@ -174,7 +174,7 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
       </div>
 
       {recs.length === 0 && (
-        <p style={{ color: '#7a6a85', fontSize: 13, fontStyle: 'italic', marginBottom: 14 }}>
+        <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 13, fontStyle: 'italic', marginBottom: 14 }}>
           No recommendations yet.
         </p>
       )}
@@ -197,7 +197,7 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
             width: 44, height: 44, borderRadius: 12, flexShrink: 0,
             background: rec.business?.logo_url
               ? `url(${rec.business.logo_url}) center / cover`
-              : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+              : 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 20, color: 'white',
           }}>
@@ -205,13 +205,13 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
-              fontSize: 14, fontWeight: 800, color: '#1a1208',
+              fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}>
               {rec.business?.business_name ?? '(removed)'}
             </div>
             {rec.business?.category && (
-              <div style={{ fontSize: 11, color: '#7a6a85' }}>{rec.business.category}</div>
+              <div style={{ fontSize: 11, color: 'var(--brand-business-text-mid)' }}>{rec.business.category}</div>
             )}
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
@@ -238,8 +238,8 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
               onClick={() => removeRecommendation(rec)}
               style={{
                 ...iconBtn(false),
-                background: '#fff0f0',
-                color: '#c07070',
+                background: 'var(--brand-danger-bg)',
+                color: 'var(--brand-danger-text)',
                 border: '1px solid rgba(220,100,100,0.25)',
               }}
               aria-label="Remove"
@@ -259,8 +259,8 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
           marginTop: 6,
           background: recs.length >= MAX_RECOMMENDATIONS || saved.length === 0
             ? 'rgba(139,92,246,0.1)'
-            : 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)',
-          color: recs.length >= MAX_RECOMMENDATIONS || saved.length === 0 ? '#7a6a85' : 'white',
+            : 'linear-gradient(135deg, var(--brand-business) 0%, var(--brand-business-light) 100%)',
+          color: recs.length >= MAX_RECOMMENDATIONS || saved.length === 0 ? 'var(--brand-business-text-mid)' : 'white',
           border: 'none',
           borderRadius: 100,
           fontSize: 13,
@@ -308,7 +308,7 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: '#1a1208' }}>
+              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--brand-text-primary)' }}>
                 Recommend a saved business
               </h3>
               <button
@@ -320,7 +320,7 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
                   border: 'none',
                   width: 30, height: 30,
                   borderRadius: '50%',
-                  color: '#1a1208',
+                  color: 'var(--brand-text-primary)',
                   fontSize: 16,
                   cursor: 'pointer',
                   fontFamily: 'inherit',
@@ -343,14 +343,14 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
                 background: '#fbfaff',
                 fontSize: 16,
                 outline: 'none',
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 boxSizing: 'border-box',
                 fontFamily: 'inherit',
               }}
             />
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {filteredPicker.length === 0 ? (
-                <p style={{ color: '#7a6a85', fontSize: 13, textAlign: 'center', padding: '24px 8px' }}>
+                <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 13, textAlign: 'center', padding: '24px 8px' }}>
                   {availableToAdd.length === 0
                     ? "You've already recommended every business you've saved."
                     : 'No matches.'}
@@ -377,21 +377,21 @@ export function BusinessRecommendationsEditor({ userId }: { userId: string }) {
                       width: 40, height: 40, borderRadius: 10, flexShrink: 0,
                       background: b.logo_url
                         ? `url(${b.logo_url}) center / cover`
-                        : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                        : 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 18, color: 'white',
                     }}>
                       {!b.logo_url && '🏪'}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1208' }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)' }}>
                         {b.business_name}
                       </div>
                       {b.category && (
-                        <div style={{ fontSize: 12, color: '#7a6a85' }}>{b.category}</div>
+                        <div style={{ fontSize: 12, color: 'var(--brand-business-text-mid)' }}>{b.category}</div>
                       )}
                     </div>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: '#5b21b6' }}>+</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--brand-business-deep)' }}>+</span>
                   </button>
                 ))
               )}
@@ -409,7 +409,7 @@ function iconBtn(disabled: boolean): React.CSSProperties {
     background: disabled ? '#f5f5f5' : '#fbfaff',
     border: '1px solid rgba(139,92,246,0.25)',
     borderRadius: 10,
-    color: disabled ? '#cbb9a4' : '#5b21b6',
+    color: disabled ? '#cbb9a4' : 'var(--brand-business-deep)',
     fontSize: 14, fontWeight: 800,
     cursor: disabled ? 'not-allowed' : 'pointer',
     fontFamily: 'inherit',

@@ -3,6 +3,69 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* --- Mitype brand color tokens ---------------------------------------
+   * Mirror of app/lib/brand.ts. The TS export is the source of truth for
+   * autocomplete; these CSS vars are what most components reference
+   * after the brand-color sweep so files don't need to import anything.
+   *
+   * Three families:
+   *   --brand-personal-*  bronze (creator surfaces)
+   *   --brand-business-*  purple (commerce surfaces)
+   *   --brand-market-*    green  (Mi Home Goods)
+   * Plus danger (soft red) + universal text/surface. */
+
+  /* personal — bronze */
+  --brand-personal:              #c8956c;
+  --brand-personal-light:        #ffb37c;
+  --brand-personal-deep:         #a07a4d;
+  --brand-personal-soft:         #ffd5a8;
+  --brand-personal-disabled:     #d4a882;
+  --brand-personal-text-dark:    #1a1208;
+  --brand-personal-text-head:    #6b5744;
+  --brand-personal-text-mid:     #8a7560;
+  --brand-personal-text-light:   #a89278;
+  --brand-personal-text-lighter: #b0967e;
+  --brand-personal-text-deep:    #5b4a36;
+  --brand-personal-text-amber:   #7a6a4f;
+  --brand-personal-bg-cream:     #faf6f0;
+  --brand-personal-bg-cream-deep:#f5f0e8;
+  --brand-personal-bg-peach:     #fff3ec;
+  --brand-personal-bg-peach-warm:#fff8ec;
+  --brand-personal-bg-pale:      #f0e8df;
+
+  /* business — purple */
+  --brand-business:               #8b5cf6;
+  --brand-business-light:         #c084fc;
+  --brand-business-deep:          #5b21b6;
+  --brand-business-deepest:       #2e1065;
+  --brand-business-text-mid:      #7a6a85;
+  --brand-business-bg-pale:       #faf6ff;
+  --brand-business-bg-lavender:   #f4ebff;
+
+  /* market — green (Mi Home Goods) */
+  --brand-market:                 #15803d;
+  --brand-market-light:           #22c55e;
+  --brand-market-deep:            #0f3a23;
+  --brand-market-success:         #16a34a;
+  --brand-market-text-mid:        #3a5d48;
+  --brand-market-bg-pale:         #f7fdf9;
+  --brand-market-bg-mint:         #ecfdf5;
+
+  /* danger — soft red */
+  --brand-danger-text:            #c07070;
+  --brand-danger-bg:              #fff0f0;
+  --brand-danger-border:          rgba(220,100,100,0.3);
+
+  /* universal text + surface */
+  --brand-text-primary:           #1a1208;
+  --brand-surface-white:          #ffffff;
+  --brand-surface-glass:          rgba(255,255,255,0.85);
+
+  /* overlays for modals + scrims */
+  --brand-overlay-dim:            rgba(0,0,0,0.4);
+  --brand-overlay-deeper:         rgba(0,0,0,0.55);
+  --brand-overlay-soft:           rgba(0,0,0,0.06);
 }
 
 @theme inline {

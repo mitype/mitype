@@ -36,7 +36,7 @@ export function GameInstructions({ gameKey, open, onClose }: Props) {
           width: '100%',
           maxWidth: 420,
           maxHeight: 'min(85vh, 640px)',
-          background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+          background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           borderRadius: 24,
           padding: 22,
           boxShadow: '0 24px 60px rgba(0,0,0,0.4)',
@@ -49,7 +49,7 @@ export function GameInstructions({ gameKey, open, onClose }: Props) {
           marginBottom: 12,
         }}>
           <h2 style={{
-            margin: 0, fontSize: 19, fontWeight: 900, color: '#1a1208',
+            margin: 0, fontSize: 19, fontWeight: 900, color: 'var(--brand-text-primary)',
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
             <span aria-hidden="true">{game.emoji}</span>
@@ -62,7 +62,7 @@ export function GameInstructions({ gameKey, open, onClose }: Props) {
             style={{
               width: 30, height: 30, borderRadius: '50%',
               background: 'rgba(0,0,0,0.06)',
-              border: 'none', color: '#1a1208', fontSize: 14,
+              border: 'none', color: 'var(--brand-text-primary)', fontSize: 14,
               cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
@@ -72,7 +72,7 @@ export function GameInstructions({ gameKey, open, onClose }: Props) {
 
         <p style={{
           fontSize: 11, fontWeight: 800,
-          color: '#c8956c', textTransform: 'uppercase',
+          color: 'var(--brand-personal)', textTransform: 'uppercase',
           letterSpacing: '1.4px', margin: '0 0 8px',
         }}>
           {game.name}
@@ -87,7 +87,7 @@ export function GameInstructions({ gameKey, open, onClose }: Props) {
             <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
               <div style={{
                 width: 24, height: 24, borderRadius: '50%',
-                background: '#c8956c', color: 'white',
+                background: 'var(--brand-personal)', color: 'white',
                 fontSize: 12, fontWeight: 800,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
@@ -96,7 +96,7 @@ export function GameInstructions({ gameKey, open, onClose }: Props) {
               </div>
               <p style={{
                 margin: 0, fontSize: 14, lineHeight: 1.55,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
               }}>
                 {step}
               </p>
@@ -110,7 +110,7 @@ export function GameInstructions({ gameKey, open, onClose }: Props) {
           style={{
             marginTop: 16,
             padding: '12px 18px',
-            background: '#c8956c',
+            background: 'var(--brand-personal)',
             color: 'white',
             border: 'none', borderRadius: 100,
             fontSize: 14, fontWeight: 800,

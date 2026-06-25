@@ -151,7 +151,7 @@ export function InstallPrompt() {
         zIndex: 950,
         maxWidth: 460,
         margin: '0 auto',
-        background: 'linear-gradient(135deg, #fff8ec 0%, #fff3ec 100%)',
+        background: 'linear-gradient(135deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
         border: '1px solid rgba(200,149,108,0.35)',
         borderRadius: 18,
         padding: '14px 14px 14px 18px',
@@ -169,7 +169,7 @@ export function InstallPrompt() {
           width: 44,
           height: 44,
           borderRadius: 12,
-          background: 'linear-gradient(135deg, #e8d5c4 0%, #c8956c 100%)',
+          background: 'linear-gradient(135deg, #e8d5c4 0%, var(--brand-personal) 100%)',
           color: 'white',
           display: 'flex',
           alignItems: 'center',
@@ -185,7 +185,7 @@ export function InstallPrompt() {
       <div style={{ flex: 1, minWidth: 0 }}>
         <p
           style={{
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             fontSize: 14,
             fontWeight: 800,
             margin: '0 0 2px',
@@ -193,7 +193,7 @@ export function InstallPrompt() {
         >
           {isIosTip ? 'Add Mitype to your Home Screen' : 'Install Mitype'}
         </p>
-        <p style={{ color: '#6b5744', fontSize: 12, margin: 0, lineHeight: 1.4 }}>
+        <p style={{ color: 'var(--brand-personal-text-head)', fontSize: 12, margin: 0, lineHeight: 1.4 }}>
           {isIosTip
             ? 'Tap the Share icon, then “Add to Home Screen.”'
             : 'One tap, no app store. Open Mitype like a real app.'}
@@ -206,7 +206,7 @@ export function InstallPrompt() {
           onClick={install}
           style={{
             padding: '10px 16px',
-            background: '#c8956c',
+            background: 'var(--brand-personal)',
             color: 'white',
             border: 'none',
             borderRadius: 100,
@@ -231,7 +231,7 @@ export function InstallPrompt() {
           borderRadius: '50%',
           border: 'none',
           background: 'transparent',
-          color: '#a89278',
+          color: 'var(--brand-personal-text-light)',
           fontSize: 18,
           cursor: 'pointer',
           flexShrink: 0,

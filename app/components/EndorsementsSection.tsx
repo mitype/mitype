@@ -211,12 +211,12 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
           margin: 0,
           fontSize: 18,
           fontWeight: 800,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           letterSpacing: '-0.3px',
         }}>
           Endorsements
           {endorsements.length > 0 && (
-            <span style={{ color: '#a89278', fontWeight: 600, marginLeft: 8, fontSize: 14 }}>
+            <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600, marginLeft: 8, fontSize: 14 }}>
               ({endorsements.length})
             </span>
           )}
@@ -227,7 +227,7 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
             onClick={() => setEditorOpen(true)}
             style={{
               padding: '8px 16px',
-              background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+              background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
               color: 'white',
               border: 'none',
               borderRadius: 100,
@@ -263,7 +263,7 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
               border: '1px solid rgba(200,149,108,0.3)',
               background: 'white',
               fontSize: 16,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               outline: 'none',
               fontFamily: 'inherit',
               resize: 'vertical',
@@ -279,7 +279,7 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
             gap: 8,
             flexWrap: 'wrap',
           }}>
-            <span style={{ fontSize: 11, color: '#a89278' }}>{draft.length}/{MAX_BODY}</span>
+            <span style={{ fontSize: 11, color: 'var(--brand-personal-text-light)' }}>{draft.length}/{MAX_BODY}</span>
             <div style={{ display: 'flex', gap: 8 }}>
               {myExistingId && (
                 <button
@@ -288,7 +288,7 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
                   style={{
                     padding: '7px 14px',
                     background: 'transparent',
-                    color: '#c07070',
+                    color: 'var(--brand-danger-text)',
                     border: '1px solid rgba(220,90,90,0.3)',
                     borderRadius: 100,
                     fontSize: 12,
@@ -306,7 +306,7 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
                 style={{
                   padding: '7px 14px',
                   background: 'transparent',
-                  color: '#8a7560',
+                  color: 'var(--brand-personal-text-mid)',
                   border: '1px solid rgba(200,149,108,0.3)',
                   borderRadius: 100,
                   fontSize: 12,
@@ -325,7 +325,7 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
                   padding: '7px 16px',
                   background: saving || draft.trim().length === 0
                     ? 'rgba(200,149,108,0.4)'
-                    : 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                    : 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
                   color: 'white',
                   border: 'none',
                   borderRadius: 100,
@@ -343,12 +343,12 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
       )}
 
       {loading ? (
-        <p style={{ color: '#a89278', fontSize: 13 }}>Loading…</p>
+        <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 13 }}>Loading…</p>
       ) : endorsements.length === 0 ? (
         <p style={{
           margin: 0,
           padding: 14,
-          color: '#a89278',
+          color: 'var(--brand-personal-text-light)',
           fontSize: 13,
           background: 'rgba(255,255,255,0.5)',
           border: '1px dashed rgba(200,149,108,0.3)',
@@ -381,7 +381,7 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
                 <div style={{
                   fontSize: 13,
                   fontWeight: 800,
-                  color: '#1a1208',
+                  color: 'var(--brand-text-primary)',
                   marginBottom: 4,
                 }}>
                   @{e.endorser?.username ?? 'creator'}
@@ -389,7 +389,7 @@ export function EndorsementsSection({ profileUserId, profileUsername, viewerId, 
                 <p style={{
                   margin: 0,
                   fontSize: 14,
-                  color: '#5b4a36',
+                  color: 'var(--brand-personal-text-deep)',
                   lineHeight: 1.5,
                   whiteSpace: 'pre-wrap',
                 }}>

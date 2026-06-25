@@ -66,7 +66,7 @@ export function ShareMitypeButton({ username }: Props) {
       onMouseLeave={() => setHover(false)}
       style={{
         width: '100%',
-        background: 'linear-gradient(135deg, #fff3ec 0%, #ffe1c8 100%)',
+        background: 'linear-gradient(135deg, var(--brand-personal-bg-peach) 0%, #ffe1c8 100%)',
         border: '1.5px solid rgba(200,149,108,0.35)',
         borderRadius: 20,
         padding: '20px 24px',
@@ -92,7 +92,7 @@ export function ShareMitypeButton({ username }: Props) {
           height: 48,
           borderRadius: 14,
           background:
-            'linear-gradient(135deg, #c8956c 0%, #a07452 100%)',
+            'linear-gradient(135deg, var(--brand-personal) 0%, #a07452 100%)',
           color: 'white',
           display: 'flex',
           alignItems: 'center',
@@ -106,7 +106,7 @@ export function ShareMitypeButton({ username }: Props) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <p
           style={{
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             fontSize: 15,
             fontWeight: 800,
             margin: '0 0 3px',
@@ -115,7 +115,7 @@ export function ShareMitypeButton({ username }: Props) {
         >
           Invite a creative friend
         </p>
-        <p style={{ color: '#8a7560', fontSize: 13, margin: 0, lineHeight: 1.4 }}>
+        <p style={{ color: 'var(--brand-personal-text-mid)', fontSize: 13, margin: 0, lineHeight: 1.4 }}>
           Mitype works better the bigger your scene gets. Send your link and
           help us grow it.
         </p>
@@ -123,7 +123,7 @@ export function ShareMitypeButton({ username }: Props) {
       <div
         aria-hidden="true"
         style={{
-          color: '#c8956c',
+          color: 'var(--brand-personal)',
           fontSize: 18,
           fontWeight: 800,
           flexShrink: 0,

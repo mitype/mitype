@@ -222,7 +222,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+          background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           width: '100%',
           maxWidth: 520,
           borderTopLeftRadius: 28,
@@ -249,7 +249,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
           style={{
             fontSize: 22,
             fontWeight: 800,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             margin: '0 0 6px',
             letterSpacing: '-0.5px',
             textAlign: 'center',
@@ -259,7 +259,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
         </h2>
         <p
           style={{
-            color: '#6b5744',
+            color: 'var(--brand-personal-text-head)',
             fontSize: 14,
             textAlign: 'center',
             margin: '0 0 18px',
@@ -313,7 +313,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
           <span
             style={{
               fontSize: 13,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               fontWeight: 600,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -326,7 +326,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
             type="button"
             onClick={handleCopyLink}
             style={{
-              background: '#c8956c',
+              background: 'var(--brand-personal)',
               color: 'white',
               border: 'none',
               borderRadius: 100,
@@ -382,7 +382,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
                   justifyContent: 'center',
                   fontSize: 20,
                   fontWeight: 800,
-                  color: '#1a1208',
+                  color: 'var(--brand-text-primary)',
                   flexShrink: 0,
                 }}
               >
@@ -394,7 +394,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
                     display: 'block',
                     fontSize: 14,
                     fontWeight: 700,
-                    color: '#1a1208',
+                    color: 'var(--brand-text-primary)',
                     marginBottom: 2,
                     lineHeight: 1.2,
                   }}
@@ -405,7 +405,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
                   style={{
                     display: 'block',
                     fontSize: 11,
-                    color: '#8a7560',
+                    color: 'var(--brand-personal-text-mid)',
                     lineHeight: 1.3,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -425,7 +425,7 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
             width: '100%',
             background: 'transparent',
             border: 'none',
-            color: '#8a7560',
+            color: 'var(--brand-personal-text-mid)',
             fontSize: 14,
             fontWeight: 600,
             padding: '12px',

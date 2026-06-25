@@ -42,7 +42,7 @@ export const viewport: Viewport = {
   // bar instead of fixed bezels — this is what makes our Wave feed top
   // and bottom bars sit clean under the iPhone notch and home bar.
   viewportFit: "cover",
-  themeColor: "#c8956c",
+  themeColor: "var(--brand-personal)",
 };
 
 export default function RootLayout({

@@ -284,7 +284,7 @@ export function LyricQuoteGuess({ session, currentUserId, updateState }: Props) 
         }}>
           Round {state.roundNumber} of {state.totalRounds}
           {state.phase === 'playing' && (
-            <span style={{ marginLeft: 8, color: msLeft < 5_000 ? '#fca5a5' : '#ffd5a8' }}>
+            <span style={{ marginLeft: 8, color: msLeft < 5_000 ? '#fca5a5' : 'var(--brand-personal-soft)' }}>
               · {seconds}s
             </span>
           )}
@@ -419,7 +419,7 @@ export function LyricQuoteGuess({ session, currentUserId, updateState }: Props) 
                'Neither of you cracked it.'}
             </div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)' }}>
-              Answer: <strong style={{ color: '#ffd5a8' }}>{clueEntry.title}</strong>
+              Answer: <strong style={{ color: 'var(--brand-personal-soft)' }}>{clueEntry.title}</strong>
               {clueEntry.artist && (
                 <span style={{ color: 'rgba(255,255,255,0.7)' }}>. {clueEntry.artist}</span>
               )}
@@ -499,7 +499,7 @@ function ResponseLine({ label, resp, highlight }: {
       borderRadius: 8,
       display: 'flex', justifyContent: 'space-between', gap: 6,
     }}>
-      <span style={{ fontWeight: 700, color: highlight ? '#ffd5a8' : 'rgba(255,255,255,0.7)' }}>
+      <span style={{ fontWeight: 700, color: highlight ? 'var(--brand-personal-soft)' : 'rgba(255,255,255,0.7)' }}>
         {label}
       </span>
       <span>
@@ -524,8 +524,8 @@ function kindLabel(kind: 'lyric' | 'movie' | 'tv'): string {
   return 'TV';
 }
 function kindBg(kind: 'lyric' | 'movie' | 'tv'): string {
-  if (kind === 'lyric') return 'linear-gradient(135deg, #8b5cf6, #c084fc)';
-  if (kind === 'movie') return 'linear-gradient(135deg, #c8956c, #ffb37c)';
+  if (kind === 'lyric') return 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))';
+  if (kind === 'movie') return 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))';
   return 'linear-gradient(135deg, #0ea5e9, #38bdf8)';
 }
 
@@ -533,7 +533,7 @@ function ScoreCard({ label, value, highlight }: { label: string; value: number; 
   return (
     <div style={{
       padding: '10px 12px',
-      background: highlight ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.06)',
+      background: highlight ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.06)',
       border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 12,
       textAlign: 'center',
@@ -557,7 +557,7 @@ function ScoreCard({ label, value, highlight }: { label: string; value: number; 
 
 const primaryBtn: React.CSSProperties = {
   padding: '10px 22px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none', borderRadius: 100,
   fontSize: 14, fontWeight: 800,

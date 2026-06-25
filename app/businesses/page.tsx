@@ -112,7 +112,7 @@ export default function BusinessesPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6ff 0%, #f4ebff 100%)',
+      background: 'linear-gradient(180deg, var(--brand-business-bg-pale) 0%, var(--brand-business-bg-lavender) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -126,7 +126,7 @@ export default function BusinessesPage() {
             alignItems: 'center',
             gap: 8,
             padding: '4px 12px',
-            background: 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+            background: 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
             borderRadius: 100,
             color: 'white',
             fontSize: 11,
@@ -141,7 +141,7 @@ export default function BusinessesPage() {
             margin: 0,
             fontSize: 28,
             fontWeight: 900,
-            color: '#2e1065',
+            color: 'var(--brand-business-deepest)',
             letterSpacing: '-0.6px',
             lineHeight: 1.15,
           }}>
@@ -168,12 +168,12 @@ export default function BusinessesPage() {
               alignItems: 'center',
               gap: 10,
               padding: '8px 12px',
-              background: '#faf6ff',
+              background: 'var(--brand-business-bg-pale)',
               border: '1px solid rgba(139,92,246,0.18)',
               borderRadius: 100,
               marginBottom: 12,
             }}>
-              <span aria-hidden="true" style={{ fontSize: 16, color: '#5b21b6' }}>🔍</span>
+              <span aria-hidden="true" style={{ fontSize: 16, color: 'var(--brand-business-deep)' }}>🔍</span>
               <input
                 type="search"
                 inputMode="search"
@@ -191,7 +191,7 @@ export default function BusinessesPage() {
                   outline: 'none',
                   background: 'transparent',
                   fontSize: 16,
-                  color: '#1a1208',
+                  color: 'var(--brand-text-primary)',
                   fontFamily: 'inherit',
                   minWidth: 0,
                 }}
@@ -205,7 +205,7 @@ export default function BusinessesPage() {
                     width: 26, height: 26, border: 'none',
                     borderRadius: '50%',
                     background: 'rgba(139,92,246,0.12)',
-                    color: '#5b21b6',
+                    color: 'var(--brand-business-deep)',
                     fontSize: 13,
                     cursor: 'pointer',
                     fontFamily: 'inherit',
@@ -232,7 +232,7 @@ export default function BusinessesPage() {
 
         {/* Grid / empty state */}
         {loading ? (
-          <p style={{ color: '#7a6a85', textAlign: 'center', padding: 40 }}>Loading…</p>
+          <p style={{ color: 'var(--brand-business-text-mid)', textAlign: 'center', padding: 40 }}>Loading…</p>
         ) : rows.length === 0 ? (
           <div style={{
             padding: 40,
@@ -245,7 +245,7 @@ export default function BusinessesPage() {
             lineHeight: 1.6,
           }}>
             <div style={{ fontSize: 38, marginBottom: 8 }}>🏪</div>
-            <p style={{ margin: '0 0 6px', fontWeight: 800, color: '#2e1065' }}>
+            <p style={{ margin: '0 0 6px', fontWeight: 800, color: 'var(--brand-business-deepest)' }}>
               No small businesses yet
             </p>
             <p style={{ margin: 0 }}>
@@ -258,7 +258,7 @@ export default function BusinessesPage() {
                 display: 'inline-block',
                 marginTop: 14,
                 padding: '10px 18px',
-                background: 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                background: 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
                 color: 'white',
                 fontWeight: 800,
                 fontSize: 13,
@@ -303,7 +303,7 @@ export default function BusinessesPage() {
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                   <div style={{
                     width: 48, height: 48, borderRadius: 14,
-                    background: b.logo_url ? `url(${b.logo_url})` : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                    background: b.logo_url ? `url(${b.logo_url})` : 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
                     backgroundSize: 'cover', backgroundPosition: 'center',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 20, color: 'white', flexShrink: 0,
@@ -312,7 +312,7 @@ export default function BusinessesPage() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
-                      fontSize: 14, fontWeight: 800, color: '#1a1208',
+                      fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
                       letterSpacing: '-0.2px',
                       whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                     }}>
@@ -320,13 +320,13 @@ export default function BusinessesPage() {
                     </div>
                     {b.category && (
                       <div style={{
-                        fontSize: 11, color: '#7a6a85',
+                        fontSize: 11, color: 'var(--brand-business-text-mid)',
                         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                       }}>
                         {b.category}
                       </div>
                     )}
-                    <div style={{ fontSize: 11, color: '#7a6a85', marginTop: 2 }}>
+                    <div style={{ fontSize: 11, color: 'var(--brand-business-text-mid)', marginTop: 2 }}>
                       {b.is_online_only
                         ? (b.online_label || '🌐 Online')
                         : [b.city, b.state].filter(Boolean).join(', ') || '📍 Local'}
@@ -340,7 +340,7 @@ export default function BusinessesPage() {
                     style={{
                       flex: 1,
                       padding: '8px 10px',
-                      background: '#8b5cf6',
+                      background: 'var(--brand-business)',
                       color: 'white',
                       border: 'none',
                       borderRadius: 100,
@@ -358,7 +358,7 @@ export default function BusinessesPage() {
                     style={{
                       padding: '8px 12px',
                       background: 'rgba(139,92,246,0.1)',
-                      color: '#5b21b6',
+                      color: 'var(--brand-business-deep)',
                       border: '1px solid rgba(139,92,246,0.3)',
                       borderRadius: 100,
                       fontSize: 12,
@@ -388,9 +388,9 @@ function Chip({ label, active, onClick }: {
       onClick={onClick}
       style={{
         padding: '6px 12px',
-        background: active ? '#8b5cf6' : 'white',
-        color: active ? 'white' : '#5b21b6',
-        border: `1px solid ${active ? '#8b5cf6' : 'rgba(139,92,246,0.3)'}`,
+        background: active ? 'var(--brand-business)' : 'white',
+        color: active ? 'white' : 'var(--brand-business-deep)',
+        border: `1px solid ${active ? 'var(--brand-business)' : 'rgba(139,92,246,0.3)'}`,
         borderRadius: 100,
         fontSize: 12,
         fontWeight: 700,

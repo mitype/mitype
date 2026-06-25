@@ -48,8 +48,8 @@ export function calculateCompatibility(
    * Get compatibility color based on score
    */
   export function getCompatibilityColor(score: number): string {
-    if (score >= 80) return '#22c55e'; // green
-    if (score >= 60) return '#c8956c'; // brand tan
+    if (score >= 80) return 'var(--brand-market-light)'; // green
+    if (score >= 60) return 'var(--brand-personal)'; // brand tan
     if (score >= 40) return '#f59e0b'; // amber
     if (score >= 20) return '#94a3b8'; // slate
     return '#94a3b8';

@@ -55,8 +55,8 @@ export function RefBadge() {
         }}
       >
         <span style={{ fontSize: 14 }}>👋</span>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#6b5744' }}>
-          Invited by <span style={{ color: '#c8956c', fontWeight: 800 }}>@{username}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand-personal-text-head)' }}>
+          Invited by <span style={{ color: 'var(--brand-personal)', fontWeight: 800 }}>@{username}</span>
         </span>
         <button
           type="button"
@@ -65,7 +65,7 @@ export function RefBadge() {
           style={{
             background: 'transparent',
             border: 'none',
-            color: '#8a7560',
+            color: 'var(--brand-personal-text-mid)',
             fontSize: 16,
             lineHeight: 1,
             padding: '2px 4px',

@@ -267,7 +267,7 @@ export function WordAssociation({ session, currentUserId, updateState }: Props) 
         }}>
           Chain {state.roundNumber} of {state.totalRounds}
           {state.phase === 'playing' && (
-            <span style={{ marginLeft: 8, color: msLeft < 3_000 ? '#fca5a5' : '#ffd5a8' }}>
+            <span style={{ marginLeft: 8, color: msLeft < 3_000 ? '#fca5a5' : 'var(--brand-personal-soft)' }}>
               · {seconds}s
             </span>
           )}
@@ -281,7 +281,7 @@ export function WordAssociation({ session, currentUserId, updateState }: Props) 
           {lastWord ? (
             <div style={{
               padding: '14px 20px',
-              background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+              background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
               borderRadius: 16,
               boxShadow: '0 8px 22px rgba(200,149,108,0.4)',
               fontSize: 22, fontWeight: 900,
@@ -297,7 +297,7 @@ export function WordAssociation({ session, currentUserId, updateState }: Props) 
               background: 'rgba(255,213,168,0.12)',
               border: '1px dashed rgba(255,213,168,0.5)',
               borderRadius: 14,
-              fontSize: 13, color: '#ffd5a8',
+              fontSize: 13, color: 'var(--brand-personal-soft)',
               textAlign: 'center',
             }}>
               {isMyTurn ? 'Start the chain with any word.' : 'Waiting for them to start the chain…'}
@@ -375,7 +375,7 @@ export function WordAssociation({ session, currentUserId, updateState }: Props) 
                     background: entry.by === currentUserId
                       ? 'rgba(200,149,108,0.25)'
                       : 'rgba(255,255,255,0.1)',
-                    color: entry.by === currentUserId ? '#ffd5a8' : 'rgba(255,255,255,0.85)',
+                    color: entry.by === currentUserId ? 'var(--brand-personal-soft)' : 'rgba(255,255,255,0.85)',
                     borderRadius: 100,
                     fontSize: 12,
                     fontWeight: 600,
@@ -461,7 +461,7 @@ function ScoreCard({ label, value, highlight }: { label: string; value: number; 
   return (
     <div style={{
       padding: '10px 12px',
-      background: highlight ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.06)',
+      background: highlight ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.06)',
       border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 12,
       textAlign: 'center',
@@ -485,7 +485,7 @@ function ScoreCard({ label, value, highlight }: { label: string; value: number; 
 
 const primaryBtn: React.CSSProperties = {
   padding: '10px 22px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none', borderRadius: 100,
   fontSize: 14, fontWeight: 800,

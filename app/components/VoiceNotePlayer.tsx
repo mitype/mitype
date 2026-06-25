@@ -43,7 +43,7 @@ export function VoiceNotePlayer({ url, durationSeconds, variant = 'theirs' }: Pr
   }
 
   const isMine = variant === 'mine';
-  const accent = isMine ? 'rgba(255,255,255,0.95)' : '#c8956c';
+  const accent = isMine ? 'rgba(255,255,255,0.95)' : 'var(--brand-personal)';
   const trackBg = isMine ? 'rgba(255,255,255,0.25)' : 'rgba(200,149,108,0.18)';
   const labelColor = isMine ? 'rgba(255,255,255,0.85)' : '#7a6753';
 

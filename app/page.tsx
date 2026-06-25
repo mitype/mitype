@@ -9,9 +9,9 @@ export default function HomePage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: '#f5f0e8',
+      background: 'var(--brand-personal-bg-cream-deep)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
-      color: '#1a1208',
+      color: 'var(--brand-text-primary)',
       overflowX: 'hidden',
     }}>
 
@@ -37,13 +37,13 @@ export default function HomePage() {
           fontSize: 26,
           fontWeight: 900,
           letterSpacing: '-1px',
-          color: '#c8956c',
+          color: 'var(--brand-personal)',
         }}>
           mitype
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <Link href="/login" style={{
-            color: '#8a7560',
+            color: 'var(--brand-personal-text-mid)',
             textDecoration: 'none',
             fontSize: 15,
             padding: '8px 20px',
@@ -52,7 +52,7 @@ export default function HomePage() {
             Sign In
           </Link>
           <Link href="/signup" style={{
-            background: '#c8956c',
+            background: 'var(--brand-personal)',
             color: 'white',
             textDecoration: 'none',
             fontSize: 15,
@@ -78,7 +78,7 @@ export default function HomePage() {
         // pill never visually collide on tighter viewports.
         padding: '140px 24px 130px',
         position: 'relative',
-        background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+        background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       }}>
         {/* Soft background circle */}
         <div style={{
@@ -100,18 +100,18 @@ export default function HomePage() {
           letterSpacing: '-2.5px',
           marginBottom: 24,
           maxWidth: 820,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
         }}>
           Connect with people who
           <br />
-          <span style={{ color: '#c8956c' }}>
+          <span style={{ color: 'var(--brand-personal)' }}>
             share your world
           </span>
         </h1>
 
         <p style={{
           fontSize: 'clamp(16px, 2vw, 20px)',
-          color: '#8a7560',
+          color: 'var(--brand-personal-text-mid)',
           maxWidth: 540,
           lineHeight: 1.8,
           marginBottom: 48,
@@ -122,7 +122,7 @@ export default function HomePage() {
         {/* CTA */}
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 72 }}>
           <Link href="/signup" style={{
-            background: '#c8956c',
+            background: 'var(--brand-personal)',
             color: 'white',
             textDecoration: 'none',
             fontSize: 17,
@@ -135,7 +135,7 @@ export default function HomePage() {
           </Link>
           <Link href="/login" style={{
             border: '1px solid rgba(138,117,96,0.3)',
-            color: '#8a7560',
+            color: 'var(--brand-personal-text-mid)',
             textDecoration: 'none',
             fontSize: 17,
             fontWeight: 500,
@@ -152,7 +152,7 @@ export default function HomePage() {
           display: 'flex',
           alignItems: 'center',
           gap: 14,
-          color: '#a89278',
+          color: 'var(--brand-personal-text-light)',
           fontSize: 14,
         }}>
           <div style={{ display: 'flex' }}>
@@ -162,7 +162,7 @@ export default function HomePage() {
                 height: 38,
                 borderRadius: '50%',
                 background: `hsl(${30 + i * 15}, 40%, 80%)`,
-                border: '2px solid #f5f0e8',
+                border: '2px solid var(--brand-personal-bg-cream-deep)',
                 marginLeft: i === 0 ? 0 : -10,
                 display: 'flex',
                 alignItems: 'center',
@@ -197,7 +197,7 @@ export default function HomePage() {
       }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
           <p style={{
-            color: '#c8956c',
+            color: 'var(--brand-personal)',
             fontSize: 12,
             letterSpacing: 4,
             textTransform: 'uppercase',
@@ -211,7 +211,7 @@ export default function HomePage() {
             fontWeight: 800,
             letterSpacing: '-1px',
             marginBottom: 48,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
           }}>
             Every type of creator. One platform.
           </h2>
@@ -300,7 +300,7 @@ export default function HomePage() {
       <section style={{ padding: '100px 24px', maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
           <p style={{
-            color: '#c8956c',
+            color: 'var(--brand-personal)',
             fontSize: 12,
             letterSpacing: 4,
             textTransform: 'uppercase',
@@ -313,7 +313,7 @@ export default function HomePage() {
             fontSize: 'clamp(28px, 4vw, 48px)',
             fontWeight: 800,
             letterSpacing: '-1px',
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
           }}>
             Built different. On purpose.
           </h2>
@@ -329,7 +329,7 @@ export default function HomePage() {
               icon: '🤝',
               title: 'Connect With Purpose',
               desc: 'Browse real profiles of creators who share your craft. Tap to show interest in collaboration, or skip to keep browsing.',
-              bg: '#fff3ec',
+              bg: 'var(--brand-personal-bg-peach)',
               border: 'rgba(200,149,108,0.2)',
             },
             {
@@ -375,8 +375,8 @@ export default function HomePage() {
               padding: '36px 32px',
             }}>
               <div style={{ fontSize: 36, marginBottom: 20 }}>{f.icon}</div>
-              <h3 style={{ fontSize: 19, fontWeight: 700, marginBottom: 12, color: '#1a1208' }}>{f.title}</h3>
-              <p style={{ color: '#8a7560', lineHeight: 1.7, fontSize: 15 }}>{f.desc}</p>
+              <h3 style={{ fontSize: 19, fontWeight: 700, marginBottom: 12, color: 'var(--brand-text-primary)' }}>{f.title}</h3>
+              <p style={{ color: 'var(--brand-personal-text-mid)', lineHeight: 1.7, fontSize: 15 }}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -390,7 +390,7 @@ export default function HomePage() {
         textAlign: 'center',
       }}>
         <p style={{
-          color: '#c8956c',
+          color: 'var(--brand-personal)',
           fontSize: 12,
           letterSpacing: 4,
           textTransform: 'uppercase',
@@ -404,7 +404,7 @@ export default function HomePage() {
           fontWeight: 800,
           letterSpacing: '-1px',
           marginBottom: 48,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
         }}>
           Simple. Affordable. Worth it.
         </h2>
@@ -425,10 +425,10 @@ export default function HomePage() {
             gap: 4,
             marginBottom: 6,
           }}>
-            <span style={{ fontSize: 72, fontWeight: 900, color: '#1a1208', letterSpacing: '-2px' }}>$5</span>
-            <span style={{ color: '#a89278', fontSize: 18 }}>/month</span>
+            <span style={{ fontSize: 72, fontWeight: 900, color: 'var(--brand-text-primary)', letterSpacing: '-2px' }}>$5</span>
+            <span style={{ color: 'var(--brand-personal-text-light)', fontSize: 18 }}>/month</span>
           </div>
-          <p style={{ color: '#c8956c', fontWeight: 700, fontSize: 16, marginBottom: 40 }}>
+          <p style={{ color: 'var(--brand-personal)', fontWeight: 700, fontSize: 16, marginBottom: 40 }}>
             🎉 First month completely FREE
           </p>
 
@@ -447,7 +447,7 @@ export default function HomePage() {
                 gap: 14,
                 padding: '12px 0',
                 borderBottom: '1px solid rgba(200,149,108,0.1)',
-                color: '#6b5744',
+                color: 'var(--brand-personal-text-head)',
                 fontSize: 15,
               }}>
                 <span style={{
@@ -458,7 +458,7 @@ export default function HomePage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#c8956c',
+                  color: 'var(--brand-personal)',
                   fontSize: 13,
                   flexShrink: 0,
                 }}>✓</span>
@@ -469,7 +469,7 @@ export default function HomePage() {
 
           <Link href="/signup" style={{
             display: 'block',
-            background: '#c8956c',
+            background: 'var(--brand-personal)',
             color: 'white',
             textDecoration: 'none',
             fontSize: 17,
@@ -480,7 +480,7 @@ export default function HomePage() {
           }}>
             Start Free Trial
           </Link>
-          <p style={{ color: '#b0967e', fontSize: 13, marginTop: 16 }}>
+          <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginTop: 16 }}>
             
           </p>
         </div>
@@ -490,19 +490,19 @@ export default function HomePage() {
       <section style={{
         padding: '100px 24px',
         textAlign: 'center',
-        background: 'linear-gradient(180deg, #f5f0e8 0%, #ede5d8 100%)',
+        background: 'linear-gradient(180deg, var(--brand-personal-bg-cream-deep) 0%, #ede5d8 100%)',
       }}>
         <h2 style={{
           fontSize: 'clamp(32px, 5vw, 60px)',
           fontWeight: 900,
           letterSpacing: '-1.5px',
           marginBottom: 16,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
         }}>
           Your type of people are out there.
         </h2>
         <p style={{
-          color: '#8a7560',
+          color: 'var(--brand-personal-text-mid)',
           fontSize: 18,
           marginBottom: 48,
           maxWidth: 400,
@@ -511,7 +511,7 @@ export default function HomePage() {
           Connect with people who share your world.
         </p>
         <Link href="/signup" style={{
-          background: '#c8956c',
+          background: 'var(--brand-personal)',
           color: 'white',
           textDecoration: 'none',
           fontSize: 18,
@@ -534,12 +534,12 @@ export default function HomePage() {
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: 16,
-        background: '#f5f0e8',
+        background: 'var(--brand-personal-bg-cream-deep)',
       }}>
         <div style={{
           fontSize: 22,
           fontWeight: 900,
-          color: '#c8956c',
+          color: 'var(--brand-personal)',
           letterSpacing: '-0.5px',
         }}>
           mitype
@@ -551,7 +551,7 @@ export default function HomePage() {
             { label: 'Contact & Support', href: '/legal/contact' },
           ].map((link) => (
             <Link key={link.href} href={link.href} style={{
-              color: '#a89278',
+              color: 'var(--brand-personal-text-light)',
               textDecoration: 'none',
               fontSize: 14,
             }}>

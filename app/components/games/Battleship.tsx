@@ -307,7 +307,7 @@ export function Battleship({ session, currentUserId, updateState }: Props) {
       {/* Turn pill */}
       <div style={{
         padding: '8px 16px',
-        background: isMyTurn ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.08)',
+        background: isMyTurn ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.08)',
         color: isMyTurn ? 'white' : 'rgba(255,255,255,0.7)',
         borderRadius: 100,
         fontSize: 13, fontWeight: 800,
@@ -577,7 +577,7 @@ function ScoreCard({ label, value, highlight }: { label: string; value: string; 
   return (
     <div style={{
       padding: '10px 12px',
-      background: highlight ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.06)',
+      background: highlight ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.06)',
       border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 12,
       textAlign: 'center',
@@ -601,7 +601,7 @@ function ScoreCard({ label, value, highlight }: { label: string; value: string; 
 
 const primaryBtn: React.CSSProperties = {
   padding: '11px 26px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none', borderRadius: 100,
   fontSize: 14, fontWeight: 800,
@@ -612,7 +612,7 @@ const primaryBtn: React.CSSProperties = {
 const secondaryBtn: React.CSSProperties = {
   padding: '11px 22px',
   background: 'transparent',
-  color: '#ffd5a8',
+  color: 'var(--brand-personal-soft)',
   border: '1px solid rgba(255,213,168,0.5)', borderRadius: 100,
   fontSize: 14, fontWeight: 800,
   cursor: 'pointer', fontFamily: 'inherit',

@@ -72,7 +72,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
           width: '100%',
           maxWidth: 540,
           maxHeight: 'min(92vh, 820px)',
-          background: 'linear-gradient(180deg, #f7fdf9 0%, #ecfdf5 100%)',
+          background: 'linear-gradient(180deg, var(--brand-market-bg-pale) 0%, var(--brand-market-bg-mint) 100%)',
           borderRadius: 28,
           boxShadow: '0 32px 70px rgba(0,0,0,0.4)',
           display: 'flex',
@@ -90,7 +90,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
             alignItems: 'center',
             gap: 8,
             padding: '4px 11px',
-            background: 'linear-gradient(135deg, #15803d, #22c55e)',
+            background: 'linear-gradient(135deg, var(--brand-market), var(--brand-market-light))',
             borderRadius: 100,
             color: 'white',
             fontSize: 11,
@@ -105,7 +105,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
             margin: 0,
             fontSize: 22,
             fontWeight: 900,
-            color: '#0f3a23',
+            color: 'var(--brand-market-deep)',
             letterSpacing: '-0.5px',
             lineHeight: 1.2,
           }}>
@@ -114,7 +114,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
           <p style={{
             margin: '6px 0 0',
             fontSize: 13,
-            color: '#3a5d48',
+            color: 'var(--brand-market-text-mid)',
             lineHeight: 1.55,
           }}>
             Mi Home Goods lets members buy and sell goods directly. We connect you with each other. What happens after that is up to you. Please read these guidelines once, and you won't see them again.
@@ -179,11 +179,11 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              style={{ width: 20, height: 20, accentColor: '#15803d', flexShrink: 0, marginTop: 2 }}
+              style={{ width: 20, height: 20, accentColor: 'var(--brand-market)', flexShrink: 0, marginTop: 2 }}
             />
             <span style={{
               fontSize: 13,
-              color: '#0f3a23',
+              color: 'var(--brand-market-deep)',
               lineHeight: 1.5,
               fontWeight: 600,
             }}>
@@ -200,7 +200,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
                 padding: '14px 20px',
                 background: (!agreed || saving)
                   ? 'rgba(21,128,61,0.35)'
-                  : 'linear-gradient(135deg, #15803d, #22c55e)',
+                  : 'linear-gradient(135deg, var(--brand-market), var(--brand-market-light))',
                 color: 'white',
                 border: 'none',
                 borderRadius: 100,
@@ -220,7 +220,7 @@ export function HomeGoodsSafetyModal({ open, userId, onAcknowledged, onDismiss }
               style={{
                 padding: '14px 20px',
                 background: 'transparent',
-                color: '#3a5d48',
+                color: 'var(--brand-market-text-mid)',
                 border: '1px solid rgba(21,128,61,0.35)',
                 borderRadius: 100,
                 fontSize: 14,
@@ -256,7 +256,7 @@ function Guideline({ icon, title, body }: {
         width: 38,
         height: 38,
         borderRadius: 10,
-        background: 'linear-gradient(135deg, #ecfdf5, #bbf7d0)',
+        background: 'linear-gradient(135deg, var(--brand-market-bg-mint), #bbf7d0)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -269,14 +269,14 @@ function Guideline({ icon, title, body }: {
         <div style={{
           fontSize: 14,
           fontWeight: 800,
-          color: '#0f3a23',
+          color: 'var(--brand-market-deep)',
           marginBottom: 3,
         }}>
           {title}
         </div>
         <div style={{
           fontSize: 13,
-          color: '#3a5d48',
+          color: 'var(--brand-market-text-mid)',
           lineHeight: 1.5,
         }}>
           {body}

@@ -195,7 +195,7 @@ export function TicTacToe({ session, currentUserId, updateState }: Props) {
       {!state.matchResult && !seriesOver && (
         <div style={{
           padding: '8px 16px',
-          background: isMyTurn ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.08)',
+          background: isMyTurn ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.08)',
           color: isMyTurn ? 'white' : 'rgba(255,255,255,0.7)',
           borderRadius: 100,
           fontSize: 13, fontWeight: 800,
@@ -227,11 +227,11 @@ export function TicTacToe({ session, currentUserId, updateState }: Props) {
               aria-label={`Cell ${i + 1}`}
               style={{
                 background: isWinning
-                  ? 'linear-gradient(135deg, #ffb37c, #c8956c)'
+                  ? 'linear-gradient(135deg, var(--brand-personal-light), var(--brand-personal))'
                   : 'rgba(255,255,255,0.06)',
                 border: '2px solid rgba(255,255,255,0.12)',
                 borderRadius: 14,
-                color: symbol === 'X' ? '#ffd5a8' : symbol === 'O' ? 'white' : 'transparent',
+                color: symbol === 'X' ? 'var(--brand-personal-soft)' : symbol === 'O' ? 'white' : 'transparent',
                 fontSize: 48,
                 fontWeight: 900,
                 cursor: !isMyTurn || cell !== null ? 'default' : 'pointer',
@@ -309,7 +309,7 @@ function ScoreCard({ label, subLabel, value, highlight, dim }: {
   return (
     <div style={{
       padding: '10px 8px',
-      background: highlight ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.06)',
+      background: highlight ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.06)',
       border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 12,
       textAlign: 'center',
@@ -336,7 +336,7 @@ function ScoreCard({ label, subLabel, value, highlight, dim }: {
 
 const primaryBtn: React.CSSProperties = {
   padding: '11px 26px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none', borderRadius: 100,
   fontSize: 14, fontWeight: 800,

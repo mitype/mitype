@@ -396,10 +396,10 @@ export function GameContainer({
           style={confirmOverlayStyle}
         >
           <div onClick={(e) => e.stopPropagation()} style={confirmPanelStyle}>
-            <h3 style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800, color: '#1a1208' }}>
+            <h3 style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800, color: 'var(--brand-text-primary)' }}>
               End this game?
             </h3>
-            <p style={{ margin: '0 0 18px', fontSize: 14, color: '#6b5744', lineHeight: 1.5 }}>
+            <p style={{ margin: '0 0 18px', fontSize: 14, color: 'var(--brand-personal-text-head)', lineHeight: 1.5 }}>
               Your partner will be told you ended it, and you&rsquo;ll both
               be asked if you want to play something else.
             </p>
@@ -407,7 +407,7 @@ export function GameContainer({
               <button
                 type="button"
                 onClick={() => setConfirmEnd(false)}
-                style={{ ...confirmBtn, background: 'transparent', color: '#8a7560', border: '1px solid rgba(200,149,108,0.4)' }}
+                style={{ ...confirmBtn, background: 'transparent', color: 'var(--brand-personal-text-mid)', border: '1px solid rgba(200,149,108,0.4)' }}
               >
                 Keep playing
               </button>
@@ -503,7 +503,7 @@ function GameOverPanel({
         }}>
           {matches !== undefined && (
             <div style={{ marginBottom: myScore !== undefined ? 12 : 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#ffd5a8', textTransform: 'uppercase', letterSpacing: '1.3px' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--brand-personal-soft)', textTransform: 'uppercase', letterSpacing: '1.3px' }}>
                 In-sync score
               </div>
               <div style={{ fontSize: 32, fontWeight: 900, color: 'white' }}>
@@ -514,11 +514,11 @@ function GameOverPanel({
           {myScore !== undefined && partnerScore !== undefined && (
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: '#ffd5a8', textTransform: 'uppercase' }}>You</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--brand-personal-soft)', textTransform: 'uppercase' }}>You</div>
                 <div style={{ fontSize: 24, fontWeight: 900, color: 'white' }}>{myScore}</div>
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: '#ffd5a8', textTransform: 'uppercase' }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--brand-personal-soft)', textTransform: 'uppercase' }}>
                   {partnerUsername ? `@${partnerUsername}` : 'Them'}
                 </div>
                 <div style={{ fontSize: 24, fontWeight: 900, color: 'white' }}>{partnerScore}</div>
@@ -533,7 +533,7 @@ function GameOverPanel({
         onClick={onPlayAnother}
         style={{
           padding: '14px 28px',
-          background: '#c8956c',
+          background: 'var(--brand-personal)',
           color: 'white',
           border: 'none', borderRadius: 100,
           fontSize: 15, fontWeight: 800,
@@ -590,7 +590,7 @@ const confirmOverlayStyle: React.CSSProperties = {
 const confirmPanelStyle: React.CSSProperties = {
   width: '100%',
   maxWidth: 360,
-  background: 'linear-gradient(180deg, #fff8ec, #fff3ec)',
+  background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm), var(--brand-personal-bg-peach))',
   borderRadius: 22,
   padding: 22,
   boxShadow: '0 24px 60px rgba(0,0,0,0.4)',

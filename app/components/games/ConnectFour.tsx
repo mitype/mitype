@@ -235,7 +235,7 @@ export function ConnectFour({ session, currentUserId, updateState }: Props) {
       {!state.matchResult && !seriesOver && (
         <div style={{
           padding: '8px 16px',
-          background: isMyTurn ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.08)',
+          background: isMyTurn ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.08)',
           color: isMyTurn ? 'white' : 'rgba(255,255,255,0.7)',
           borderRadius: 100,
           fontSize: 13, fontWeight: 800,
@@ -369,7 +369,7 @@ function ScoreCard({ label, subColor, value, dim }: {
 
 const primaryBtn: React.CSSProperties = {
   padding: '11px 26px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none', borderRadius: 100,
   fontSize: 14, fontWeight: 800,

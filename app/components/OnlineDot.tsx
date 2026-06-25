@@ -26,7 +26,7 @@ export function OnlineDot({ userId, lastActiveAt, online, size = 'sm' }: Props) 
           display: 'inline-flex',
           alignItems: 'center',
           gap: 6,
-          color: '#16a34a',
+          color: 'var(--brand-market-success)',
           fontSize,
           fontWeight: 700,
         }}
@@ -36,7 +36,7 @@ export function OnlineDot({ userId, lastActiveAt, online, size = 'sm' }: Props) 
           style={{
             width: dot,
             height: dot,
-            background: '#22c55e',
+            background: 'var(--brand-market-light)',
             borderRadius: '50%',
             boxShadow: '0 0 0 3px rgba(34,197,94,0.18)',
           }}
@@ -48,7 +48,7 @@ export function OnlineDot({ userId, lastActiveAt, online, size = 'sm' }: Props) 
 
   if (lastActiveAt) {
     return (
-      <span style={{ color: '#a89278', fontSize, fontWeight: 500 }}>
+      <span style={{ color: 'var(--brand-personal-text-light)', fontSize, fontWeight: 500 }}>
         Active {formatRelativeTime(lastActiveAt)}
       </span>
     );

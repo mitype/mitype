@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       display: 'flex',
       flexDirection: 'column',
@@ -42,7 +42,7 @@ export default function ResetPasswordPage() {
         <div style={{
           fontSize: 32,
           fontWeight: 900,
-          color: '#c8956c',
+          color: 'var(--brand-personal)',
           letterSpacing: '-1px',
         }}>
           mitype
@@ -64,24 +64,24 @@ export default function ResetPasswordPage() {
           <h1 style={{
             fontSize: 26,
             fontWeight: 800,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             marginBottom: 12,
           }}>
             Check your email!
           </h1>
-          <p style={{ color: '#a89278', fontSize: 15, marginBottom: 8 }}>
+          <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 15, marginBottom: 8 }}>
             We sent a password reset link to:
           </p>
-          <p style={{ color: '#c8956c', fontWeight: 700, fontSize: 15, marginBottom: 32 }}>
+          <p style={{ color: 'var(--brand-personal)', fontWeight: 700, fontSize: 15, marginBottom: 32 }}>
             {email}
           </p>
-          <p style={{ color: '#a89278', fontSize: 13, marginBottom: 32 }}>
+          <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 13, marginBottom: 32 }}>
             Click the link in the email to reset your password. Check your spam folder if you don't see it.
           </p>
           <Link href="/login" style={{
             display: 'inline-block',
             padding: '12px 32px',
-            background: '#c8956c',
+            background: 'var(--brand-personal)',
             color: 'white',
             borderRadius: 100,
             textDecoration: 'none',
@@ -104,14 +104,14 @@ export default function ResetPasswordPage() {
           <h1 style={{
             fontSize: 28,
             fontWeight: 800,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             marginBottom: 8,
             letterSpacing: '-0.5px',
           }}>
             Reset your password
           </h1>
           <p style={{
-            color: '#a89278',
+            color: 'var(--brand-personal-text-light)',
             fontSize: 15,
             marginBottom: 36,
           }}>
@@ -124,7 +124,7 @@ export default function ResetPasswordPage() {
                 display: 'block',
                 fontSize: 13,
                 fontWeight: 600,
-                color: '#6b5744',
+                color: 'var(--brand-personal-text-head)',
                 marginBottom: 8,
               }}>
                 Email address
@@ -140,9 +140,9 @@ export default function ResetPasswordPage() {
                   padding: '13px 16px',
                   borderRadius: 12,
                   border: '1px solid rgba(200,149,108,0.25)',
-                  background: '#faf6f0',
+                  background: 'var(--brand-personal-bg-cream)',
                   fontSize: 16,
-                  color: '#1a1208',
+                  color: 'var(--brand-text-primary)',
                   outline: 'none',
                   boxSizing: 'border-box',
                 }}
@@ -155,7 +155,7 @@ export default function ResetPasswordPage() {
               style={{
                 width: '100%',
                 padding: '15px',
-                background: loading ? '#d4a882' : '#c8956c',
+                background: loading ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 100,
@@ -171,12 +171,12 @@ export default function ResetPasswordPage() {
 
             <p style={{
               textAlign: 'center',
-              color: '#a89278',
+              color: 'var(--brand-personal-text-light)',
               fontSize: 14,
             }}>
               Remember your password?{' '}
               <Link href="/login" style={{
-                color: '#c8956c',
+                color: 'var(--brand-personal)',
                 fontWeight: 700,
                 textDecoration: 'none',
               }}>

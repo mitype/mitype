@@ -198,7 +198,7 @@ export function PetEditor({ userId }: Props) {
           gap: 16,
           padding: '18px 22px',
           background: enabled
-            ? 'linear-gradient(135deg, #fff3ec 0%, #ffe1c8 100%)'
+            ? 'linear-gradient(135deg, var(--brand-personal-bg-peach) 0%, #ffe1c8 100%)'
             : 'white',
           borderRadius: 20,
           border: enabled ? '1px solid rgba(200,149,108,0.4)' : '1px solid rgba(200,149,108,0.18)',
@@ -208,10 +208,10 @@ export function PetEditor({ userId }: Props) {
       >
         <span style={{ fontSize: 28 }}>🐾</span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 800, color: '#1a1208' }}>
+          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--brand-text-primary)' }}>
             Got a pet?
           </div>
-          <div style={{ fontSize: 13, color: '#7a6a4f', lineHeight: 1.4, marginTop: 2 }}>
+          <div style={{ fontSize: 13, color: 'var(--brand-personal-text-amber)', lineHeight: 1.4, marginTop: 2 }}>
             Add your pet and visitors can tap to see your pet&rsquo;s profile.
           </div>
         </div>
@@ -259,10 +259,10 @@ export function PetEditor({ userId }: Props) {
                     onClick={() => remove(i)}
                     style={{
                       padding: '6px 12px',
-                      background: '#fff0f0',
+                      background: 'var(--brand-danger-bg)',
                       border: '1px solid rgba(220,100,100,0.25)',
                       borderRadius: 100,
-                      color: '#c07070',
+                      color: 'var(--brand-danger-text)',
                       fontSize: 12,
                       fontWeight: 700,
                       cursor: 'pointer',
@@ -387,7 +387,7 @@ export function PetEditor({ userId }: Props) {
                           height: 38,
                           borderRadius: '50%',
                           background: `linear-gradient(135deg, ${c.light}, ${c.dark})`,
-                          border: selected ? '3px solid #1a1208' : '2px solid rgba(0,0,0,0.15)',
+                          border: selected ? '3px solid var(--brand-text-primary)' : '2px solid rgba(0,0,0,0.15)',
                           cursor: 'pointer',
                           padding: 0,
                           boxShadow: selected ? '0 0 0 3px rgba(200,149,108,0.35)' : 'none',
@@ -424,7 +424,7 @@ export function PetEditor({ userId }: Props) {
               disabled={saving}
               style={{
                 padding: '10px 22px',
-                background: '#c8956c',
+                background: 'var(--brand-personal)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 100,
@@ -452,8 +452,8 @@ export function PetEditor({ userId }: Props) {
           style={{
             marginTop: 12,
             padding: '10px 18px',
-            background: '#fff0f0',
-            color: '#c07070',
+            background: 'var(--brand-danger-bg)',
+            color: 'var(--brand-danger-text)',
             border: '1px solid rgba(220,100,100,0.3)',
             borderRadius: 100,
             fontSize: 13,
@@ -504,7 +504,7 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid rgba(200,149,108,0.25)',
   background: '#fbf7f0',
   fontSize: 16,
-  color: '#1a1208',
+  color: 'var(--brand-text-primary)',
   outline: 'none',
   boxSizing: 'border-box',
   fontFamily: 'inherit',
@@ -519,7 +519,7 @@ function switchTrack(on: boolean): React.CSSProperties {
     width: 50,
     height: 28,
     borderRadius: 100,
-    background: on ? '#c8956c' : 'rgba(160,138,106,0.3)',
+    background: on ? 'var(--brand-personal)' : 'rgba(160,138,106,0.3)',
     position: 'relative',
     transition: 'background 0.18s',
   };
@@ -543,7 +543,7 @@ const uploadPill: React.CSSProperties = {
   left: '50%',
   transform: 'translateX(-50%)',
   padding: '5px 12px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   borderRadius: 100,
   fontSize: 11,

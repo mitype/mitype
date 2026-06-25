@@ -149,7 +149,7 @@ export default function CreateProfilePage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       padding: '60px 24px',
     }}>
@@ -160,7 +160,7 @@ export default function CreateProfilePage() {
           <div style={{
             fontSize: 28,
             fontWeight: 900,
-            color: '#c8956c',
+            color: 'var(--brand-personal)',
             letterSpacing: '-1px',
             marginBottom: 40,
           }}>
@@ -171,14 +171,14 @@ export default function CreateProfilePage() {
         <h1 style={{
           fontSize: 36,
           fontWeight: 800,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           marginBottom: 8,
           letterSpacing: '-1px',
         }}>
           Set up your profile
         </h1>
         <p style={{
-          color: '#a89278',
+          color: 'var(--brand-personal-text-light)',
           fontSize: 16,
           marginBottom: 40,
         }}>
@@ -193,7 +193,7 @@ export default function CreateProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -206,7 +206,7 @@ export default function CreateProfilePage() {
                 left: 16,
                 top: '50%',
                 transform: 'translateY(-50%)',
-                color: '#c8956c',
+                color: 'var(--brand-personal)',
                 fontWeight: 700,
                 fontSize: 16,
               }}>@</span>
@@ -224,13 +224,13 @@ export default function CreateProfilePage() {
                   border: '1px solid rgba(200,149,108,0.25)',
                   background: 'white',
                   fontSize: 16,
-                  color: '#1a1208',
+                  color: 'var(--brand-text-primary)',
                   outline: 'none',
                   boxSizing: 'border-box',
                 }}
               />
             </div>
-            <p style={{ color: '#b0967e', fontSize: 12, marginTop: 6 }}>
+            <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 12, marginTop: 6 }}>
               Letters, numbers and underscores only
             </p>
           </div>
@@ -241,7 +241,7 @@ export default function CreateProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -261,14 +261,14 @@ export default function CreateProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
                 resize: 'vertical',
                 fontFamily: "'Helvetica Neue', Arial, sans-serif",
               }}
             />
-            <p style={{ color: '#b0967e', fontSize: 12, marginTop: 6, textAlign: 'right' }}>
+            <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 12, marginTop: 6, textAlign: 'right' }}>
               {bio.length}/500
             </p>
           </div>
@@ -279,14 +279,14 @@ export default function CreateProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 4,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}>
               Your Categories * (pick up to 5)
             </label>
-            <p style={{ color: '#b0967e', fontSize: 13, marginBottom: 16 }}>
+            <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginBottom: 16 }}>
               {selectedCategories.length}/5 selected
             </p>
             <div style={{
@@ -305,10 +305,10 @@ export default function CreateProfilePage() {
                       padding: '8px 16px',
                       borderRadius: 100,
                       border: isSelected
-                        ? '1.5px solid #c8956c'
+                        ? '1.5px solid var(--brand-personal)'
                         : '1px solid rgba(200,149,108,0.2)',
                       background: isSelected ? 'rgba(200,149,108,0.15)' : 'white',
-                      color: isSelected ? '#c8956c' : '#6b5744',
+                      color: isSelected ? 'var(--brand-personal)' : 'var(--brand-personal-text-head)',
                       fontSize: 13,
                       fontWeight: isSelected ? 700 : 400,
                       cursor: 'pointer',
@@ -328,7 +328,7 @@ export default function CreateProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -349,13 +349,13 @@ export default function CreateProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
                 fontFamily: 'inherit',
               }}
             />
-            <p style={{ color: '#b0967e', fontSize: 12, marginTop: 6 }}>
+            <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 12, marginTop: 6 }}>
               You must be 18+ to join Mitype.
             </p>
           </div>
@@ -366,7 +366,7 @@ export default function CreateProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -386,12 +386,12 @@ export default function CreateProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
             />
-            <p style={{ color: '#b0967e', fontSize: 12, marginTop: 6 }}>
+            <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 12, marginTop: 6 }}>
               Used for local discovery. Never shown publicly.
             </p>
           </div>
@@ -402,7 +402,7 @@ export default function CreateProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -421,7 +421,7 @@ export default function CreateProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -435,7 +435,7 @@ export default function CreateProfilePage() {
             style={{
               width: '100%',
               padding: '16px',
-              background: loading ? '#d4a882' : '#c8956c',
+              background: loading ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
               color: 'white',
               border: 'none',
               borderRadius: 100,

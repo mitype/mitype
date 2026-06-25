@@ -36,7 +36,7 @@ export function CategoryShowcase({ categories, initialCount = 20 }: Props) {
             borderRadius: 100,
             padding: '9px 18px',
             fontSize: 13,
-            color: '#6b5744',
+            color: 'var(--brand-personal-text-head)',
             fontWeight: 500,
             boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
           }}>
@@ -54,8 +54,8 @@ export function CategoryShowcase({ categories, initialCount = 20 }: Props) {
             aria-label={expanded ? 'Show fewer categories' : `Show ${remaining} more categories`}
             style={{
               padding: '10px 22px',
-              background: expanded ? 'transparent' : 'linear-gradient(135deg, #c8956c, #ffb37c)',
-              color: expanded ? '#8a7560' : 'white',
+              background: expanded ? 'transparent' : 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
+              color: expanded ? 'var(--brand-personal-text-mid)' : 'white',
               border: expanded ? '1px solid rgba(200,149,108,0.4)' : 'none',
               borderRadius: 100,
               fontSize: 13,

@@ -47,7 +47,7 @@ export function PhotoGallery({ photos, altPrefix }: PhotoGalleryProps) {
         style={{
           fontSize: 12,
           fontWeight: 700,
-          color: '#a89278',
+          color: 'var(--brand-personal-text-light)',
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
           marginBottom: 16,
@@ -72,7 +72,7 @@ export function PhotoGallery({ photos, altPrefix }: PhotoGalleryProps) {
             style={{
               padding: 0,
               border: 'none',
-              background: '#f0e8df',
+              background: 'var(--brand-personal-bg-pale)',
               borderRadius: 14,
               overflow: 'hidden',
               aspectRatio: '3/4',

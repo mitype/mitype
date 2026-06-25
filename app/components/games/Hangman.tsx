@@ -225,7 +225,7 @@ export function Hangman({ session, currentUserId, updateState }: Props) {
         background: 'rgba(200,149,108,0.18)',
         border: '1px solid rgba(200,149,108,0.4)',
         borderRadius: 100,
-        color: '#ffd5a8',
+        color: 'var(--brand-personal-soft)',
         fontSize: 12, fontWeight: 800,
         textTransform: 'uppercase', letterSpacing: '1px',
       }}>
@@ -245,7 +245,7 @@ export function Hangman({ session, currentUserId, updateState }: Props) {
             padding: '2px 4px',
             borderBottom: '2px solid rgba(255,255,255,0.4)',
             fontSize: 24, fontWeight: 900,
-            color: ch === '_' ? 'transparent' : '#ffd5a8',
+            color: ch === '_' ? 'transparent' : 'var(--brand-personal-soft)',
             fontFamily: 'inherit',
             textTransform: 'uppercase',
             textAlign: 'center',
@@ -280,7 +280,7 @@ export function Hangman({ session, currentUserId, updateState }: Props) {
               background: 'transparent',
               border: '1px solid rgba(255,213,168,0.45)',
               borderRadius: 100,
-              color: '#ffd5a8',
+              color: 'var(--brand-personal-soft)',
               fontSize: 12, fontWeight: 800,
               cursor: 'pointer', fontFamily: 'inherit',
               letterSpacing: '0.5px',
@@ -328,7 +328,7 @@ export function Hangman({ session, currentUserId, updateState }: Props) {
                 style={{
                   padding: '10px 0',
                   background: wasCorrect
-                    ? 'linear-gradient(135deg, #c8956c, #ffb37c)'
+                    ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))'
                     : wasWrong
                       ? 'rgba(252,165,165,0.18)'
                       : 'rgba(255,255,255,0.06)',
@@ -338,7 +338,7 @@ export function Hangman({ session, currentUserId, updateState }: Props) {
                       ? '1px solid rgba(252,165,165,0.5)'
                       : '1px solid rgba(255,255,255,0.12)',
                   borderRadius: 10,
-                  color: tried ? 'white' : '#ffd5a8',
+                  color: tried ? 'white' : 'var(--brand-personal-soft)',
                   fontSize: 14, fontWeight: 900,
                   fontFamily: 'inherit',
                   textTransform: 'uppercase',
@@ -368,7 +368,7 @@ export function Hangman({ session, currentUserId, updateState }: Props) {
             {state.roundResult === 'won' ? '🎉 Got it!' : '😅 Tough one.'}
           </div>
           <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)' }}>
-            The word was <strong style={{ color: '#ffd5a8' }}>{state.entry.word.toUpperCase()}</strong>.
+            The word was <strong style={{ color: 'var(--brand-personal-soft)' }}>{state.entry.word.toUpperCase()}</strong>.
           </div>
           <button type="button" onClick={advanceRound} style={primaryBtn}>
             Next word →
@@ -418,7 +418,7 @@ export function Hangman({ session, currentUserId, updateState }: Props) {
 function Gallows({ wrong, max }: { wrong: number; max: number }) {
   // Normalize across max in case we ever change it.
   const stage = Math.min(wrong, 6);
-  const stroke = '#ffd5a8';
+  const stroke = 'var(--brand-personal-soft)';
   return (
     <svg
       width={140}
@@ -465,7 +465,7 @@ function Gallows({ wrong, max }: { wrong: number; max: number }) {
 
 const primaryBtn: React.CSSProperties = {
   padding: '11px 26px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none', borderRadius: 100,
   fontSize: 14, fontWeight: 800,

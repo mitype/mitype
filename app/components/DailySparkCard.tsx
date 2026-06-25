@@ -54,7 +54,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
     return (
       <div style={cardShellStyle}>
         <p style={eyebrowStyle}>✨ Daily Spark</p>
-        <p style={{ color: '#a89278', fontSize: 14, margin: 0 }}>
+        <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 14, margin: 0 }}>
           Picking today's spark…
         </p>
       </div>
@@ -66,10 +66,10 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
     return (
       <div style={cardShellStyle}>
         <p style={eyebrowStyle}>✨ Daily Spark</p>
-        <p style={{ color: '#1a1208', fontWeight: 700, fontSize: 16, margin: '0 0 6px' }}>
+        <p style={{ color: 'var(--brand-text-primary)', fontWeight: 700, fontSize: 16, margin: '0 0 6px' }}>
           No spark today.
         </p>
-        <p style={{ color: '#a89278', fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+        <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 13, margin: 0, lineHeight: 1.5 }}>
           We'll have a fresh hand-picked profile for you tomorrow. In the
           meantime, head to <Link href="/discover" style={linkInlineStyle}>Discover</Link>{' '}
           or browse <Link href="/spotlight" style={linkInlineStyle}>Spotlight</Link>.
@@ -83,7 +83,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
     return (
       <div style={cardShellStyle}>
         <p style={eyebrowStyle}>✨ Daily Spark</p>
-        <p style={{ color: '#a89278', fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+        <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 13, margin: 0, lineHeight: 1.5 }}>
           Skipped for today. A new spark drops tomorrow.
         </p>
       </div>
@@ -206,7 +206,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
               width: 64,
               height: 64,
               borderRadius: '50%',
-              background: '#f0e8df',
+              background: 'var(--brand-personal-bg-pale)',
               overflow: 'hidden',
               border: '2px solid rgba(200,149,108,0.25)',
             }}
@@ -225,7 +225,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
           <Link
             href={profile.username ? `/profile/${profile.username}` : '#'}
             style={{
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               textDecoration: 'none',
               fontSize: 18,
               fontWeight: 800,
@@ -252,7 +252,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
         <div style={promptCardStyle}>
           <p
             style={{
-              color: '#c8956c',
+              color: 'var(--brand-personal)',
               fontWeight: 700,
               fontSize: 12,
               textTransform: 'uppercase',
@@ -262,7 +262,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
           >
             {featuredPrompt.prompt}
           </p>
-          <p style={{ color: '#1a1208', fontSize: 14, lineHeight: 1.5, margin: 0 }}>
+          <p style={{ color: 'var(--brand-text-primary)', fontSize: 14, lineHeight: 1.5, margin: 0 }}>
             {featuredPrompt.answer}
           </p>
         </div>
@@ -272,7 +272,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
       <label
         htmlFor="daily-spark-opener"
         style={{
-          color: '#a89278',
+          color: 'var(--brand-personal-text-light)',
           fontSize: 12,
           fontWeight: 700,
           textTransform: 'uppercase',
@@ -294,9 +294,9 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
           padding: '12px 14px',
           borderRadius: 14,
           border: '1px solid rgba(200,149,108,0.25)',
-          background: '#faf6f0',
+          background: 'var(--brand-personal-bg-cream)',
           fontSize: 16,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           fontFamily: 'inherit',
           resize: 'vertical',
           lineHeight: 1.5,
@@ -314,7 +314,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
           aria-label="Send opener as a message request"
           style={{
             padding: '12px 22px',
-            background: sending || !opener.trim() ? '#d4a882' : '#c8956c',
+            background: sending || !opener.trim() ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
             color: 'white',
             border: 'none',
             borderRadius: 100,
@@ -333,7 +333,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
             style={{
               padding: '12px 22px',
               background: 'rgba(200,149,108,0.1)',
-              color: '#c8956c',
+              color: 'var(--brand-personal)',
               border: '1px solid rgba(200,149,108,0.25)',
               borderRadius: 100,
               fontSize: 14,
@@ -367,7 +367,7 @@ const cardShellStyle: React.CSSProperties = {
 };
 
 const eyebrowStyle: React.CSSProperties = {
-  color: '#c8956c',
+  color: 'var(--brand-personal)',
   fontSize: 12,
   fontWeight: 800,
   textTransform: 'uppercase',
@@ -378,7 +378,7 @@ const eyebrowStyle: React.CSSProperties = {
 const skipButtonStyle: React.CSSProperties = {
   background: 'transparent',
   border: '1px solid rgba(200,149,108,0.3)',
-  color: '#a89278',
+  color: 'var(--brand-personal-text-light)',
   fontSize: 12,
   fontWeight: 600,
   borderRadius: 100,
@@ -387,7 +387,7 @@ const skipButtonStyle: React.CSSProperties = {
 };
 
 const linkInlineStyle: React.CSSProperties = {
-  color: '#c8956c',
+  color: 'var(--brand-personal)',
   fontWeight: 700,
   textDecoration: 'underline',
 };
@@ -395,7 +395,7 @@ const linkInlineStyle: React.CSSProperties = {
 const chipStyle: React.CSSProperties = {
   background: 'rgba(200,149,108,0.12)',
   border: '1px solid rgba(200,149,108,0.2)',
-  color: '#c8956c',
+  color: 'var(--brand-personal)',
   padding: '3px 10px',
   borderRadius: 100,
   fontSize: 11,

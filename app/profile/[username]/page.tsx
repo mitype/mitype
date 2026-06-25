@@ -398,12 +398,12 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
   if (!profile) return (
     <main style={{
-      minHeight: '100vh', background: '#faf6f0', display: 'flex',
+      minHeight: '100vh', background: 'var(--brand-personal-bg-cream)', display: 'flex',
       flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       fontFamily: "'Helvetica Neue', Arial, sans-serif", padding: 24, textAlign: 'center',
     }}>
-      <p style={{ color: '#8a7560', fontSize: 16 }}>Profile not found.</p>
-      <Link href="/discover" style={{ color: '#c8956c', fontWeight: 600, marginTop: 12 }}>Back to Discover</Link>
+      <p style={{ color: 'var(--brand-personal-text-mid)', fontSize: 16 }}>Profile not found.</p>
+      <Link href="/discover" style={{ color: 'var(--brand-personal)', fontWeight: 600, marginTop: 12 }}>Back to Discover</Link>
     </main>
   );
 
@@ -423,7 +423,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -442,19 +442,19 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             {reportSent ? (
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-                <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1a1208', marginBottom: 8 }}>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--brand-text-primary)', marginBottom: 8 }}>
                   Report submitted
                 </h2>
-                <p style={{ color: '#a89278', fontSize: 14 }}>
+                <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 14 }}>
                   Thank you for keeping Mitype safe. We will review this report.
                 </p>
               </div>
             ) : (
               <>
-                <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1a1208', marginBottom: 8 }}>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--brand-text-primary)', marginBottom: 8 }}>
                   Report @{profile.username}
                 </h2>
-                <p style={{ color: '#a89278', fontSize: 14, marginBottom: 20 }}>
+                <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 14, marginBottom: 20 }}>
                   Help us understand what is wrong with this profile.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
@@ -471,10 +471,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                       onClick={() => setReportReason(reason)}
                       style={{
                         padding: '12px 16px',
-                        background: reportReason === reason ? 'rgba(200,149,108,0.15)' : '#faf6f0',
-                        border: reportReason === reason ? '1.5px solid #c8956c' : '1px solid rgba(200,149,108,0.2)',
+                        background: reportReason === reason ? 'rgba(200,149,108,0.15)' : 'var(--brand-personal-bg-cream)',
+                        border: reportReason === reason ? '1.5px solid var(--brand-personal)' : '1px solid rgba(200,149,108,0.2)',
                         borderRadius: 12,
-                        color: reportReason === reason ? '#c8956c' : '#6b5744',
+                        color: reportReason === reason ? 'var(--brand-personal)' : 'var(--brand-personal-text-head)',
                         fontSize: 14,
                         fontWeight: reportReason === reason ? 700 : 400,
                         cursor: 'pointer',
@@ -491,7 +491,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     style={{
                       flex: 1, padding: '12px', background: 'white',
                       border: '1px solid rgba(200,149,108,0.3)', borderRadius: 100,
-                      color: '#8a7560', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                      color: 'var(--brand-personal-text-mid)', fontSize: 14, fontWeight: 600, cursor: 'pointer',
                     }}
                   >
                     Cancel
@@ -501,7 +501,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     disabled={!reportReason.trim()}
                     style={{
                       flex: 1, padding: '12px',
-                      background: reportReason.trim() ? '#c8956c' : '#d4a882',
+                      background: reportReason.trim() ? 'var(--brand-personal)' : 'var(--brand-personal-disabled)',
                       border: 'none', borderRadius: 100, color: 'white',
                       fontSize: 14, fontWeight: 700,
                       cursor: reportReason.trim() ? 'pointer' : 'not-allowed',
@@ -527,12 +527,12 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           background: 'rgba(250,246,240,0.9)', backdropFilter: 'blur(10px)',
           position: 'sticky', top: 0, zIndex: 100,
         }}>
-          <Link href="/" style={{ fontSize: 24, fontWeight: 900, color: '#c8956c', letterSpacing: '-1px', textDecoration: 'none' }}>
+          <Link href="/" style={{ fontSize: 24, fontWeight: 900, color: 'var(--brand-personal)', letterSpacing: '-1px', textDecoration: 'none' }}>
             mitype
           </Link>
           <div style={{ display: 'flex', gap: 12 }}>
-            <Link href="/login" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Sign In</Link>
-            <Link href="/signup" style={{ background: '#c8956c', color: 'white', textDecoration: 'none', fontSize: 14, fontWeight: 700, padding: '8px 20px', borderRadius: 100 }}>
+            <Link href="/login" style={{ color: 'var(--brand-personal-text-mid)', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Sign In</Link>
+            <Link href="/signup" style={{ background: 'var(--brand-personal)', color: 'white', textDecoration: 'none', fontSize: 14, fontWeight: 700, padding: '8px 20px', borderRadius: 100 }}>
               Join Free
             </Link>
           </div>
@@ -554,7 +554,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         }}>
           <div style={{
             height: 100,
-            background: 'linear-gradient(135deg, #e8d5c4 0%, #c8956c 100%)',
+            background: 'linear-gradient(135deg, #e8d5c4 0%, var(--brand-personal) 100%)',
             borderTopLeftRadius: 32,
             borderTopRightRadius: 32,
           }} />
@@ -593,7 +593,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     display: 'inline-block',
                     padding: 4,
                     borderRadius: 20,
-                    background: 'linear-gradient(135deg, #c8956c 0%, #ffb37c 50%, #c8956c 100%)',
+                    background: 'linear-gradient(135deg, var(--brand-personal) 0%, var(--brand-personal-light) 50%, var(--brand-personal) 100%)',
                     boxShadow: '0 0 24px rgba(200,149,108,0.6)',
                     animation: 'mitype-profile-freshwave 2.4s ease-in-out infinite',
                     textDecoration: 'none',
@@ -602,7 +602,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   <div style={{
                     width: 100, height: 125, borderRadius: 16,
                     border: '3px solid white',
-                    background: '#f0e8df', overflow: 'hidden', display: 'flex',
+                    background: 'var(--brand-personal-bg-pale)', overflow: 'hidden', display: 'flex',
                     alignItems: 'center', justifyContent: 'center',
                     boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
                     boxSizing: 'border-box',
@@ -618,7 +618,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   </div>
                   <div style={{
                     position: 'absolute',
-                    background: 'linear-gradient(135deg, #c8956c 0%, #ffb37c 100%)',
+                    background: 'linear-gradient(135deg, var(--brand-personal) 0%, var(--brand-personal-light) 100%)',
                     color: 'white',
                     padding: '3px 9px',
                     borderRadius: 100,
@@ -638,7 +638,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               ) : (
                 <div style={{
                   width: 100, height: 125, borderRadius: 16, border: '4px solid white',
-                  background: '#f0e8df', overflow: 'hidden', display: 'flex',
+                  background: 'var(--brand-personal-bg-pale)', overflow: 'hidden', display: 'flex',
                   alignItems: 'center', justifyContent: 'center',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
                 }}>
@@ -659,7 +659,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     href={`/business/${profile.username}`}
                     style={{
                       padding: '10px 18px',
-                      background: 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)',
+                      background: 'linear-gradient(135deg, var(--brand-business) 0%, var(--brand-business-light) 100%)',
                       border: 'none',
                       borderRadius: 100,
                       color: 'white',
@@ -683,7 +683,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                       background: 'white',
                       border: '1px solid rgba(21,128,61,0.4)',
                       borderRadius: 100,
-                      color: '#15803d',
+                      color: 'var(--brand-market)',
                       fontSize: 13,
                       fontWeight: 800,
                       textDecoration: 'none',
@@ -699,7 +699,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 <button onClick={shareProfile} style={{
                   padding: '10px 20px', background: 'white',
                   border: '1px solid rgba(200,149,108,0.3)', borderRadius: 100,
-                  color: '#8a7560', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                  color: 'var(--brand-personal-text-mid)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
                 }}>
                   {copied ? 'Copied!' : 'Share'}
                 </button>
@@ -708,14 +708,14 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   <Link href="/edit-profile" style={{
                     padding: '10px 20px', background: 'white',
                     border: '1px solid rgba(200,149,108,0.3)', borderRadius: 100,
-                    color: '#8a7560', fontSize: 13, fontWeight: 600, textDecoration: 'none',
+                    color: 'var(--brand-personal-text-mid)', fontSize: 13, fontWeight: 600, textDecoration: 'none',
                   }}>
                     Edit Profile
                   </Link>
                 ) : currentUser ? (
                   <>
                     <button onClick={sendMessage} style={{
-                      padding: '10px 20px', background: '#c8956c', border: 'none',
+                      padding: '10px 20px', background: 'var(--brand-personal)', border: 'none',
                       borderRadius: 100, color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer',
                     }}>
                       Message
@@ -724,9 +724,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                       onClick={handleBlock}
                       aria-label={blocked ? `Unblock ${profile.username}` : `Block ${profile.username}`}
                       style={{
-                        padding: '10px 16px', background: blocked ? '#fff0f0' : 'white',
+                        padding: '10px 16px', background: blocked ? 'var(--brand-danger-bg)' : 'white',
                         border: blocked ? '1px solid rgba(220,100,100,0.3)' : '1px solid rgba(200,149,108,0.3)',
-                        borderRadius: 100, color: blocked ? '#c07070' : '#8a7560',
+                        borderRadius: 100, color: blocked ? 'var(--brand-danger-text)' : 'var(--brand-personal-text-mid)',
                         fontSize: 13, fontWeight: 600, cursor: 'pointer',
                       }}
                     >
@@ -738,7 +738,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                       style={{
                         padding: '10px 16px', background: 'white',
                         border: '1px solid rgba(200,149,108,0.3)', borderRadius: 100,
-                        color: '#8a7560', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                        color: 'var(--brand-personal-text-mid)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
                       }}
                     >
                       ⚠️ Report
@@ -746,7 +746,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   </>
                 ) : (
                   <Link href="/signup" style={{
-                    padding: '10px 20px', background: '#c8956c', borderRadius: 100,
+                    padding: '10px 20px', background: 'var(--brand-personal)', borderRadius: 100,
                     color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none',
                   }}>
                     Connect
@@ -755,13 +755,13 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               </div>
             </div>
 
-            <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1a1208', letterSpacing: '-0.5px', marginBottom: 8 }}>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--brand-text-primary)', letterSpacing: '-0.5px', marginBottom: 8 }}>
               @{profile.username}
               {(() => {
                 const age = calculateAge(profile.date_of_birth);
                 if (age === null) return null;
                 return (
-                  <span style={{ color: '#a89278', fontWeight: 600, fontSize: 22, marginLeft: 10 }}>
+                  <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600, fontSize: 22, marginLeft: 10 }}>
                     · {age}
                   </span>
                 );
@@ -776,7 +776,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 alignItems: 'center',
                 gap: 6,
                 padding: '6px 12px',
-                background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
                 borderRadius: 100,
                 color: 'white',
                 fontSize: 12,
@@ -792,7 +792,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             {profile.open_to_collab && profile.collab_pitch && (
               <p style={{
                 fontSize: 13,
-                color: '#5b4a36',
+                color: 'var(--brand-personal-text-deep)',
                 lineHeight: 1.45,
                 margin: '-4px 0 12px',
                 fontStyle: 'italic',
@@ -823,8 +823,8 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 flexWrap: 'wrap',
                 maxWidth: '100%',
               }}>
-                <div style={{ width: 8, height: 8, background: '#c8956c', borderRadius: '50%', flexShrink: 0 }} />
-                <span style={{ color: '#6b5744', fontSize: 13, fontWeight: 600 }}>{profile.creative_status}</span>
+                <div style={{ width: 8, height: 8, background: 'var(--brand-personal)', borderRadius: '50%', flexShrink: 0 }} />
+                <span style={{ color: 'var(--brand-personal-text-head)', fontSize: 13, fontWeight: 600 }}>{profile.creative_status}</span>
                 {(() => {
                   const projectHref = safeUrl(profile.latest_project_url);
                   if (!projectHref) return null;
@@ -834,7 +834,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
-                        color: '#c8956c',
+                        color: 'var(--brand-personal)',
                         fontSize: 12,
                         fontWeight: 800,
                         textDecoration: 'none',
@@ -862,10 +862,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 && (profile.travel_city || profile.travel_state);
               if (!home && !travelLive) return null;
               return (
-                <div style={{ marginBottom: 16, color: '#a89278', fontSize: 14, lineHeight: 1.5 }}>
+                <div style={{ marginBottom: 16, color: 'var(--brand-personal-text-light)', fontSize: 14, lineHeight: 1.5 }}>
                   {home && <p style={{ margin: 0 }}>📍 {home}</p>}
                   {travelLive && (
-                    <p style={{ margin: '2px 0 0', color: '#c8956c', fontWeight: 700 }}>
+                    <p style={{ margin: '2px 0 0', color: 'var(--brand-personal)', fontWeight: 700 }}>
                       ✈️ In {[profile.travel_city, profile.travel_state].filter(Boolean).join(', ')} through {' '}
                       {new Date(profile.travel_ends_at!).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </p>
@@ -879,7 +879,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               <p style={{
                 margin: '0 0 16px',
                 fontSize: 12,
-                color: '#a89278',
+                color: 'var(--brand-personal-text-light)',
                 letterSpacing: '0.2px',
               }}>
                 Member since {new Date(profile.created_at).getFullYear()}
@@ -897,7 +897,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   gap: 8,
                   padding: '10px 16px',
                   marginBottom: 16,
-                  background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 60%, #c8956c 100%)',
+                  background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 60%, var(--brand-personal) 100%)',
                   borderRadius: 14,
                   color: 'white',
                   textDecoration: 'none',
@@ -915,7 +915,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
             {profile.bio && (
               <p style={{
-                color: '#6b5744', fontSize: 15, lineHeight: 1.7, marginBottom: 20,
+                color: 'var(--brand-personal-text-head)', fontSize: 15, lineHeight: 1.7, marginBottom: 20,
                 whiteSpace: 'pre-wrap', // preserve line breaks from user input
               }}>
                 {sanitizeText(profile.bio)}
@@ -924,7 +924,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
             {(profile.categories?.length ?? 0) > 0 && (
               <div style={{ marginBottom: 20 }}>
-                <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-personal-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>
                   Categories
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -932,7 +932,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     <span key={cat} style={{
                       background: sharedCats.includes(cat) ? 'rgba(34,197,94,0.1)' : 'rgba(200,149,108,0.1)',
                       border: sharedCats.includes(cat) ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(200,149,108,0.25)',
-                      color: sharedCats.includes(cat) ? '#16a34a' : '#c8956c',
+                      color: sharedCats.includes(cat) ? 'var(--brand-market-success)' : 'var(--brand-personal)',
                       padding: '6px 14px', borderRadius: 100, fontSize: 13, fontWeight: 600,
                     }}>
                       {sharedCats.includes(cat) ? '✓ ' : ''}{cat}
@@ -940,7 +940,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   ))}
                 </div>
                 {sharedCats.length > 0 && (
-                  <p style={{ color: '#16a34a', fontSize: 12, marginTop: 8, fontWeight: 600 }}>
+                  <p style={{ color: 'var(--brand-market-success)', fontSize: 12, marginTop: 8, fontWeight: 600 }}>
                     Green = shared interest with you
                   </p>
                 )}
@@ -952,13 +952,13 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               if (!websiteHref) return null;
               return (
                 <div>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-personal-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>
                     Website
                   </p>
                   <a
                     href={websiteHref}
                     target="_blank" rel="noopener noreferrer"
-                    style={{ color: '#c8956c', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}
+                    style={{ color: 'var(--brand-personal)', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}
                   >
                     {sanitizeText(profile.website_url)}
                   </a>
@@ -989,9 +989,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: sharedCats.length > 0 ? 20 : 0 }}>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Your Compatibility</p>
+                <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-personal-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Your Compatibility</p>
                 <h2 style={{ fontSize: 28, fontWeight: 900, color: scoreColor, letterSpacing: '-0.5px' }}>{score}% Compatible</h2>
-                <p style={{ color: '#a89278', fontSize: 14, fontWeight: 600 }}>{scoreLabel}</p>
+                <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 14, fontWeight: 600 }}>{scoreLabel}</p>
               </div>
               <div style={{ width: 80, height: 80, borderRadius: '50%', background: `${scoreColor}15`, border: `3px solid ${scoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ fontSize: 20, fontWeight: 900, color: scoreColor }}>{score}%</span>
@@ -999,10 +999,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             </div>
             {sharedCats.length > 0 && (
               <div>
-                <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>You both create</p>
+                <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-personal-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>You both create</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {sharedCats.map((cat) => (
-                    <span key={cat} style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#16a34a', padding: '6px 14px', borderRadius: 100, fontSize: 13, fontWeight: 600 }}>
+                    <span key={cat} style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: 'var(--brand-market-success)', padding: '6px 14px', borderRadius: 100, fontSize: 13, fontWeight: 600 }}>
                       {cat}
                     </span>
                   ))}
@@ -1025,7 +1025,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             <p style={{
               fontSize: 12,
               fontWeight: 700,
-              color: '#a89278',
+              color: 'var(--brand-personal-text-light)',
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
               marginBottom: 16,
@@ -1037,7 +1037,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 <div
                   key={i}
                   style={{
-                    background: '#faf6f0',
+                    background: 'var(--brand-personal-bg-cream)',
                     border: '1px solid rgba(200,149,108,0.15)',
                     borderRadius: 16,
                     padding: '16px 18px',
@@ -1047,14 +1047,14 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   <p style={{
                     fontSize: 13,
                     fontWeight: 700,
-                    color: '#c8956c',
+                    color: 'var(--brand-personal)',
                     marginBottom: 6,
                   }}>
                     {sanitizeText(p.prompt)}
                   </p>
                   <p style={{
                     fontSize: 15,
-                    color: '#1a1208',
+                    color: 'var(--brand-text-primary)',
                     lineHeight: 1.5,
                     margin: 0,
                     whiteSpace: 'pre-wrap',
@@ -1073,7 +1073,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                         background: 'white',
                         border: '1px solid rgba(200,149,108,0.35)',
                         borderRadius: 100,
-                        color: '#c8956c',
+                        color: 'var(--brand-personal)',
                         fontSize: 12,
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -1103,7 +1103,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <span style={{ fontSize: 22 }}>🏪</span>
-              <p style={{ fontSize: 12, fontWeight: 800, color: '#5b21b6', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
+              <p style={{ fontSize: 12, fontWeight: 800, color: 'var(--brand-business-deep)', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
                 Small Businesses I Recommend
               </p>
             </div>
@@ -1126,7 +1126,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     width: 42, height: 42, borderRadius: 12, flexShrink: 0,
                     background: r.logo_url
                       ? `url(${r.logo_url}) center / cover`
-                      : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                      : 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 18, color: 'white',
                   }}>
@@ -1134,21 +1134,21 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
-                      fontSize: 14, fontWeight: 800, color: '#1a1208',
+                      fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
                       whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                     }}>
                       {r.name}
                     </div>
                     {r.category && (
                       <div style={{
-                        fontSize: 11, color: '#5b21b6', fontWeight: 700,
+                        fontSize: 11, color: 'var(--brand-business-deep)', fontWeight: 700,
                         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                       }}>
                         {r.category}
                       </div>
                     )}
                   </div>
-                  <span style={{ color: '#8b5cf6', fontWeight: 800, fontSize: 14, flexShrink: 0 }}>→</span>
+                  <span style={{ color: 'var(--brand-business)', fontWeight: 800, fontSize: 14, flexShrink: 0 }}>→</span>
                 </Link>
               ))}
             </div>
@@ -1158,7 +1158,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         {/* Creative Portfolio */}
         {portfolioLinks.length > 0 && (
           <div style={{ background: 'white', border: '1px solid rgba(200,149,108,0.2)', borderRadius: 24, padding: '28px 32px', marginBottom: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: '#a89278', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 16 }}>Creative Portfolio</p>
+            <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-personal-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 16 }}>Creative Portfolio</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {portfolioLinks.map((link, index) => {
                 const href = safeUrl(link.url);
@@ -1170,16 +1170,16 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     href={href}
                     target="_blank" rel="noopener noreferrer"
                     aria-label={`Open ${title} in a new tab`}
-                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', background: '#faf6f0', border: '1px solid rgba(200,149,108,0.15)', borderRadius: 14, textDecoration: 'none' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', background: 'var(--brand-personal-bg-cream)', border: '1px solid rgba(200,149,108,0.15)', borderRadius: 14, textDecoration: 'none' }}
                   >
                     <div aria-hidden="true" style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(200,149,108,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
                       {PORTFOLIO_ICONS[link.type] ?? '🔗'}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1208', marginBottom: 2 }}>{title}</p>
-                      <p style={{ fontSize: 12, color: '#c8956c', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sanitizeText(link.url)}</p>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand-text-primary)', marginBottom: 2 }}>{title}</p>
+                      <p style={{ fontSize: 12, color: 'var(--brand-personal)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sanitizeText(link.url)}</p>
                     </div>
-                    <span aria-hidden="true" style={{ color: '#c8956c', fontSize: 18, flexShrink: 0 }}>→</span>
+                    <span aria-hidden="true" style={{ color: 'var(--brand-personal)', fontSize: 18, flexShrink: 0 }}>→</span>
                   </a>
                 );
               })}
@@ -1190,9 +1190,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         {/* Not logged in CTA */}
         {!currentUser && (
           <div style={{ background: 'white', border: '1px solid rgba(200,149,108,0.2)', borderRadius: 24, padding: '40px', textAlign: 'center' }}>
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1208', marginBottom: 8 }}>Connect with @{profile.username}</h2>
-            <p style={{ color: '#a89278', fontSize: 15, marginBottom: 24 }}>Join Mitype free to see compatibility score and send a message!</p>
-            <Link href="/signup" style={{ display: 'inline-block', padding: '14px 36px', background: '#c8956c', color: 'white', borderRadius: 100, textDecoration: 'none', fontSize: 15, fontWeight: 700 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand-text-primary)', marginBottom: 8 }}>Connect with @{profile.username}</h2>
+            <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 15, marginBottom: 24 }}>Join Mitype free to see compatibility score and send a message!</p>
+            <Link href="/signup" style={{ display: 'inline-block', padding: '14px 36px', background: 'var(--brand-personal)', color: 'white', borderRadius: 100, textDecoration: 'none', fontSize: 15, fontWeight: 700 }}>
               Join Free
             </Link>
           </div>

@@ -18,17 +18,17 @@ import { SiteNav } from '../components/SiteNav';
 import { sanitizeText, safeUrl } from '../lib/sanitize';
 
 const PORTFOLIO_TYPES = [
-  { value: 'all',       label: '✨ All',         color: '#c8956c' },
+  { value: 'all',       label: '✨ All',         color: 'var(--brand-personal)' },
   { value: 'music',     label: '🎵 Music',       color: '#d08c6c' },
-  { value: 'video',     label: '🎬 Video',       color: '#c07070' },
+  { value: 'video',     label: '🎬 Video',       color: 'var(--brand-danger-text)' },
   { value: 'photo',     label: '📸 Photography', color: '#a08c6c' },
   { value: 'writing',   label: '✍️ Writing',     color: '#8c9070' },
-  { value: 'art',       label: '🎨 Art',         color: '#c8956c' },
+  { value: 'art',       label: '🎨 Art',         color: 'var(--brand-personal)' },
   { value: 'gaming',    label: '🎮 Gaming',      color: '#9070c0' },
   { value: 'podcast',   label: '🎙️ Podcast',     color: '#6c9ac8' },
-  { value: 'business',  label: '💼 Business',    color: '#8a7560' },
+  { value: 'business',  label: '💼 Business',    color: 'var(--brand-personal-text-mid)' },
   { value: 'social',    label: '📱 Social',      color: '#c8766c' },
-  { value: 'other',     label: '🔗 Other',       color: '#a89278' },
+  { value: 'other',     label: '🔗 Other',       color: 'var(--brand-personal-text-light)' },
 ];
 
 const PORTFOLIO_ICON: Record<string, string> = {
@@ -160,7 +160,7 @@ export default function SpotlightPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -177,13 +177,13 @@ export default function SpotlightPage() {
         <h1 style={{
           fontSize: 40,
           fontWeight: 900,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           letterSpacing: '-1px',
           marginBottom: 8,
         }}>
           ✨ Spotlight
         </h1>
-        <p style={{ color: '#8a7560', fontSize: 16, maxWidth: 640, marginBottom: 28 }}>
+        <p style={{ color: 'var(--brand-personal-text-mid)', fontSize: 16, maxWidth: 640, marginBottom: 28 }}>
           A feed of work from mitype members. Music, films, photos, writing, and more.
           Tap a card to open the creator&apos;s portfolio, or tap the avatar to see their profile.
         </p>
@@ -217,7 +217,7 @@ export default function SpotlightPage() {
                   borderRadius: 100,
                   border: `1px solid ${active ? t.color : 'rgba(200,149,108,0.2)'}`,
                   background: active ? t.color : 'white',
-                  color: active ? 'white' : disabled ? '#c9bfb4' : '#1a1208',
+                  color: active ? 'white' : disabled ? '#c9bfb4' : 'var(--brand-text-primary)',
                   fontSize: 13,
                   fontWeight: 700,
                   cursor: disabled ? 'not-allowed' : 'pointer',
@@ -264,7 +264,7 @@ export default function SpotlightPage() {
 }
 
 const navLinkStyle: React.CSSProperties = {
-  color: '#8a7560',
+  color: 'var(--brand-personal-text-mid)',
   textDecoration: 'none',
   fontSize: 14,
   fontWeight: 600,
@@ -279,7 +279,7 @@ function SpotlightCard({ item }: { item: SpotlightItem }) {
   try { displayHost = new URL(item.url).hostname.replace(/^www\./, ''); } catch { /* noop */ }
 
   // Pick a warm tint per type so cards don't all look identical.
-  const tint = PORTFOLIO_TYPES.find((t) => t.value === item.type)?.color ?? '#c8956c';
+  const tint = PORTFOLIO_TYPES.find((t) => t.value === item.type)?.color ?? 'var(--brand-personal)';
 
   return (
     <article
@@ -337,7 +337,7 @@ function SpotlightCard({ item }: { item: SpotlightItem }) {
             target="_blank"
             rel="noopener noreferrer nofollow"
             style={{
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               fontSize: 15,
               fontWeight: 700,
               textDecoration: 'none',
@@ -350,7 +350,7 @@ function SpotlightCard({ item }: { item: SpotlightItem }) {
             {item.title}
           </a>
           {displayHost && (
-            <span style={{ color: '#a89278', fontSize: 12, fontWeight: 500 }}>
+            <span style={{ color: 'var(--brand-personal-text-light)', fontSize: 12, fontWeight: 500 }}>
               ↗ {displayHost}
             </span>
           )}
@@ -365,7 +365,7 @@ function SpotlightCard({ item }: { item: SpotlightItem }) {
             gap: 10,
             padding: 8,
             borderRadius: 12,
-            background: '#faf6f0',
+            background: 'var(--brand-personal-bg-cream)',
             textDecoration: 'none',
             marginTop: 'auto',
           }}
@@ -375,7 +375,7 @@ function SpotlightCard({ item }: { item: SpotlightItem }) {
             height: 32,
             borderRadius: '50%',
             overflow: 'hidden',
-            background: '#f0e8df',
+            background: 'var(--brand-personal-bg-pale)',
             flexShrink: 0,
           }}>
             <Avatar
@@ -387,12 +387,12 @@ function SpotlightCard({ item }: { item: SpotlightItem }) {
             />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: '#1a1208', fontSize: 13, fontWeight: 700 }}>
+            <div style={{ color: 'var(--brand-text-primary)', fontSize: 13, fontWeight: 700 }}>
               @{item.username}
             </div>
             {item.creative_status && (
               <div style={{
-                color: '#8a7560',
+                color: 'var(--brand-personal-text-mid)',
                 fontSize: 11,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -419,11 +419,11 @@ function EmptyState({ typeFilter }: { typeFilter: string }) {
         borderRadius: 20,
         padding: '60px 24px',
         textAlign: 'center',
-        color: '#8a7560',
+        color: 'var(--brand-personal-text-mid)',
       }}
     >
       <div style={{ fontSize: 48, marginBottom: 12 }} aria-hidden="true">🎭</div>
-      <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1a1208', marginBottom: 8 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--brand-text-primary)', marginBottom: 8 }}>
         Nothing here yet
       </h2>
       <p style={{ fontSize: 14, maxWidth: 360, margin: '0 auto' }}>
@@ -437,7 +437,7 @@ function EmptyState({ typeFilter }: { typeFilter: string }) {
           display: 'inline-block',
           marginTop: 20,
           padding: '10px 20px',
-          background: '#c8956c',
+          background: 'var(--brand-personal)',
           color: 'white',
           fontWeight: 700,
           fontSize: 14,

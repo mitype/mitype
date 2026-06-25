@@ -22,7 +22,7 @@ interface Props {
 }
 
 const DEFAULT_GRADIENT =
-  'linear-gradient(135deg, #c8956c 0%, #ffb37c 50%, #c8956c 100%)';
+  'linear-gradient(135deg, var(--brand-personal) 0%, var(--brand-personal-light) 50%, var(--brand-personal) 100%)';
 
 export function WaveStoryRing({
   active,
@@ -73,7 +73,7 @@ export function WaveStoryRing({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: '#f0e8df',
+            background: 'var(--brand-personal-bg-pale)',
           }}
         >
           {children}

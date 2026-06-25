@@ -169,11 +169,11 @@ function DogTagSvg({ pet, width, height }: { pet: Pet; width: number; height: nu
             tag feels native to the brand. Users still pick the bezel
             (outer ring) color separately. */}
         <linearGradient id={`metal-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#fff3ec" />
+          <stop offset="0%"   stopColor="var(--brand-personal-bg-peach)" />
           <stop offset="30%"  stopColor="#f0d4a8" />
-          <stop offset="55%"  stopColor="#c8956c" />
+          <stop offset="55%"  stopColor="var(--brand-personal)" />
           <stop offset="80%"  stopColor="#a07452" />
-          <stop offset="100%" stopColor="#6b5744" />
+          <stop offset="100%" stopColor="var(--brand-personal-text-head)" />
         </linearGradient>
         {/* Bezel gradient using the pet's chosen color. */}
         <linearGradient id={`bezel-${uid}`} x1="0" y1="0" x2="0" y2="1">
@@ -219,7 +219,7 @@ function DogTagSvg({ pet, width, height }: { pet: Pet; width: number; height: nu
       />
 
       {/* Hole at top for the chain. */}
-      <circle cx={TAG_W / 2} cy={10} r={4.5} fill="#1a1208" />
+      <circle cx={TAG_W / 2} cy={10} r={4.5} fill="var(--brand-text-primary)" />
       <circle cx={TAG_W / 2} cy={10} r={3.2} fill="#3a2e1c" />
 
       {/* Pet photo OR fallback initial. */}
@@ -412,10 +412,10 @@ function PetCardModal({
         style={{
           width: '100%',
           maxWidth: 380,
-          background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+          background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           borderRadius: 28,
           padding: 24,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
           fontFamily: "'Helvetica Neue', Arial, sans-serif",
           position: 'relative',
@@ -431,7 +431,7 @@ function PetCardModal({
             right: 14,
             background: 'rgba(0,0,0,0.08)',
             border: 'none',
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             fontSize: 14,
             width: 30,
             height: 30,
@@ -451,7 +451,7 @@ function PetCardModal({
               height: 120,
               borderRadius: '50%',
               border: `4px solid ${color.dark}`,
-              background: pet.photo_url ? `url(${pet.photo_url}) center / cover` : '#f0e8df',
+              background: pet.photo_url ? `url(${pet.photo_url}) center / cover` : 'var(--brand-personal-bg-pale)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -465,7 +465,7 @@ function PetCardModal({
           <h2 style={{ margin: 0, fontSize: 26, fontWeight: 900, letterSpacing: '-0.5px' }}>
             {pet.name}
           </h2>
-          <div style={{ marginTop: 4, fontSize: 14, color: '#7a6a4f' }}>
+          <div style={{ marginTop: 4, fontSize: 14, color: 'var(--brand-personal-text-amber)' }}>
             {getPetTypeLabel(pet.pet_type)}{age ? ` · ${age}` : ''}
           </div>
         </div>
@@ -499,7 +499,7 @@ function PetCardModal({
             >
               ← Prev
             </button>
-            <div style={{ fontSize: 12, color: '#7a6a4f' }}>
+            <div style={{ fontSize: 12, color: 'var(--brand-personal-text-amber)' }}>
               {index + 1} of {pets.length}
             </div>
             <button
@@ -525,7 +525,7 @@ function Field({ icon, label, value }: { icon: string; label: string; value: str
         <div style={{ fontSize: 11, fontWeight: 800, color: '#a08a6a', textTransform: 'uppercase', letterSpacing: '1px' }}>
           {label}
         </div>
-        <div style={{ fontSize: 14, color: '#1a1208', marginTop: 2 }}>
+        <div style={{ fontSize: 14, color: 'var(--brand-text-primary)', marginTop: 2 }}>
           {value}
         </div>
       </div>

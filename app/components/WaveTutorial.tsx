@@ -71,7 +71,7 @@ export function WaveTutorial({ onDismiss }: Props) {
     >
       <div
         style={{
-          background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+          background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           borderRadius: 28,
           maxWidth: 440,
           width: '100%',
@@ -85,7 +85,7 @@ export function WaveTutorial({ onDismiss }: Props) {
         <div style={{ fontSize: 64, marginBottom: 16 }}>{slide.icon}</div>
         <h2
           style={{
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             fontSize: 24,
             fontWeight: 800,
             margin: '0 0 14px',
@@ -96,7 +96,7 @@ export function WaveTutorial({ onDismiss }: Props) {
         </h2>
         <p
           style={{
-            color: '#6b5744',
+            color: 'var(--brand-personal-text-head)',
             fontSize: 16,
             lineHeight: 1.6,
             margin: '0 0 28px',
@@ -121,7 +121,7 @@ export function WaveTutorial({ onDismiss }: Props) {
                 width: i === index ? 28 : 8,
                 height: 8,
                 borderRadius: 100,
-                background: i === index ? '#c8956c' : 'rgba(200,149,108,0.35)',
+                background: i === index ? 'var(--brand-personal)' : 'rgba(200,149,108,0.35)',
                 transition: 'all 0.2s ease',
               }}
             />
@@ -140,7 +140,7 @@ export function WaveTutorial({ onDismiss }: Props) {
                 background: 'transparent',
                 border: '1px solid rgba(200,149,108,0.4)',
                 borderRadius: 100,
-                color: '#8a7560',
+                color: 'var(--brand-personal-text-mid)',
                 fontSize: 15,
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -156,7 +156,7 @@ export function WaveTutorial({ onDismiss }: Props) {
             style={{
               flex: 1,
               padding: '14px',
-              background: '#c8956c',
+              background: 'var(--brand-personal)',
               border: 'none',
               borderRadius: 100,
               color: 'white',
@@ -179,7 +179,7 @@ export function WaveTutorial({ onDismiss }: Props) {
               marginTop: 14,
               background: 'transparent',
               border: 'none',
-              color: '#a89278',
+              color: 'var(--brand-personal-text-light)',
               fontSize: 13,
               cursor: 'pointer',
               fontFamily: 'inherit',

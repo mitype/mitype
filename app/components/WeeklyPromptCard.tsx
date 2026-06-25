@@ -41,7 +41,7 @@ export function WeeklyPromptCard() {
       >
         <p
           style={{
-            color: '#c8956c',
+            color: 'var(--brand-personal)',
             fontSize: 12,
             fontWeight: 800,
             textTransform: 'uppercase',
@@ -56,7 +56,7 @@ export function WeeklyPromptCard() {
         style={{
           fontSize: 22,
           fontWeight: 900,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           letterSpacing: '-0.3px',
           lineHeight: 1.2,
           margin: '0 0 8px',
@@ -64,7 +64,7 @@ export function WeeklyPromptCard() {
       >
         {prompt.text}
       </h3>
-      <p style={{ color: '#8a7560', fontSize: 14, lineHeight: 1.5, margin: '0 0 18px' }}>
+      <p style={{ color: 'var(--brand-personal-text-mid)', fontSize: 14, lineHeight: 1.5, margin: '0 0 18px' }}>
         {prompt.tagline}
       </p>
       <Link
@@ -72,7 +72,7 @@ export function WeeklyPromptCard() {
         style={{
           display: 'inline-block',
           padding: '10px 22px',
-          background: '#c8956c',
+          background: 'var(--brand-personal)',
           color: 'white',
           borderRadius: 100,
           fontSize: 14,

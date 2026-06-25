@@ -192,11 +192,11 @@ export default function ListingDetailPage() {
   if (loading || !listing) {
     return (
       <main style={{
-        minHeight: '100vh', background: '#f7fdf9',
+        minHeight: '100vh', background: 'var(--brand-market-bg-pale)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
       }}>
-        <p style={{ color: '#3a5d48' }}>Loading…</p>
+        <p style={{ color: 'var(--brand-market-text-mid)' }}>Loading…</p>
       </main>
     );
   }
@@ -208,7 +208,7 @@ export default function ListingDetailPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #f7fdf9 0%, #ecfdf5 100%)',
+      background: 'linear-gradient(180deg, var(--brand-market-bg-pale) 0%, var(--brand-market-bg-mint) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -228,7 +228,7 @@ export default function ListingDetailPage() {
             aspectRatio: '1 / 1',
             background: photos[activePhoto]
               ? `url(${photos[activePhoto]}) center/cover no-repeat`
-              : 'linear-gradient(135deg, #ecfdf5, #bbf7d0)',
+              : 'linear-gradient(135deg, var(--brand-market-bg-mint), #bbf7d0)',
           }}>
             {photos.length === 0 && (
               <div style={{
@@ -272,7 +272,7 @@ export default function ListingDetailPage() {
                   style={{
                     width: 64, height: 64,
                     background: `url(${url}) center/cover no-repeat`,
-                    border: `2px solid ${i === activePhoto ? '#15803d' : 'transparent'}`,
+                    border: `2px solid ${i === activePhoto ? 'var(--brand-market)' : 'transparent'}`,
                     borderRadius: 10,
                     cursor: 'pointer',
                     padding: 0,
@@ -289,7 +289,7 @@ export default function ListingDetailPage() {
           <div style={{
             fontSize: 28,
             fontWeight: 900,
-            color: '#15803d',
+            color: 'var(--brand-market)',
             letterSpacing: '-0.5px',
             marginBottom: 4,
           }}>
@@ -299,7 +299,7 @@ export default function ListingDetailPage() {
             margin: 0,
             fontSize: 22,
             fontWeight: 800,
-            color: '#0f3a23',
+            color: 'var(--brand-market-deep)',
             letterSpacing: '-0.4px',
             lineHeight: 1.25,
           }}>
@@ -307,7 +307,7 @@ export default function ListingDetailPage() {
           </h1>
           <div style={{
             fontSize: 13,
-            color: '#3a5d48',
+            color: 'var(--brand-market-text-mid)',
             marginTop: 8,
             display: 'flex',
             gap: 12,
@@ -334,7 +334,7 @@ export default function ListingDetailPage() {
                 style={{
                   flex: '1 1 200px',
                   padding: '14px 22px',
-                  background: 'linear-gradient(135deg, #15803d, #22c55e)',
+                  background: 'linear-gradient(135deg, var(--brand-market), var(--brand-market-light))',
                   color: 'white',
                   border: 'none',
                   borderRadius: 100,
@@ -355,9 +355,9 @@ export default function ListingDetailPage() {
                 aria-pressed={saved}
                 style={{
                   padding: '14px 18px',
-                  background: saved ? '#15803d' : 'white',
-                  color: saved ? 'white' : '#15803d',
-                  border: `1px solid ${saved ? '#15803d' : 'rgba(21,128,61,0.35)'}`,
+                  background: saved ? 'var(--brand-market)' : 'white',
+                  color: saved ? 'white' : 'var(--brand-market)',
+                  border: `1px solid ${saved ? 'var(--brand-market)' : 'rgba(21,128,61,0.35)'}`,
                   borderRadius: 100,
                   fontSize: 14,
                   fontWeight: 800,
@@ -376,7 +376,7 @@ export default function ListingDetailPage() {
                 style={{
                   flex: '1 1 140px',
                   padding: '13px 22px',
-                  background: '#15803d',
+                  background: 'var(--brand-market)',
                   color: 'white',
                   border: 'none',
                   borderRadius: 100,
@@ -398,7 +398,7 @@ export default function ListingDetailPage() {
                   style={{
                     padding: '13px 18px',
                     background: 'white',
-                    color: '#15803d',
+                    color: 'var(--brand-market)',
                     border: '1px solid rgba(21,128,61,0.35)',
                     borderRadius: 100,
                     fontSize: 14,
@@ -417,7 +417,7 @@ export default function ListingDetailPage() {
                 style={{
                   padding: '13px 18px',
                   background: 'transparent',
-                  color: '#c07070',
+                  color: 'var(--brand-danger-text)',
                   border: '1px solid rgba(220,90,90,0.35)',
                   borderRadius: 100,
                   fontSize: 14,
@@ -444,7 +444,7 @@ export default function ListingDetailPage() {
             <h2 style={{
               fontSize: 13,
               fontWeight: 800,
-              color: '#3a5d48',
+              color: 'var(--brand-market-text-mid)',
               textTransform: 'uppercase',
               letterSpacing: '1px',
               margin: '0 0 10px',
@@ -454,7 +454,7 @@ export default function ListingDetailPage() {
             <p style={{
               margin: 0,
               fontSize: 14.5,
-              color: '#0f3a23',
+              color: 'var(--brand-market-deep)',
               lineHeight: 1.6,
               whiteSpace: 'pre-wrap',
             }}>
@@ -485,11 +485,11 @@ export default function ListingDetailPage() {
               <div style={{ fontSize: 11, color: '#5b7a68', fontWeight: 700, letterSpacing: '0.4px', textTransform: 'uppercase' }}>
                 Seller
               </div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#0f3a23' }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--brand-market-deep)' }}>
                 @{seller.username}
               </div>
             </div>
-            <span aria-hidden="true" style={{ color: '#15803d', fontWeight: 800 }}>→</span>
+            <span aria-hidden="true" style={{ color: 'var(--brand-market)', fontWeight: 800 }}>→</span>
           </Link>
         )}
 
@@ -501,7 +501,7 @@ export default function ListingDetailPage() {
           border: '1px solid rgba(21,128,61,0.2)',
           borderRadius: 14,
           fontSize: 12,
-          color: '#3a5d48',
+          color: 'var(--brand-market-text-mid)',
           lineHeight: 1.5,
         }}>
           <strong>Stay safe:</strong> Mitype is not a party to your transaction. Meet in a public, well-lit place. Inspect the item before paying. Never share your home address until you trust the other party.

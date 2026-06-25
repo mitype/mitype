@@ -77,7 +77,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
           width: '100%',
           maxWidth: 540,
           maxHeight: 'min(92vh, 820px)',
-          background: 'linear-gradient(180deg, #fff9f2 0%, #fff3ec 100%)',
+          background: 'linear-gradient(180deg, #fff9f2 0%, var(--brand-personal-bg-peach) 100%)',
           borderRadius: 28,
           boxShadow: '0 32px 70px rgba(0,0,0,0.4)',
           display: 'flex',
@@ -100,7 +100,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
               alignItems: 'center',
               gap: 8,
               padding: '4px 11px',
-              background: 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+              background: 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
               borderRadius: 100,
               color: 'white',
               fontSize: 11,
@@ -115,7 +115,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
               margin: 0,
               fontSize: 22,
               fontWeight: 900,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: '-0.5px',
               lineHeight: 1.2,
             }}>
@@ -124,7 +124,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
             <p style={{
               margin: '6px 0 0',
               fontSize: 13,
-              color: '#7a6a4f',
+              color: 'var(--brand-personal-text-amber)',
               lineHeight: 1.5,
             }}>
               Six ways Mitype puts your business in front of the right people.
@@ -140,7 +140,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
               borderRadius: '50%',
               background: 'rgba(0,0,0,0.06)',
               border: 'none',
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               fontSize: 17,
               cursor: 'pointer',
               fontFamily: 'inherit',
@@ -177,7 +177,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
                 width: 42,
                 height: 42,
                 borderRadius: 12,
-                background: 'linear-gradient(135deg, #fff3ec, #ffe1c8)',
+                background: 'linear-gradient(135deg, var(--brand-personal-bg-peach), #ffe1c8)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -190,7 +190,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
                 <div style={{
                   fontSize: 15,
                   fontWeight: 800,
-                  color: '#1a1208',
+                  color: 'var(--brand-text-primary)',
                   letterSpacing: '-0.2px',
                   marginBottom: 3,
                 }}>
@@ -199,7 +199,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
                 <p style={{
                   margin: 0,
                   fontSize: 13,
-                  color: '#5b4a36',
+                  color: 'var(--brand-personal-text-deep)',
                   lineHeight: 1.5,
                 }}>
                   {b.body}
@@ -223,7 +223,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
             style={{
               flex: '1 1 220px',
               padding: '14px 22px',
-              background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+              background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
               color: 'white',
               border: 'none',
               borderRadius: 100,
@@ -244,7 +244,7 @@ export function SmallBusinessInfoModal({ open, onClose }: Props) {
             style={{
               padding: '14px 22px',
               background: 'transparent',
-              color: '#8a7560',
+              color: 'var(--brand-personal-text-mid)',
               border: '1px solid rgba(200,149,108,0.35)',
               borderRadius: 100,
               fontSize: 14,

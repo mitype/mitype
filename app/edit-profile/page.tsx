@@ -352,20 +352,20 @@ export default function EditProfilePage() {
   if (loading) return (
     <main style={{
       minHeight: '100vh',
-      background: '#faf6f0',
+      background: 'var(--brand-personal-bg-cream)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
     }}>
-      <p style={{ color: '#c8956c' }}>Loading...</p>
+      <p style={{ color: 'var(--brand-personal)' }}>Loading...</p>
     </main>
   );
 
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -382,13 +382,13 @@ export default function EditProfilePage() {
         <h1 style={{
           fontSize: 36,
           fontWeight: 800,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           marginBottom: 8,
           letterSpacing: '-1px',
         }}>
           Edit Profile
         </h1>
-        <p style={{ color: '#a89278', fontSize: 16, marginBottom: 40 }}>
+        <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 16, marginBottom: 40 }}>
           Update your info, photo, categories and creative portfolio.
         </p>
 
@@ -405,7 +405,7 @@ export default function EditProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -418,7 +418,7 @@ export default function EditProfilePage() {
                 left: 16,
                 top: '50%',
                 transform: 'translateY(-50%)',
-                color: '#c8956c',
+                color: 'var(--brand-personal)',
                 fontWeight: 700,
               }}>@</span>
               <input
@@ -434,7 +434,7 @@ export default function EditProfilePage() {
                   border: '1px solid rgba(200,149,108,0.25)',
                   background: 'white',
                   fontSize: 16,
-                  color: '#1a1208',
+                  color: 'var(--brand-text-primary)',
                   outline: 'none',
                   boxSizing: 'border-box',
                 }}
@@ -448,7 +448,7 @@ export default function EditProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -468,14 +468,14 @@ export default function EditProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
                 resize: 'vertical',
                 fontFamily: "'Helvetica Neue', Arial, sans-serif",
               }}
             />
-            <p style={{ color: '#b0967e', fontSize: 12, marginTop: 4, textAlign: 'right' }}>
+            <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 12, marginTop: 4, textAlign: 'right' }}>
               {bio.length}/500
             </p>
           </div>
@@ -486,14 +486,14 @@ export default function EditProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 4,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}>
               Latest Project
             </label>
-            <p style={{ color: '#b0967e', fontSize: 13, marginBottom: 10 }}>
+            <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginBottom: 10 }}>
               What are you currently working on or excited about? Paste a link to share it.
             </p>
             <input
@@ -509,7 +509,7 @@ export default function EditProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
                 marginBottom: 8,
@@ -535,7 +535,7 @@ export default function EditProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
                 marginBottom: 8,
@@ -547,7 +547,7 @@ export default function EditProfilePage() {
               justifyContent: 'space-between',
               marginBottom: showStatusSuggestions ? 12 : 0,
             }}>
-              <p style={{ color: '#b0967e', fontSize: 12 }}>
+              <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 12 }}>
                 {creativeStatus.length}/100
               </p>
               <button
@@ -558,7 +558,7 @@ export default function EditProfilePage() {
                   background: 'transparent',
                   border: '1px solid rgba(200,149,108,0.3)',
                   borderRadius: 100,
-                  color: '#c8956c',
+                  color: 'var(--brand-personal)',
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -582,7 +582,7 @@ export default function EditProfilePage() {
                 <p style={{
                   fontSize: 12,
                   fontWeight: 700,
-                  color: '#a89278',
+                  color: 'var(--brand-personal-text-light)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                   marginBottom: 4,
@@ -599,10 +599,10 @@ export default function EditProfilePage() {
                     }}
                     style={{
                       padding: '10px 14px',
-                      background: '#faf6f0',
+                      background: 'var(--brand-personal-bg-cream)',
                       border: '1px solid rgba(200,149,108,0.15)',
                       borderRadius: 10,
-                      color: '#6b5744',
+                      color: 'var(--brand-personal-text-head)',
                       fontSize: 13,
                       cursor: 'pointer',
                       textAlign: 'left',
@@ -624,7 +624,7 @@ export default function EditProfilePage() {
               display: 'flex',
               alignItems: 'center',
               gap: 16,
-              background: 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)',
+              background: 'linear-gradient(135deg, var(--brand-business) 0%, var(--brand-business-light) 100%)',
               color: 'white',
               textDecoration: 'none',
               borderRadius: 20,
@@ -667,7 +667,7 @@ export default function EditProfilePage() {
               alignItems: 'center',
               gap: 16,
               background: 'white',
-              color: '#15803d',
+              color: 'var(--brand-market)',
               textDecoration: 'none',
               borderRadius: 20,
               padding: '18px 22px',
@@ -687,7 +687,7 @@ export default function EditProfilePage() {
               <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
                 {hasHomeGoodsShop ? 'Manage your Mi Home Goods shop' : 'Set up Mi Home Goods shop'}
               </span>
-              <span style={{ display: 'block', fontSize: 13, color: '#3a5d48', marginTop: 2, lineHeight: 1.4 }}>
+              <span style={{ display: 'block', fontSize: 13, color: 'var(--brand-market-text-mid)', marginTop: 2, lineHeight: 1.4 }}>
                 {hasHomeGoodsShop
                   ? 'View, edit, mark sold, or post a new listing.'
                   : 'Post things for sale to your Mitype community. Furniture, electronics, vintage finds.'}
@@ -706,14 +706,14 @@ export default function EditProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 4,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}>
               Categories (up to 5)
             </label>
-            <p style={{ color: '#b0967e', fontSize: 13, marginBottom: 16 }}>
+            <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginBottom: 16 }}>
               {selectedCategories.length}/5 selected
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -728,10 +728,10 @@ export default function EditProfilePage() {
                       padding: '8px 16px',
                       borderRadius: 100,
                       border: isSelected
-                        ? '1.5px solid #c8956c'
+                        ? '1.5px solid var(--brand-personal)'
                         : '1px solid rgba(200,149,108,0.2)',
                       background: isSelected ? 'rgba(200,149,108,0.15)' : 'white',
-                      color: isSelected ? '#c8956c' : '#6b5744',
+                      color: isSelected ? 'var(--brand-personal)' : 'var(--brand-personal-text-head)',
                       fontSize: 13,
                       fontWeight: isSelected ? 700 : 400,
                       cursor: 'pointer',
@@ -750,7 +750,7 @@ export default function EditProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -770,13 +770,13 @@ export default function EditProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
                 fontFamily: 'inherit',
               }}
             />
-            <p style={{ color: '#b0967e', fontSize: 12, marginTop: 6 }}>
+            <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 12, marginTop: 6 }}>
               Used to show your age. You must be 18+.
             </p>
           </div>
@@ -787,7 +787,7 @@ export default function EditProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -807,7 +807,7 @@ export default function EditProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -847,9 +847,9 @@ export default function EditProfilePage() {
             borderRadius: 16,
           }}>
             <div style={{ ...fieldLabel, marginBottom: 4 }}>
-              Travel mode <span style={{ color: '#a89278', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
+              Travel mode <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
             </div>
-            <p style={{ fontSize: 12, color: '#7a6a4f', margin: '0 0 12px', lineHeight: 1.4 }}>
+            <p style={{ fontSize: 12, color: 'var(--brand-personal-text-amber)', margin: '0 0 12px', lineHeight: 1.4 }}>
               Heading somewhere for a shoot, festival, or visit? Set where and when so creators there can find you.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10, marginBottom: 10 }}>
@@ -893,7 +893,7 @@ export default function EditProfilePage() {
                   background: 'transparent',
                   border: '1px solid rgba(200,149,108,0.35)',
                   borderRadius: 100,
-                  color: '#8a7560',
+                  color: 'var(--brand-personal-text-mid)',
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -921,7 +921,7 @@ export default function EditProfilePage() {
             }}>
               <div>
                 <div style={fieldLabel}>Open to collab</div>
-                <p style={{ fontSize: 12, color: '#7a6a4f', margin: 0, lineHeight: 1.4 }}>
+                <p style={{ fontSize: 12, color: 'var(--brand-personal-text-amber)', margin: 0, lineHeight: 1.4 }}>
                   Show a bronze pill on your profile so visitors know you're looking.
                 </p>
               </div>
@@ -934,7 +934,7 @@ export default function EditProfilePage() {
                   width: 44,
                   height: 26,
                   borderRadius: 100,
-                  background: openToCollab ? '#c8956c' : 'rgba(200,149,108,0.25)',
+                  background: openToCollab ? 'var(--brand-personal)' : 'rgba(200,149,108,0.25)',
                   border: 'none',
                   cursor: 'pointer',
                   position: 'relative',
@@ -966,7 +966,7 @@ export default function EditProfilePage() {
                   rows={2}
                   style={{ ...fieldInput, fontFamily: 'inherit', resize: 'vertical', minHeight: 56 }}
                 />
-                <div style={{ fontSize: 11, color: '#a89278', marginTop: 4 }}>
+                <div style={{ fontSize: 11, color: 'var(--brand-personal-text-light)', marginTop: 4 }}>
                   {collabPitch.length}/240
                 </div>
               </>
@@ -976,7 +976,7 @@ export default function EditProfilePage() {
           {/* Featured Wave video */}
           <div style={{ marginBottom: 24 }}>
             <label style={fieldLabel}>Featured Wave</label>
-            <p style={{ fontSize: 12, color: '#7a6a4f', margin: '0 0 10px', lineHeight: 1.4 }}>
+            <p style={{ fontSize: 12, color: 'var(--brand-personal-text-amber)', margin: '0 0 10px', lineHeight: 1.4 }}>
               Pin one of your recent Wave videos to the top of your profile.
             </p>
             {myWaveVideos.length === 0 ? (
@@ -985,7 +985,7 @@ export default function EditProfilePage() {
                 background: 'rgba(255,255,255,0.5)',
                 border: '1px dashed rgba(200,149,108,0.3)',
                 borderRadius: 12,
-                color: '#a89278',
+                color: 'var(--brand-personal-text-light)',
                 fontSize: 13,
               }}>
                 No Wave videos yet. Post one and come back to feature it.
@@ -998,7 +998,7 @@ export default function EditProfilePage() {
                   style={waveRowStyle(featuredWaveId === null)}
                 >
                   <span style={{ fontSize: 14, fontWeight: 800 }}>No featured video</span>
-                  <span style={{ fontSize: 11, color: '#7a6a4f' }}>
+                  <span style={{ fontSize: 11, color: 'var(--brand-personal-text-amber)' }}>
                     Don't pin anything to the top.
                   </span>
                 </button>
@@ -1010,12 +1010,12 @@ export default function EditProfilePage() {
                     style={waveRowStyle(featuredWaveId === v.id)}
                   >
                     <span style={{
-                      fontSize: 14, fontWeight: 800, color: '#1a1208',
+                      fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
                       whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                     }}>
                       {v.caption || 'Untitled Wave'}
                     </span>
-                    <span style={{ fontSize: 11, color: '#7a6a4f' }}>
+                    <span style={{ fontSize: 11, color: 'var(--brand-personal-text-amber)' }}>
                       {new Date(v.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                   </button>
@@ -1030,7 +1030,7 @@ export default function EditProfilePage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -1049,7 +1049,7 @@ export default function EditProfilePage() {
                 border: '1px solid rgba(200,149,108,0.25)',
                 background: 'white',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -1069,13 +1069,13 @@ export default function EditProfilePage() {
                   display: 'block',
                   fontSize: 13,
                   fontWeight: 700,
-                  color: '#6b5744',
+                  color: 'var(--brand-personal-text-head)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                 }}>
                   Creative Portfolio
                 </label>
-                <p style={{ color: '#b0967e', fontSize: 13, marginTop: 4 }}>
+                <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginTop: 4 }}>
                   Share your music, art, writing, videos and more
                 </p>
               </div>
@@ -1084,7 +1084,7 @@ export default function EditProfilePage() {
                 onClick={addPortfolioLink}
                 style={{
                   padding: '8px 18px',
-                  background: '#c8956c',
+                  background: 'var(--brand-personal)',
                   color: 'white',
                   border: 'none',
                   borderRadius: 100,
@@ -1105,7 +1105,7 @@ export default function EditProfilePage() {
                 borderRadius: 16,
                 padding: '32px',
                 textAlign: 'center',
-                color: '#a89278',
+                color: 'var(--brand-personal-text-light)',
               }}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>🎨</div>
                 <p style={{ fontSize: 14 }}>No portfolio links yet.</p>
@@ -1129,7 +1129,7 @@ export default function EditProfilePage() {
                       display: 'block',
                       fontSize: 12,
                       fontWeight: 700,
-                      color: '#6b5744',
+                      color: 'var(--brand-personal-text-head)',
                       marginBottom: 6,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
@@ -1144,9 +1144,9 @@ export default function EditProfilePage() {
                         padding: '10px 14px',
                         borderRadius: 10,
                         border: '1px solid rgba(200,149,108,0.25)',
-                        background: '#faf6f0',
+                        background: 'var(--brand-personal-bg-cream)',
                         fontSize: 14,
-                        color: '#1a1208',
+                        color: 'var(--brand-text-primary)',
                         outline: 'none',
                       }}
                     >
@@ -1161,7 +1161,7 @@ export default function EditProfilePage() {
                       display: 'block',
                       fontSize: 12,
                       fontWeight: 700,
-                      color: '#6b5744',
+                      color: 'var(--brand-personal-text-head)',
                       marginBottom: 6,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
@@ -1179,9 +1179,9 @@ export default function EditProfilePage() {
                         padding: '10px 14px',
                         borderRadius: 10,
                         border: '1px solid rgba(200,149,108,0.25)',
-                        background: '#faf6f0',
+                        background: 'var(--brand-personal-bg-cream)',
                         fontSize: 16,
-                        color: '#1a1208',
+                        color: 'var(--brand-text-primary)',
                         outline: 'none',
                         boxSizing: 'border-box',
                       }}
@@ -1193,7 +1193,7 @@ export default function EditProfilePage() {
                       display: 'block',
                       fontSize: 12,
                       fontWeight: 700,
-                      color: '#6b5744',
+                      color: 'var(--brand-personal-text-head)',
                       marginBottom: 6,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
@@ -1210,9 +1210,9 @@ export default function EditProfilePage() {
                         padding: '10px 14px',
                         borderRadius: 10,
                         border: '1px solid rgba(200,149,108,0.25)',
-                        background: '#faf6f0',
+                        background: 'var(--brand-personal-bg-cream)',
                         fontSize: 16,
-                        color: '#1a1208',
+                        color: 'var(--brand-text-primary)',
                         outline: 'none',
                         boxSizing: 'border-box',
                       }}
@@ -1224,10 +1224,10 @@ export default function EditProfilePage() {
                     onClick={() => removePortfolioLink(index)}
                     style={{
                       padding: '6px 16px',
-                      background: '#fff0f0',
+                      background: 'var(--brand-danger-bg)',
                       border: '1px solid rgba(220,100,100,0.2)',
                       borderRadius: 100,
-                      color: '#c07070',
+                      color: 'var(--brand-danger-text)',
                       fontSize: 13,
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -1253,13 +1253,13 @@ export default function EditProfilePage() {
                   display: 'block',
                   fontSize: 13,
                   fontWeight: 700,
-                  color: '#6b5744',
+                  color: 'var(--brand-personal-text-head)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                 }}>
                   Profile Prompts
                 </label>
-                <p style={{ color: '#b0967e', fontSize: 13, marginTop: 4 }}>
+                <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginTop: 4 }}>
                   Pick up to {MAX_PROMPTS} prompts. Short, fun answers work best.
                 </p>
               </div>
@@ -1269,7 +1269,7 @@ export default function EditProfilePage() {
                   onClick={addProfilePrompt}
                   style={{
                     padding: '8px 18px',
-                    background: '#c8956c',
+                    background: 'var(--brand-personal)',
                     color: 'white',
                     border: 'none',
                     borderRadius: 100,
@@ -1291,7 +1291,7 @@ export default function EditProfilePage() {
                 borderRadius: 16,
                 padding: '32px',
                 textAlign: 'center',
-                color: '#a89278',
+                color: 'var(--brand-personal-text-light)',
               }}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>💬</div>
                 <p style={{ fontSize: 14 }}>No prompts yet.</p>
@@ -1322,7 +1322,7 @@ export default function EditProfilePage() {
                         display: 'block',
                         fontSize: 12,
                         fontWeight: 700,
-                        color: '#6b5744',
+                        color: 'var(--brand-personal-text-head)',
                         marginBottom: 6,
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
@@ -1337,9 +1337,9 @@ export default function EditProfilePage() {
                           padding: '10px 14px',
                           borderRadius: 10,
                           border: '1px solid rgba(200,149,108,0.25)',
-                          background: '#faf6f0',
+                          background: 'var(--brand-personal-bg-cream)',
                           fontSize: 14,
-                          color: '#1a1208',
+                          color: 'var(--brand-text-primary)',
                           outline: 'none',
                         }}
                       >
@@ -1358,13 +1358,13 @@ export default function EditProfilePage() {
                         alignItems: 'center',
                         fontSize: 12,
                         fontWeight: 700,
-                        color: '#6b5744',
+                        color: 'var(--brand-personal-text-head)',
                         marginBottom: 6,
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
                       }}>
                         <span>Your answer</span>
-                        <span style={{ color: remaining < 20 ? '#c07070' : '#a89278', fontWeight: 600 }}>
+                        <span style={{ color: remaining < 20 ? 'var(--brand-danger-text)' : 'var(--brand-personal-text-light)', fontWeight: 600 }}>
                           {remaining}
                         </span>
                       </label>
@@ -1379,9 +1379,9 @@ export default function EditProfilePage() {
                           padding: '10px 14px',
                           borderRadius: 10,
                           border: '1px solid rgba(200,149,108,0.25)',
-                          background: '#faf6f0',
+                          background: 'var(--brand-personal-bg-cream)',
                           fontSize: 16,
-                          color: '#1a1208',
+                          color: 'var(--brand-text-primary)',
                           outline: 'none',
                           fontFamily: 'inherit',
                           resize: 'vertical',
@@ -1395,10 +1395,10 @@ export default function EditProfilePage() {
                       onClick={() => removeProfilePrompt(index)}
                       style={{
                         padding: '6px 16px',
-                        background: '#fff0f0',
+                        background: 'var(--brand-danger-bg)',
                         border: '1px solid rgba(220,100,100,0.2)',
                         borderRadius: 100,
-                        color: '#c07070',
+                        color: 'var(--brand-danger-text)',
                         fontSize: 13,
                         fontWeight: 600,
                         cursor: 'pointer',
@@ -1419,7 +1419,7 @@ export default function EditProfilePage() {
             style={{
               width: '100%',
               padding: '16px',
-              background: saving ? '#d4a882' : '#c8956c',
+              background: saving ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
               color: 'white',
               border: 'none',
               borderRadius: 100,
@@ -1480,7 +1480,7 @@ const fieldLabel: React.CSSProperties = {
   display: 'block',
   fontSize: 13,
   fontWeight: 700,
-  color: '#6b5744',
+  color: 'var(--brand-personal-text-head)',
   marginBottom: 8,
   textTransform: 'uppercase',
   letterSpacing: '0.5px',
@@ -1489,7 +1489,7 @@ const subLabel: React.CSSProperties = {
   display: 'block',
   fontSize: 11,
   fontWeight: 700,
-  color: '#7a6a4f',
+  color: 'var(--brand-personal-text-amber)',
   marginBottom: 4,
   textTransform: 'uppercase',
   letterSpacing: '0.4px',
@@ -1502,7 +1502,7 @@ function waveRowStyle(active: boolean): React.CSSProperties {
     gap: 2,
     padding: '10px 14px',
     background: active ? 'rgba(200,149,108,0.18)' : 'white',
-    border: `1px solid ${active ? '#c8956c' : 'rgba(200,149,108,0.22)'}`,
+    border: `1px solid ${active ? 'var(--brand-personal)' : 'rgba(200,149,108,0.22)'}`,
     borderRadius: 12,
     cursor: 'pointer',
     textAlign: 'left',
@@ -1516,7 +1516,7 @@ const fieldInput: React.CSSProperties = {
   border: '1px solid rgba(200,149,108,0.25)',
   background: 'white',
   fontSize: 16,
-  color: '#1a1208',
+  color: 'var(--brand-text-primary)',
   outline: 'none',
   boxSizing: 'border-box',
   fontFamily: 'inherit',

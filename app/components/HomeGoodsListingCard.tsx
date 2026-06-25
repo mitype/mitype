@@ -43,7 +43,7 @@ export function HomeGoodsListingCard({ listing }: { listing: HomeGoodsListingLit
           aspectRatio: '1 / 1',
           background: cover
             ? `url(${cover}) center/cover no-repeat`
-            : 'linear-gradient(135deg, #ecfdf5, #bbf7d0)',
+            : 'linear-gradient(135deg, var(--brand-market-bg-mint), #bbf7d0)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -80,7 +80,7 @@ export function HomeGoodsListingCard({ listing }: { listing: HomeGoodsListingLit
         <div style={{
           fontSize: 17,
           fontWeight: 900,
-          color: '#15803d',
+          color: 'var(--brand-market)',
           letterSpacing: '-0.3px',
           marginBottom: 3,
         }}>
@@ -89,7 +89,7 @@ export function HomeGoodsListingCard({ listing }: { listing: HomeGoodsListingLit
         <div style={{
           fontSize: 14,
           fontWeight: 700,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           letterSpacing: '-0.2px',
           whiteSpace: 'nowrap',
           overflow: 'hidden',

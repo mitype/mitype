@@ -186,7 +186,7 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
           width: '100%',
           maxWidth: 440,
           maxHeight: 'min(92vh, 760px)',
-          background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+          background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           borderRadius: 24,
           boxShadow: '0 24px 60px rgba(0,0,0,0.4)',
           display: 'flex',
@@ -205,7 +205,7 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
             margin: 0,
             fontSize: 21,
             fontWeight: 900,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             letterSpacing: '-0.5px',
           }}>
             New group
@@ -217,7 +217,7 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
             style={{
               width: 32, height: 32, borderRadius: '50%',
               background: 'rgba(0,0,0,0.06)',
-              border: 'none', color: '#1a1208',
+              border: 'none', color: 'var(--brand-text-primary)',
               fontSize: 16, cursor: 'pointer',
               fontFamily: 'inherit',
             }}
@@ -231,7 +231,7 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
           <label style={{
             display: 'block',
             fontSize: 11, fontWeight: 800,
-            color: '#a07a4d', textTransform: 'uppercase',
+            color: 'var(--brand-personal-deep)', textTransform: 'uppercase',
             letterSpacing: '1.4px',
             marginBottom: 6,
           }}>
@@ -252,10 +252,10 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
               fontSize: 16,
               fontFamily: 'inherit',
               outline: 'none',
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
             }}
           />
-          <div style={{ fontSize: 11, color: '#a89278', marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: 'var(--brand-personal-text-light)', marginTop: 4 }}>
             {title.length}/{MAX_TITLE_LEN}
           </div>
         </div>
@@ -264,12 +264,12 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
         <div style={{
           padding: '4px 22px 8px',
           fontSize: 11, fontWeight: 800,
-          color: '#a07a4d', textTransform: 'uppercase',
+          color: 'var(--brand-personal-deep)', textTransform: 'uppercase',
           letterSpacing: '1.4px',
           display: 'flex', justifyContent: 'space-between',
         }}>
           <span>Add members</span>
-          <span style={{ color: '#c8956c' }}>
+          <span style={{ color: 'var(--brand-personal)' }}>
             {selected.size + 1}/{MAX_MEMBERS}
           </span>
         </div>
@@ -289,7 +289,7 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
               fontSize: 16,
               fontFamily: 'inherit',
               outline: 'none',
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
             }}
           />
         </div>
@@ -306,14 +306,14 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
           }}
         >
           {loading ? (
-            <div style={{ padding: 30, textAlign: 'center', color: '#a89278', fontSize: 13 }}>
+            <div style={{ padding: 30, textAlign: 'center', color: 'var(--brand-personal-text-light)', fontSize: 13 }}>
               Loading your connections…
             </div>
           ) : filtered.length === 0 ? (
             <div style={{
               padding: 24,
               textAlign: 'center',
-              color: '#a89278',
+              color: 'var(--brand-personal-text-light)',
               fontSize: 13,
               background: 'rgba(255,255,255,0.4)',
               borderRadius: 12,
@@ -379,9 +379,9 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
                           height: 56,
                           borderRadius: '50%',
                           overflow: 'hidden',
-                          background: '#f0e8df',
+                          background: 'var(--brand-personal-bg-pale)',
                           border: isSelected
-                            ? '2px solid #c8956c'
+                            ? '2px solid var(--brand-personal)'
                             : '1px solid rgba(200,149,108,0.25)',
                           boxShadow: isSelected
                             ? '0 4px 14px rgba(200,149,108,0.35)'
@@ -408,7 +408,7 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
                             width: 20,
                             height: 20,
                             borderRadius: '50%',
-                            background: '#c8956c',
+                            background: 'var(--brand-personal)',
                             color: 'white',
                             display: 'flex',
                             alignItems: 'center',
@@ -427,7 +427,7 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
                       style={{
                         fontSize: 12,
                         fontWeight: 700,
-                        color: '#1a1208',
+                        color: 'var(--brand-text-primary)',
                         textAlign: 'center',
                         lineHeight: 1.2,
                         // Ellipsis on long usernames so they don't
@@ -461,7 +461,7 @@ export function CreateGroupModal({ open, onClose, currentUserId, onCreated }: Pr
               padding: 14,
               background: (creating || selected.size === 0 || !title.trim())
                 ? 'rgba(200,149,108,0.4)'
-                : 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                : 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
               color: 'white',
               border: 'none',
               borderRadius: 100,

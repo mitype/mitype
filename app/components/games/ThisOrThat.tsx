@@ -112,7 +112,7 @@ export function ThisOrThat({ session, currentUserId, updateState }: Props) {
           Round {state.currentRound + 1} of {state.totalRounds}
         </div>
         <div style={{
-          fontSize: 13, fontWeight: 800, color: '#ffd5a8',
+          fontSize: 13, fontWeight: 800, color: 'var(--brand-personal-soft)',
           padding: '4px 12px', background: 'rgba(200,149,108,0.18)',
           borderRadius: 100,
         }}>
@@ -123,7 +123,7 @@ export function ThisOrThat({ session, currentUserId, updateState }: Props) {
       <div style={{ height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 100, overflow: 'hidden' }}>
         <div style={{
           width: `${progressPct}%`, height: '100%',
-          background: 'linear-gradient(90deg, #c8956c, #ffb37c)',
+          background: 'linear-gradient(90deg, var(--brand-personal), var(--brand-personal-light))',
           transition: 'width 0.4s ease',
         }} />
       </div>
@@ -175,7 +175,7 @@ export function ThisOrThat({ session, currentUserId, updateState }: Props) {
           </p>
         )}
         {myPick && !partnerPick && (
-          <p style={{ textAlign: 'center', fontSize: 14, color: '#ffd5a8', margin: 0, fontWeight: 700 }}>
+          <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--brand-personal-soft)', margin: 0, fontWeight: 700 }}>
             Locked in. Waiting on your partner&hellip;
           </p>
         )}
@@ -197,7 +197,7 @@ export function ThisOrThat({ session, currentUserId, updateState }: Props) {
               onClick={nextRound}
               style={{
                 padding: '11px 26px',
-                background: '#c8956c',
+                background: 'var(--brand-personal)',
                 color: 'white',
                 border: 'none', borderRadius: 100,
                 fontSize: 14, fontWeight: 800,
@@ -235,11 +235,11 @@ function BigPick({
         position: 'relative',
         padding: '24px 14px',
         background: both
-          ? 'linear-gradient(135deg, #ffb37c, #c8956c)'
+          ? 'linear-gradient(135deg, var(--brand-personal-light), var(--brand-personal))'
           : picked
-            ? 'linear-gradient(135deg, #c8956c, #a07452)'
+            ? 'linear-gradient(135deg, var(--brand-personal), #a07452)'
             : 'white',
-        color: picked || both ? 'white' : '#1a1208',
+        color: picked || both ? 'white' : 'var(--brand-text-primary)',
         border: 'none',
         borderRadius: 18,
         fontSize: 18,
@@ -262,7 +262,7 @@ function BigPick({
         position: 'absolute',
         top: 10, left: 12,
         fontSize: 10, fontWeight: 900,
-        color: picked || both ? 'rgba(255,255,255,0.85)' : '#c8956c',
+        color: picked || both ? 'rgba(255,255,255,0.85)' : 'var(--brand-personal)',
         letterSpacing: 1.5,
       }}>
         {label}

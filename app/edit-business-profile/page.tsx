@@ -279,7 +279,7 @@ export default function EditBusinessProfilePage() {
 
   if (loading) {
     return (
-      <main style={{ minHeight: '100vh', background: '#f5f0e8', padding: 40, textAlign: 'center' }}>
+      <main style={{ minHeight: '100vh', background: 'var(--brand-personal-bg-cream-deep)', padding: 40, textAlign: 'center' }}>
         Loading…
       </main>
     );
@@ -293,7 +293,7 @@ export default function EditBusinessProfilePage() {
     <main
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+        background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
         paddingBottom: 80,
       }}
@@ -308,10 +308,10 @@ export default function EditBusinessProfilePage() {
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
 
-        <h1 style={{ fontSize: 32, fontWeight: 900, color: '#1a1208', letterSpacing: '-0.6px', marginBottom: 8 }}>
+        <h1 style={{ fontSize: 32, fontWeight: 900, color: 'var(--brand-text-primary)', letterSpacing: '-0.6px', marginBottom: 8 }}>
           Your Business Profile
         </h1>
-        <p style={{ color: '#7a6a85', fontSize: 15, marginBottom: 32, lineHeight: 1.5 }}>
+        <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 15, marginBottom: 32, lineHeight: 1.5 }}>
           Optional. Fill this in if you run a small business and want to be discoverable
           by Mitype members in your area. Logged-in members in your zip code will see your
           profile in the Discover page&apos;s local-business tab.
@@ -324,13 +324,13 @@ export default function EditBusinessProfilePage() {
               type="checkbox"
               checked={isPublished}
               onChange={(e) => setIsPublished(e.target.checked)}
-              style={{ width: 20, height: 20, accentColor: '#8b5cf6' }}
+              style={{ width: 20, height: 20, accentColor: 'var(--brand-business)' }}
             />
             <div>
-              <div style={{ fontWeight: 700, color: '#1a1208', fontSize: 15 }}>
+              <div style={{ fontWeight: 700, color: 'var(--brand-text-primary)', fontSize: 15 }}>
                 Show my business publicly
               </div>
-              <div style={{ color: '#7a6a85', fontSize: 13, marginTop: 2 }}>
+              <div style={{ color: 'var(--brand-business-text-mid)', fontSize: 13, marginTop: 2 }}>
                 Turn this off to save changes without going live.
               </div>
             </div>
@@ -355,7 +355,7 @@ export default function EditBusinessProfilePage() {
               <label style={{
                 display: 'inline-block',
                 padding: '10px 18px',
-                background: '#8b5cf6',
+                background: 'var(--brand-business)',
                 color: 'white',
                 borderRadius: 100,
                 fontSize: 13,
@@ -376,7 +376,7 @@ export default function EditBusinessProfilePage() {
                   style={{ display: 'none' }}
                 />
               </label>
-              <p style={{ color: '#7a6a85', fontSize: 12, marginTop: 8 }}>
+              <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 12, marginTop: 8 }}>
                 Square images look best. Any image file works. Upload
                 whatever size and format you have, big or small.
               </p>
@@ -399,7 +399,7 @@ export default function EditBusinessProfilePage() {
         {/* Category */}
         <SectionCard>
           <SectionLabel>Business category</SectionLabel>
-          <p style={{ color: '#7a6a85', fontSize: 13, margin: '0 0 12px' }}>
+          <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 13, margin: '0 0 12px' }}>
             Pick the one that fits your business best. This is how local Mitype
             members will find you in Discover.
           </p>
@@ -415,8 +415,8 @@ export default function EditBusinessProfilePage() {
               justifyContent: 'space-between',
             }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#7a6a85', textTransform: 'uppercase', letterSpacing: '1px' }}>Selected</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#5b21b6', marginTop: 2 }}>{category}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--brand-business-text-mid)', textTransform: 'uppercase', letterSpacing: '1px' }}>Selected</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand-business-deep)', marginTop: 2 }}>{category}</div>
               </div>
               <button onClick={() => setCategory('')} style={clearButtonStyle}>Clear</button>
             </div>
@@ -442,9 +442,9 @@ export default function EditBusinessProfilePage() {
                   type="button"
                   onClick={() => setCategory(cat)}
                   style={{
-                    background: selected ? '#8b5cf6' : 'white',
-                    border: `1px solid ${selected ? '#8b5cf6' : 'rgba(139,92,246,0.2)'}`,
-                    color: selected ? 'white' : '#5b21b6',
+                    background: selected ? 'var(--brand-business)' : 'white',
+                    border: `1px solid ${selected ? 'var(--brand-business)' : 'rgba(139,92,246,0.2)'}`,
+                    color: selected ? 'white' : 'var(--brand-business-deep)',
                     padding: '6px 12px',
                     borderRadius: 100,
                     fontSize: 12,
@@ -496,13 +496,13 @@ export default function EditBusinessProfilePage() {
               type="checkbox"
               checked={isOnlineOnly}
               onChange={(e) => setIsOnlineOnly(e.target.checked)}
-              style={{ width: 20, height: 20, accentColor: '#8b5cf6' }}
+              style={{ width: 20, height: 20, accentColor: 'var(--brand-business)' }}
             />
             <div>
-              <div style={{ fontWeight: 700, color: '#1a1208', fontSize: 15 }}>
+              <div style={{ fontWeight: 700, color: 'var(--brand-text-primary)', fontSize: 15 }}>
                 🌐 This is an online-only business
               </div>
-              <div style={{ color: '#7a6a85', fontSize: 13, marginTop: 2 }}>
+              <div style={{ color: 'var(--brand-business-text-mid)', fontSize: 13, marginTop: 2 }}>
                 Hides the address fields and shows your website + a label
                 like &ldquo;Online Boutique&rdquo; on your business profile.
               </div>
@@ -549,7 +549,7 @@ export default function EditBusinessProfilePage() {
             </Field>
           </FieldGrid>
           <label style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12, cursor: 'pointer' }}>
-            <input type="checkbox" checked={hideAddress} onChange={(e) => setHideAddress(e.target.checked)} style={{ width: 18, height: 18, accentColor: '#8b5cf6' }} />
+            <input type="checkbox" checked={hideAddress} onChange={(e) => setHideAddress(e.target.checked)} style={{ width: 18, height: 18, accentColor: 'var(--brand-business)' }} />
             <span style={{ fontSize: 13, color: '#3a2e4d' }}>
               Hide my street address publicly (only show city + state).
             </span>
@@ -576,12 +576,12 @@ export default function EditBusinessProfilePage() {
         {/* Events */}
         <SectionCard>
           <SectionLabel>Upcoming events</SectionLabel>
-          <p style={{ color: '#7a6a85', fontSize: 13, margin: '0 0 12px' }}>
+          <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 13, margin: '0 0 12px' }}>
             Add any upcoming events, classes, pop-ups, or specials.
             Past events automatically hide.
           </p>
           {events.length === 0 && (
-            <p style={{ color: '#7a6a85', fontSize: 13, fontStyle: 'italic' }}>
+            <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 13, fontStyle: 'italic' }}>
               No events yet.
             </p>
           )}
@@ -638,7 +638,7 @@ export default function EditBusinessProfilePage() {
             style={{
               padding: '10px 18px',
               background: 'rgba(139,92,246,0.1)',
-              color: '#5b21b6',
+              color: 'var(--brand-business-deep)',
               border: '1px dashed rgba(139,92,246,0.45)',
               borderRadius: 100,
               fontSize: 13,
@@ -658,7 +658,7 @@ export default function EditBusinessProfilePage() {
             width: '100%',
             marginTop: 12,
             padding: '16px',
-            background: '#8b5cf6',
+            background: 'var(--brand-business)',
             color: 'white',
             border: 'none',
             borderRadius: 100,
@@ -705,7 +705,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     <div style={{
       fontSize: 12,
       fontWeight: 800,
-      color: '#5b21b6',
+      color: 'var(--brand-business-deep)',
       textTransform: 'uppercase',
       letterSpacing: '1.5px',
       marginBottom: 12,
@@ -730,7 +730,7 @@ function FieldGrid({ children }: { children: React.ReactNode }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label style={{ display: 'block' }}>
-      <span style={{ fontSize: 11, fontWeight: 700, color: '#7a6a85', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'block', marginBottom: 6 }}>
+      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--brand-business-text-mid)', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'block', marginBottom: 6 }}>
         {label}
       </span>
       {children}
@@ -745,7 +745,7 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid rgba(139,92,246,0.22)',
   background: '#fbfaff',
   fontSize: 16,
-  color: '#1a1208',
+  color: 'var(--brand-text-primary)',
   outline: 'none',
   boxSizing: 'border-box',
   fontFamily: 'inherit',
@@ -754,7 +754,7 @@ const inputStyle: React.CSSProperties = {
 const clearButtonStyle: React.CSSProperties = {
   background: 'transparent',
   border: 'none',
-  color: '#7a6a85',
+  color: 'var(--brand-business-text-mid)',
   fontSize: 13,
   fontWeight: 700,
   cursor: 'pointer',

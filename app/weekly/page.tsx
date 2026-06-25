@@ -267,7 +267,7 @@ export default function WeeklyPromptPage() {
     <main
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+        background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
         paddingBottom: 80,
       }}
@@ -296,7 +296,7 @@ export default function WeeklyPromptPage() {
         >
           <p
             style={{
-              color: '#c8956c',
+              color: 'var(--brand-personal)',
               fontSize: 12,
               fontWeight: 800,
               textTransform: 'uppercase',
@@ -310,7 +310,7 @@ export default function WeeklyPromptPage() {
             style={{
               fontSize: 34,
               fontWeight: 900,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: '-0.5px',
               lineHeight: 1.15,
               margin: '0 0 12px',
@@ -318,7 +318,7 @@ export default function WeeklyPromptPage() {
           >
             {prompt.text}
           </h1>
-          <p style={{ color: '#8a7560', fontSize: 15, lineHeight: 1.5, margin: 0 }}>
+          <p style={{ color: 'var(--brand-personal-text-mid)', fontSize: 15, lineHeight: 1.5, margin: 0 }}>
             {prompt.tagline}
           </p>
         </div>
@@ -349,13 +349,13 @@ export default function WeeklyPromptPage() {
             style={{
               fontSize: 18,
               fontWeight: 800,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               marginBottom: 4,
             }}
           >
             Community answers
           </h2>
-          <p style={{ color: '#a89278', fontSize: 13, margin: '0 0 20px' }}>
+          <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 13, margin: '0 0 20px' }}>
             Ranked by upvotes. Tap an avatar to view a profile.
           </p>
 
@@ -369,7 +369,7 @@ export default function WeeklyPromptPage() {
                 borderRadius: 20,
                 padding: '40px 24px',
                 textAlign: 'center',
-                color: '#a89278',
+                color: 'var(--brand-personal-text-light)',
               }}
             >
               <div style={{ fontSize: 40, marginBottom: 8 }}>🌱</div>
@@ -467,7 +467,7 @@ function ComposeBlock({
         >
           <p
             style={{
-              color: '#c8956c',
+              color: 'var(--brand-personal)',
               fontSize: 12,
               fontWeight: 700,
               textTransform: 'uppercase',
@@ -490,7 +490,7 @@ function ComposeBlock({
               type="button"
               onClick={onDelete}
               aria-label="Delete your answer"
-              style={{ ...smallButtonStyle, color: '#c07070', borderColor: 'rgba(220,100,100,0.25)' }}
+              style={{ ...smallButtonStyle, color: 'var(--brand-danger-text)', borderColor: 'rgba(220,100,100,0.25)' }}
             >
               Delete
             </button>
@@ -498,7 +498,7 @@ function ComposeBlock({
         </div>
         <p
           style={{
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             fontSize: 15,
             lineHeight: 1.6,
             margin: 0,
@@ -524,7 +524,7 @@ function ComposeBlock({
     >
       <p
         style={{
-          color: '#c8956c',
+          color: 'var(--brand-personal)',
           fontSize: 12,
           fontWeight: 700,
           textTransform: 'uppercase',
@@ -544,10 +544,10 @@ function ComposeBlock({
           width: '100%',
           padding: '14px 16px',
           borderRadius: 14,
-          border: `1px solid ${overLimit ? '#c07070' : 'rgba(200,149,108,0.25)'}`,
-          background: '#faf6f0',
+          border: `1px solid ${overLimit ? 'var(--brand-danger-text)' : 'rgba(200,149,108,0.25)'}`,
+          background: 'var(--brand-personal-bg-cream)',
           fontSize: 16,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           fontFamily: 'inherit',
           resize: 'vertical',
           lineHeight: 1.6,
@@ -567,7 +567,7 @@ function ComposeBlock({
       >
         <p
           style={{
-            color: overLimit ? '#c07070' : '#a89278',
+            color: overLimit ? 'var(--brand-danger-text)' : 'var(--brand-personal-text-light)',
             fontSize: 12,
             margin: 0,
           }}
@@ -594,7 +594,7 @@ function ComposeBlock({
             aria-label={myAnswer ? 'Save answer' : 'Post answer'}
             style={{
               padding: '10px 22px',
-              background: submitting || !draft.trim() || overLimit ? '#d4a882' : '#c8956c',
+              background: submitting || !draft.trim() || overLimit ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
               color: 'white',
               border: 'none',
               borderRadius: 100,
@@ -647,7 +647,7 @@ function AnswerCard({ data, isMine, onToggleVote }: AnswerCardProps) {
             width: 44,
             height: 44,
             borderRadius: '50%',
-            background: '#f0e8df',
+            background: 'var(--brand-personal-bg-pale)',
             overflow: 'hidden',
             border: '1px solid rgba(200,149,108,0.2)',
           }}
@@ -676,7 +676,7 @@ function AnswerCard({ data, isMine, onToggleVote }: AnswerCardProps) {
           <Link
             href={profile ? `/profile/${username}` : '#'}
             style={{
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               fontSize: 14,
               fontWeight: 800,
               textDecoration: 'none',
@@ -688,7 +688,7 @@ function AnswerCard({ data, isMine, onToggleVote }: AnswerCardProps) {
             <span
               style={{
                 background: 'rgba(200,149,108,0.12)',
-                color: '#c8956c',
+                color: 'var(--brand-personal)',
                 fontSize: 11,
                 fontWeight: 700,
                 padding: '2px 8px',
@@ -701,7 +701,7 @@ function AnswerCard({ data, isMine, onToggleVote }: AnswerCardProps) {
         </div>
         <p
           style={{
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             fontSize: 14,
             lineHeight: 1.6,
             margin: 0,
@@ -734,9 +734,9 @@ function AnswerCard({ data, isMine, onToggleVote }: AnswerCardProps) {
           minWidth: 56,
           padding: '8px 10px',
           borderRadius: 14,
-          background: viewerHasVoted ? '#c8956c' : 'white',
-          border: `1px solid ${viewerHasVoted ? '#c8956c' : 'rgba(200,149,108,0.25)'}`,
-          color: viewerHasVoted ? 'white' : '#c8956c',
+          background: viewerHasVoted ? 'var(--brand-personal)' : 'white',
+          border: `1px solid ${viewerHasVoted ? 'var(--brand-personal)' : 'rgba(200,149,108,0.25)'}`,
+          color: viewerHasVoted ? 'white' : 'var(--brand-personal)',
           fontSize: 13,
           fontWeight: 700,
           cursor: isMine ? 'not-allowed' : 'pointer',
@@ -758,7 +758,7 @@ function PageSkeleton({ weekLabel, promptText }: { weekLabel: string; promptText
     <main
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+        background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
         padding: '40px 24px',
       }}
     >
@@ -773,10 +773,10 @@ function PageSkeleton({ weekLabel, promptText }: { weekLabel: string; promptText
             marginBottom: 28,
           }}
         >
-          <p style={{ color: '#c8956c', fontSize: 12, fontWeight: 800, letterSpacing: '1.5px', margin: '0 0 12px' }}>
+          <p style={{ color: 'var(--brand-personal)', fontSize: 12, fontWeight: 800, letterSpacing: '1.5px', margin: '0 0 12px' }}>
             ✨ WEEKLY CREATIVE PROMPT · {weekLabel}
           </p>
-          <h1 style={{ fontSize: 30, fontWeight: 900, color: '#1a1208', margin: 0, lineHeight: 1.15 }}>
+          <h1 style={{ fontSize: 30, fontWeight: 900, color: 'var(--brand-text-primary)', margin: 0, lineHeight: 1.15 }}>
             {promptText}
           </h1>
         </div>
@@ -815,7 +815,7 @@ function FeedSkeleton() {
 }
 
 const navLinkStyle: React.CSSProperties = {
-  color: '#8a7560',
+  color: 'var(--brand-personal-text-mid)',
   textDecoration: 'none',
   fontSize: 14,
   fontWeight: 600,
@@ -828,7 +828,7 @@ const smallButtonStyle: React.CSSProperties = {
   background: 'transparent',
   border: '1px solid rgba(200,149,108,0.3)',
   borderRadius: 100,
-  color: '#8a7560',
+  color: 'var(--brand-personal-text-mid)',
   fontSize: 12,
   fontWeight: 600,
   cursor: 'pointer',

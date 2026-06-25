@@ -241,7 +241,7 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
         </div>
         <div style={{
           fontSize: 11, fontWeight: 700,
-          color: '#ffd5a8',
+          color: 'var(--brand-personal-soft)',
           padding: '3px 10px',
           background: 'rgba(200,149,108,0.18)',
           borderRadius: 100,
@@ -261,7 +261,7 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
       }}>
         <p style={{
           fontSize: 11, fontWeight: 800,
-          color: '#ffd5a8',
+          color: 'var(--brand-personal-soft)',
           textTransform: 'uppercase', letterSpacing: '1.4px',
           margin: '0 0 10px',
         }}>
@@ -286,7 +286,7 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
                 const isMe = t.authorId === currentUserId;
                 return (
                   <span key={i} style={{
-                    color: isMe ? '#ffd5a8' : 'white',
+                    color: isMe ? 'var(--brand-personal-soft)' : 'white',
                   }}>
                     {' '}{t.text}
                   </span>
@@ -298,7 +298,7 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
               marginTop: 10,
               fontWeight: 600,
             }}>
-              <span style={{ color: '#ffd5a8' }}>You</span> · <span style={{ color: 'white' }}>Them</span>
+              <span style={{ color: 'var(--brand-personal-soft)' }}>You</span> · <span style={{ color: 'white' }}>Them</span>
             </p>
           </div>
         )}
@@ -345,7 +345,7 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
                   disabled={!draft.trim() || submitting}
                   style={{
                     padding: '10px 22px',
-                    background: !draft.trim() ? 'rgba(200,149,108,0.4)' : '#c8956c',
+                    background: !draft.trim() ? 'rgba(200,149,108,0.4)' : 'var(--brand-personal)',
                     color: 'white',
                     border: 'none', borderRadius: 100,
                     fontSize: 14, fontWeight: 800,
@@ -359,7 +359,7 @@ export function StoryBuilder({ session, currentUserId, updateState }: Props) {
               </div>
             </div>
           ) : (
-            <p style={{ textAlign: 'center', fontSize: 14, color: '#ffd5a8', fontWeight: 700, margin: '8px 0' }}>
+            <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--brand-personal-soft)', fontWeight: 700, margin: '8px 0' }}>
               ✍️ Partner&rsquo;s turn. Waiting on them…
             </p>
           )}
@@ -441,7 +441,7 @@ const exportBtn: React.CSSProperties = {
 
 const primaryBtn: React.CSSProperties = {
   padding: '11px 26px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none', borderRadius: 100,
   fontSize: 14, fontWeight: 800,

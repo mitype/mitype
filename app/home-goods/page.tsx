@@ -115,7 +115,7 @@ export default function HomeGoodsBrowsePage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #f7fdf9 0%, #ecfdf5 100%)',
+      background: 'linear-gradient(180deg, var(--brand-market-bg-pale) 0%, var(--brand-market-bg-mint) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -137,7 +137,7 @@ export default function HomeGoodsBrowsePage() {
               alignItems: 'center',
               gap: 8,
               padding: '4px 12px',
-              background: 'linear-gradient(135deg, #15803d, #22c55e)',
+              background: 'linear-gradient(135deg, var(--brand-market), var(--brand-market-light))',
               borderRadius: 100,
               color: 'white',
               fontSize: 11,
@@ -152,7 +152,7 @@ export default function HomeGoodsBrowsePage() {
               margin: 0,
               fontSize: 30,
               fontWeight: 900,
-              color: '#0f3a23',
+              color: 'var(--brand-market-deep)',
               letterSpacing: '-0.8px',
               lineHeight: 1.1,
             }}>
@@ -160,7 +160,7 @@ export default function HomeGoodsBrowsePage() {
             </h1>
             <p style={{
               margin: '6px 0 0',
-              color: '#3a5d48',
+              color: 'var(--brand-market-text-mid)',
               fontSize: 14,
               lineHeight: 1.5,
               maxWidth: 560,
@@ -174,7 +174,7 @@ export default function HomeGoodsBrowsePage() {
               style={{
                 padding: '11px 20px',
                 background: 'white',
-                color: '#15803d',
+                color: 'var(--brand-market)',
                 border: '1px solid rgba(21,128,61,0.35)',
                 borderRadius: 100,
                 fontSize: 14,
@@ -190,7 +190,7 @@ export default function HomeGoodsBrowsePage() {
               onClick={handleSellClick}
               style={{
                 padding: '11px 22px',
-                background: 'linear-gradient(135deg, #15803d, #22c55e)',
+                background: 'linear-gradient(135deg, var(--brand-market), var(--brand-market-light))',
                 color: 'white',
                 border: 'none',
                 borderRadius: 100,
@@ -221,12 +221,12 @@ export default function HomeGoodsBrowsePage() {
             alignItems: 'center',
             gap: 10,
             padding: '8px 12px',
-            background: '#f7fdf9',
+            background: 'var(--brand-market-bg-pale)',
             border: '1px solid rgba(21,128,61,0.18)',
             borderRadius: 100,
             marginBottom: 12,
           }}>
-            <span aria-hidden="true" style={{ fontSize: 16, color: '#3a5d48' }}>🔍</span>
+            <span aria-hidden="true" style={{ fontSize: 16, color: 'var(--brand-market-text-mid)' }}>🔍</span>
             <input
               type="search"
               inputMode="search"
@@ -244,7 +244,7 @@ export default function HomeGoodsBrowsePage() {
                 outline: 'none',
                 background: 'transparent',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 fontFamily: 'inherit',
                 minWidth: 0,
               }}
@@ -259,7 +259,7 @@ export default function HomeGoodsBrowsePage() {
                   border: 'none',
                   borderRadius: '50%',
                   background: 'rgba(21,128,61,0.12)',
-                  color: '#3a5d48',
+                  color: 'var(--brand-market-text-mid)',
                   fontSize: 13,
                   cursor: 'pointer',
                   fontFamily: 'inherit',
@@ -306,7 +306,7 @@ export default function HomeGoodsBrowsePage() {
             background: 'rgba(255,255,255,0.6)',
             border: '1px dashed rgba(21,128,61,0.3)',
             borderRadius: 18,
-            color: '#3a5d48',
+            color: 'var(--brand-market-text-mid)',
             fontSize: 14,
             lineHeight: 1.6,
           }}>
@@ -315,7 +315,7 @@ export default function HomeGoodsBrowsePage() {
               <p style={{ margin: 0 }}>Nothing matches those filters yet.</p>
             ) : (
               <>
-                <p style={{ margin: '0 0 6px', fontWeight: 800, color: '#0f3a23' }}>
+                <p style={{ margin: '0 0 6px', fontWeight: 800, color: 'var(--brand-market-deep)' }}>
                   No listings yet
                 </p>
                 <p style={{ margin: 0 }}>
@@ -323,7 +323,7 @@ export default function HomeGoodsBrowsePage() {
                   members post their Mi Home Goods listings.
                 </p>
                 {sellersTipShown && (
-                  <p style={{ margin: '10px 0 0', fontWeight: 700, color: '#15803d' }}>
+                  <p style={{ margin: '10px 0 0', fontWeight: 700, color: 'var(--brand-market)' }}>
                     Be the first. Tap "+ Sell something" above.
                   </p>
                 )}
@@ -370,9 +370,9 @@ function FilterChip({ label, active, onClick }: {
       onClick={onClick}
       style={{
         padding: '6px 12px',
-        background: active ? '#15803d' : 'white',
-        color: active ? 'white' : '#3a5d48',
-        border: `1px solid ${active ? '#15803d' : 'rgba(21,128,61,0.25)'}`,
+        background: active ? 'var(--brand-market)' : 'white',
+        color: active ? 'white' : 'var(--brand-market-text-mid)',
+        border: `1px solid ${active ? 'var(--brand-market)' : 'rgba(21,128,61,0.25)'}`,
         borderRadius: 100,
         fontSize: 12,
         fontWeight: 700,

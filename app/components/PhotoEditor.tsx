@@ -464,7 +464,7 @@ export function PhotoEditor({ file, imageUrl, initialAspect = '1:1', onSave, onC
         justifyContent: 'center',
         padding: 12,
         overflow: 'hidden',
-        background: 'radial-gradient(circle at center, #1a1208, #0a0604)',
+        background: 'radial-gradient(circle at center, var(--brand-text-primary), #0a0604)',
         minHeight: 240,
       }}>
         {!img && (
@@ -1052,7 +1052,7 @@ function tabBtn(active: boolean): React.CSSProperties {
     flex: 1,
     background: active ? 'rgba(200,149,108,0.18)' : 'transparent',
     border: 'none',
-    color: active ? '#ffd5a8' : 'rgba(255,255,255,0.7)',
+    color: active ? 'var(--brand-personal-soft)' : 'rgba(255,255,255,0.7)',
     fontSize: 13,
     fontWeight: 700,
     padding: '10px 6px',
@@ -1112,8 +1112,8 @@ function Chip({ active, onClick, children }: { active?: boolean; onClick: () => 
       type="button"
       onClick={onClick}
       style={{
-        background: active ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.08)',
-        color: active ? '#1a1208' : 'white',
+        background: active ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.08)',
+        color: active ? 'var(--brand-text-primary)' : 'white',
         border: active ? 'none' : '1px solid rgba(255,255,255,0.12)',
         padding: '8px 14px',
         borderRadius: 100,
@@ -1144,7 +1144,7 @@ function Slider({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
         <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 700 }}>{label}</span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 12, color: dirty ? '#ffd5a8' : 'rgba(255,255,255,0.55)', minWidth: 32, textAlign: 'right' }}>
+          <span style={{ fontSize: 12, color: dirty ? 'var(--brand-personal-soft)' : 'rgba(255,255,255,0.55)', minWidth: 32, textAlign: 'right' }}>
             {value}
           </span>
           {dirty && (
@@ -1174,7 +1174,7 @@ function Slider({
         max={max}
         value={value}
         onChange={(e) => setValue(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#c8956c' }}
+        style={{ width: '100%', accentColor: 'var(--brand-personal)' }}
       />
     </div>
   );
@@ -1191,7 +1191,7 @@ const ghostBtn: React.CSSProperties = {
   padding: '8px 10px',
 };
 const primaryBtn: React.CSSProperties = {
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   border: 'none',
   color: 'white',
   fontSize: 14,

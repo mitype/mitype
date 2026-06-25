@@ -161,7 +161,7 @@ export function DiscoverSearch({ onActiveChange }: Props) {
         boxShadow: '0 4px 12px rgba(200,149,108,0.08)',
         marginBottom: active ? 14 : 24,
       }}>
-        <span aria-hidden="true" style={{ fontSize: 16, color: '#a89278', lineHeight: 1 }}>🔍</span>
+        <span aria-hidden="true" style={{ fontSize: 16, color: 'var(--brand-personal-text-light)', lineHeight: 1 }}>🔍</span>
         <input
           type="search"
           inputMode="search"
@@ -180,7 +180,7 @@ export function DiscoverSearch({ onActiveChange }: Props) {
             background: 'transparent',
             // 16px keeps iOS Safari from zooming the page on focus.
             fontSize: 16,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             fontFamily: 'inherit',
             minWidth: 0,
           }}
@@ -195,7 +195,7 @@ export function DiscoverSearch({ onActiveChange }: Props) {
               border: 'none',
               borderRadius: '50%',
               background: 'rgba(200,149,108,0.12)',
-              color: '#8a7560',
+              color: 'var(--brand-personal-text-mid)',
               fontSize: 13,
               cursor: 'pointer',
               fontFamily: 'inherit',
@@ -266,9 +266,9 @@ function TabPill({ label, count, active, onClick }: {
       onClick={onClick}
       style={{
         padding: '6px 12px',
-        background: active ? '#c8956c' : 'white',
+        background: active ? 'var(--brand-personal)' : 'white',
         color: active ? 'white' : '#6b4f33',
-        border: `1px solid ${active ? '#c8956c' : 'rgba(200,149,108,0.3)'}`,
+        border: `1px solid ${active ? 'var(--brand-personal)' : 'rgba(200,149,108,0.3)'}`,
         borderRadius: 100,
         fontSize: 12,
         fontWeight: 800,
@@ -305,21 +305,21 @@ function PersonCard({ hit }: { hit: ProfileHit }) {
       <Avatar src={hit.avatar_url} alt={`@${hit.username}`} width={42} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontSize: 14, fontWeight: 800, color: '#1a1208',
+          fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
           @{hit.username}
         </div>
         {hit.bio && (
           <div style={{
-            fontSize: 12, color: '#7a6a4f',
+            fontSize: 12, color: 'var(--brand-personal-text-amber)',
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
             {hit.bio}
           </div>
         )}
       </div>
-      <span aria-hidden="true" style={{ color: '#c8956c', fontWeight: 800, fontSize: 16 }}>→</span>
+      <span aria-hidden="true" style={{ color: 'var(--brand-personal)', fontWeight: 800, fontSize: 16 }}>→</span>
     </Link>
   );
 }
@@ -332,7 +332,7 @@ function RoomCard({ hit }: { hit: RoomHit }) {
     >
       <div style={{
         width: 42, height: 42, borderRadius: 12,
-        background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+        background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: 20, color: 'white', flexShrink: 0,
       }}>
@@ -340,16 +340,16 @@ function RoomCard({ hit }: { hit: RoomHit }) {
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontSize: 14, fontWeight: 800, color: '#1a1208',
+          fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
           {hit.title}
         </div>
-        <div style={{ fontSize: 11, color: '#7a6a4f' }}>
+        <div style={{ fontSize: 11, color: 'var(--brand-personal-text-amber)' }}>
           {hit.participant_count} member{hit.participant_count === 1 ? '' : 's'} · {roomCategoryLabel(hit.category)}
         </div>
       </div>
-      <span aria-hidden="true" style={{ color: '#c8956c', fontWeight: 800, fontSize: 16 }}>→</span>
+      <span aria-hidden="true" style={{ color: 'var(--brand-personal)', fontWeight: 800, fontSize: 16 }}>→</span>
     </Link>
   );
 }
@@ -363,7 +363,7 @@ function BusinessCard({ hit }: { hit: BusinessHit }) {
     >
       <div style={{
         width: 42, height: 42, borderRadius: 12,
-        background: hit.logo_url ? `url(${hit.logo_url})` : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+        background: hit.logo_url ? `url(${hit.logo_url})` : 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
         backgroundSize: 'cover', backgroundPosition: 'center',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: 18, color: 'white', flexShrink: 0,
@@ -372,16 +372,16 @@ function BusinessCard({ hit }: { hit: BusinessHit }) {
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontSize: 14, fontWeight: 800, color: '#1a1208',
+          fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
           {hit.business_name}
         </div>
         {hit.category && (
-          <div style={{ fontSize: 11, color: '#7a6a85' }}>{hit.category}</div>
+          <div style={{ fontSize: 11, color: 'var(--brand-business-text-mid)' }}>{hit.category}</div>
         )}
       </div>
-      <span aria-hidden="true" style={{ color: '#8b5cf6', fontWeight: 800, fontSize: 16 }}>→</span>
+      <span aria-hidden="true" style={{ color: 'var(--brand-business)', fontWeight: 800, fontSize: 16 }}>→</span>
     </Link>
   );
 }
@@ -394,7 +394,7 @@ function EmptyState({ message }: { message: string }) {
       background: 'rgba(255,255,255,0.6)',
       border: '1px dashed rgba(200,149,108,0.3)',
       borderRadius: 16,
-      color: '#a89278',
+      color: 'var(--brand-personal-text-light)',
       fontSize: 13,
     }}>
       {message}

@@ -12,10 +12,10 @@ import {
   type GameStart,
 } from '../lib/games';
 
-const PEACH = '#c8956c';
-const INK = '#1a1208';
-const MUTED = '#8a7560';
-const CREAM = '#faf6f0';
+const PEACH = 'var(--brand-personal)';
+const INK = 'var(--brand-text-primary)';
+const MUTED = 'var(--brand-personal-text-mid)';
+const CREAM = 'var(--brand-personal-bg-cream)';
 
 type Step = 'pick' | 'ttl' | 'wyr' | 'emoji';
 

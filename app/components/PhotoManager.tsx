@@ -135,21 +135,21 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
               display: 'block',
               fontSize: 13,
               fontWeight: 700,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}
           >
             Photos
           </label>
-          <p style={{ color: '#b0967e', fontSize: 13, marginTop: 4 }}>
+          <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginTop: 4 }}>
             Up to {MAX_PHOTOS}. The first photo is your main profile picture.
           </p>
         </div>
         <label
           style={{
             padding: '8px 18px',
-            background: photos.length >= MAX_PHOTOS ? '#d4a882' : '#c8956c',
+            background: photos.length >= MAX_PHOTOS ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
             color: 'white',
             border: 'none',
             borderRadius: 100,
@@ -178,7 +178,7 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
             borderRadius: 16,
             padding: '32px',
             textAlign: 'center',
-            color: '#a89278',
+            color: 'var(--brand-personal-text-light)',
             marginTop: 16,
           }}
         >
@@ -204,7 +204,7 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
                 background: 'white',
                 border:
                   i === 0
-                    ? '2px solid #c8956c'
+                    ? '2px solid var(--brand-personal)'
                     : '1px solid rgba(200,149,108,0.2)',
                 borderRadius: 14,
                 overflow: 'hidden',
@@ -216,7 +216,7 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
                   position: 'relative',
                   width: '100%',
                   aspectRatio: '3/4',
-                  background: '#f0e8df',
+                  background: 'var(--brand-personal-bg-pale)',
                 }}
               >
                 <Image
@@ -232,7 +232,7 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
                       position: 'absolute',
                       top: 8,
                       left: 8,
-                      background: '#c8956c',
+                      background: 'var(--brand-personal)',
                       color: 'white',
                       fontSize: 10,
                       fontWeight: 800,
@@ -263,10 +263,10 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
                     aria-label="Move up"
                     style={{
                       padding: '4px 8px',
-                      background: i === 0 ? '#f5f0e8' : '#faf6f0',
+                      background: i === 0 ? 'var(--brand-personal-bg-cream-deep)' : 'var(--brand-personal-bg-cream)',
                       border: '1px solid rgba(200,149,108,0.25)',
                       borderRadius: 8,
-                      color: i === 0 ? '#cbb9a4' : '#6b5744',
+                      color: i === 0 ? '#cbb9a4' : 'var(--brand-personal-text-head)',
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: i === 0 ? 'not-allowed' : 'pointer',
@@ -281,10 +281,10 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
                     aria-label="Move down"
                     style={{
                       padding: '4px 8px',
-                      background: i === photos.length - 1 ? '#f5f0e8' : '#faf6f0',
+                      background: i === photos.length - 1 ? 'var(--brand-personal-bg-cream-deep)' : 'var(--brand-personal-bg-cream)',
                       border: '1px solid rgba(200,149,108,0.25)',
                       borderRadius: 8,
-                      color: i === photos.length - 1 ? '#cbb9a4' : '#6b5744',
+                      color: i === photos.length - 1 ? '#cbb9a4' : 'var(--brand-personal-text-head)',
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: i === photos.length - 1 ? 'not-allowed' : 'pointer',
@@ -300,7 +300,7 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
                     aria-label={`Edit photo ${i + 1}`}
                     style={{
                       padding: '4px 10px',
-                      background: '#fff8ec',
+                      background: 'var(--brand-personal-bg-peach-warm)',
                       border: '1px solid rgba(200,149,108,0.3)',
                       borderRadius: 8,
                       color: '#8a6240',
@@ -317,10 +317,10 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
                     aria-label={`Remove photo ${i + 1}`}
                     style={{
                       padding: '4px 10px',
-                      background: '#fff0f0',
+                      background: 'var(--brand-danger-bg)',
                       border: '1px solid rgba(220,100,100,0.2)',
                       borderRadius: 8,
-                      color: '#c07070',
+                      color: 'var(--brand-danger-text)',
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: 'pointer',

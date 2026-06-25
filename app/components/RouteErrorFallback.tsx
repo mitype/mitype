@@ -25,7 +25,7 @@ export function RouteErrorFallback({ error, retry, routeLabel }: Props) {
     <main
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+        background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
         display: 'flex',
         alignItems: 'center',
@@ -50,19 +50,19 @@ export function RouteErrorFallback({ error, retry, routeLabel }: Props) {
           style={{
             fontSize: 24,
             fontWeight: 800,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             marginBottom: 10,
             letterSpacing: '-0.5px',
           }}
         >
           Something went sideways
         </h2>
-        <p style={{ color: '#8a7560', fontSize: 14, lineHeight: 1.5, marginBottom: 24 }}>
+        <p style={{ color: 'var(--brand-personal-text-mid)', fontSize: 14, lineHeight: 1.5, marginBottom: 24 }}>
           {routeLabel ? `The ${routeLabel} page hit an unexpected error.` : 'This page hit an unexpected error.'}{' '}
           Try reloading. If it keeps happening, we&rsquo;ve been notified.
         </p>
         {error?.digest && (
-          <p style={{ color: '#a89278', fontSize: 11, fontFamily: 'monospace', marginBottom: 20 }}>
+          <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 11, fontFamily: 'monospace', marginBottom: 20 }}>
             ref: {error.digest}
           </p>
         )}
@@ -72,7 +72,7 @@ export function RouteErrorFallback({ error, retry, routeLabel }: Props) {
             onClick={retry}
             style={{
               padding: '12px 24px',
-              background: '#c8956c',
+              background: 'var(--brand-personal)',
               border: 'none',
               borderRadius: 100,
               color: 'white',
@@ -90,7 +90,7 @@ export function RouteErrorFallback({ error, retry, routeLabel }: Props) {
               background: 'transparent',
               border: '1px solid rgba(200,149,108,0.3)',
               borderRadius: 100,
-              color: '#8a7560',
+              color: 'var(--brand-personal-text-mid)',
               fontSize: 14,
               fontWeight: 600,
               textDecoration: 'none',

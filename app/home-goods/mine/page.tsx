@@ -46,7 +46,7 @@ export default function MyListingsPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #f7fdf9 0%, #ecfdf5 100%)',
+      background: 'linear-gradient(180deg, var(--brand-market-bg-pale) 0%, var(--brand-market-bg-mint) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -65,7 +65,7 @@ export default function MyListingsPage() {
             margin: 0,
             fontSize: 26,
             fontWeight: 900,
-            color: '#0f3a23',
+            color: 'var(--brand-market-deep)',
             letterSpacing: '-0.5px',
           }}>
             My listings
@@ -74,7 +74,7 @@ export default function MyListingsPage() {
             href="/home-goods/new"
             style={{
               padding: '11px 22px',
-              background: 'linear-gradient(135deg, #15803d, #22c55e)',
+              background: 'linear-gradient(135deg, var(--brand-market), var(--brand-market-light))',
               color: 'white',
               border: 'none',
               borderRadius: 100,
@@ -89,7 +89,7 @@ export default function MyListingsPage() {
         </div>
 
         {loading ? (
-          <p style={{ color: '#3a5d48', textAlign: 'center', padding: 40 }}>
+          <p style={{ color: 'var(--brand-market-text-mid)', textAlign: 'center', padding: 40 }}>
             Loading…
           </p>
         ) : listings.length === 0 ? (
@@ -99,7 +99,7 @@ export default function MyListingsPage() {
             background: 'rgba(255,255,255,0.6)',
             border: '1px dashed rgba(21,128,61,0.3)',
             borderRadius: 18,
-            color: '#3a5d48',
+            color: 'var(--brand-market-text-mid)',
             fontSize: 14,
             lineHeight: 1.6,
           }}>

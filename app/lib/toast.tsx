@@ -37,9 +37,9 @@ export const toast = {
 };
 
 const COLORS: Record<ToastType, { bg: string; border: string; fg: string; icon: string }> = {
-  success: { bg: '#f0faf2', border: 'rgba(34,197,94,0.3)', fg: '#16a34a', icon: '✓' },
-  error:   { bg: '#fff0f0', border: 'rgba(220,100,100,0.3)', fg: '#c07070', icon: '⚠' },
-  info:    { bg: '#fff8f0', border: 'rgba(200,149,108,0.3)', fg: '#c8956c', icon: 'ℹ' },
+  success: { bg: '#f0faf2', border: 'rgba(34,197,94,0.3)', fg: 'var(--brand-market-success)', icon: '✓' },
+  error:   { bg: 'var(--brand-danger-bg)', border: 'rgba(220,100,100,0.3)', fg: 'var(--brand-danger-text)', icon: '⚠' },
+  info:    { bg: '#fff8f0', border: 'rgba(200,149,108,0.3)', fg: 'var(--brand-personal)', icon: 'ℹ' },
 };
 
 export function Toaster() {
@@ -103,7 +103,7 @@ export function Toaster() {
             }}
           >
             <span aria-hidden="true" style={{ fontSize: 16, lineHeight: '20px', flexShrink: 0 }}>{c.icon}</span>
-            <span style={{ flex: 1, color: '#1a1208', fontWeight: 500, lineHeight: 1.45 }}>{t.message}</span>
+            <span style={{ flex: 1, color: 'var(--brand-text-primary)', fontWeight: 500, lineHeight: 1.45 }}>{t.message}</span>
             <button
               type="button"
               onClick={() => dismiss(t.id)}
@@ -113,7 +113,7 @@ export function Toaster() {
                 border: 'none',
                 cursor: 'pointer',
                 padding: 0,
-                color: '#a89278',
+                color: 'var(--brand-personal-text-light)',
                 fontSize: 18,
                 lineHeight: '20px',
                 flexShrink: 0,

@@ -71,7 +71,7 @@ export function NotificationBell({ userId, tone = 'bronze' }: {
   }
 
   const unread = items.filter((n) => !n.is_read).length;
-  const badgeColor = tone === 'purple' ? '#8b5cf6' : '#c8956c';
+  const badgeColor = tone === 'purple' ? 'var(--brand-business)' : 'var(--brand-personal)';
 
   return (
     <div ref={wrapRef} style={{ position: 'relative' }}>
@@ -89,7 +89,7 @@ export function NotificationBell({ userId, tone = 'bronze' }: {
           background: 'transparent',
           border: 'none',
           cursor: 'pointer',
-          color: tone === 'purple' ? '#5b21b6' : '#8a7560',
+          color: tone === 'purple' ? 'var(--brand-business-deep)' : 'var(--brand-personal-text-mid)',
           fontSize: 20,
           position: 'relative',
           padding: 0,
@@ -146,23 +146,23 @@ export function NotificationBell({ userId, tone = 'bronze' }: {
         >
           <div style={{
             padding: '14px 18px',
-            background: tone === 'purple' ? 'linear-gradient(135deg, #f6f3fb, #ebe5f5)' : 'linear-gradient(135deg, #fff8ec, #fff3ec)',
+            background: tone === 'purple' ? 'linear-gradient(135deg, #f6f3fb, #ebe5f5)' : 'linear-gradient(135deg, var(--brand-personal-bg-peach-warm), var(--brand-personal-bg-peach))',
             borderBottom: '1px solid rgba(0,0,0,0.06)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <span style={{ fontSize: 14, fontWeight: 800, color: '#1a1208' }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)' }}>
               Notifications
             </span>
-            <span style={{ fontSize: 11, color: '#8a7560', fontWeight: 700 }}>
+            <span style={{ fontSize: 11, color: 'var(--brand-personal-text-mid)', fontWeight: 700 }}>
               {unread > 0 ? `${unread} unread` : 'All caught up'}
             </span>
           </div>
 
           <div style={{ maxHeight: 380, overflowY: 'auto' }}>
             {items.length === 0 ? (
-              <div style={{ padding: 28, textAlign: 'center', color: '#a89278', fontSize: 13 }}>
+              <div style={{ padding: 28, textAlign: 'center', color: 'var(--brand-personal-text-light)', fontSize: 13 }}>
                 Nothing here yet. When someone recommends your business or
                 interacts with you, you&rsquo;ll see it here.
               </div>
@@ -171,7 +171,7 @@ export function NotificationBell({ userId, tone = 'bronze' }: {
                 const body = (
                   <>
                     <div style={{
-                      fontSize: 14, fontWeight: 800, color: '#1a1208',
+                      fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
                       marginBottom: 3,
                     }}>
                       {n.title}
@@ -181,7 +181,7 @@ export function NotificationBell({ userId, tone = 'bronze' }: {
                         {n.body}
                       </div>
                     )}
-                    <div style={{ fontSize: 11, color: '#a89278', marginTop: 4 }}>
+                    <div style={{ fontSize: 11, color: 'var(--brand-personal-text-light)', marginTop: 4 }}>
                       {timeAgo(n.created_at)}
                     </div>
                   </>

@@ -405,7 +405,7 @@ export function Checkers({ session, currentUserId, updateState }: Props) {
       {!state.matchResult && !seriesOver && (
         <div style={{
           padding: '8px 16px',
-          background: isMyTurn ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.08)',
+          background: isMyTurn ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.08)',
           color: isMyTurn ? 'white' : 'rgba(255,255,255,0.7)',
           borderRadius: 100,
           fontSize: 13, fontWeight: 800,
@@ -539,7 +539,7 @@ function CheckerPiece({ piece, isInviter, selected }: {
 }) {
   // Inviter = bronze, invitee = cream. Kings get a notch ring.
   const fill = isInviter
-    ? 'linear-gradient(135deg, #ffb37c 0%, #c8956c 50%, #8a5a32 100%)'
+    ? 'linear-gradient(135deg, var(--brand-personal-light) 0%, var(--brand-personal) 50%, #8a5a32 100%)'
     : 'linear-gradient(135deg, #fff8ef 0%, #f3e3cd 50%, #c9b393 100%)';
   return (
     <div style={{
@@ -548,7 +548,7 @@ function CheckerPiece({ piece, isInviter, selected }: {
       borderRadius: '50%',
       background: fill,
       border: selected
-        ? '2px solid #ffd5a8'
+        ? '2px solid var(--brand-personal-soft)'
         : isInviter ? '1px solid rgba(0,0,0,0.45)' : '1px solid rgba(0,0,0,0.18)',
       boxShadow: selected
         ? '0 0 0 3px rgba(255,213,168,0.55), 0 6px 14px rgba(0,0,0,0.4)'
@@ -577,7 +577,7 @@ function ScoreCard({ label, colorLabel, score, pieces, highlight }: {
   return (
     <div style={{
       padding: '10px 12px',
-      background: highlight ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.06)',
+      background: highlight ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.06)',
       border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 12,
       textAlign: 'center',
@@ -610,7 +610,7 @@ function ScoreCard({ label, colorLabel, score, pieces, highlight }: {
 
 const primaryBtn: React.CSSProperties = {
   padding: '11px 26px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none', borderRadius: 100,
   fontSize: 14, fontWeight: 800,

@@ -143,7 +143,7 @@ export function WouldYouRather({ session, currentUserId, updateState }: Props) {
         </div>
         <div style={{
           fontSize: 13, fontWeight: 800,
-          color: '#ffd5a8',
+          color: 'var(--brand-personal-soft)',
           padding: '4px 12px',
           background: 'rgba(200,149,108,0.18)',
           borderRadius: 100,
@@ -162,7 +162,7 @@ export function WouldYouRather({ session, currentUserId, updateState }: Props) {
         <div style={{
           width: `${progressPct}%`,
           height: '100%',
-          background: 'linear-gradient(90deg, #c8956c, #ffb37c)',
+          background: 'linear-gradient(90deg, var(--brand-personal), var(--brand-personal-light))',
           transition: 'width 0.4s ease',
         }} />
       </div>
@@ -220,7 +220,7 @@ export function WouldYouRather({ session, currentUserId, updateState }: Props) {
         {myPick && !partnerPick && (
           <p style={{
             textAlign: 'center', fontSize: 14,
-            color: '#ffd5a8', margin: 0,
+            color: 'var(--brand-personal-soft)', margin: 0,
             fontWeight: 700,
           }}>
             Locked in. Waiting on your partner&hellip;
@@ -251,7 +251,7 @@ export function WouldYouRather({ session, currentUserId, updateState }: Props) {
               onClick={nextRound}
               style={{
                 padding: '12px 30px',
-                background: '#c8956c',
+                background: 'var(--brand-personal)',
                 color: 'white',
                 border: 'none', borderRadius: 100,
                 fontSize: 15, fontWeight: 800,
@@ -297,11 +297,11 @@ function ChoiceCard({
         position: 'relative',
         padding: '20px 22px',
         background: bothPicked
-          ? 'linear-gradient(135deg, #ffb37c 0%, #c8956c 100%)'
+          ? 'linear-gradient(135deg, var(--brand-personal-light) 0%, var(--brand-personal) 100%)'
           : picked
-            ? 'linear-gradient(135deg, #c8956c 0%, #a07452 100%)'
+            ? 'linear-gradient(135deg, var(--brand-personal) 0%, #a07452 100%)'
             : 'white',
-        color: picked || bothPicked ? 'white' : '#1a1208',
+        color: picked || bothPicked ? 'white' : 'var(--brand-text-primary)',
         border: 'none',
         borderRadius: 18,
         textAlign: 'left',
@@ -323,7 +323,7 @@ function ChoiceCard({
         position: 'absolute',
         top: 14, left: 18,
         fontSize: 11, fontWeight: 900,
-        color: picked || bothPicked ? 'rgba(255,255,255,0.85)' : '#c8956c',
+        color: picked || bothPicked ? 'rgba(255,255,255,0.85)' : 'var(--brand-personal)',
         letterSpacing: '1.5px',
       }}>
         {label}

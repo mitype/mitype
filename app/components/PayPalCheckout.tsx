@@ -41,10 +41,10 @@ export function PayPalCheckout({ userId, email, onSuccess }: Props) {
     return (
       <div style={{
         padding: 20,
-        background: '#fff0f0',
+        background: 'var(--brand-danger-bg)',
         border: '1px solid rgba(220,100,100,0.3)',
         borderRadius: 16,
-        color: '#c07070',
+        color: 'var(--brand-danger-text)',
         fontSize: 14,
         textAlign: 'center',
       }}>
@@ -132,7 +132,7 @@ export function PayPalCheckout({ userId, email, onSuccess }: Props) {
 
       <p style={{
         textAlign: 'center',
-        color: '#b0967e',
+        color: 'var(--brand-personal-text-lighter)',
         fontSize: 13,
         marginTop: 12,
       }}>

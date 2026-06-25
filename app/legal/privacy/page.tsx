@@ -4,7 +4,7 @@ export default function PrivacyPolicyPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -25,14 +25,14 @@ export default function PrivacyPolicyPage() {
         <Link href="/" style={{
           fontSize: 24,
           fontWeight: 900,
-          color: '#c8956c',
+          color: 'var(--brand-personal)',
           letterSpacing: '-1px',
           textDecoration: 'none',
         }}>
           mitype
         </Link>
         <Link href="/" style={{
-          color: '#8a7560',
+          color: 'var(--brand-personal-text-mid)',
           textDecoration: 'none',
           fontSize: 14,
           fontWeight: 600,
@@ -45,13 +45,13 @@ export default function PrivacyPolicyPage() {
         <h1 style={{
           fontSize: 40,
           fontWeight: 900,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           letterSpacing: '-1px',
           marginBottom: 8,
         }}>
           Privacy Policy
         </h1>
-        <p style={{ color: '#a89278', fontSize: 15, marginBottom: 48 }}>
+        <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 15, marginBottom: 48 }}>
           Last updated: April 22, 2026
         </p>
 
@@ -140,13 +140,13 @@ support.mitypeapp@gmail.com`,
             <h2 style={{
               fontSize: 20,
               fontWeight: 700,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               marginBottom: 12,
             }}>
               {section.title}
             </h2>
             <p style={{
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               fontSize: 15,
               lineHeight: 1.8,
               whiteSpace: 'pre-line',
@@ -164,13 +164,13 @@ support.mitypeapp@gmail.com`,
           gap: 24,
           flexWrap: 'wrap',
         }}>
-          <Link href="/legal/terms" style={{ color: '#c8956c', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+          <Link href="/legal/terms" style={{ color: 'var(--brand-personal)', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
             Terms of Service
           </Link>
-          <Link href="/legal/contact" style={{ color: '#c8956c', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+          <Link href="/legal/contact" style={{ color: 'var(--brand-personal)', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
             Contact & Support
           </Link>
-          <Link href="/" style={{ color: '#c8956c', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+          <Link href="/" style={{ color: 'var(--brand-personal)', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
             Back to Mitype
           </Link>
         </div>

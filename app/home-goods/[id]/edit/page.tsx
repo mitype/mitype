@@ -180,11 +180,11 @@ export default function EditListingPage() {
   if (loading) {
     return (
       <main style={{
-        minHeight: '100vh', background: '#f7fdf9',
+        minHeight: '100vh', background: 'var(--brand-market-bg-pale)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
       }}>
-        <p style={{ color: '#3a5d48' }}>Loading…</p>
+        <p style={{ color: 'var(--brand-market-text-mid)' }}>Loading…</p>
       </main>
     );
   }
@@ -192,7 +192,7 @@ export default function EditListingPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #f7fdf9 0%, #ecfdf5 100%)',
+      background: 'linear-gradient(180deg, var(--brand-market-bg-pale) 0%, var(--brand-market-bg-mint) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -203,7 +203,7 @@ export default function EditListingPage() {
           margin: '0 0 22px',
           fontSize: 26,
           fontWeight: 900,
-          color: '#0f3a23',
+          color: 'var(--brand-market-deep)',
           letterSpacing: '-0.5px',
         }}>
           Edit listing
@@ -268,7 +268,7 @@ export default function EditListingPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: uploading ? 'wait' : 'pointer',
-                color: '#3a5d48',
+                color: 'var(--brand-market-text-mid)',
                 fontSize: 12,
                 fontWeight: 700,
                 gap: 4,
@@ -311,7 +311,7 @@ export default function EditListingPage() {
               border: '1px solid rgba(21,128,61,0.25)',
               borderRadius: 12,
             }}>
-              <span style={{ color: '#3a5d48', fontWeight: 700 }}>$</span>
+              <span style={{ color: 'var(--brand-market-text-mid)', fontWeight: 700 }}>$</span>
               <input
                 type="text"
                 inputMode="decimal"
@@ -338,9 +338,9 @@ export default function EditListingPage() {
                   onClick={() => setCondition(c.key)}
                   style={{
                     padding: '10px 12px',
-                    background: active ? '#15803d' : 'white',
-                    color: active ? 'white' : '#0f3a23',
-                    border: `1px solid ${active ? '#15803d' : 'rgba(21,128,61,0.25)'}`,
+                    background: active ? 'var(--brand-market)' : 'white',
+                    color: active ? 'white' : 'var(--brand-market-deep)',
+                    border: `1px solid ${active ? 'var(--brand-market)' : 'rgba(21,128,61,0.25)'}`,
                     borderRadius: 12,
                     fontSize: 13,
                     fontWeight: 800,
@@ -367,9 +367,9 @@ export default function EditListingPage() {
                   onClick={() => setCategory(c.key)}
                   style={{
                     padding: '7px 12px',
-                    background: active ? '#15803d' : 'white',
-                    color: active ? 'white' : '#0f3a23',
-                    border: `1px solid ${active ? '#15803d' : 'rgba(21,128,61,0.25)'}`,
+                    background: active ? 'var(--brand-market)' : 'white',
+                    color: active ? 'white' : 'var(--brand-market-deep)',
+                    border: `1px solid ${active ? 'var(--brand-market)' : 'rgba(21,128,61,0.25)'}`,
                     borderRadius: 100,
                     fontSize: 12,
                     fontWeight: 700,
@@ -419,7 +419,7 @@ export default function EditListingPage() {
           style={{
             width: '100%',
             padding: 16,
-            background: saving ? 'rgba(21,128,61,0.4)' : 'linear-gradient(135deg, #15803d, #22c55e)',
+            background: saving ? 'rgba(21,128,61,0.4)' : 'linear-gradient(135deg, var(--brand-market), var(--brand-market-light))',
             color: 'white',
             border: 'none',
             borderRadius: 100,
@@ -444,7 +444,7 @@ function Section({ label, children }: { label: string; children: React.ReactNode
       <div style={{
         fontSize: 11,
         fontWeight: 800,
-        color: '#3a5d48',
+        color: 'var(--brand-market-text-mid)',
         textTransform: 'uppercase',
         letterSpacing: '1px',
         marginBottom: 8,
@@ -465,9 +465,9 @@ function StatusChip({ label, active, onClick }: {
       onClick={onClick}
       style={{
         padding: '11px 16px',
-        background: active ? '#15803d' : 'white',
-        color: active ? 'white' : '#3a5d48',
-        border: `1px solid ${active ? '#15803d' : 'rgba(21,128,61,0.25)'}`,
+        background: active ? 'var(--brand-market)' : 'white',
+        color: active ? 'white' : 'var(--brand-market-text-mid)',
+        border: `1px solid ${active ? 'var(--brand-market)' : 'rgba(21,128,61,0.25)'}`,
         borderRadius: 12,
         fontSize: 13,
         fontWeight: 800,
@@ -488,7 +488,7 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid rgba(21,128,61,0.25)',
   borderRadius: 12,
   fontSize: 16,
-  color: '#1a1208',
+  color: 'var(--brand-text-primary)',
   outline: 'none',
   fontFamily: 'inherit',
   boxSizing: 'border-box',

@@ -40,7 +40,7 @@ export function BackButton({
   const colors =
     variant === 'dark'
       ? { color: 'white', background: 'rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.18)' }
-      : { color: '#8a7560', background: 'transparent', border: 'none' };
+      : { color: 'var(--brand-personal-text-mid)', background: 'transparent', border: 'none' };
 
   return (
     <button

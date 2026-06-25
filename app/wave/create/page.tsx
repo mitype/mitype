@@ -529,7 +529,7 @@ export default function WaveCreatePage() {
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>
               Pick a video to edit
             </div>
-            <div style={{ fontSize: 13, color: '#8a7560' }}>
+            <div style={{ fontSize: 13, color: 'var(--brand-personal-text-mid)' }}>
               Record a new one or choose from your library. Long videos can be trimmed to 60s.
             </div>
           </button>
@@ -551,7 +551,7 @@ export default function WaveCreatePage() {
               background: 'white',
               border: '1px solid rgba(200,149,108,0.4)',
               borderRadius: 100,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               fontSize: 13,
               fontWeight: 700,
               cursor: 'pointer',
@@ -592,10 +592,10 @@ export default function WaveCreatePage() {
         <Nav />
         <div style={{ ...cardStyle, textAlign: 'center', padding: 36 }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>✨</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: '#1a1208', marginBottom: 8 }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--brand-text-primary)', marginBottom: 8 }}>
             {progressLabel}
           </div>
-          <div style={{ color: '#8a7560', fontSize: 14, marginBottom: 24 }}>
+          <div style={{ color: 'var(--brand-personal-text-mid)', fontSize: 14, marginBottom: 24 }}>
             {step === 'processing'
               ? 'Baking your filter, caption, and Mitype watermark into the video.'
               : 'Uploading to The Wave.'}
@@ -610,12 +610,12 @@ export default function WaveCreatePage() {
             <div style={{
               height: '100%',
               width: `${progress}%`,
-              background: '#c8956c',
+              background: 'var(--brand-personal)',
               borderRadius: 100,
               transition: 'width 0.2s ease',
             }} />
           </div>
-          <div style={{ color: '#8a7560', fontSize: 13 }}>{progress}%</div>
+          <div style={{ color: 'var(--brand-personal-text-mid)', fontSize: 13 }}>{progress}%</div>
         </div>
       </main>
     );
@@ -702,7 +702,7 @@ export default function WaveCreatePage() {
           <div style={{
             fontSize: 11,
             fontWeight: 700,
-            color: '#c8956c',
+            color: 'var(--brand-personal)',
             background: 'rgba(200,149,108,0.12)',
             padding: '4px 10px',
             borderRadius: 100,
@@ -711,9 +711,9 @@ export default function WaveCreatePage() {
             MAX 60s
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#8a7560', fontSize: 13, marginBottom: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--brand-personal-text-mid)', fontSize: 13, marginBottom: 8 }}>
           <span>{trimStart.toFixed(1)}s</span>
-          <span style={{ flex: 1, textAlign: 'center', color: '#1a1208', fontWeight: 700 }}>
+          <span style={{ flex: 1, textAlign: 'center', color: 'var(--brand-text-primary)', fontWeight: 700 }}>
             {(trimEnd - trimStart).toFixed(1)}s selected
           </span>
           <span>{trimEnd.toFixed(1)}s</span>
@@ -753,7 +753,7 @@ export default function WaveCreatePage() {
           />
         </div>
         {sourceDuration > MAX_DURATION && (
-          <div style={{ fontSize: 12, color: '#8a7560', marginTop: 10, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: 'var(--brand-personal-text-mid)', marginTop: 10, lineHeight: 1.5 }}>
             Your source video is {Math.floor(sourceDuration / 60)}m {Math.round(sourceDuration % 60)}s. Slide the handles to pick the 60-second window you want to post.
           </div>
         )}
@@ -771,9 +771,9 @@ export default function WaveCreatePage() {
                 type="button"
                 onClick={() => setFilterIdx(i)}
                 style={{
-                  background: selected ? '#c8956c' : 'white',
-                  border: `1px solid ${selected ? '#c8956c' : 'rgba(200,149,108,0.3)'}`,
-                  color: selected ? 'white' : '#6b5744',
+                  background: selected ? 'var(--brand-personal)' : 'white',
+                  border: `1px solid ${selected ? 'var(--brand-personal)' : 'rgba(200,149,108,0.3)'}`,
+                  color: selected ? 'white' : 'var(--brand-personal-text-head)',
                   padding: '10px 14px',
                   borderRadius: 100,
                   fontSize: 13,
@@ -806,13 +806,13 @@ export default function WaveCreatePage() {
             borderRadius: 12,
             fontSize: 16,
             fontFamily: 'inherit',
-            color: '#1a1208',
-            background: '#faf6f0',
+            color: 'var(--brand-text-primary)',
+            background: 'var(--brand-personal-bg-cream)',
             outline: 'none',
             boxSizing: 'border-box',
           }}
         />
-        <div style={{ textAlign: 'right', fontSize: 12, color: '#a89278', marginTop: 4 }}>
+        <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--brand-personal-text-light)', marginTop: 4 }}>
           {caption.length}/{MAX_CAPTION}
         </div>
       </div>
@@ -852,10 +852,10 @@ function Nav() {
       justifyContent: 'space-between',
       marginBottom: 16,
     }}>
-      <Link href="/wave" style={{ color: '#8a7560', textDecoration: 'none', fontSize: 22, fontWeight: 700 }} aria-label="Back to The Wave">
+      <Link href="/wave" style={{ color: 'var(--brand-personal-text-mid)', textDecoration: 'none', fontSize: 22, fontWeight: 700 }} aria-label="Back to The Wave">
         ←
       </Link>
-      <div style={{ fontSize: 18, fontWeight: 800, color: '#1a1208' }}>Post to The Wave</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--brand-text-primary)' }}>Post to The Wave</div>
       <div style={{ width: 24 }} />
     </nav>
   );
@@ -884,7 +884,7 @@ function CategoryPicker({
   return (
     <div style={cardStyle}>
       <div style={sectionLabel}>Tag a category</div>
-      <p style={{ fontSize: 13, color: '#8a7560', margin: '0 0 12px', lineHeight: 1.4 }}>
+      <p style={{ fontSize: 13, color: 'var(--brand-personal-text-mid)', margin: '0 0 12px', lineHeight: 1.4 }}>
         Pick any category that fits your video. It doesn&rsquo;t have to be one of yours.
         Your video will show up when other creatives filter by this category.
       </p>
@@ -895,7 +895,7 @@ function CategoryPicker({
           <div style={{
             fontSize: 11,
             fontWeight: 700,
-            color: '#a89278',
+            color: 'var(--brand-personal-text-light)',
             textTransform: 'uppercase',
             letterSpacing: '1px',
             marginBottom: 8,
@@ -911,9 +911,9 @@ function CategoryPicker({
                   type="button"
                   onClick={() => onChange(cat)}
                   style={{
-                    background: selected ? '#c8956c' : 'white',
-                    border: `1px solid ${selected ? '#c8956c' : 'rgba(200,149,108,0.3)'}`,
-                    color: selected ? 'white' : '#6b5744',
+                    background: selected ? 'var(--brand-personal)' : 'white',
+                    border: `1px solid ${selected ? 'var(--brand-personal)' : 'rgba(200,149,108,0.3)'}`,
+                    color: selected ? 'white' : 'var(--brand-personal-text-head)',
                     padding: '8px 14px',
                     borderRadius: 100,
                     fontSize: 13,
@@ -945,10 +945,10 @@ function CategoryPicker({
           gap: 12,
         }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#8a7560', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--brand-personal-text-mid)', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Selected
             </div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#6b5744', marginTop: 2 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand-personal-text-head)', marginTop: 2 }}>
               {value}
             </div>
           </div>
@@ -958,7 +958,7 @@ function CategoryPicker({
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#8a7560',
+              color: 'var(--brand-personal-text-mid)',
               fontSize: 13,
               fontWeight: 700,
               cursor: 'pointer',
@@ -973,7 +973,7 @@ function CategoryPicker({
       <div style={{
         fontSize: 11,
         fontWeight: 700,
-        color: '#a89278',
+        color: 'var(--brand-personal-text-light)',
         textTransform: 'uppercase',
         letterSpacing: '1px',
         marginBottom: 8,
@@ -988,11 +988,11 @@ function CategoryPicker({
         style={{
           width: '100%',
           padding: '10px 14px',
-          background: '#faf6f0',
+          background: 'var(--brand-personal-bg-cream)',
           border: '1px solid rgba(200,149,108,0.25)',
           borderRadius: 12,
           fontSize: 16,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           outline: 'none',
           marginBottom: 10,
           boxSizing: 'border-box',
@@ -1011,7 +1011,7 @@ function CategoryPicker({
         borderRadius: 12,
       }}>
         {filtered.length === 0 ? (
-          <p style={{ fontSize: 13, color: '#a89278', margin: '12px auto' }}>
+          <p style={{ fontSize: 13, color: 'var(--brand-personal-text-light)', margin: '12px auto' }}>
             No categories match &ldquo;{query}&rdquo;
           </p>
         ) : (
@@ -1023,9 +1023,9 @@ function CategoryPicker({
                 type="button"
                 onClick={() => onChange(cat)}
                 style={{
-                  background: selected ? '#c8956c' : 'white',
-                  border: `1px solid ${selected ? '#c8956c' : 'rgba(200,149,108,0.2)'}`,
-                  color: selected ? 'white' : '#6b5744',
+                  background: selected ? 'var(--brand-personal)' : 'white',
+                  border: `1px solid ${selected ? 'var(--brand-personal)' : 'rgba(200,149,108,0.2)'}`,
+                  color: selected ? 'white' : 'var(--brand-personal-text-head)',
                   padding: '6px 12px',
                   borderRadius: 100,
                   fontSize: 12,
@@ -1046,7 +1046,7 @@ function CategoryPicker({
 
 const pageStyle: React.CSSProperties = {
   minHeight: '100vh',
-  background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+  background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
   fontFamily: "'Helvetica Neue', Arial, sans-serif",
   padding: '24px 20px 80px',
 };
@@ -1063,7 +1063,7 @@ const cardStyle: React.CSSProperties = {
 const sectionLabel: React.CSSProperties = {
   fontSize: 12,
   fontWeight: 700,
-  color: '#6b5744',
+  color: 'var(--brand-personal-text-head)',
   textTransform: 'uppercase',
   letterSpacing: '1.5px',
   marginBottom: 12,
@@ -1077,7 +1077,7 @@ const pickButtonStyle: React.CSSProperties = {
   borderRadius: 16,
   cursor: 'pointer',
   fontFamily: 'inherit',
-  color: '#6b5744',
+  color: 'var(--brand-personal-text-head)',
 };
 
 const trimRangeStyle: React.CSSProperties = {
@@ -1096,7 +1096,7 @@ const trimRangeStyle: React.CSSProperties = {
 const postButtonStyle: React.CSSProperties = {
   width: '100%',
   padding: '17px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none',
   borderRadius: 100,
@@ -1112,7 +1112,7 @@ const discardButtonStyle: React.CSSProperties = {
   width: '100%',
   padding: '14px',
   background: 'transparent',
-  color: '#8a7560',
+  color: 'var(--brand-personal-text-mid)',
   border: 'none',
   borderRadius: 100,
   fontSize: 14,

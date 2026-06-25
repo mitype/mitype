@@ -22,7 +22,7 @@ export function SmallBusinessCta() {
           background: 'white',
           border: '1px solid rgba(139,92,246,0.35)',
           borderRadius: 100,
-          color: '#5b21b6',
+          color: 'var(--brand-business-deep)',
           fontSize: 14,
           fontWeight: 800,
           cursor: 'pointer',

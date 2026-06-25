@@ -810,7 +810,7 @@ export default function WavePage() {
           href="/wave/create"
           aria-label="Post a new video"
           style={{
-            background: '#c8956c',
+            background: 'var(--brand-personal)',
             color: 'white',
             textDecoration: 'none',
             fontSize: 22,
@@ -926,7 +926,7 @@ export default function WavePage() {
               <Link
                 href="/wave/create"
                 style={{
-                  background: '#c8956c',
+                  background: 'var(--brand-personal)',
                   color: 'white',
                   textDecoration: 'none',
                   fontSize: 16,
@@ -1623,7 +1623,7 @@ export default function WavePage() {
                   <span style={{
                     fontSize: 16,
                     fontWeight: 900,
-                    color: '#c8956c',
+                    color: 'var(--brand-personal)',
                     letterSpacing: '-0.3px',
                   }}>
                     {v.compatibility}%
@@ -1638,7 +1638,7 @@ export default function WavePage() {
                   <div style={{
                     width: `${Math.min(100, v.compatibility)}%`,
                     height: '100%',
-                    background: 'linear-gradient(90deg, #c8956c 0%, #ffb37c 100%)',
+                    background: 'linear-gradient(90deg, var(--brand-personal) 0%, var(--brand-personal-light) 100%)',
                     transition: 'width 0.4s ease',
                   }} />
                 </div>
@@ -1755,7 +1755,7 @@ export default function WavePage() {
             type="button"
             onClick={handleUndoSkip}
             style={{
-              background: '#c8956c',
+              background: 'var(--brand-personal)',
               border: 'none',
               borderRadius: 100,
               color: 'white',

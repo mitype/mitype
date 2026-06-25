@@ -71,7 +71,7 @@ export default function SellerListingsPage({
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #f7fdf9 0%, #ecfdf5 100%)',
+      background: 'linear-gradient(180deg, var(--brand-market-bg-pale) 0%, var(--brand-market-bg-mint) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       paddingBottom: 80,
     }}>
@@ -92,7 +92,7 @@ export default function SellerListingsPage({
         }}>
           <div style={{
             width: 56, height: 56, borderRadius: '50%', overflow: 'hidden',
-            background: '#ecfdf5', flexShrink: 0,
+            background: 'var(--brand-market-bg-mint)', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <Avatar
@@ -110,7 +110,7 @@ export default function SellerListingsPage({
               fontWeight: 800,
               letterSpacing: '1px',
               textTransform: 'uppercase',
-              color: '#15803d',
+              color: 'var(--brand-market)',
               marginBottom: 2,
             }}>
               🏡 Mi Home Goods shop
@@ -120,7 +120,7 @@ export default function SellerListingsPage({
               style={{
                 fontSize: 19,
                 fontWeight: 900,
-                color: '#0f3a23',
+                color: 'var(--brand-market-deep)',
                 textDecoration: 'none',
                 letterSpacing: '-0.4px',
               }}
@@ -128,7 +128,7 @@ export default function SellerListingsPage({
               @{seller?.username}
             </Link>
             {(seller?.city || seller?.state) && (
-              <p style={{ margin: '2px 0 0', color: '#3a5d48', fontSize: 12 }}>
+              <p style={{ margin: '2px 0 0', color: 'var(--brand-market-text-mid)', fontSize: 12 }}>
                 📍 {[seller?.city, seller?.state].filter(Boolean).join(', ')}
               </p>
             )}
@@ -145,7 +145,7 @@ export default function SellerListingsPage({
             background: 'rgba(255,255,255,0.6)',
             border: '1px dashed rgba(21,128,61,0.3)',
             borderRadius: 18,
-            color: '#3a5d48',
+            color: 'var(--brand-market-text-mid)',
             fontSize: 14,
             lineHeight: 1.6,
           }}>
@@ -155,7 +155,7 @@ export default function SellerListingsPage({
             </p>
             <Link href="/home-goods" style={{
               display: 'inline-block', marginTop: 12,
-              color: '#15803d', fontWeight: 800, textDecoration: 'none',
+              color: 'var(--brand-market)', fontWeight: 800, textDecoration: 'none',
             }}>
               Browse the full marketplace →
             </Link>

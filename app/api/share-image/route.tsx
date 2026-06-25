@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'linear-gradient(180deg, #faf6f0 0%, #f5e6d3 100%)',
+          background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, #f5e6d3 100%)',
           padding: '120px 80px 110px',
           fontFamily: 'Helvetica, Arial, sans-serif',
           position: 'relative',
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
             left: 0,
             right: 0,
             height: 18,
-            background: 'linear-gradient(90deg, #c8956c 0%, #e8b490 100%)',
+            background: 'linear-gradient(90deg, var(--brand-personal) 0%, #e8b490 100%)',
             display: 'flex',
           }}
         />
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
             left: 0,
             right: 0,
             height: 18,
-            background: 'linear-gradient(90deg, #e8b490 0%, #c8956c 100%)',
+            background: 'linear-gradient(90deg, #e8b490 0%, var(--brand-personal) 100%)',
             display: 'flex',
           }}
         />
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
             style={{
               fontSize: 140,
               fontWeight: 900,
-              color: '#c8956c',
+              color: 'var(--brand-personal)',
               letterSpacing: -6,
               display: 'flex',
               marginBottom: 18,
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
             style={{
               fontSize: 26,
               fontWeight: 700,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: 8,
               textTransform: 'uppercase',
               display: 'flex',
@@ -105,7 +105,7 @@ export async function GET(req: NextRequest) {
             style={{
               fontSize: 86,
               fontWeight: 900,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: -3,
               lineHeight: 1.1,
               textAlign: 'center',
@@ -120,7 +120,7 @@ export async function GET(req: NextRequest) {
             style={{
               fontSize: 56,
               fontWeight: 700,
-              color: '#c8956c',
+              color: 'var(--brand-personal)',
               letterSpacing: -1,
               display: 'flex',
             }}
@@ -156,7 +156,7 @@ export async function GET(req: NextRequest) {
         >
           <div
             style={{
-              background: '#c8956c',
+              background: 'var(--brand-personal)',
               color: 'white',
               fontSize: 38,
               fontWeight: 800,
@@ -184,7 +184,7 @@ export async function GET(req: NextRequest) {
             <div
               style={{
                 fontSize: 22,
-                color: '#8a7560',
+                color: 'var(--brand-personal-text-mid)',
                 fontWeight: 600,
                 letterSpacing: 1.5,
                 display: 'flex',
@@ -196,7 +196,7 @@ export async function GET(req: NextRequest) {
             <div
               style={{
                 fontSize: 22,
-                color: '#8a7560',
+                color: 'var(--brand-personal-text-mid)',
                 fontWeight: 600,
                 letterSpacing: 1.5,
                 display: 'flex',

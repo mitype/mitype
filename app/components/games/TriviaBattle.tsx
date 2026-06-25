@@ -148,7 +148,7 @@ export function TriviaBattle({ session, currentUserId, updateState }: Props) {
       <div style={{ height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 100, overflow: 'hidden' }}>
         <div style={{
           width: `${progressPct}%`, height: '100%',
-          background: 'linear-gradient(90deg, #c8956c, #ffb37c)',
+          background: 'linear-gradient(90deg, var(--brand-personal), var(--brand-personal-light))',
           transition: 'width 0.4s ease',
         }} />
       </div>
@@ -162,7 +162,7 @@ export function TriviaBattle({ session, currentUserId, updateState }: Props) {
         border: '1px solid rgba(255,213,168,0.35)',
         borderRadius: 100,
         fontSize: 12, fontWeight: 800,
-        color: '#ffd5a8',
+        color: 'var(--brand-personal-soft)',
         textTransform: 'uppercase', letterSpacing: '1px',
       }}>
         <span aria-hidden="true">{cat.emoji}</span>
@@ -190,7 +190,7 @@ export function TriviaBattle({ session, currentUserId, updateState }: Props) {
           const isWrong = isRevealed && isMine && i !== round.correctIndex;
 
           let bg = 'white';
-          let color = '#1a1208';
+          let color = 'var(--brand-text-primary)';
           let border = '1px solid rgba(0,0,0,0.06)';
           if (isCorrect) {
             bg = 'linear-gradient(135deg, #2bbf6c, #1f9d57)';
@@ -201,7 +201,7 @@ export function TriviaBattle({ session, currentUserId, updateState }: Props) {
             color = 'white';
             border = 'none';
           } else if (isMine) {
-            bg = 'linear-gradient(135deg, #c8956c, #a07452)';
+            bg = 'linear-gradient(135deg, var(--brand-personal), #a07452)';
             color = 'white';
             border = 'none';
           }
@@ -237,7 +237,7 @@ export function TriviaBattle({ session, currentUserId, updateState }: Props) {
                 width: 28, height: 28,
                 borderRadius: '50%',
                 background: isMine || isCorrect || isWrong ? 'rgba(255,255,255,0.22)' : 'rgba(200,149,108,0.18)',
-                color: isMine || isCorrect || isWrong ? 'white' : '#c8956c',
+                color: isMine || isCorrect || isWrong ? 'white' : 'var(--brand-personal)',
                 fontSize: 11, fontWeight: 900,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
@@ -270,7 +270,7 @@ export function TriviaBattle({ session, currentUserId, updateState }: Props) {
           </p>
         )}
         {myPick !== undefined && !bothAnswered && (
-          <p style={{ textAlign: 'center', fontSize: 14, color: '#ffd5a8', margin: 0, fontWeight: 700 }}>
+          <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--brand-personal-soft)', margin: 0, fontWeight: 700 }}>
             Locked in. Waiting on your partner&hellip;
           </p>
         )}
@@ -299,7 +299,7 @@ export function TriviaBattle({ session, currentUserId, updateState }: Props) {
               onClick={nextRound}
               style={{
                 padding: '11px 26px',
-                background: '#c8956c',
+                background: 'var(--brand-personal)',
                 color: 'white',
                 border: 'none', borderRadius: 100,
                 fontSize: 14, fontWeight: 800,
@@ -320,7 +320,7 @@ function ScorePill({ label, value, muted }: { label: string; value: number; mute
   return (
     <div style={{
       padding: '5px 12px',
-      background: muted ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #c8956c, #ffb37c)',
+      background: muted ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
       borderRadius: 100,
       fontSize: 12, fontWeight: 800,
       color: 'white',

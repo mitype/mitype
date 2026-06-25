@@ -79,18 +79,18 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
   // Color shifts from soft → strong as the profile fills in.
   const ringColor =
     percent >= 100
-      ? '#16a34a'
+      ? 'var(--brand-market-success)'
       : percent >= 75
-        ? '#c8956c'
+        ? 'var(--brand-personal)'
         : percent >= 40
-          ? '#d4a882'
+          ? 'var(--brand-personal-disabled)'
           : '#e0bca0';
 
   return (
     <div
       style={{
         background: isComplete
-          ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
+          ? 'linear-gradient(135deg, var(--brand-market-bg-mint) 0%, #d1fae5 100%)'
           : 'white',
         border: isComplete
           ? '1px solid rgba(22,163,74,0.25)'
@@ -167,7 +167,7 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: isComplete ? '#15803d' : '#a89278',
+            color: isComplete ? 'var(--brand-market)' : 'var(--brand-personal-text-light)',
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
             marginBottom: 4,
@@ -179,7 +179,7 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
           style={{
             fontSize: 20,
             fontWeight: 800,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             letterSpacing: '-0.3px',
             marginBottom: 6,
           }}
@@ -190,7 +190,7 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
         </h3>
         <p
           style={{
-            color: isComplete ? '#15803d' : '#a89278',
+            color: isComplete ? 'var(--brand-market)' : 'var(--brand-personal-text-light)',
             fontSize: 13,
             marginBottom: isComplete ? 0 : 14,
             lineHeight: 1.5,
@@ -220,7 +220,7 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 10,
-                    color: '#6b5744',
+                    color: 'var(--brand-personal-text-head)',
                     fontSize: 14,
                   }}
                 >
@@ -238,7 +238,7 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
                 </li>
               ))}
               {remaining.length > 4 && (
-                <li style={{ color: '#a89278', fontSize: 13, marginLeft: 26 }}>
+                <li style={{ color: 'var(--brand-personal-text-light)', fontSize: 13, marginLeft: 26 }}>
                   + {remaining.length - 4} more
                 </li>
               )}
@@ -249,7 +249,7 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
               style={{
                 display: 'inline-block',
                 padding: '10px 22px',
-                background: '#c8956c',
+                background: 'var(--brand-personal)',
                 color: 'white',
                 borderRadius: 100,
                 fontSize: 13,

@@ -24,9 +24,9 @@ interface GameCardProps {
   answered?: boolean;
 }
 
-const PEACH = '#c8956c';
-const INK = '#1a1208';
-const MUTED = '#8a7560';
+const PEACH = 'var(--brand-personal)';
+const INK = 'var(--brand-text-primary)';
+const MUTED = 'var(--brand-personal-text-mid)';
 const CARD_BG = '#fff8ef';
 
 export function GameCard({ content, isOwnMessage, onReply, answered }: GameCardProps) {

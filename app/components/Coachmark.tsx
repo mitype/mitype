@@ -139,7 +139,7 @@ export function Coachmark({
     >
       <div
         style={{
-          background: 'linear-gradient(135deg, #fff8ec 0%, #fff3ec 100%)',
+          background: 'linear-gradient(135deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           border: '1px solid rgba(200,149,108,0.35)',
           borderRadius: 18,
           padding: '14px 44px 14px 18px',
@@ -151,7 +151,7 @@ export function Coachmark({
         {title && (
           <p
             style={{
-              color: '#c8956c',
+              color: 'var(--brand-personal)',
               fontSize: 11,
               fontWeight: 800,
               textTransform: 'uppercase',
@@ -164,7 +164,7 @@ export function Coachmark({
         )}
         <p
           style={{
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             fontSize: 14,
             lineHeight: 1.5,
             margin: 0,
@@ -187,7 +187,7 @@ export function Coachmark({
             borderRadius: '50%',
             border: 'none',
             background: 'transparent',
-            color: '#a89278',
+            color: 'var(--brand-personal-text-light)',
             fontSize: 16,
             cursor: 'pointer',
             display: 'flex',

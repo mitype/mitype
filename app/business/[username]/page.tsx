@@ -207,7 +207,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
 
   if (loading || !biz) {
     return (
-      <main style={{ minHeight: '100vh', background: '#f5f0e8', padding: 40, textAlign: 'center' }}>
+      <main style={{ minHeight: '100vh', background: 'var(--brand-personal-bg-cream-deep)', padding: 40, textAlign: 'center' }}>
         Loading…
       </main>
     );
@@ -249,7 +249,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
           <div style={{ display: 'flex', gap: 18, alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <div style={{
               width: 84, height: 84, borderRadius: 18,
-              background: biz.logo_url ? `url(${biz.logo_url})` : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+              background: biz.logo_url ? `url(${biz.logo_url})` : 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
               backgroundSize: 'cover', backgroundPosition: 'center',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 36, color: 'white', flexShrink: 0,
@@ -258,7 +258,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
               {!biz.logo_url && '🏪'}
             </div>
             <div style={{ flex: 1, minWidth: 200 }}>
-              <h1 style={{ fontSize: 28, fontWeight: 900, color: '#1a1208', letterSpacing: '-0.6px', margin: 0 }}>
+              <h1 style={{ fontSize: 28, fontWeight: 900, color: 'var(--brand-text-primary)', letterSpacing: '-0.6px', margin: 0 }}>
                 {biz.business_name}
               </h1>
               {biz.category && (
@@ -266,7 +266,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                   display: 'inline-block', marginTop: 8,
                   padding: '5px 12px',
                   background: 'rgba(139,92,246,0.12)',
-                  color: '#5b21b6',
+                  color: 'var(--brand-business-deep)',
                   borderRadius: 100,
                   fontSize: 12,
                   fontWeight: 700,
@@ -286,7 +286,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                       gap: 6,
                       marginTop: 10,
                       padding: '6px 14px',
-                      background: 'linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)',
+                      background: 'linear-gradient(135deg, var(--brand-business) 0%, var(--brand-business-light) 100%)',
                       color: 'white',
                       borderRadius: 100,
                       fontSize: 13,
@@ -304,7 +304,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                     marginTop: 10,
                     padding: '6px 14px',
                     background: 'rgba(139,92,246,0.12)',
-                    color: '#5b21b6',
+                    color: 'var(--brand-business-deep)',
                     borderRadius: 100,
                     fontSize: 13,
                     fontWeight: 800,
@@ -405,7 +405,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                       borderRadius: '50%',
                       background: r.avatar_url
                         ? `url(${r.avatar_url}) center / cover`
-                        : 'linear-gradient(135deg, #8b5cf6, #c084fc)',
+                        : 'linear-gradient(135deg, var(--brand-business), var(--brand-business-light))',
                       border: '2px solid white',
                       boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -420,7 +420,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                 ))}
               </div>
               {recommenderCount > recommenders.length && (
-                <span style={{ fontSize: 13, color: '#7a6a85', fontWeight: 700 }}>
+                <span style={{ fontSize: 13, color: 'var(--brand-business-text-mid)', fontWeight: 700 }}>
                   + {recommenderCount - recommenders.length} more
                 </span>
               )}
@@ -440,10 +440,10 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                   borderRadius: 16,
                   padding: 14,
                 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: '#8b5cf6', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--brand-business)', textTransform: 'uppercase', letterSpacing: '1px' }}>
                     {formatEventDate(ev.event_date)}
                   </div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1208', marginTop: 4 }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--brand-text-primary)', marginTop: 4 }}>
                     {ev.title}
                   </div>
                   {ev.description && (
@@ -452,7 +452,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
                     </div>
                   )}
                   {(ev.location_name || ev.location_address) && (
-                    <div style={{ fontSize: 12, color: '#7a6a85', marginTop: 8 }}>
+                    <div style={{ fontSize: 12, color: 'var(--brand-business-text-mid)', marginTop: 8 }}>
                       📍 {[ev.location_name, ev.location_address].filter(Boolean).join('. ')}
                     </div>
                   )}
@@ -487,7 +487,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     <div style={{
       fontSize: 11,
       fontWeight: 800,
-      color: '#7a6a85',
+      color: 'var(--brand-business-text-mid)',
       textTransform: 'uppercase',
       letterSpacing: '1.5px',
       marginBottom: 12,
@@ -507,7 +507,7 @@ function SocialLink({ label, value, icon }: { label: string; value: string; icon
       style={{
         padding: '8px 14px',
         background: 'rgba(139,92,246,0.1)',
-        color: '#5b21b6',
+        color: 'var(--brand-business-deep)',
         border: '1px solid rgba(139,92,246,0.3)',
         borderRadius: 100,
         fontSize: 13,
@@ -530,7 +530,7 @@ function formatEventDate(iso: string): string {
 
 const primaryBtn: React.CSSProperties = {
   padding: '10px 20px',
-  background: '#8b5cf6',
+  background: 'var(--brand-business)',
   color: 'white',
   border: 'none',
   borderRadius: 100,
@@ -543,7 +543,7 @@ const primaryBtn: React.CSSProperties = {
 const secondaryBtn: React.CSSProperties = {
   padding: '10px 20px',
   background: 'white',
-  color: '#5b21b6',
+  color: 'var(--brand-business-deep)',
   border: '1px solid rgba(139,92,246,0.35)',
   borderRadius: 100,
   fontSize: 14,
@@ -559,7 +559,7 @@ const savedBtn: React.CSSProperties = {
 const ghostBtn: React.CSSProperties = {
   padding: '10px 20px',
   background: 'transparent',
-  color: '#5b21b6',
+  color: 'var(--brand-business-deep)',
   border: '1px solid rgba(139,92,246,0.25)',
   borderRadius: 100,
   fontSize: 14,

@@ -37,7 +37,7 @@ export function Skeleton({ width = '100%', height = 16, radius = 8, style }: Ske
 
 const CONTAINER: React.CSSProperties = {
   minHeight: '100vh',
-  background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+  background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
   fontFamily: "'Helvetica Neue', Arial, sans-serif",
   padding: '48px 24px',
 };
@@ -91,7 +91,7 @@ export function MessagesSkeleton() {
       aria-label="Loading messages"
       style={{
         height: '100vh',
-        background: '#faf6f0',
+        background: 'var(--brand-personal-bg-cream)',
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
         display: 'flex',
         flexDirection: 'column',

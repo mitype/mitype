@@ -53,8 +53,8 @@ export function SiteNav({
   const [open, setOpen] = useState(false);
   const { unread } = useUnreadCounts(userId ?? undefined);
 
-  const accentColor = accent === 'purple' ? '#8b5cf6' : '#c8956c';
-  const accentText = accent === 'purple' ? '#5b21b6' : '#8a7560';
+  const accentColor = accent === 'purple' ? 'var(--brand-business)' : 'var(--brand-personal)';
+  const accentText = accent === 'purple' ? 'var(--brand-business-deep)' : 'var(--brand-personal-text-mid)';
   const borderColor = accent === 'purple'
     ? 'rgba(139,92,246,0.18)'
     : 'rgba(200,149,108,0.15)';
@@ -80,7 +80,7 @@ export function SiteNav({
   const pillBorder = accent === 'purple'
     ? 'rgba(139,92,246,0.18)'
     : 'rgba(200,149,108,0.2)';
-  const pillText = accent === 'purple' ? '#5b21b6' : '#6b4f33';
+  const pillText = accent === 'purple' ? 'var(--brand-business-deep)' : '#6b4f33';
 
   function NavLink({
     href, label, badge,
@@ -146,7 +146,7 @@ export function SiteNav({
           }}>
             mitype
             {brandSuffix && (
-              <span style={{ color: '#1a1208' }}>{brandSuffix}</span>
+              <span style={{ color: 'var(--brand-text-primary)' }}>{brandSuffix}</span>
             )}
           </Link>
         </div>
@@ -235,7 +235,7 @@ export function SiteNav({
               alignItems: 'center',
               gap: 10,
               padding: '13px 20px',
-              color: '#5b21b6',
+              color: 'var(--brand-business-deep)',
               fontSize: 15,
               fontWeight: 800,
               textDecoration: 'none',
@@ -258,7 +258,7 @@ export function SiteNav({
               alignItems: 'center',
               gap: 10,
               padding: '13px 20px',
-              color: '#15803d',
+              color: 'var(--brand-market)',
               fontSize: 15,
               fontWeight: 800,
               textDecoration: 'none',
@@ -282,7 +282,7 @@ export function SiteNav({
                 background: 'transparent',
                 border: `1px solid ${borderColor}`,
                 borderRadius: 100,
-                color: '#8a7560',
+                color: 'var(--brand-personal-text-mid)',
                 fontSize: 15,
                 fontWeight: 700,
                 cursor: 'pointer',

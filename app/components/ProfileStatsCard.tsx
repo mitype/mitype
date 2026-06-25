@@ -120,7 +120,7 @@ export function ProfileStatsCard({ userId }: { userId: string | null | undefined
     >
       <div style={{
         fontSize: 11, fontWeight: 800,
-        color: '#a89278', textTransform: 'uppercase',
+        color: 'var(--brand-personal-text-light)', textTransform: 'uppercase',
         letterSpacing: '0.5px',
         marginBottom: 12,
       }}>
@@ -194,7 +194,7 @@ function StatTile({ label, sub, value }: { label: string; sub: string; value: st
   return (
     <div style={{
       padding: '14px 12px',
-      background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
       border: '1px solid rgba(200,149,108,0.18)',
       borderRadius: 16,
       minWidth: 0,
@@ -202,7 +202,7 @@ function StatTile({ label, sub, value }: { label: string; sub: string; value: st
       <div style={{
         fontSize: 22,
         fontWeight: 900,
-        color: '#1a1208',
+        color: 'var(--brand-text-primary)',
         letterSpacing: '-0.5px',
         fontVariantNumeric: 'tabular-nums',
         whiteSpace: 'nowrap',
@@ -213,14 +213,14 @@ function StatTile({ label, sub, value }: { label: string; sub: string; value: st
       </div>
       <div style={{
         fontSize: 12, fontWeight: 700,
-        color: '#5b4a36',
+        color: 'var(--brand-personal-text-deep)',
         marginTop: 2,
       }}>
         {label}
       </div>
       <div style={{
         fontSize: 10,
-        color: '#a89278',
+        color: 'var(--brand-personal-text-light)',
         marginTop: 1,
       }}>
         {sub}
@@ -233,7 +233,7 @@ function StripStat({ label, value }: { label: string; value: string | number }) 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
       <span style={{
-        fontSize: 16, fontWeight: 900, color: '#1a1208',
+        fontSize: 16, fontWeight: 900, color: 'var(--brand-text-primary)',
         fontVariantNumeric: 'tabular-nums',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
@@ -241,7 +241,7 @@ function StripStat({ label, value }: { label: string; value: string | number }) 
       }}>
         {value}
       </span>
-      <span style={{ fontSize: 10, color: '#a89278', fontWeight: 700, letterSpacing: '0.3px' }}>
+      <span style={{ fontSize: 10, color: 'var(--brand-personal-text-light)', fontWeight: 700, letterSpacing: '0.3px' }}>
         {label}
       </span>
     </div>

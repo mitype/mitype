@@ -239,7 +239,7 @@ export function VoiceRecorder({ onSend, maxSeconds = 600 }: Props) {
                       style={{
                         width: 4,
                         height: Math.max(6, p * 60),
-                        background: phase === 'recording' ? '#ff5a5a' : '#c8956c',
+                        background: phase === 'recording' ? '#ff5a5a' : 'var(--brand-personal)',
                         borderRadius: 100,
                         opacity: 0.9,
                         transition: 'height 0.06s linear',
@@ -297,7 +297,7 @@ function DeniedPanel({ onClose }: { onClose: () => void }) {
   return (
     <>
       <h3 style={panelTitle}>Microphone blocked</h3>
-      <p style={{ color: '#6b5744', fontSize: 14, lineHeight: 1.5, margin: '0 0 18px' }}>
+      <p style={{ color: 'var(--brand-personal-text-head)', fontSize: 14, lineHeight: 1.5, margin: '0 0 18px' }}>
         Your browser denied microphone access. To send voice notes, allow
         microphone permission for this site in your browser settings, then
         try again.
@@ -330,7 +330,7 @@ const micButton: React.CSSProperties = {
   borderRadius: '50%',
   border: '1px solid rgba(200,149,108,0.35)',
   background: 'white',
-  color: '#c8956c',
+  color: 'var(--brand-personal)',
   fontSize: 20,
   cursor: 'pointer',
   display: 'flex',
@@ -354,7 +354,7 @@ const overlay: React.CSSProperties = {
 const panel: React.CSSProperties = {
   width: '100%',
   maxWidth: 380,
-  background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+  background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
   borderRadius: 22,
   padding: 22,
   boxShadow: '0 24px 60px rgba(0,0,0,0.4)',
@@ -362,7 +362,7 @@ const panel: React.CSSProperties = {
 const panelTitle: React.CSSProperties = {
   fontSize: 18,
   fontWeight: 800,
-  color: '#1a1208',
+  color: 'var(--brand-text-primary)',
   margin: '0 0 14px',
 };
 const waveformRow: React.CSSProperties = {
@@ -381,7 +381,7 @@ const elapsedLabel: React.CSSProperties = {
   textAlign: 'center',
   fontSize: 13,
   fontWeight: 700,
-  color: '#6b5744',
+  color: 'var(--brand-personal-text-head)',
   marginBottom: 14,
 };
 const btnRow: React.CSSProperties = {
@@ -394,7 +394,7 @@ const ghostBtn: React.CSSProperties = {
   background: 'transparent',
   border: '1px solid rgba(200,149,108,0.4)',
   borderRadius: 100,
-  color: '#8a7560',
+  color: 'var(--brand-personal-text-mid)',
   fontSize: 14,
   fontWeight: 700,
   cursor: 'pointer',
@@ -402,7 +402,7 @@ const ghostBtn: React.CSSProperties = {
 };
 const primaryBtn: React.CSSProperties = {
   padding: '10px 22px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   border: 'none',
   borderRadius: 100,
   color: 'white',

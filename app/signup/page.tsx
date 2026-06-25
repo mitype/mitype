@@ -38,7 +38,7 @@ export default function SignupPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       display: 'flex',
       flexDirection: 'column',
@@ -52,7 +52,7 @@ export default function SignupPage() {
         <div style={{
           fontSize: 32,
           fontWeight: 900,
-          color: '#c8956c',
+          color: 'var(--brand-personal)',
           letterSpacing: '-1px',
         }}>
           mitype
@@ -72,14 +72,14 @@ export default function SignupPage() {
         <h1 style={{
           fontSize: 28,
           fontWeight: 800,
-          color: '#1a1208',
+          color: 'var(--brand-text-primary)',
           marginBottom: 8,
           letterSpacing: '-0.5px',
         }}>
           Create your account
         </h1>
         <p style={{
-          color: '#a89278',
+          color: 'var(--brand-personal-text-light)',
           fontSize: 15,
           marginBottom: 36,
         }}>
@@ -94,7 +94,7 @@ export default function SignupPage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 600,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
             }}>
               Email address
@@ -110,9 +110,9 @@ export default function SignupPage() {
                 padding: '13px 16px',
                 borderRadius: 12,
                 border: '1px solid rgba(200,149,108,0.25)',
-                background: '#faf6f0',
+                background: 'var(--brand-personal-bg-cream)',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -125,7 +125,7 @@ export default function SignupPage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 600,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
             }}>
               Password
@@ -141,9 +141,9 @@ export default function SignupPage() {
                 padding: '13px 16px',
                 borderRadius: 12,
                 border: '1px solid rgba(200,149,108,0.25)',
-                background: '#faf6f0',
+                background: 'var(--brand-personal-bg-cream)',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -156,7 +156,7 @@ export default function SignupPage() {
               display: 'block',
               fontSize: 13,
               fontWeight: 600,
-              color: '#6b5744',
+              color: 'var(--brand-personal-text-head)',
               marginBottom: 8,
             }}>
               Confirm password
@@ -172,9 +172,9 @@ export default function SignupPage() {
                 padding: '13px 16px',
                 borderRadius: 12,
                 border: '1px solid rgba(200,149,108,0.25)',
-                background: '#faf6f0',
+                background: 'var(--brand-personal-bg-cream)',
                 fontSize: 16,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -183,17 +183,17 @@ export default function SignupPage() {
 
           {/* Terms */}
           <p style={{
-            color: '#a89278',
+            color: 'var(--brand-personal-text-light)',
             fontSize: 12,
             marginBottom: 24,
             lineHeight: 1.6,
           }}>
             By signing up you agree to our{' '}
-            <Link href="/legal/terms" style={{ color: '#c8956c', textDecoration: 'none', fontWeight: 600 }}>
+            <Link href="/legal/terms" style={{ color: 'var(--brand-personal)', textDecoration: 'none', fontWeight: 600 }}>
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link href="/legal/privacy" style={{ color: '#c8956c', textDecoration: 'none', fontWeight: 600 }}>
+            <Link href="/legal/privacy" style={{ color: 'var(--brand-personal)', textDecoration: 'none', fontWeight: 600 }}>
               Privacy Policy
             </Link>
             . You must be 18 or older to use Mitype.
@@ -206,7 +206,7 @@ export default function SignupPage() {
             style={{
               width: '100%',
               padding: '15px',
-              background: loading ? '#d4a882' : '#c8956c',
+              background: loading ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
               color: 'white',
               border: 'none',
               borderRadius: 100,
@@ -223,12 +223,12 @@ export default function SignupPage() {
           {/* Login link */}
           <p style={{
             textAlign: 'center',
-            color: '#a89278',
+            color: 'var(--brand-personal-text-light)',
             fontSize: 14,
           }}>
             Already have an account?{' '}
             <Link href="/login" style={{
-              color: '#c8956c',
+              color: 'var(--brand-personal)',
               fontWeight: 700,
               textDecoration: 'none',
             }}>

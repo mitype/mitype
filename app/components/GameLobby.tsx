@@ -125,7 +125,7 @@ export function GameLobby({ open, onClose, onPickLive, onPickMini, partnerUserna
           width: '100%',
           maxWidth: 460,
           maxHeight: 'min(92vh, 820px)',
-          background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+          background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           borderRadius: 24,
           boxShadow: '0 24px 60px rgba(0,0,0,0.4)',
           display: 'flex',
@@ -145,7 +145,7 @@ export function GameLobby({ open, onClose, onPickLive, onPickMini, partnerUserna
               margin: 0,
               fontSize: 21,
               fontWeight: 900,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: '-0.5px',
             }}>
               Pick a game
@@ -157,7 +157,7 @@ export function GameLobby({ open, onClose, onPickLive, onPickMini, partnerUserna
               style={{
                 width: 32, height: 32, borderRadius: '50%',
                 background: 'rgba(0,0,0,0.06)',
-                border: 'none', color: '#1a1208',
+                border: 'none', color: 'var(--brand-text-primary)',
                 fontSize: 16, cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -167,7 +167,7 @@ export function GameLobby({ open, onClose, onPickLive, onPickMini, partnerUserna
           </div>
 
           <p style={{
-            color: '#7a6a4f',
+            color: 'var(--brand-personal-text-amber)',
             fontSize: 13,
             margin: '0 0 12px',
             lineHeight: 1.5,
@@ -323,7 +323,7 @@ function GameRow({ entry, expanded, onToggleExpand, onPick }: {
           style={{
             background: 'transparent',
             border: 'none',
-            color: '#a07a4d',
+            color: 'var(--brand-personal-deep)',
             fontSize: 11,
             fontWeight: 700,
             letterSpacing: '0.4px',
@@ -342,7 +342,7 @@ function GameRow({ entry, expanded, onToggleExpand, onPick }: {
         <div style={{
           padding: '0 14px 14px',
           fontSize: 12.5,
-          color: '#5b4a36',
+          color: 'var(--brand-personal-text-deep)',
           lineHeight: 1.55,
         }}>
           <ol style={{ paddingLeft: 18, margin: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -351,7 +351,7 @@ function GameRow({ entry, expanded, onToggleExpand, onPick }: {
             ))}
           </ol>
           {entry.howToPlay.length > 4 && (
-            <div style={{ marginTop: 6, color: '#a89278', fontSize: 11, fontStyle: 'italic' }}>
+            <div style={{ marginTop: 6, color: 'var(--brand-personal-text-light)', fontSize: 11, fontStyle: 'italic' }}>
               Tap ⓘ in-game for the full rules.
             </div>
           )}
@@ -366,10 +366,10 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
     <div style={{
       position: 'sticky',
       top: 0,
-      background: 'linear-gradient(180deg, #fff8ec 0%, rgba(255,248,236,0.95) 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, rgba(255,248,236,0.95) 100%)',
       padding: '6px 2px 4px',
       fontSize: 11, fontWeight: 800,
-      color: '#a07a4d', textTransform: 'uppercase',
+      color: 'var(--brand-personal-deep)', textTransform: 'uppercase',
       letterSpacing: '1.5px',
       zIndex: 1,
     }}>
@@ -418,19 +418,19 @@ const miniCard: React.CSSProperties = {
 };
 const iconBubble: React.CSSProperties = {
   width: 44, height: 44, borderRadius: 12,
-  background: 'linear-gradient(135deg, #fff3ec, #ffe1c8)',
+  background: 'linear-gradient(135deg, var(--brand-personal-bg-peach), #ffe1c8)',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   fontSize: 22,
   flexShrink: 0,
 };
 const cardTitle: React.CSSProperties = {
-  fontSize: 15, fontWeight: 800, color: '#1a1208',
+  fontSize: 15, fontWeight: 800, color: 'var(--brand-text-primary)',
   letterSpacing: '-0.2px',
   display: 'flex', alignItems: 'center', gap: 8,
   flexWrap: 'wrap',
 };
 const cardTagline: React.CSSProperties = {
-  fontSize: 12, color: '#7a6a4f', marginTop: 2,
+  fontSize: 12, color: 'var(--brand-personal-text-amber)', marginTop: 2,
   lineHeight: 1.35,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -438,7 +438,7 @@ const cardTagline: React.CSSProperties = {
 };
 const pill: React.CSSProperties = {
   fontSize: 10, fontWeight: 800,
-  color: '#c8956c',
+  color: 'var(--brand-personal)',
   background: 'rgba(200,149,108,0.12)',
   padding: '2px 7px',
   borderRadius: 100,
@@ -447,9 +447,9 @@ const pill: React.CSSProperties = {
 };
 function vibePill(vibe: GameCatalogEntry['vibe']): React.CSSProperties {
   const palette = vibe === 'easy'
-    ? { bg: 'rgba(34,197,94,0.12)', fg: '#15803d' }
+    ? { bg: 'rgba(34,197,94,0.12)', fg: 'var(--brand-market)' }
     : vibe === 'medium'
-      ? { bg: 'rgba(200,149,108,0.16)', fg: '#a07a4d' }
+      ? { bg: 'rgba(200,149,108,0.16)', fg: 'var(--brand-personal-deep)' }
       : { bg: 'rgba(139,92,246,0.14)', fg: '#6d28d9' };
   return {
     ...pill,
@@ -458,12 +458,12 @@ function vibePill(vibe: GameCatalogEntry['vibe']): React.CSSProperties {
   };
 }
 const arrowStyle: React.CSSProperties = {
-  color: '#c8956c',
+  color: 'var(--brand-personal)',
   fontWeight: 800,
   fontSize: 18,
   flexShrink: 0,
 };
 const miniBlurb: React.CSSProperties = {
-  fontSize: 12, color: '#a89278',
+  fontSize: 12, color: 'var(--brand-personal-text-light)',
   margin: '0 0 4px 2px', lineHeight: 1.4,
 };

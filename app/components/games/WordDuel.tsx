@@ -390,7 +390,7 @@ export function WordDuel({ session, currentUserId, updateState }: Props) {
       {/* Turn pill */}
       <div style={{
         padding: '8px 16px',
-        background: isMyTurn ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.08)',
+        background: isMyTurn ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.08)',
         color: isMyTurn ? 'white' : 'rgba(255,255,255,0.7)',
         borderRadius: 100,
         fontSize: 13, fontWeight: 800,
@@ -446,7 +446,7 @@ export function WordDuel({ session, currentUserId, updateState }: Props) {
             else if (prem === 'DL') bg = '#3b88c4';
           } else {
             bg = isPending
-              ? 'linear-gradient(135deg, #ffd5a8, #c8956c)'
+              ? 'linear-gradient(135deg, var(--brand-personal-soft), var(--brand-personal))'
               : 'linear-gradient(135deg, #fff8ef, #f3e3cd)';
           }
 
@@ -476,7 +476,7 @@ export function WordDuel({ session, currentUserId, updateState }: Props) {
                 touchAction: 'manipulation',
                 fontFamily: 'inherit',
                 minHeight: 0,
-                outline: isPending ? '1.5px solid #ffd5a8' : 'none',
+                outline: isPending ? '1.5px solid var(--brand-personal-soft)' : 'none',
               }}
             >
               {letter ? (
@@ -547,11 +547,11 @@ export function WordDuel({ session, currentUserId, updateState }: Props) {
                     ? used
                       ? 'rgba(255,255,255,0.06)'
                       : (selected || inSwap)
-                        ? 'linear-gradient(135deg, #ffd5a8, #c8956c)'
+                        ? 'linear-gradient(135deg, var(--brand-personal-soft), var(--brand-personal))'
                         : 'linear-gradient(135deg, #fff8ef, #f3e3cd)'
                     : 'rgba(255,255,255,0.04)',
                   border: selected || inSwap
-                    ? '2px solid #ffd5a8'
+                    ? '2px solid var(--brand-personal-soft)'
                     : '1px solid rgba(255,255,255,0.12)',
                   color: used ? 'rgba(255,255,255,0.4)' : '#0c0c10',
                   fontSize: 18, fontWeight: 900,
@@ -643,7 +643,7 @@ export function WordDuel({ session, currentUserId, updateState }: Props) {
           <div
             style={{
               maxWidth: 360,
-              background: '#1a1208',
+              background: 'var(--brand-text-primary)',
               border: '1px solid rgba(255,213,168,0.4)',
               borderRadius: 18,
               padding: 18,
@@ -652,7 +652,7 @@ export function WordDuel({ session, currentUserId, updateState }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{
-              fontSize: 13, fontWeight: 800, color: '#ffd5a8',
+              fontSize: 13, fontWeight: 800, color: 'var(--brand-personal-soft)',
               textAlign: 'center', marginBottom: 10,
               letterSpacing: '1px', textTransform: 'uppercase',
             }}>
@@ -673,7 +673,7 @@ export function WordDuel({ session, currentUserId, updateState }: Props) {
                     background: 'rgba(255,213,168,0.12)',
                     border: '1px solid rgba(255,213,168,0.3)',
                     borderRadius: 8,
-                    color: '#ffd5a8',
+                    color: 'var(--brand-personal-soft)',
                     fontSize: 14, fontWeight: 900,
                     fontFamily: 'inherit',
                     cursor: 'pointer',
@@ -700,7 +700,7 @@ function ScoreCard({ label, value, highlight }: { label: string; value: number; 
   return (
     <div style={{
       padding: '10px 12px',
-      background: highlight ? 'linear-gradient(135deg, #c8956c, #ffb37c)' : 'rgba(255,255,255,0.06)',
+      background: highlight ? 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))' : 'rgba(255,255,255,0.06)',
       border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 12,
       textAlign: 'center',
@@ -724,7 +724,7 @@ function ScoreCard({ label, value, highlight }: { label: string; value: number; 
 
 const primaryBtn: React.CSSProperties = {
   padding: '10px 22px',
-  background: '#c8956c',
+  background: 'var(--brand-personal)',
   color: 'white',
   border: 'none', borderRadius: 100,
   fontSize: 14, fontWeight: 800,
@@ -735,7 +735,7 @@ const primaryBtn: React.CSSProperties = {
 const secondaryBtn: React.CSSProperties = {
   padding: '10px 18px',
   background: 'transparent',
-  color: '#ffd5a8',
+  color: 'var(--brand-personal-soft)',
   border: '1px solid rgba(255,213,168,0.5)', borderRadius: 100,
   fontSize: 13, fontWeight: 800,
   cursor: 'pointer', fontFamily: 'inherit',

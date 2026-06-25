@@ -76,7 +76,7 @@ export default function Dashboard() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #faf6f0 0%, #f5f0e8 100%)',
+      background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       fontFamily: "'Helvetica Neue', Arial, sans-serif",
       padding: '0 0 80px 0',
     }}>
@@ -135,7 +135,7 @@ export default function Dashboard() {
                 display: 'inline-block',
                 padding: 4,
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #c8956c 0%, #ffb37c 50%, #c8956c 100%)',
+                background: 'linear-gradient(135deg, var(--brand-personal) 0%, var(--brand-personal-light) 50%, var(--brand-personal) 100%)',
                 boxShadow: '0 0 20px rgba(200,149,108,0.55)',
                 animation: 'mitype-dashboard-freshwave 2.4s ease-in-out infinite',
                 flexShrink: 0,
@@ -148,7 +148,7 @@ export default function Dashboard() {
                 borderRadius: '50%',
                 border: '2.5px solid white',
                 overflow: 'hidden',
-                background: '#f0e8df',
+                background: 'var(--brand-personal-bg-pale)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -171,7 +171,7 @@ export default function Dashboard() {
               borderRadius: '50%',
               border: '3px solid white',
               overflow: 'hidden',
-              background: '#f0e8df',
+              background: 'var(--brand-personal-bg-pale)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -193,14 +193,14 @@ export default function Dashboard() {
             <h1 style={{
               fontSize: 40,
               fontWeight: 900,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: '-1px',
               marginBottom: 8,
               marginTop: 0,
             }}>
-              Welcome back, <span style={{ color: '#c8956c' }}>@{profile?.username}</span> 👋
+              Welcome back, <span style={{ color: 'var(--brand-personal)' }}>@{profile?.username}</span> 👋
             </h1>
-            <p style={{ color: '#a89278', fontSize: 16, margin: 0 }}>
+            <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 16, margin: 0 }}>
               {hasFreshWave
                 ? 'Your Wave is live. Tap your avatar to watch your own videos.'
                 : "Here's what's happening on your Mitype profile."}
@@ -226,7 +226,7 @@ export default function Dashboard() {
           onClick={() => setShareOpen(true)}
           style={{
             width: '100%',
-            background: 'linear-gradient(135deg, #fff3ec 0%, #ffe1c8 100%)',
+            background: 'linear-gradient(135deg, var(--brand-personal-bg-peach) 0%, #ffe1c8 100%)',
             border: '1.5px solid rgba(200,149,108,0.35)',
             borderRadius: 20,
             padding: '20px 24px',
@@ -246,7 +246,7 @@ export default function Dashboard() {
               width: 48,
               height: 48,
               borderRadius: 14,
-              background: 'linear-gradient(135deg, #c8956c 0%, #a07452 100%)',
+              background: 'linear-gradient(135deg, var(--brand-personal) 0%, #a07452 100%)',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
@@ -258,14 +258,14 @@ export default function Dashboard() {
             💌
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ color: '#1a1208', fontSize: 15, fontWeight: 800, margin: '0 0 3px', letterSpacing: '-0.2px' }}>
+            <p style={{ color: 'var(--brand-text-primary)', fontSize: 15, fontWeight: 800, margin: '0 0 3px', letterSpacing: '-0.2px' }}>
               Invite a creative friend
             </p>
-            <p style={{ color: '#8a7560', fontSize: 13, margin: 0, lineHeight: 1.4 }}>
+            <p style={{ color: 'var(--brand-personal-text-mid)', fontSize: 13, margin: 0, lineHeight: 1.4 }}>
               Share to Instagram, TikTok, Snapchat, X, Facebook, Threads, or text.
             </p>
           </div>
-          <div aria-hidden="true" style={{ color: '#c8956c', fontSize: 18, fontWeight: 800, flexShrink: 0 }}>
+          <div aria-hidden="true" style={{ color: 'var(--brand-personal)', fontSize: 18, fontWeight: 800, flexShrink: 0 }}>
             →
           </div>
         </button>
@@ -293,9 +293,9 @@ export default function Dashboard() {
         }}>
           {[
             { icon: '🌊', label: 'The Wave Feed', desc: 'Jump straight into the scrolling feed. Watch, like, and post your own', href: '/wave', color: '#ecf0f5' },
-            { icon: '🏡', label: 'Mi Home Goods', desc: 'Buy and sell with your Mitype community. Furniture, electronics, vintage finds', href: '/home-goods', color: '#ecfdf5' },
-            { icon: '🔍', label: 'Discover Creators', desc: 'Browse profiles and connect with creators who share your craft', href: '/discover', color: '#fff3ec' },
-            { icon: '✨', label: 'Spotlight', desc: 'Explore portfolio work from the community', href: '/spotlight', color: '#fff8ec' },
+            { icon: '🏡', label: 'Mi Home Goods', desc: 'Buy and sell with your Mitype community. Furniture, electronics, vintage finds', href: '/home-goods', color: 'var(--brand-market-bg-mint)' },
+            { icon: '🔍', label: 'Discover Creators', desc: 'Browse profiles and connect with creators who share your craft', href: '/discover', color: 'var(--brand-personal-bg-peach)' },
+            { icon: '✨', label: 'Spotlight', desc: 'Explore portfolio work from the community', href: '/spotlight', color: 'var(--brand-personal-bg-peach-warm)' },
             { icon: '💬', label: 'Messages', desc: 'View your conversations', href: '/messages', color: '#f5f5ec' },
             { icon: '👤', label: 'My Profile', desc: 'See how others see you', href: `/profile/${profile?.username}`, color: '#ecf5f0' },
             { icon: '✏️', label: 'Edit Profile', desc: 'Update your info and photo', href: '/edit-profile', color: '#f0ecf5' },
@@ -318,7 +318,7 @@ export default function Dashboard() {
               <h3 style={{
                 fontSize: 16,
                 fontWeight: 700,
-                color: '#1a1208',
+                color: 'var(--brand-text-primary)',
                 marginBottom: 6,
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -328,7 +328,7 @@ export default function Dashboard() {
                   <UnreadBadge count={unread.total} size="md" />
                 )}
               </h3>
-              <p style={{ color: '#a89278', fontSize: 13 }}>{action.desc}</p>
+              <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 13 }}>{action.desc}</p>
             </Link>
           ))}
         </div>
@@ -343,28 +343,28 @@ export default function Dashboard() {
           <h2 style={{
             fontSize: 20,
             fontWeight: 800,
-            color: '#1a1208',
+            color: 'var(--brand-text-primary)',
             marginBottom: 20,
           }}>
             Your Profile
           </h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
             <div>
-              <p style={{ color: '#a89278', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Username</p>
-              <p style={{ color: '#1a1208', fontWeight: 700 }}>@{profile?.username}</p>
+              <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Username</p>
+              <p style={{ color: 'var(--brand-text-primary)', fontWeight: 700 }}>@{profile?.username}</p>
             </div>
             <div>
-              <p style={{ color: '#a89278', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>ZIP Code</p>
-              <p style={{ color: '#1a1208', fontWeight: 700 }}>{profile?.zip_code || 'Not set'}</p>
+              <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>ZIP Code</p>
+              <p style={{ color: 'var(--brand-text-primary)', fontWeight: 700 }}>{profile?.zip_code || 'Not set'}</p>
             </div>
             <div>
-              <p style={{ color: '#a89278', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Categories</p>
+              <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Categories</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {profile?.categories?.map((cat: string) => (
                   <span key={cat} style={{
                     background: 'rgba(200,149,108,0.1)',
                     border: '1px solid rgba(200,149,108,0.2)',
-                    color: '#c8956c',
+                    color: 'var(--brand-personal)',
                     padding: '4px 12px',
                     borderRadius: 100,
                     fontSize: 12,

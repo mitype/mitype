@@ -190,7 +190,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
           width: '100%',
           maxWidth: 440,
           maxHeight: 'min(92vh, 760px)',
-          background: 'linear-gradient(180deg, #fff8ec 0%, #fff3ec 100%)',
+          background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           borderRadius: 24,
           boxShadow: '0 24px 60px rgba(0,0,0,0.4)',
           display: 'flex',
@@ -210,7 +210,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
               margin: 0,
               fontSize: 20,
               fontWeight: 900,
-              color: '#1a1208',
+              color: 'var(--brand-text-primary)',
               letterSpacing: '-0.5px',
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -218,7 +218,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
             }}>
               {convo.title || (isRoom ? 'Room' : 'Group')}
             </h2>
-            <p style={{ margin: '2px 0 0', fontSize: 12, color: '#7a6a4f' }}>
+            <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--brand-personal-text-amber)' }}>
               {isRoom
                 ? `${roomCategoryEmoji(convo.category)} ${roomCategoryLabel(convo.category)} · ${members.length} members`
                 : `${members.length} members`}
@@ -231,7 +231,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
             style={{
               width: 32, height: 32, borderRadius: '50%',
               background: 'rgba(0,0,0,0.06)',
-              border: 'none', color: '#1a1208',
+              border: 'none', color: 'var(--brand-text-primary)',
               fontSize: 16, cursor: 'pointer',
               fontFamily: 'inherit',
               flexShrink: 0,
@@ -254,7 +254,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
               <SectionLabel>About this room</SectionLabel>
               <p style={{
                 margin: 0,
-                fontSize: 13, color: '#5b4a36', lineHeight: 1.5,
+                fontSize: 13, color: 'var(--brand-personal-text-deep)', lineHeight: 1.5,
               }}>
                 {convo.description}
               </p>
@@ -283,7 +283,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
                       borderRadius: 12,
                       fontSize: 16,
                       outline: 'none',
-                      color: '#1a1208',
+                      color: 'var(--brand-text-primary)',
                       fontFamily: 'inherit',
                       resize: 'vertical',
                       minHeight: 64,
@@ -295,7 +295,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
                     alignItems: 'center',
                     marginTop: 6,
                   }}>
-                    <span style={{ fontSize: 11, color: '#a89278' }}>
+                    <span style={{ fontSize: 11, color: 'var(--brand-personal-text-light)' }}>
                       {prompt.length}/{MAX_PROMPT_LEN}
                     </span>
                     <button
@@ -304,7 +304,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
                       disabled={savingPrompt}
                       style={{
                         padding: '6px 14px',
-                        background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+                        background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
                         color: 'white',
                         border: 'none',
                         borderRadius: 100,
@@ -327,7 +327,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
                   border: '1px solid rgba(200,149,108,0.2)',
                   borderRadius: 12,
                   fontSize: 13,
-                  color: convo.daily_prompt ? '#5b4a36' : '#a89278',
+                  color: convo.daily_prompt ? 'var(--brand-personal-text-deep)' : 'var(--brand-personal-text-light)',
                   fontStyle: convo.daily_prompt ? 'normal' : 'italic',
                 }}>
                   {convo.daily_prompt || 'No prompt set right now.'}
@@ -340,7 +340,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
           <div>
             <SectionLabel>Members ({members.length})</SectionLabel>
             {loading ? (
-              <p style={{ fontSize: 12, color: '#a89278' }}>Loading…</p>
+              <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)' }}>Loading…</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {members.map((m) => {
@@ -363,11 +363,11 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
                     >
                       <Avatar src={m.avatar_url} alt={`@${m.username}`} width={32} />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#1a1208' }}>
-                          @{m.username}{isMe && <span style={{ color: '#a89278', fontWeight: 400, marginLeft: 4 }}>· you</span>}
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--brand-text-primary)' }}>
+                          @{m.username}{isMe && <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 400, marginLeft: 4 }}>· you</span>}
                         </div>
                         {(memberIsCreator || memberIsMod) && (
-                          <div style={{ fontSize: 10, color: '#c8956c', fontWeight: 800, letterSpacing: '0.5px' }}>
+                          <div style={{ fontSize: 10, color: 'var(--brand-personal)', fontWeight: 800, letterSpacing: '0.5px' }}>
                             {memberIsCreator ? 'CREATOR' : 'MODERATOR'}
                           </div>
                         )}
@@ -384,7 +384,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
                             background: 'rgba(220,90,90,0.1)',
                             border: '1px solid rgba(220,90,90,0.3)',
                             borderRadius: '50%',
-                            color: '#c07070',
+                            color: 'var(--brand-danger-text)',
                             fontSize: 13,
                             cursor: busyId === m.user_id ? 'wait' : 'pointer',
                             fontFamily: 'inherit',
@@ -416,7 +416,7 @@ export function ManageRoomModal({ open, onClose, convo, currentUserId, onLeft, o
                 width: '100%',
                 padding: 12,
                 background: 'rgba(220,90,90,0.08)',
-                color: '#c07070',
+                color: 'var(--brand-danger-text)',
                 border: '1px solid rgba(220,90,90,0.3)',
                 borderRadius: 100,
                 fontSize: 14,
@@ -438,7 +438,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       fontSize: 11, fontWeight: 800,
-      color: '#a07a4d', textTransform: 'uppercase',
+      color: 'var(--brand-personal-deep)', textTransform: 'uppercase',
       letterSpacing: '1.4px',
       marginBottom: 8,
     }}>

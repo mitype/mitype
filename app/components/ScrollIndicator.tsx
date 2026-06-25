@@ -47,7 +47,7 @@ export function ScrollIndicator() {
         opacity: hidden ? 0 : 1,
         transition: 'opacity 0.35s ease',
         pointerEvents: hidden ? 'none' : 'auto',
-        background: 'linear-gradient(135deg, #c8956c, #ffb37c)',
+        background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
         border: 'none',
         color: 'white',
         cursor: 'pointer',
