@@ -37,19 +37,23 @@ interface Bubble {
   opacity: number;
 }
 
-const REDUCED_MOTION =
-  typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
-
 export function OceanBackground() {
   const [depth, setDepth] = useState(0); // 0 at top, 1 deep
+  // Bubble field + reduced-motion are both computed inside an effect so
+  // they don't differ between server-render (where window is undefined)
+  // and client-render — a mismatch on either would trip React's
+  // hydration error and corrupt the page.
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const rafRef = useRef<number | null>(null);
   const lastYRef = useRef(0);
 
-  // Spawn a sparse field of bubbles once on mount. Fewer if reduced motion.
-  const [bubbles] = useState<Bubble[]>(() => {
-    const count = REDUCED_MOTION ? 6 : 22;
+  useEffect(() => {
+    const rm = typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false;
+    setReducedMotion(rm);
+    const count = rm ? 6 : 22;
     const out: Bubble[] = [];
     for (let i = 0; i < count; i++) {
       out.push({
@@ -61,8 +65,8 @@ export function OceanBackground() {
         opacity: 0.12 + Math.random() * 0.18,
       });
     }
-    return out;
-  });
+    setBubbles(out);
+  }, []);
 
   useEffect(() => {
     function tick() {
@@ -129,7 +133,7 @@ export function OceanBackground() {
               borderRadius: '50%',
               background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,${b.opacity + 0.15}) 0%, rgba(255,255,255,${b.opacity}) 50%, rgba(255,255,255,0) 75%)`,
               border: '1px solid rgba(255,255,255,0.15)',
-              animation: REDUCED_MOTION
+              animation: reducedMotion
                 ? undefined
                 : `mitype-bubble-rise ${b.duration}s linear ${b.delay}s infinite`,
               willChange: 'transform, opacity',

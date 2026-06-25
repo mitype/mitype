@@ -61,6 +61,14 @@ export function VortexIntro({ storageKey = DEFAULT_KEY, onDone }: Props) {
       if (Ctor) {
         audioCtx = new Ctor();
         const ctx = audioCtx!;
+        // iOS Safari (and any browser that didn't see a recent gesture)
+        // creates the context in "suspended" state and silently swallows
+        // src.start() until resume() is called. The navigation that put
+        // us on this page counts as a user gesture, so resume() is
+        // allowed — we just have to ask for it.
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
         const noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 1.6), ctx.sampleRate);
         const ch = noiseBuf.getChannelData(0);
         let last = 0;

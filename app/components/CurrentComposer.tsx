@@ -17,6 +17,9 @@ interface Props {
   isSubscribed: boolean;
   /** When set, posts as a reply to this current id. */
   parentId?: string | null;
+  /** Author of the parent current — used to fire a "you got a reply"
+   *  notification on successful reply insert. */
+  parentAuthorId?: string | null;
   /** Prefill the textarea (e.g. quick-reply with @username already filled). */
   prefill?: string;
   placeholder?: string;
@@ -25,7 +28,8 @@ interface Props {
 }
 
 export function CurrentComposer({
-  viewerId, isSubscribed, parentId = null, prefill = '', placeholder, onPosted,
+  viewerId, isSubscribed, parentId = null, parentAuthorId = null,
+  prefill = '', placeholder, onPosted,
 }: Props) {
   const router = useRouter();
   const [body, setBody] = useState(prefill);
@@ -68,6 +72,20 @@ export function CurrentComposer({
       }
       setBody('');
       toast.success(parentId ? 'Reply posted' : 'Posted to The Current');
+      // Ping the parent author about the reply (never self-notify).
+      if (parentId && parentAuthorId && parentAuthorId !== viewerId) {
+        try {
+          await supabase.from('notifications').insert({
+            user_id: parentAuthorId,
+            type: 'current_reply',
+            title: 'Someone replied to your Current',
+            body: trimmed.slice(0, 120),
+            action_url: `/currents/${parentId}`,
+          });
+        } catch {
+          // Non-fatal.
+        }
+      }
       onPosted?.(data.id);
     } catch (e: any) {
       console.error('[currents/composer] insert failed:', e);
@@ -97,6 +115,7 @@ export function CurrentComposer({
         onChange={(e) => setBody(e.target.value.slice(0, MAX_CURRENT_LENGTH + 50))}
         placeholder={placeholder ?? "What's running through the Current?"}
         rows={3}
+        className="mitype-current-composer-textarea"
         style={{
           width: '100%',
           background: 'transparent',
@@ -111,6 +130,13 @@ export function CurrentComposer({
           minHeight: 60,
         }}
       />
+      {/* Scoped placeholder color — the browser default gray is nearly
+          invisible against the dark ocean background. */}
+      <style>{`
+        .mitype-current-composer-textarea::placeholder {
+          color: rgba(255, 255, 255, 0.45);
+        }
+      `}</style>
       {/* Tiny mention hint — keeps users discovering the @biz/ and @goods/ syntax. */}
       <p style={{
         margin: '4px 0 8px',

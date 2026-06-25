@@ -34,24 +34,41 @@ export interface ParsedCurrent {
 }
 
 // Username regex matches Mitype's username rules (lowercase alnum + _, 1-30 chars).
-const USER_RE    = /(?<![\w/])@([a-z0-9_]{1,30})\b/gi;
-const BIZ_RE     = /(?<![\w/])@biz\/([a-z0-9_-]{1,40})\b/gi;
-const LISTING_RE = /(?<![\w/])@goods\/([a-f0-9-]{6,40})\b/gi;
+// NOTE: we deliberately avoid lookbehind (`(?<!...)`) here — older iOS Safari
+// (anything before 16.4 / March 2023) throws a SyntaxError on lookbehind in
+// regex literals, which would crash the page on import. Instead we run the
+// preceding-character check manually via `precedingOk()` below.
+const USER_RE    = /@([a-z0-9_]{1,30})\b/gi;
+const BIZ_RE     = /@biz\/([a-z0-9_-]{1,40})\b/gi;
+const LISTING_RE = /@goods\/([a-f0-9-]{6,40})\b/gi;
 const URL_RE     = /https?:\/\/[^\s]+/gi;
+
+/** True if the character immediately before `idx` in `body` is start-of-string
+ *  or a non-word, non-slash character — meaning the match is a standalone
+ *  mention rather than part of an email / URL / file path. */
+function precedingOk(body: string, idx: number): boolean {
+  if (idx <= 0) return true;
+  const c = body.charAt(idx - 1);
+  return !/[A-Za-z0-9_/]/.test(c);
+}
 
 export function parseCurrent(body: string): ParsedCurrent {
   const mentions: Mention[] = [];
   const seen = new Set<string>();
 
   // Order matters: parse the more-specific patterns first so a plain
-  // @ regex doesn't swallow "@biz/" or "@goods/".
+  // @ regex doesn't swallow "@biz/" or "@goods/". Each match is also
+  // checked for a clean preceding boundary so we don't mis-match
+  // mid-URL/email "@" chars.
   for (const m of body.matchAll(BIZ_RE)) {
+    if (!precedingOk(body, m.index ?? 0)) continue;
     const key = `business:${m[1].toLowerCase()}`;
     if (seen.has(key)) continue;
     seen.add(key);
     mentions.push({ kind: 'business', raw: m[0], handle: m[1].toLowerCase() });
   }
   for (const m of body.matchAll(LISTING_RE)) {
+    if (!precedingOk(body, m.index ?? 0)) continue;
     const key = `listing:${m[1].toLowerCase()}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -60,10 +77,11 @@ export function parseCurrent(body: string): ParsedCurrent {
 
   // Strip the already-matched ranges from the body before running the
   // user regex, so "@biz/foo" doesn't also yield a "user" match for "foo".
-  let scratch = body
-    .replace(BIZ_RE, ' '.repeat(20))
-    .replace(LISTING_RE, ' '.repeat(20));
+  const scratch = body
+    .replace(BIZ_RE, (m) => ' '.repeat(m.length))
+    .replace(LISTING_RE, (m) => ' '.repeat(m.length));
   for (const m of scratch.matchAll(USER_RE)) {
+    if (!precedingOk(scratch, m.index ?? 0)) continue;
     const handle = m[1].toLowerCase();
     if (handle === 'biz' || handle === 'goods') continue; // never standalone
     const key = `user:${handle}`;
@@ -97,9 +115,10 @@ export function segmentBody(body: string): Segment[] {
   interface Hit { start: number; end: number; seg: Segment; }
   const hits: Hit[] = [];
 
-  function pushAll(re: RegExp, build: (m: RegExpMatchArray) => Segment) {
+  function pushAll(re: RegExp, build: (m: RegExpMatchArray) => Segment, gate = true) {
     for (const m of body.matchAll(re)) {
       const start = m.index ?? 0;
+      if (gate && !precedingOk(body, start)) continue;
       hits.push({ start, end: start + m[0].length, seg: build(m) });
     }
   }
@@ -112,13 +131,16 @@ export function segmentBody(body: string): Segment[] {
     type: 'mention',
     mention: { kind: 'listing', raw: m[0], handle: m[1].toLowerCase() },
   }));
-  pushAll(URL_RE, (m) => ({ type: 'link', url: m[0] }));
+  // URLs don't need the preceding-char gate.
+  pushAll(URL_RE, (m) => ({ type: 'link', url: m[0] }), false);
 
-  // For user mentions, skip ranges that overlap a biz/goods/url hit.
+  // For user mentions, skip ranges that overlap a biz/goods/url hit and
+  // require the standalone-mention preceding boundary.
   for (const m of body.matchAll(USER_RE)) {
     const handle = m[1].toLowerCase();
     if (handle === 'biz' || handle === 'goods') continue;
     const start = m.index ?? 0;
+    if (!precedingOk(body, start)) continue;
     const end = start + m[0].length;
     const overlaps = hits.some((h) => !(end <= h.start || start >= h.end));
     if (overlaps) continue;

@@ -147,6 +147,7 @@ export default function CurrentDetailPage() {
                   viewerId={viewerId}
                   isSubscribed={isSubscribed}
                   parentId={parent.id}
+                  parentAuthorId={parent.author?.user_id ?? null}
                   prefill={parent.author ? `@${parent.author.username} ` : ''}
                   placeholder={`Reply to @${parent.author?.username ?? 'this current'}…`}
                   onPosted={refresh}
