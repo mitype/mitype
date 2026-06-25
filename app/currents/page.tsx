@@ -24,6 +24,9 @@ export default function CurrentsFeedPage() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<CurrentRecord[]>([]);
+  // The first-visit tutorial is gated behind the vortex animation
+  // finishing so the educational modal doesn't fight the visual reveal.
+  const [vortexDone, setVortexDone] = useState(false);
 
   const loadFeed = useCallback(async (viewer: string | null) => {
     const { data: rows } = await supabase
@@ -112,15 +115,17 @@ export default function CurrentsFeedPage() {
       }}
     >
       <OceanBackground />
-      <VortexIntro />
+      <VortexIntro onDone={() => setVortexDone(true)} />
 
       <SiteNav userId={viewerId ?? undefined} showBack backFallbackHref="/dashboard" />
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '20px 16px 0' }}>
         {/* First-time tutorial — all "how to use The Current" content
             lives here so the feed itself stays uncluttered. Shows once
-            per device (localStorage gated). */}
-        <CurrentTutorial />
+            per device (localStorage gated). Held back until the vortex
+            finishes so the educational modal doesn't compete with the
+            visual reveal on a user's first visit. */}
+        {vortexDone && <CurrentTutorial />}
 
         {/* The Current eyebrow chip — the only chrome on the feed. */}
         <div style={{ marginBottom: 18, textAlign: 'center' }}>
