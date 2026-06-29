@@ -13,9 +13,9 @@ interface Props {
   username: string | undefined;
 }
 
-const SHARE_TITLE = 'Mitype. Find Your Type of Creator';
+const SHARE_TITLE = 'Mitype. The social media that networks.';
 const SHARE_TEXT =
-  'Mitype is a creative networking platform for friendships and collaboration. Connect with creators based on the craft they actually practice. You should join.';
+  'Connect with people who share your world. Join me on Mitype.';
 
 export function ShareMitypeButton({ username }: Props) {
   const [hover, setHover] = useState(false);

@@ -197,25 +197,10 @@ export async function GET(req: NextRequest) {
 
           <div
             style={{
-              fontSize: 76,
+              fontSize: 110,
               fontWeight: 900,
               color: BRAND_TEXT_DARK,
-              letterSpacing: -3,
-              lineHeight: 1.15,
-              textAlign: 'center',
-              maxWidth: 900,
-              marginBottom: 22,
-              display: 'flex',
-            }}
-          >
-            I found my type of people on Mitype.
-          </div>
-          <div
-            style={{
-              fontSize: 54,
-              fontWeight: 700,
-              color: BRAND_PERSONAL_DEEP,
-              letterSpacing: -1,
+              letterSpacing: -4,
               display: 'flex',
             }}
           >

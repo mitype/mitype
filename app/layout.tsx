@@ -10,9 +10,9 @@ import { PageTransition } from "./components/PageTransition";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
-  title: "Mitype. Find Your Type",
+  title: "Mitype. The social media that networks.",
   description:
-    "For both creative and professional musicians, writers, artists, photographers, and more. Connect with people who share your world.",
+    "Connect with people who share your world.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -20,18 +20,16 @@ export const metadata: Metadata = {
     title: "Mitype",
   },
   openGraph: {
-    title: "Mitype. Find Your Type",
-    description:
-      "For both creative and professional musicians, writers, artists, photographers, and more. Connect with people who share your world.",
+    title: "Mitype. The social media that networks.",
+    description: "Connect with people who share your world.",
     type: "website",
     url: "https://www.mitypeapp.com",
     siteName: "Mitype",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mitype. Find Your Type",
-    description:
-      "For both creative and professional musicians, writers, artists, photographers, and more. Connect with people who share your world.",
+    title: "Mitype. The social media that networks.",
+    description: "Connect with people who share your world.",
   },
 };
 

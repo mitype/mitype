@@ -29,7 +29,7 @@ interface Props {
 }
 
 const BASE = 'https://www.mitypeapp.com';
-const SHARE_TEXT = 'I found my type of people on Mitype. Join me.';
+const SHARE_TEXT = 'Join me on Mitype.';
 // Swipe-down-to-close: minimum vertical pixels and max horizontal drift.
 const DISMISS_THRESHOLD_PX = 90;
 const MAX_HORIZONTAL_DRIFT = 60;
