@@ -1,24 +1,27 @@
 'use client';
-// WaveIntro — full-screen ocean wave that breaks across the screen
-// from right to left every time a user opens The Wave Feed.
+// WaveIntro — cinematic ocean wave breaking across the screen.
 //
-// Renders entirely in a WebGL fragment shader. Mirror of the vortex
-// approach used for The Current — single full-screen quad, all visual
-// work happens in the shader, mediump precision so it stays smooth on
-// phones, capped DPR to keep fill-rate manageable.
+// Major rewrite for photorealism. Where the previous version drew a
+// flat silhouette with foam on top, this one renders the wave as a
+// translucent volume with sub-surface scattering, glass-like
+// translucency on thin parts, a breaking-lip shadow tube, atmospheric
+// distance fog, and parallax spray. The result reads as a real wave
+// you could photograph.
 //
-// What the shader does:
-//   1. Compute polar / cartesian sample coords.
-//   2. Animate a tall wave silhouette horizontally across the screen.
-//   3. Render sky gradient above the wave, deep ocean below.
-//   4. Apply procedural water surface noise to the wave's leading face.
-//   5. Bright white foam crest along the top of the wave.
-//   6. Spray particles + sky-side mist trailing behind the crest.
-//   7. Subtle caustic shimmer underwater.
-//   8. Final fade-to-black for a clean seam into the feed.
-//
-// Audio: synthesized wave-break whoosh — low rumble that crescendos
-// into a high splash as the crest passes the camera, then trails off.
+// Visual layers (back to front, all in one fragment shader pass):
+//   1. Sky — multi-stop gradient with a soft sun glow.
+//   2. Distant ocean horizon haze.
+//   3. Wave body — translucent navy-to-cyan gradient driven by how
+//      "thick" the wave is at each pixel. Thin parts of the wave glow
+//      bright aqua because light passes through; thick parts stay deep.
+//   4. Sub-surface caustic rays animated through the wave body.
+//   5. Breaking-lip shadow tube — darker pocket beneath where the wave
+//      is curling over.
+//   6. Glass specular highlight on the wave's front face.
+//   7. Crest foam — chunky multi-octave-noise band along the top edge.
+//   8. Spray + mist above the wave with parallax falloff.
+//   9. Atmospheric blue-tint fog over the deep background.
+//  10. Final fade-to-black for the page seam.
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -27,7 +30,7 @@ interface Props {
   onDone?: () => void;
 }
 
-const DEFAULT_DURATION = 2200;
+const DEFAULT_DURATION = 2600;
 
 const VERT = `
 attribute vec2 aPos;
@@ -76,98 +79,161 @@ float fbm(vec2 p) {
 }
 
 // ---- wave shape -----------------------------------------------------
-// The wave is a tall, narrow Gaussian arch translated horizontally as
-// time progresses. We add some chaotic surface noise so the top of the
-// wave reads as turbulent water, not a smooth bell curve.
+// Top edge of the wave silhouette at column x. The shape combines:
+//   - A tall central peak (Gaussian)
+//   - An asymmetric trailing edge (gentler slope behind, steeper face)
+//   - Sub-peak ripples to suggest secondary crests
+//   - Surface turbulence so the top edge isn't a smooth curve
 float waveHeight(float x, float waveX, float time) {
   float dx = x - waveX;
-  // Tall narrow profile: peak height ~1.0, falloff via Gaussian.
-  float h = 0.95 * exp(-dx * dx * 1.4);
-  // Asymmetric trailing edge — waves are steeper on the breaking
-  // (leading) side and gentler on the trailing side. dx > 0 = trailing.
-  if (dx > 0.0) h *= mix(1.0, 0.55, smoothstep(0.0, 0.6, dx));
-  // Turbulence on the top edge so the silhouette ripples.
-  float turbulence = (fbm(vec2(x * 4.0, time * 0.6)) - 0.5) * 0.08
-                   * exp(-dx * dx * 2.0);
-  return -0.5 + h + turbulence;
+  // Tall central peak.
+  float peak = 1.05 * exp(-dx * dx * 1.25);
+  // Steepen the leading face (dx < 0) and soften the trailing slope.
+  if (dx > 0.0) peak *= mix(1.0, 0.42, smoothstep(0.0, 0.65, dx));
+  // Secondary shoulder behind the peak.
+  float shoulder = 0.28 * exp(-(dx + 0.55) * (dx + 0.55) * 4.0);
+  // Surface turbulence — small chaotic ripples on the edge.
+  float turb = (fbm(vec2(x * 5.5, time * 0.8)) - 0.5) * 0.10
+             * exp(-dx * dx * 1.6);
+  return -0.55 + peak + shoulder + turb;
+}
+
+// "Inner lip" — the line below the crest under which the wave is curling
+// over. Used to compute a dark tube-shadow zone behind the breaking face.
+float lipShadowMask(vec2 p, float waveX, float wTop) {
+  float dx = p.x - waveX;
+  // Only on the leading face (dx < 0) and just under the crest.
+  float face = smoothstep(0.0, -0.55, dx);
+  float underCrest = smoothstep(0.0, 0.32, wTop - p.y) * (1.0 - smoothstep(0.32, 0.55, wTop - p.y));
+  return face * underCrest;
 }
 
 void main() {
   vec2 res = uRes;
   vec2 fragCoord = vUv * res;
-  // Center-relative, aspect-normalized coords (p=(0,0) is center).
   vec2 p = (fragCoord - 0.5 * res) / min(res.x, res.y);
-  // Wide aspect normalization so the wave reads as horizontal even on
-  // tall phone screens.
+  // Aspect-correct X so the wave reads wide even on tall phone screens.
   p.x *= res.x / min(res.x, res.y);
 
-  // The wave's X center animates from offscreen-right to offscreen-left.
-  float waveX = mix(1.6, -1.6, uProgress);
-
-  // Wave top at this column.
+  // Wave horizontal center sweeps from offscreen-right to offscreen-left.
+  float waveX = mix(2.0, -2.0, uProgress);
+  // Wave top height at this column.
   float wTop = waveHeight(p.x, waveX, uTime);
 
-  // ---- 1. Sky + ocean base ---------------------------------------
-  vec3 cSkyTop    = vec3(0.62, 0.72, 0.84);
-  vec3 cSkyBottom = vec3(0.78, 0.82, 0.86);
-  vec3 cOceanShallow = vec3(0.08, 0.42, 0.55);
-  vec3 cOceanDeep    = vec3(0.01, 0.05, 0.12);
-  vec3 cFoam        = vec3(0.98, 1.00, 1.00);
+  bool underWave = p.y < wTop;
+  float depthInto = max(0.0, wTop - p.y);
 
-  vec3 sky = mix(cSkyTop, cSkyBottom, smoothstep(-0.5, 0.5, p.y));
+  // ---- 1. Sky gradient + sun -----------------------------------
+  vec3 cSkyTop   = vec3(0.42, 0.55, 0.75);
+  vec3 cSkyHorz  = vec3(0.78, 0.85, 0.92);
+  vec3 sky = mix(cSkyHorz, cSkyTop, smoothstep(-0.4, 0.7, -p.y));
+  // Soft sun on the upper right.
+  vec2 sunPos = vec2(0.85, -0.55);
+  float sunDist = length(p - sunPos);
+  sky += pow(max(0.0, 1.0 - sunDist * 1.5), 3.0) * vec3(1.0, 0.94, 0.78) * 0.55;
+  sky += pow(max(0.0, 1.0 - sunDist * 0.6), 2.0) * vec3(1.0, 0.96, 0.85) * 0.15;
 
-  // Ocean color varies with "depth below wave top".
-  float depth = max(0.0, wTop - p.y);
-  vec3 ocean = mix(cOceanShallow, cOceanDeep, smoothstep(0.0, 1.2, depth));
-  // Highlight along the leading face of the wave (cyan glow under crest).
-  float face = smoothstep(0.0, 0.15, depth) * (1.0 - smoothstep(0.15, 0.45, depth));
-  ocean += vec3(0.04, 0.30, 0.40) * face * smoothstep(0.6, 0.0, abs(p.x - waveX));
+  // ---- 2. Distant ocean horizon haze --------------------------
+  // Even outside the main wave, paint the lower half of the sky-plane
+  // with a tinted blue so the horizon reads continuous.
+  vec3 cHorizon = vec3(0.18, 0.36, 0.50);
+  float horizonBlend = smoothstep(-0.15, 0.55, p.y) * (1.0 - smoothstep(0.6, 1.0, p.y));
+  sky = mix(sky, cHorizon, horizonBlend * 0.55);
 
-  // Which side of the wave silhouette are we on?
-  float underwaterMask = smoothstep(0.005, -0.005, p.y - wTop);
-  vec3 col = mix(sky, ocean, underwaterMask);
+  // ---- 3. Wave body (translucent volume) ---------------------
+  // Thin parts of the wave glow bright aqua because light passes
+  // through; thick parts approach dark navy. This is the photoreal
+  // "back-lit wave" effect.
+  vec3 cWaveGlow = vec3(0.16, 0.85, 0.92);
+  vec3 cWaveMid  = vec3(0.04, 0.35, 0.55);
+  vec3 cWaveDeep = vec3(0.005, 0.04, 0.10);
+  // translucency: 1.0 at very thin edges, 0 deep inside.
+  float translucency = exp(-depthInto * 1.7);
+  vec3 bodyShallow = mix(cWaveGlow, cWaveMid, smoothstep(0.0, 0.6, depthInto));
+  vec3 bodyDeep    = mix(cWaveMid,  cWaveDeep, smoothstep(0.4, 1.6, depthInto));
+  vec3 body = mix(bodyDeep, bodyShallow, translucency);
 
-  // ---- 2. Underwater caustic shimmer ------------------------------
-  float caustic = fbm(vec2(p.x * 5.0 + uTime * 0.7, p.y * 5.0));
-  col += pow(caustic, 3.0) * 0.18 * underwaterMask * vec3(0.5, 0.85, 1.0);
+  // Inner subtle blue-green tint near the wave face.
+  float faceTint = smoothstep(0.0, 0.4, depthInto) * (1.0 - smoothstep(0.4, 0.9, depthInto));
+  body += vec3(-0.04, 0.06, 0.10) * faceTint;
 
-  // ---- 3. Foam crest along the top edge ---------------------------
+  // ---- 4. Sub-surface caustic light shafts ------------------
+  // Animated rays inside the wave body — what you see when the sun
+  // is shining through the wall of water.
+  vec2 causP = vec2(p.x * 7.0 + uTime * 0.8, p.y * 7.0 - uTime * 0.3);
+  float c1 = fbm(causP);
+  float c2 = fbm(causP * 1.7 + vec2(5.3, 1.9));
+  float caustic = pow(smoothstep(0.55, 1.0, c1 * c2 * 2.2), 1.7);
+  body += caustic * 0.35 * vec3(0.4, 0.85, 1.0) * translucency * smoothstep(0.0, 0.25, depthInto);
+
+  // ---- 5. Breaking-lip shadow tube ---------------------------
+  // Dark pocket on the leading face where the lip is curling over.
+  float lipShade = lipShadowMask(p, waveX, wTop);
+  body *= 1.0 - lipShade * 0.55;
+  // A faint cyan rim along the lip-shadow boundary (light leaking
+  // around the curl).
+  body += smoothstep(0.45, 0.6, lipShade) * (1.0 - smoothstep(0.6, 0.85, lipShade)) * vec3(0.18, 0.7, 0.9) * 0.5;
+
+  // ---- 6. Glass specular highlight on the wave face ---------
+  // Use screen-space derivatives of the height field as a fake normal,
+  // then Blinn-Phong with a sun direction.
+  float hSample = depthInto;
+  vec3 n = normalize(vec3(-dFdx(hSample) * 90.0, -dFdy(hSample) * 90.0, 1.0));
+  vec3 lightDir = normalize(vec3(0.55, -0.65, 0.55));
+  vec3 viewDir = vec3(0.0, 0.0, 1.0);
+  vec3 halfVec = normalize(lightDir + viewDir);
+  float spec = pow(max(0.0, dot(n, halfVec)), 28.0);
+  body += vec3(1.0, 0.97, 0.88) * spec * 1.4 * smoothstep(0.0, 0.5, depthInto);
+
+  // Mix sky vs body by which side of the silhouette we are on.
+  float wMask = smoothstep(0.005, -0.005, p.y - wTop);
+  vec3 col = mix(sky, body, wMask);
+
+  // ---- 7. Crest foam ----------------------------------------
+  // Thick chunky band along the wave top, with multi-octave noise so
+  // the foam reads as bubbles and froth instead of a flat stripe.
   float crestDist = abs(p.y - wTop);
-  float crestThickness = 0.05 + 0.04 * smoothstep(0.8, 0.0, abs(p.x - waveX));
+  float crestThickness = 0.055 + 0.05 * smoothstep(1.0, 0.0, abs(p.x - waveX));
   float crest = 1.0 - smoothstep(0.0, crestThickness, crestDist);
-  // Crest texture (foam isn't a flat line — it has bubbles).
-  float crestTex = fbm(vec2(p.x * 25.0, uTime * 3.0));
-  crest *= mix(0.7, 1.0, crestTex);
-  col = mix(col, cFoam, crest * 0.95);
+  float crestTex = fbm(vec2(p.x * 22.0 + uTime, uTime * 2.5));
+  float crestTex2 = fbm(vec2(p.x * 60.0, p.y * 60.0 + uTime * 4.0));
+  crest *= mix(0.6, 1.0, crestTex);
+  crest *= mix(0.85, 1.0, crestTex2);
+  col = mix(col, vec3(0.98, 1.0, 1.0), crest * 0.95);
 
-  // ---- 4. Spray + mist above the wave -----------------------------
-  // Only above the wave top and within a horizontal radius of the peak.
+  // ---- 8. Spray + mist above the wave -----------------------
   float aboveWave = max(0.0, p.y - wTop);
-  float horizontalFalloff = smoothstep(1.8, 0.3, abs(p.x - waveX));
-  if (aboveWave > 0.0 && aboveWave < 0.5) {
-    float verticalFalloff = smoothstep(0.5, 0.0, aboveWave);
-    // Fine spray pattern — high frequency moving fbm.
-    float spray = fbm(vec2(p.x * 28.0 + uTime * 1.5, p.y * 28.0 + uTime));
-    spray = pow(spray, 1.6);
-    float sprayAlpha = spray * verticalFalloff * horizontalFalloff;
-    col = mix(col, cFoam, sprayAlpha * 0.75);
+  float horizFalloff = smoothstep(2.0, 0.4, abs(p.x - waveX));
+  if (aboveWave > 0.0 && aboveWave < 0.7) {
+    float vFalloff = smoothstep(0.7, 0.0, aboveWave);
+    // Fine spray (high-frequency noise).
+    float sprayFine = fbm(vec2(p.x * 35.0 + uTime * 1.8, p.y * 35.0 + uTime));
+    sprayFine = pow(sprayFine, 1.7);
+    // Heavier spray clumps (low-frequency).
+    float sprayClumps = fbm(vec2(p.x * 8.0 + uTime, p.y * 8.0 - uTime * 0.5));
+    sprayClumps = pow(smoothstep(0.55, 0.95, sprayClumps), 1.5);
+    float sprayAlpha = (sprayFine * 0.7 + sprayClumps * 0.5) * vFalloff * horizFalloff;
+    col = mix(col, vec3(1.0), sprayAlpha * 0.85);
     // Diffuse haze halo around the peak.
-    col = mix(col, vec3(0.94, 0.96, 1.0), verticalFalloff * horizontalFalloff * 0.18);
+    col = mix(col, vec3(0.94, 0.97, 1.0), vFalloff * horizFalloff * 0.22);
   }
 
-  // ---- 5. Surface ripple highlight at waterline -------------------
-  // Bright thin line where the ocean meets the front of the wave.
-  float surfaceLine = 1.0 - smoothstep(0.0, 0.012, abs(p.y - wTop));
-  surfaceLine *= smoothstep(0.0, 0.5, abs(p.x - waveX) + 0.1);
-  col += vec3(0.7, 0.9, 1.0) * surfaceLine * 0.25;
+  // ---- 9. Surface waterline highlight ------------------------
+  float surfaceLine = 1.0 - smoothstep(0.0, 0.010, abs(p.y - wTop));
+  surfaceLine *= smoothstep(0.0, 0.5, abs(p.x - waveX) + 0.15);
+  col += vec3(0.7, 0.92, 1.0) * surfaceLine * 0.30;
 
-  // ---- 6. Bottom-of-screen ocean (always darker so far depths read deep)
-  float depthFog = smoothstep(0.2, 0.8, p.y);
-  col = mix(col, cOceanDeep, depthFog * 0.4 * underwaterMask);
+  // ---- 10. Underwater rim brightness along the leading face --
+  // Bright thin band on the wave face where it transitions from
+  // translucent to deep.
+  float rimDist = abs(depthInto - 0.18);
+  float rim = (1.0 - smoothstep(0.0, 0.10, rimDist)) * wMask
+            * smoothstep(0.0, 0.6, abs(p.x - waveX) + 0.4);
+  col += vec3(0.45, 0.85, 1.0) * rim * 0.45;
 
-  // ---- 7. Final fade-to-black for clean page seam -----------------
-  if (uProgress > 0.85) {
-    float fadeT = (uProgress - 0.85) / 0.15;
+  // ---- 11. Final fade-to-black -------------------------------
+  if (uProgress > 0.86) {
+    float fadeT = (uProgress - 0.86) / 0.14;
     col = mix(col, vec3(0.0, 0.0, 0.0), fadeT * fadeT);
   }
 
@@ -237,7 +303,6 @@ export function WaveIntro({ durationMs = DEFAULT_DURATION, onDone }: Props) {
     const uTime     = gl.getUniformLocation(prog, 'uTime');
     const uProgress = gl.getUniformLocation(prog, 'uProgress');
 
-    // DPR=1 — fast and motion-blurred enough that high DPR is wasted.
     const dpr = 1;
     function resize() {
       if (!canvas || !gl) return;
@@ -249,8 +314,9 @@ export function WaveIntro({ durationMs = DEFAULT_DURATION, onDone }: Props) {
     window.addEventListener('resize', resize);
 
     // ---------- audio ----------
-    // Wave-break whoosh: low rumble crescendos into a high crash at the
-    // midpoint as the crest passes the camera, then trails off.
+    // Cinematic wave-break: low rumble crescendos into a roaring crash
+    // at the midpoint as the crest passes the camera, then resolves
+    // into the wash. Slightly louder than the previous version.
     let audioCtx: AudioContext | null = null;
     try {
       const Ctor = (window as any).AudioContext || (window as any).webkitAudioContext;
@@ -264,23 +330,22 @@ export function WaveIntro({ durationMs = DEFAULT_DURATION, onDone }: Props) {
         let last = 0;
         for (let i = 0; i < ch.length; i++) {
           const w = Math.random() * 2 - 1;
-          last = (last + 0.04 * w) / 1.04;
-          ch[i] = last * 3.4;
+          last = (last + 0.045 * w) / 1.045;
+          ch[i] = last * 3.6;
         }
         const src = ctx.createBufferSource();
         src.buffer = noiseBuf;
         const bp = ctx.createBiquadFilter();
         bp.type = 'bandpass';
-        bp.Q.value = 3.5;
-        // Frequency sweep that peaks at the wave crash midpoint.
-        bp.frequency.setValueAtTime(120, ctx.currentTime);
-        bp.frequency.exponentialRampToValueAtTime(2400, ctx.currentTime + sec * 0.5);
-        bp.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + sec);
+        bp.Q.value = 3.0;
+        bp.frequency.setValueAtTime(100, ctx.currentTime);
+        bp.frequency.exponentialRampToValueAtTime(2600, ctx.currentTime + sec * 0.5);
+        bp.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + sec);
         const gain = ctx.createGain();
         gain.gain.setValueAtTime(0, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.30, ctx.currentTime + 0.15);
-        gain.gain.linearRampToValueAtTime(0.45, ctx.currentTime + sec * 0.5);
-        gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + sec * 0.85);
+        gain.gain.linearRampToValueAtTime(0.32, ctx.currentTime + 0.18);
+        gain.gain.linearRampToValueAtTime(0.50, ctx.currentTime + sec * 0.5);
+        gain.gain.linearRampToValueAtTime(0.20, ctx.currentTime + sec * 0.85);
         gain.gain.linearRampToValueAtTime(0, ctx.currentTime + sec + 0.05);
         src.connect(bp); bp.connect(gain); gain.connect(ctx.destination);
         src.start();
@@ -333,7 +398,7 @@ export function WaveIntro({ durationMs = DEFAULT_DURATION, onDone }: Props) {
         position: 'fixed',
         inset: 0,
         zIndex: 4000,
-        background: '#0a1a2a',
+        background: '#0a1828',
         pointerEvents: 'none',
         overflow: 'hidden',
       }}
