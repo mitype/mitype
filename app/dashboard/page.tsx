@@ -274,6 +274,7 @@ export default function Dashboard() {
         {profile?.username && (
           <InviteSharePanel
             username={profile.username}
+            avatarUrl={profile.avatar_url ?? null}
             open={shareOpen}
             onClose={() => setShareOpen(false)}
           />

@@ -1,10 +1,10 @@
 'use client';
-// Universal swipe-left-to-go-back gesture for the whole app.
+// Universal swipe-right-to-go-back gesture for the whole app.
 //
-// Listens for touchstart/touchend on the document. A brisk right-to-left
-// swipe with low vertical drift calls router.back() — same gesture the
-// Wave feed has had, now applied to every page so users can navigate
-// the entire app by feel.
+// Listens for touchstart/touchend on the document. A brisk left-to-right
+// swipe with low vertical drift calls router.back() — matching the
+// native iOS edge-swipe-back direction so the gesture feels intuitive
+// to phone users.
 //
 // Opt-out: any subtree that wants to suppress the gesture (for example,
 // a fullscreen view with its own swipe handling, or a horizontal
@@ -66,7 +66,7 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
       const dy = t.clientY - s.y;
       const dt = Date.now() - s.t;
       if (
-        dx < -MIN_HORIZONTAL_PX &&
+        dx > MIN_HORIZONTAL_PX &&
         Math.abs(dy) < MAX_VERTICAL_DRIFT_PX &&
         dt < MAX_DURATION_MS
       ) {

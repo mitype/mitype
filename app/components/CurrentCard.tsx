@@ -238,30 +238,8 @@ export function CurrentCard({
           </Link>
         )}
 
-        {/* Sail-to-DM boat button. Only available to signed-in viewers. */}
-        {viewerId && !editing && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setSailOpen(true); }}
-            aria-label="Sail this current to a friend"
-            title="Sail to a friend"
-            style={{
-              width: 32, height: 32,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(125,211,252,0.10)',
-              border: '1px solid rgba(125,211,252,0.40)',
-              borderRadius: '50%',
-              color: '#7dd3fc',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              flexShrink: 0,
-            }}
-          >
-            <BoatIcon />
-          </button>
-        )}
-
-        {/* Owner ⋯ menu for edit + delete. */}
+        {/* Owner ⋯ menu for edit + delete. (Boat / sail button now lives
+            next to the replies button in the footer instead.) */}
         {isMine && !editing && (
           <div ref={menuRef} style={{ position: 'relative', flexShrink: 0 }}>
             <button
@@ -521,6 +499,31 @@ export function CurrentCard({
           <span aria-hidden="true">↪</span>
           {current.reply_count} {current.reply_count === 1 ? 'reply' : 'replies'}
         </Link>
+
+        {/* Sail-to-DM boat button. Lives next to the replies button so
+            the social actions are visually grouped together. */}
+        {viewerId && !editing && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setSailOpen(true); }}
+            aria-label="Sail this current to a friend"
+            title="Sail to a friend"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '5px 10px',
+              background: 'rgba(125,211,252,0.10)',
+              border: '1px solid rgba(125,211,252,0.40)',
+              borderRadius: 100,
+              color: '#7dd3fc',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            <BoatIcon />
+          </button>
+        )}
       </div>
 
       {/* Sail-to-DM modal — opens when the boat icon is tapped. */}

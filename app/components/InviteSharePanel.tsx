@@ -15,25 +15,70 @@
 //   - Copy link → puts the referral URL on the clipboard
 //   - Download image → saves the personalized PNG to their device
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from '../lib/toast';
 
 interface Props {
   username: string;
+  /** The sender's profile photo URL. Passed through to the share image
+   *  so the personalized story includes their avatar instead of just
+   *  their handle. */
+  avatarUrl?: string | null;
   open: boolean;
   onClose: () => void;
 }
 
 const BASE = 'https://www.mitypeapp.com';
 const SHARE_TEXT = 'I found my type of people on Mitype. Join me.';
+// Swipe-down-to-close: minimum vertical pixels and max horizontal drift.
+const DISMISS_THRESHOLD_PX = 90;
+const MAX_HORIZONTAL_DRIFT = 60;
 
-export function InviteSharePanel({ username, open, onClose }: Props) {
+export function InviteSharePanel({ username, avatarUrl, open, onClose }: Props) {
   const [downloading, setDownloading] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const startYRef = useRef<number | null>(null);
+  const startXRef = useRef<number | null>(null);
   const referralUrl = `${BASE}/?ref=${encodeURIComponent(username)}`;
-  const imageUrl = `${BASE}/api/share-image?u=${encodeURIComponent(username)}`;
+  // Pass the avatar URL through to the share image so it can render the
+  // sender's circle. Falls back to a bronze monogram in the OG renderer
+  // when no avatar is set.
+  const avatarParam = avatarUrl ? `&a=${encodeURIComponent(avatarUrl)}` : '';
+  const imageUrl = `${BASE}/api/share-image?u=${encodeURIComponent(username)}${avatarParam}`;
   const fullText = `${SHARE_TEXT} ${referralUrl}`;
 
   if (!open) return null;
+
+  // ---- Swipe-down-to-close gesture (iOS bottom-sheet behavior). ----
+  function handleTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    if (!t) return;
+    startYRef.current = t.clientY;
+    startXRef.current = t.clientX;
+  }
+  function handleTouchMove(e: React.TouchEvent) {
+    if (startYRef.current === null) return;
+    const t = e.touches[0];
+    if (!t) return;
+    const dy = t.clientY - startYRef.current;
+    if (dy > 0) setDragY(dy);
+  }
+  function handleTouchEnd(e: React.TouchEvent) {
+    const startY = startYRef.current;
+    const startX = startXRef.current;
+    startYRef.current = null;
+    startXRef.current = null;
+    if (startY === null || startX === null) { setDragY(0); return; }
+    const t = e.changedTouches[0];
+    if (!t) { setDragY(0); return; }
+    const dy = t.clientY - startY;
+    const dx = Math.abs(t.clientX - startX);
+    if (dy > DISMISS_THRESHOLD_PX && dx < MAX_HORIZONTAL_DRIFT) {
+      onClose();
+    } else {
+      setDragY(0);
+    }
+  }
 
   async function fetchImageFile(): Promise<File | null> {
     try {
@@ -146,14 +191,14 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
     {
       key: 'native',
       label: 'Story / Reel',
-      icon: '📲',
+      icon: '↗',
       onClick: handleNativeShareWithImage,
       desc: 'Instagram, TikTok, Snapchat. Opens your share sheet with the image',
     },
     {
       key: 'sms',
       label: 'Text message',
-      icon: '💬',
+      icon: 'SMS',
       onClick: handleSms,
       desc: 'Send to friends via iMessage / SMS',
     },
@@ -181,21 +226,21 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
     {
       key: 'snap',
       label: 'Snapchat',
-      icon: '👻',
+      icon: 'S',
       onClick: handleSnapchat,
       desc: 'Save image, then share to your Snap story',
     },
     {
       key: 'copy',
       label: 'Copy link',
-      icon: '🔗',
+      icon: '⇆',
       onClick: handleCopyLink,
       desc: 'Copy your invite URL',
     },
     {
       key: 'download',
       label: downloading ? 'Saving…' : 'Save image',
-      icon: '⬇️',
+      icon: '↓',
       onClick: handleDownload,
       desc: 'Download the story image to your device',
     },
@@ -221,6 +266,9 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         style={{
           background: 'linear-gradient(180deg, var(--brand-personal-bg-peach-warm) 0%, var(--brand-personal-bg-peach) 100%)',
           width: '100%',
@@ -232,6 +280,11 @@ export function InviteSharePanel({ username, open, onClose }: Props) {
           overflowY: 'auto',
           boxShadow: '0 -16px 60px rgba(0,0,0,0.35)',
           fontFamily: "'Helvetica Neue', Arial, sans-serif",
+          // Live-track the drag while finger is on screen; snap back via
+          // transition when the gesture is released without dismissing.
+          transform: `translateY(${dragY}px)`,
+          transition: dragY === 0 ? 'transform 0.25s ease-out' : 'none',
+          touchAction: 'pan-y',
         }}
       >
         {/* Drag handle */}
