@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { WaveTutorial } from '../components/WaveTutorial';
 import { FeatureTutorial } from '../components/FeatureTutorial';
+import { WaveIntro } from '../components/WaveIntro';
 import { toast } from '../lib/toast';
 
 interface WaveItem {
@@ -778,6 +779,11 @@ export default function WavePage() {
         overflow: 'hidden',
       }}
     >
+      {/* Wave intro animation — full-screen ocean wave sweeping right
+          to left, plays every time the user opens the Wave Feed (same
+          treatment as the vortex on The Current). */}
+      <WaveIntro />
+
       {/* Top bar */}
       <div
         style={{

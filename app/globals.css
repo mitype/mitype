@@ -87,14 +87,20 @@ html, body {
    * cause of the "page wobbles side to side while I'm scrolling" feel
    * on iOS Safari) can never cause a horizontal rubber-band. The
    * combination of overflow-x:hidden + max-width:100vw + the iOS-only
-   * overscroll-behavior-x:none is what kills it on every device. */
+   * overscroll-behavior-x:none is what kills it on every device.
+   *
+   * NOTE: We deliberately do NOT set `overscroll-behavior-y` on the
+   * root here. Earlier versions had `overscroll-behavior-y: contain`
+   * which fully blocked vertical scrolling on some Android Chrome
+   * builds. Pages that genuinely need to suppress pull-to-refresh
+   * (Wave feed, Messages chat) opt in via their own scroll containers,
+   * not the document. */
   overflow-x: hidden;
   max-width: 100vw;
   overscroll-behavior-x: none;
-  /* Prevent the address bar pull-to-refresh on routes that have their
-   * own scroll containers (Wave, Messages chat) so users don't
-   * accidentally reload while interacting. */
-  overscroll-behavior-y: contain;
+  /* Explicit vertical pan so Android Chrome never assumes touch-action:
+   * none from any descendant style and locks the page. */
+  touch-action: pan-y;
 }
 
 body {
@@ -106,9 +112,11 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Page content scrolls vertically; nothing should scroll horizontally
- * by default. Specific opt-ins (e.g. carousels) can override this. */
-* {
+/* `-webkit-overflow-scrolling: touch` only applies to elements with
+ * scrollable overflow. Scope it to actual scroll containers instead of
+ * the universal selector, which is a perf nibble Android Chrome doesn't
+ * thank us for. */
+.mitype-scroll-touch {
   -webkit-overflow-scrolling: touch;
 }
 
