@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
+import { checkRateLimit, LIMITS, rateLimitMessage } from '../lib/rateLimit';
 import { Avatar } from './Avatar';
 
 interface ConversationRow {
@@ -90,6 +91,11 @@ export function SailCurrentModal({
   async function sail(row: DisplayRow) {
     setSending(row.conversation_id);
     try {
+      const allowed = await checkRateLimit(LIMITS.SAIL_CURRENT);
+      if (!allowed) {
+        toast.error(rateLimitMessage(LIMITS.SAIL_CURRENT));
+        return;
+      }
       const snippet = currentBody.length > 200
         ? currentBody.slice(0, 197) + '…'
         : currentBody;

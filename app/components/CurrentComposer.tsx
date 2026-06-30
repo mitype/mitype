@@ -9,6 +9,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
+import { checkRateLimit, LIMITS, rateLimitMessage } from '../lib/rateLimit';
+import { sendNotification } from '../lib/notify';
 
 export const MAX_CURRENT_LENGTH = 500;
 
@@ -58,6 +60,13 @@ export function CurrentComposer({
     }
     setPosting(true);
     try {
+      // Rate-limit check — drops bot spam before it hits the DB.
+      const spec = parentId ? LIMITS.CURRENT_REPLY : LIMITS.CURRENT_POST;
+      const allowed = await checkRateLimit(spec);
+      if (!allowed) {
+        toast.error(rateLimitMessage(spec));
+        return;
+      }
       const { data, error } = await supabase
         .from('currents')
         .insert({
@@ -73,19 +82,15 @@ export function CurrentComposer({
       }
       setBody('');
       toast.success(parentId ? 'Reply posted' : 'Posted to The Current');
-      // Ping the parent author about the reply (never self-notify).
+      // Ping the parent author about the reply (rate-limited + never self-notify).
       if (parentId && parentAuthorId && parentAuthorId !== viewerId) {
-        try {
-          await supabase.from('notifications').insert({
-            user_id: parentAuthorId,
-            type: 'current_reply',
-            title: 'Someone replied to your Current',
-            body: trimmed.slice(0, 120),
-            action_url: `/currents/${parentId}`,
-          });
-        } catch {
-          // Non-fatal.
-        }
+        await sendNotification({
+          user_id: parentAuthorId,
+          type: 'current_reply',
+          title: 'Someone replied to your Current',
+          body: trimmed.slice(0, 120),
+          action_url: `/currents/${parentId}`,
+        });
       }
       onPosted?.(data.id);
     } catch (e: any) {

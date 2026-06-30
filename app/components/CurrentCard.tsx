@@ -28,6 +28,8 @@ import {
 } from './CurrentEntityEmbed';
 import { SailCurrentModal } from './SailCurrentModal';
 import { MAX_CURRENT_LENGTH } from './CurrentComposer';
+import { checkRateLimit, LIMITS, rateLimitMessage } from '../lib/rateLimit';
+import { sendNotification } from '../lib/notify';
 
 export interface CurrentRecord {
   id: string;
@@ -156,6 +158,12 @@ export function CurrentCard({
         setEchoCount(next);
         onEchoChange?.(next, false);
       } else {
+        // Rate-limit echoes to prevent vote-spam attacks.
+        const allowed = await checkRateLimit(LIMITS.ECHO);
+        if (!allowed) {
+          toast.error(rateLimitMessage(LIMITS.ECHO));
+          return;
+        }
         const { error } = await supabase
           .from('current_echoes')
           .insert({ current_id: current.id, user_id: viewerId });
@@ -168,17 +176,15 @@ export function CurrentCard({
         setEchoed(true);
         setEchoCount(next);
         onEchoChange?.(next, true);
-        // Author ping (non-blocking, never own-echo).
+        // Author ping (non-blocking, never own-echo, rate-limited).
         if (current.author && current.author.user_id !== viewerId) {
-          try {
-            await supabase.from('notifications').insert({
-              user_id: current.author.user_id,
-              type: 'current_echo',
-              title: 'Someone echoed your Current',
-              body: current.body.slice(0, 100),
-              action_url: `/currents/${current.id}`,
-            });
-          } catch {}
+          await sendNotification({
+            user_id: current.author.user_id,
+            type: 'current_echo',
+            title: 'Someone echoed your Current',
+            body: current.body.slice(0, 100),
+            action_url: `/currents/${current.id}`,
+          });
         }
       }
     } catch (e: any) {

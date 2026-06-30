@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from '../../lib/toast';
+import { checkRateLimit, LIMITS, rateLimitMessage } from '../../lib/rateLimit';
 import { SiteNav } from '../../components/SiteNav';
 import { HomeGoodsSafetyModal } from '../../components/HomeGoodsSafetyModal';
 import {
@@ -140,6 +141,12 @@ export default function CreateListingPage() {
 
     setSaving(true);
     try {
+      // Cap how fast a single seller can spam new listings.
+      const allowed = await checkRateLimit(LIMITS.HOME_GOODS_POST);
+      if (!allowed) {
+        toast.error(rateLimitMessage(LIMITS.HOME_GOODS_POST));
+        return;
+      }
       const { data, error } = await supabase
         .from('home_goods_listings')
         .insert({

@@ -12,6 +12,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from '../../lib/toast';
+import { checkRateLimit, LIMITS, rateLimitMessage } from '../../lib/rateLimit';
+import { sendNotification } from '../../lib/notify';
 import { SiteNav } from '../../components/SiteNav';
 import { Avatar } from '../../components/Avatar';
 import { HomeGoodsSellerStats } from '../../components/HomeGoodsSellerStats';
@@ -124,26 +126,27 @@ export default function ListingDetailPage() {
           .eq('listing_id', listing.id);
         setSaved(false);
       } else {
+        // Rate-limit save toggles to prevent storage-burn attacks.
+        const allowed = await checkRateLimit(LIMITS.HOME_GOODS_SAVE);
+        if (!allowed) {
+          toast.error(rateLimitMessage(LIMITS.HOME_GOODS_SAVE));
+          return;
+        }
         const { error } = await supabase
           .from('home_goods_saves')
           .insert({ user_id: user.id, listing_id: listing.id });
         if (error) throw error;
         setSaved(true);
         toast.success('Saved');
-        // Light-touch engagement loop: ping the seller that someone
-        // saved their listing (unless it's their own).
+        // Light-touch engagement loop: ping the seller (rate-limited).
         if (listing.seller_id !== user.id) {
-          try {
-            await supabase.from('notifications').insert({
-              user_id: listing.seller_id,
-              type: 'home_goods_save',
-              title: 'Someone saved your listing',
-              body: `"${listing.title}" was added to a Mitype member's saved items.`,
-              action_url: `/home-goods/${listing.id}`,
-            });
-          } catch {
-            // Non-fatal — the save still worked.
-          }
+          await sendNotification({
+            user_id: listing.seller_id,
+            type: 'home_goods_save',
+            title: 'Someone saved your listing',
+            body: `"${listing.title}" was added to a Mitype member's saved items.`,
+            action_url: `/home-goods/${listing.id}`,
+          });
         }
       }
     } catch (e: any) {

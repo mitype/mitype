@@ -12,6 +12,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
+import { checkRateLimit, LIMITS, rateLimitMessage } from '../lib/rateLimit';
 
 const TOTAL_STARS = 8;
 const VOTES_PER_FULL_BAR = TOTAL_STARS * 2; // 16 votes = fully filled
@@ -56,6 +57,12 @@ export function PositivityScore({ profileUserId, viewerId, isOwnProfile }: Props
     if (busy || !viewerId || isOwnProfile || hasVoted) return;
     setBusy(true);
     try {
+      // Cap how fast a single user can vote-bomb the platform.
+      const allowed = await checkRateLimit(LIMITS.POSITIVITY_VOTE);
+      if (!allowed) {
+        toast.error(rateLimitMessage(LIMITS.POSITIVITY_VOTE));
+        return;
+      }
       const { error } = await supabase
         .from('positivity_votes')
         .insert({ voter_id: viewerId, voted_user_id: profileUserId });
