@@ -213,9 +213,10 @@ export default function HomePage() {
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        // Bumped bottom padding so the small-business CTA + scroll
-        // pill never visually collide on tighter viewports.
-        padding: '140px 24px 130px',
+        // Tightened bottom padding so the scroll hint visibly sits in
+        // the viewport on phone screens. The shrunken supporting copy
+        // and gap-less social proof line let us claim back the space.
+        padding: '110px 24px 90px',
         position: 'relative',
         background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       }}>
@@ -237,7 +238,7 @@ export default function HomePage() {
           fontWeight: 900,
           lineHeight: 1.05,
           letterSpacing: '-2.5px',
-          marginBottom: 24,
+          marginBottom: 12,
           maxWidth: 820,
           color: 'var(--brand-text-primary)',
         }}>
@@ -248,25 +249,39 @@ export default function HomePage() {
           </span>
         </h1>
 
+        {/* Tagline — smaller print sits right under the headline. */}
         <p style={{
-          fontSize: 'clamp(16px, 2vw, 20px)',
+          fontSize: 'clamp(13px, 1.5vw, 16px)',
+          color: 'var(--brand-personal)',
+          fontWeight: 700,
+          letterSpacing: '1.5px',
+          textTransform: 'uppercase',
+          marginBottom: 22,
+        }}>
+          The social media that networks
+        </p>
+
+        {/* Supporting copy — kept but trimmed and shrunk so the hero
+            stays compact enough that the scroll hint fits on screen. */}
+        <p style={{
+          fontSize: 'clamp(13px, 1.6vw, 15px)',
           color: 'var(--brand-personal-text-mid)',
-          maxWidth: 540,
-          lineHeight: 1.8,
-          marginBottom: 48,
+          maxWidth: 460,
+          lineHeight: 1.55,
+          marginBottom: 32,
         }}>
           Mitype connects creative professionals, hobbyists, and passionate people based on what they actually love doing. Not just how they look.
         </p>
 
         {/* CTA */}
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 72 }}>
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 22 }}>
           <Link href="/signup" style={{
             background: 'var(--brand-personal)',
             color: 'white',
             textDecoration: 'none',
-            fontSize: 17,
+            fontSize: 16,
             fontWeight: 700,
-            padding: '17px 44px',
+            padding: '14px 36px',
             borderRadius: 100,
             boxShadow: '0 8px 32px rgba(200,149,108,0.35)',
           }}>
@@ -276,9 +291,9 @@ export default function HomePage() {
             border: '1px solid rgba(138,117,96,0.3)',
             color: 'var(--brand-personal-text-mid)',
             textDecoration: 'none',
-            fontSize: 17,
+            fontSize: 16,
             fontWeight: 500,
-            padding: '17px 44px',
+            padding: '14px 36px',
             borderRadius: 100,
             background: 'white',
           }}>
@@ -286,37 +301,17 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Avatars social proof */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
+        {/* Social proof line — centered under the buttons, emoji-free. */}
+        <p style={{
+          textAlign: 'center',
           color: 'var(--brand-personal-text-light)',
-          fontSize: 14,
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: '0.3px',
+          margin: 0,
         }}>
-          <div style={{ display: 'flex' }}>
-            {['🎨','🎵','📸','✍️','🎬','🎮','🐶','🎹'].map((e, i) => (
-              <div key={i} style={{
-                width: 38,
-                height: 38,
-                borderRadius: '50%',
-                background: `hsl(${30 + i * 15}, 40%, 80%)`,
-                border: '2px solid var(--brand-personal-bg-cream-deep)',
-                marginLeft: i === 0 ? 0 : -10,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 17,
-              }}>
-                {e}
-              </div>
-            ))}
-          </div>
-          <span>Thousands of creatives already collaborating</span>
-        </div>
-
-        {/* Small Business content moved into the Why Mitype explorer
-            below so the hero stays focused on the headline + sign-up. */}
+          Thousands of creatives already collaborating
+        </p>
 
         {/* Scroll-down hint — bounces gently, fades out on first scroll */}
         <ScrollIndicator />
@@ -359,72 +354,72 @@ export default function HomePage() {
               button that expands the full list on tap. */}
           <CategoryShowcase
             categories={[
-              // 🎨 Creative Arts
-              '🎨 Painters', '✍️ Writers', '📸 Photographers', '🎭 Actors',
-              '💃 Dancers', '🎬 Filmmakers', '🖌️ Illustrators', '🗿 Sculptors',
-              '📖 Poets', '🎙️ Storytellers', '✏️ Graphic Designers', '🖼️ Art Directors',
-              '🪶 Tattoo Artists', '🎚️ Music Producers', '🎬 Film Producers',
-              '🎤 Comedians', '🎪 Entertainers', '🃏 Magicians',
-              // 🎵 Music
-              '🎵 Musicians', '🎹 Pianists', '🎸 Guitarists', '🎤 Singers',
-              '🥁 Drummers', '🎻 Violinists', '🎺 Brass Players', '🎧 DJs',
-              '🎼 Composers', '🎷 Saxophonists',
-              // 📱 Digital & Content
-              '📱 Content Creators', '🎮 Gamers', '📺 YouTubers', '🤳 Influencers',
-              '💻 Bloggers', '🎙️ Podcasters', '📡 Streamers', '👾 Esports Players',
-              '🖥️ Web Developers', '📲 App Developers', '🤖 AI Enthusiasts',
-              '🎙️ Motivational Speakers', '📻 Radio Personalities',
-              // 🏥 Healthcare
-              '🩺 Doctors', '👩‍⚕️ Nurses', '🦷 Dentists', '🧠 Therapists',
-              '💊 Pharmacists', '🏃 Physical Therapists', '🧬 Scientists',
-              '🥗 Nutritionists', '🌿 Herbalists',
-              // 📚 Education
-              '👩‍🏫 Teachers', '👨‍🎓 Professors', '📚 Tutors', '🏫 School Counselors',
-              '🔬 Researchers', '📜 Historians',
-              // 🏋️ Fitness & Outdoors
-              '🏋️ Athletes', '🧘 Yoga Instructors', '🚴 Cyclists', '🏊 Swimmers',
-              '⛷️ Skiers', '🏄 Surfers', '🧗 Rock Climbers', '🥊 Boxers',
-              '🏇 Equestrians', '🎾 Tennis Players', '⚽ Soccer Players',
-              '🏋️ Personal Trainers', '🎣 Anglers', '🏕️ Campers', '🏔️ Hikers',
-              // 🍳 Food & Lifestyle
-              '👨‍🍳 Chefs', '🧁 Bakers', '🍷 Sommeliers', '🌿 Foodies',
-              '🌱 Vegans', '☕ Baristas', '🍕 Food Bloggers',
-              // 🐾 Animals & Nature
-              '🐶 Dog Walkers', '🐱 Cat Lovers', '🐾 Pet Trainers',
-              '🌿 Gardeners', '🦋 Nature Lovers', '🐠 Marine Biologists',
-              '🏡 Homesteaders', '🌾 Farmers', '🐝 Beekeepers',
-              // 🚗 Enthusiasts
-              '🏎️ Car Enthusiasts', '🏍️ Motorcyclists', '✈️ Pilots',
-              '⛵ Sailors', '🚀 Space Enthusiasts', '📷 Film Photographers',
-              // 💼 Professional
-              '👔 Entrepreneurs', '⚖️ Lawyers', '🏛️ Architects',
-              '🏗️ Engineers', '📊 Finance Professionals', '🎯 Marketing Creatives',
-              '🏠 Real Estate Agents', '👗 Fashion Designers', '💈 Stylists',
-              '💇 Hair Stylists', '💅 Nail Artists', '🔧 Mechanics',
-              '🔨 Contractors', '⚡ Electricians', '🚒 Firefighters',
-              '👮 Law Enforcement', '🪖 Military',
-              '🎫 Event Organizers', '👟 Sneaker Resellers',
-              // ✈️ Travel & Culture
-              '✈️ Travelers', '🌍 Expats', '🗺️ Adventurers',
-              '📿 Cultural Enthusiasts', '🛕 Spiritual Seekers',
-              // 🎬 Pop Culture & Fandoms
-              '🐉 Anime Fans', '🎴 Pokémon Fans', '🎬 Movie Buffs', '📺 TV Show Fans',
-              '🦸 Marvel Fans', '🦇 DC Fans', '⭐ Star Wars Fans', '🏰 Disney Adults',
-              '🎤 K-Pop Fans', '📚 Comic Book Fans',
-              // 🏈 Sports Fans
-              '🏈 Football Fans', '⚾ Baseball Fans', '🏀 Basketball Fans',
-              '⚽ Soccer Fans', '🏒 Hockey Fans', '🥊 MMA Fans', '🏎️ Racing Fans',
-              // 🎲 Hobbies
-              '♟️ Chess Players', '🎲 Board Gamers', '📚 Book Lovers',
-              '📖 Book Club Members',
-              '🔭 Astronomers', '🎯 Collectors', '🧩 Puzzle Enthusiasts',
-              '🪴 Plant Parents', '🧶 Knitters', '🪵 Woodworkers',
-              '🎴 Card Collectors', '🎴 Pokémon Collectors', '🧱 Lego Collectors',
-              '👟 Sneakerheads', '💿 Vinyl Collectors', '⌚ Watch Collectors',
-              // 🌟 Mindset & Lifestyle
-              '🌐 Free Thinkers', '📡 Alternative Media', '🔍 Truth Seekers',
-              '🌱 Minimalists', '💡 Visionaries',
-              '✝️ Faith Based', '☮️ Activists', '🌍 Environmentalists',
+              // Creative Arts
+              'Painters', 'Writers', 'Photographers', 'Actors',
+              'Dancers', 'Filmmakers', 'Illustrators', 'Sculptors',
+              'Poets', 'Storytellers', 'Graphic Designers', 'Art Directors',
+              'Tattoo Artists', 'Music Producers', 'Film Producers',
+              'Comedians', 'Entertainers', 'Magicians',
+              // Music
+              'Musicians', 'Pianists', 'Guitarists', 'Singers',
+              'Drummers', 'Violinists', 'Brass Players', 'DJs',
+              'Composers', 'Saxophonists',
+              // Digital & Content
+              'Content Creators', 'Gamers', 'YouTubers', 'Influencers',
+              'Bloggers', 'Podcasters', 'Streamers', 'Esports Players',
+              'Web Developers', 'App Developers', 'AI Enthusiasts',
+              'Motivational Speakers', 'Radio Personalities',
+              // Healthcare
+              'Doctors', 'Nurses', 'Dentists', 'Therapists',
+              'Pharmacists', 'Physical Therapists', 'Scientists',
+              'Nutritionists', 'Herbalists',
+              // Education
+              'Teachers', 'Professors', 'Tutors', 'School Counselors',
+              'Researchers', 'Historians',
+              // Fitness & Outdoors
+              'Athletes', 'Yoga Instructors', 'Cyclists', 'Swimmers',
+              'Skiers', 'Surfers', 'Rock Climbers', 'Boxers',
+              'Equestrians', 'Tennis Players', 'Soccer Players',
+              'Personal Trainers', 'Anglers', 'Campers', 'Hikers',
+              // Food & Lifestyle
+              'Chefs', 'Bakers', 'Sommeliers', 'Foodies',
+              'Vegans', 'Baristas', 'Food Bloggers',
+              // Animals & Nature
+              'Dog Walkers', 'Cat Lovers', 'Pet Trainers',
+              'Gardeners', 'Nature Lovers', 'Marine Biologists',
+              'Homesteaders', 'Farmers', 'Beekeepers',
+              // Enthusiasts
+              'Car Enthusiasts', 'Motorcyclists', 'Pilots',
+              'Sailors', 'Space Enthusiasts', 'Film Photographers',
+              // Professional
+              'Entrepreneurs', 'Lawyers', 'Architects',
+              'Engineers', 'Finance Professionals', 'Marketing Creatives',
+              'Real Estate Agents', 'Fashion Designers', 'Stylists',
+              'Hair Stylists', 'Nail Artists', 'Mechanics',
+              'Contractors', 'Electricians', 'Firefighters',
+              'Law Enforcement', 'Military',
+              'Event Organizers', 'Sneaker Resellers',
+              // Travel & Culture
+              'Travelers', 'Expats', 'Adventurers',
+              'Cultural Enthusiasts', 'Spiritual Seekers',
+              // Pop Culture & Fandoms
+              'Anime Fans', 'Pokémon Fans', 'Movie Buffs', 'TV Show Fans',
+              'Marvel Fans', 'DC Fans', 'Star Wars Fans', 'Disney Adults',
+              'K-Pop Fans', 'Comic Book Fans',
+              // Sports Fans
+              'Football Fans', 'Baseball Fans', 'Basketball Fans',
+              'Soccer Fans', 'Hockey Fans', 'MMA Fans', 'Racing Fans',
+              // Hobbies
+              'Chess Players', 'Board Gamers', 'Book Lovers',
+              'Book Club Members',
+              'Astronomers', 'Collectors', 'Puzzle Enthusiasts',
+              'Plant Parents', 'Knitters', 'Woodworkers',
+              'Card Collectors', 'Pokémon Collectors', 'Lego Collectors',
+              'Sneakerheads', 'Vinyl Collectors', 'Watch Collectors',
+              // Mindset & Lifestyle
+              'Free Thinkers', 'Alternative Media', 'Truth Seekers',
+              'Minimalists', 'Visionaries',
+              'Faith Based', 'Activists', 'Environmentalists',
             ]}
           />
         </div>
