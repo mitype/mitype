@@ -211,12 +211,17 @@ export default function HomePage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        // flex-start (was 'center') anchors content to the top of the
+        // hero with a measured offset, instead of dead-centering it
+        // between the top of the viewport and the scroll pill. The
+        // previous centering produced a big empty gap above the
+        // headline on phones AND pushed the scroll pill below the fold.
+        justifyContent: 'flex-start',
         textAlign: 'center',
-        // Tightened bottom padding so the scroll hint visibly sits in
-        // the viewport on phone screens. The shrunken supporting copy
-        // and gap-less social proof line let us claim back the space.
-        padding: '110px 24px 90px',
+        // Top padding clears the fixed nav (~80px tall) and gives a
+        // breathing room band; bottom padding leaves room for the
+        // absolutely-positioned scroll pill without crowding it.
+        padding: '110px 24px 110px',
         position: 'relative',
         background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       }}>
@@ -249,14 +254,15 @@ export default function HomePage() {
           </span>
         </h1>
 
-        {/* Tagline — smaller print sits right under the headline. */}
+        {/* Tagline — smaller print sits right under the headline. Black
+            for stronger emphasis against the cream background. */}
         <p style={{
           fontSize: 'clamp(13px, 1.5vw, 16px)',
-          color: 'var(--brand-personal)',
-          fontWeight: 700,
-          letterSpacing: '1.5px',
+          color: 'var(--brand-text-primary)',
+          fontWeight: 800,
+          letterSpacing: '1.8px',
           textTransform: 'uppercase',
-          marginBottom: 22,
+          marginBottom: 18,
         }}>
           The social media that networks
         </p>
@@ -268,13 +274,23 @@ export default function HomePage() {
           color: 'var(--brand-personal-text-mid)',
           maxWidth: 460,
           lineHeight: 1.55,
-          marginBottom: 32,
+          marginBottom: 26,
         }}>
           Mitype connects creative professionals, hobbyists, and passionate people based on what they actually love doing. Not just how they look.
         </p>
 
-        {/* CTA */}
-        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 22 }}>
+        {/* CTAs stacked vertically — Create a profile on top, Sign In
+            beneath. Same width so they line up cleanly on every screen.
+            Centered as a column on phones and small tablets. */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          alignItems: 'center',
+          marginBottom: 18,
+          width: '100%',
+          maxWidth: 280,
+        }}>
           <Link href="/signup" style={{
             background: 'var(--brand-personal)',
             color: 'white',
@@ -284,6 +300,9 @@ export default function HomePage() {
             padding: '14px 36px',
             borderRadius: 100,
             boxShadow: '0 8px 32px rgba(200,149,108,0.35)',
+            width: '100%',
+            textAlign: 'center',
+            boxSizing: 'border-box',
           }}>
             Create a profile →
           </Link>
@@ -296,6 +315,9 @@ export default function HomePage() {
             padding: '14px 36px',
             borderRadius: 100,
             background: 'white',
+            width: '100%',
+            textAlign: 'center',
+            boxSizing: 'border-box',
           }}>
             Sign In
           </Link>
