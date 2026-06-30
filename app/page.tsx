@@ -211,17 +211,17 @@ export default function HomePage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        // flex-start (was 'center') anchors content to the top of the
-        // hero with a measured offset, instead of dead-centering it
-        // between the top of the viewport and the scroll pill. The
-        // previous centering produced a big empty gap above the
-        // headline on phones AND pushed the scroll pill below the fold.
-        justifyContent: 'flex-start',
+        // Vertically centered between the nav and the scroll pill so the
+        // content sits in the optical middle of the viewport on phones
+        // rather than bunching up against the top edge. Top padding still
+        // clears the fixed nav (~80px) and bottom padding still reserves
+        // space for the absolutely-positioned scroll pill.
+        justifyContent: 'center',
         textAlign: 'center',
-        // Top padding clears the fixed nav (~80px tall) and gives a
-        // breathing room band; bottom padding leaves room for the
-        // absolutely-positioned scroll pill without crowding it.
-        padding: '110px 24px 110px',
+        // Top padding clears the fixed nav; bottom padding reserves
+        // room for the scroll pill so the social-proof line doesn't
+        // sit on top of it on shorter phone screens.
+        padding: '100px 24px 130px',
         position: 'relative',
         background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
       }}>
