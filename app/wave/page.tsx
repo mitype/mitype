@@ -865,7 +865,9 @@ export default function WavePage() {
         aria-label={soundEnabled ? 'Mute' : 'Tap to unmute'}
         style={{
           position: 'absolute',
-          bottom: 'max(20px, env(safe-area-inset-bottom))',
+          // Lifted well above the iPhone home indicator + any Safari bottom
+          // URL bar so the sound toggle is always in the tap zone.
+          bottom: 'calc(max(20px, env(safe-area-inset-bottom)) + 70px)',
           left: 12,
           zIndex: 50,
           display: 'inline-flex',
@@ -1036,7 +1038,14 @@ export default function WavePage() {
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'cover',
+                // `contain` (was `cover`) keeps the ENTIRE video frame in view,
+                // including the caption pill the editor bakes into the bottom
+                // of the frame. `cover` cropped the top/bottom on iPhone screens
+                // that aren't exactly 9:16 (all current iPhones + most Androids),
+                // which hid the caption users had typed in. The tradeoff is soft
+                // black letterbox bars on off-ratio videos — a fair trade for
+                // never hiding user content.
+                objectFit: 'contain',
                 background: '#000',
                 cursor: 'pointer',
               }}
@@ -1218,9 +1227,11 @@ export default function WavePage() {
             <div
               style={{
                 position: 'absolute',
-                // Sit well clear of the in-video caption pill, which is
-                // painted near the bottom of the video frame.
-                bottom: 'max(96px, calc(env(safe-area-inset-bottom) + 88px))',
+                // Lifted higher so the @username chip and any
+                // Shop/Business bridge chip sit above the sound toggle
+                // and never overlap the in-video caption pill even
+                // when the video is contain-fit with letterboxing.
+                bottom: 'calc(max(96px, env(safe-area-inset-bottom) + 88px) + 70px)',
                 left: 12,
                 right: 80,
                 color: 'white',
@@ -1340,11 +1351,13 @@ export default function WavePage() {
               )}
             </div>
 
-            {/* Action bar — bottom-right */}
+            {/* Action bar — bottom-right, lifted well clear of the
+                home indicator and any browser bottom URL bar so the
+                Save button never disappears off-screen on iPhone. */}
             <div
               style={{
                 position: 'absolute',
-                bottom: 'max(28px, env(safe-area-inset-bottom))',
+                bottom: 'calc(max(28px, env(safe-area-inset-bottom)) + 70px)',
                 right: 12,
                 display: 'flex',
                 flexDirection: 'column',
