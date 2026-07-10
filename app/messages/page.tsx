@@ -504,7 +504,15 @@ export default function MessagesPage() {
       .contains('participant_ids', [u.id])
       .order('updated_at', { ascending: false });
 
-    setConversations(convos ?? []);
+    // Filter out conversations the current user has hidden from their
+    // inbox (via the Delete conversation button). The DB-side trigger
+    // clears hidden_for_user_ids the moment a new message arrives, so
+    // hidden convos automatically reappear when the other person
+    // messages the user again. No polling required.
+    const visible = (convos ?? []).filter((c: any) =>
+      !((c.hidden_for_user_ids ?? []) as string[]).includes(u.id)
+    );
+    setConversations(visible);
 
     // Load Small Business Saves for this user. Joins business_profiles
     // for the basic details, then resolves owner_user_id → username so
@@ -1134,15 +1142,16 @@ export default function MessagesPage() {
 
   async function handleDeleteConversation(convoId: string) {
     if (!user) return;
-    if (!confirm('Delete this conversation from your inbox? Messages stay visible to the other person, but you’ll see new messages they send.')) return;
-    // Hide every existing message in this convo for me.
+    if (!confirm('Delete this conversation from your inbox? It will come back only if the other person sends a new message.')) return;
+
+    // 1. Hide every existing message in this convo for me — belt so
+    //    if the convo somehow reappears the old messages don't come
+    //    back with it.
     const { data: ids } = await supabase
       .from('messages')
       .select('id, hidden_for_user_ids')
       .eq('conversation_id', convoId);
     if (ids && ids.length > 0) {
-      // Update each row to append the user id (Postgres arrays don't
-      // have a clean push from the JS client, so we do this in a loop).
       await Promise.all(ids.map((row: any) => {
         const arr = (row.hidden_for_user_ids ?? []) as string[];
         if (arr.includes(user.id)) return Promise.resolve();
@@ -1152,11 +1161,31 @@ export default function MessagesPage() {
           .eq('id', row.id);
       }));
     }
-    // Drop the conversation from the local list if I'm currently looking
-    // at it (it'll come back the moment the other person messages me).
+
+    // 2. Hide the CONVERSATION itself for me — this is what removes
+    //    the sidebar row (the other person's avatar + name). Without
+    //    this step the convo row lingered even after we hid every
+    //    message inside it. The DB trigger clears this flag if the
+    //    other person sends anything new, so the convo reappears.
+    const { data: convoRow } = await supabase
+      .from('conversations')
+      .select('hidden_for_user_ids')
+      .eq('id', convoId)
+      .maybeSingle();
+    const currentHidden = (convoRow?.hidden_for_user_ids ?? []) as string[];
+    if (!currentHidden.includes(user.id)) {
+      await supabase
+        .from('conversations')
+        .update({ hidden_for_user_ids: [...currentHidden, user.id] })
+        .eq('id', convoId);
+    }
+
+    // 3. Update local state — remove the row from the sidebar list
+    //    immediately, clear the open chat if this is the one selected.
+    setConversations((prev) => prev.filter((c: any) => c.id !== convoId));
     setMessages([]);
     if (selectedConvo?.id === convoId) setSelectedConvo(null);
-    toast.success('Conversation cleared from your inbox.');
+    toast.success('Conversation removed from your inbox.');
   }
 
   async function respondToRequest(status: 'approved' | 'denied') {

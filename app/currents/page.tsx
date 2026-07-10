@@ -15,6 +15,7 @@ import { CurrentCard, type CurrentRecord } from '../components/CurrentCard';
 import { CurrentComposer } from '../components/CurrentComposer';
 import { CurrentTutorial } from '../components/CurrentTutorial';
 import { hydrateMentions, type HydratedEmbeds } from '../lib/currentsHydrate';
+import { markSeen } from '../lib/lastSeen';
 
 const PAGE_SIZE = 25;
 
@@ -27,6 +28,12 @@ export default function CurrentsFeedPage() {
   // The first-visit tutorial is gated behind the vortex animation
   // finishing so the educational modal doesn't fight the visual reveal.
   const [vortexDone, setVortexDone] = useState(false);
+
+  // Stamp "last time this device opened The Current" so the dashboard
+  // card stops pulsating until new posts arrive after now.
+  useEffect(() => {
+    markSeen('currents');
+  }, []);
 
   const loadFeed = useCallback(async (viewer: string | null) => {
     const { data: rows } = await supabase

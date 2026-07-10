@@ -16,6 +16,7 @@ import { WaveTutorial } from '../components/WaveTutorial';
 import { FeatureTutorial } from '../components/FeatureTutorial';
 import { WaveIntro } from '../components/WaveIntro';
 import { toast } from '../lib/toast';
+import { markSeen } from '../lib/lastSeen';
 
 interface WaveItem {
   id: string;
@@ -150,6 +151,13 @@ export default function WavePage() {
         ...(init?.headers ?? {}),
       },
     });
+  }, []);
+
+  // Stamp "last time this device opened the Wave Feed" so the
+  // dashboard card stops pulsating for this user until new content
+  // arrives after now.
+  useEffect(() => {
+    markSeen('wave');
   }, []);
 
   // Initial load: check auth, check tutorial flag, load first page of feed.

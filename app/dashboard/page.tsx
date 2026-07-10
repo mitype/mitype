@@ -15,6 +15,7 @@ import { UnreadBadge } from '../components/UnreadBadge';
 import { useUnreadCounts } from '../lib/useUnreadCounts';
 import { Avatar } from '../components/Avatar';
 import { SiteNav } from '../components/SiteNav';
+import { hasNewSince } from '../lib/lastSeen';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -24,6 +25,12 @@ export default function Dashboard() {
   // True when this user has wave videos posted in the last 24h.
   // Drives the glowing bronze outline around their dashboard avatar.
   const [hasFreshWave, setHasFreshWave] = useState(false);
+  // "New content since last visit" flags for the Wave Feed and Current
+  // dashboard cards — light-blue and navy pulses respectively. Set
+  // when the latest content in each feed is newer than the value
+  // stored in localStorage under mitype-last-seen-*.
+  const [waveHasNew, setWaveHasNew] = useState(false);
+  const [currentHasNew, setCurrentHasNew] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
 
@@ -64,6 +71,37 @@ export default function Dashboard() {
         setHasFreshWave((count ?? 0) > 0);
       } catch {
         // Non-fatal.
+      }
+
+      // Fetch the newest wave video timestamp + newest current post
+      // timestamp so the dashboard can decide whether to pulse the
+      // Wave Feed / The Current cards. We exclude this user's own
+      // posts — no point pulsating "new content" for something you
+      // just posted yourself.
+      try {
+        const [waveRes, currentRes] = await Promise.all([
+          supabase
+            .from('wave_videos')
+            .select('created_at')
+            .eq('is_removed', false)
+            .neq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1),
+          supabase
+            .from('currents')
+            .select('created_at')
+            .eq('is_removed', false)
+            .is('parent_id', null)
+            .neq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1),
+        ]);
+        const latestWaveAt = waveRes.data?.[0]?.created_at ?? null;
+        const latestCurrentAt = currentRes.data?.[0]?.created_at ?? null;
+        setWaveHasNew(hasNewSince('wave', latestWaveAt));
+        setCurrentHasNew(hasNewSince('currents', latestCurrentAt));
+      } catch {
+        // Non-fatal — cards just won't pulse this session.
       }
 
       setLoading(false);
@@ -213,6 +251,25 @@ export default function Dashboard() {
             0%, 100% { box-shadow: 0 0 20px rgba(200,149,108,0.55); }
             50% { box-shadow: 0 0 32px rgba(200,149,108,0.85); }
           }
+          /* Pulsating rim around the Wave Feed / Current cards when
+             there's new content since the user's last visit. Two
+             tones so each feed reads distinctly in peripheral vision:
+             light-blue for Wave (56,189,248), navy for The Current
+             (30,58,138). Animation is a soft glow expansion — quick
+             enough to catch the eye, slow enough to not feel needy. */
+          @keyframes mitype-pulse-wave {
+            0%, 100% { box-shadow: 0 0 0 rgba(56,189,248,0.0); }
+            50%      { box-shadow: 0 0 0 6px rgba(56,189,248,0.28); }
+          }
+          @keyframes mitype-pulse-current {
+            0%, 100% { box-shadow: 0 0 0 rgba(30,58,138,0.0); }
+            50%      { box-shadow: 0 0 0 6px rgba(30,58,138,0.32); }
+          }
+          .mitype-pulse-wave    { animation: mitype-pulse-wave    1.8s ease-in-out infinite; }
+          .mitype-pulse-current { animation: mitype-pulse-current 1.8s ease-in-out infinite; }
+          @media (prefers-reduced-motion: reduce) {
+            .mitype-pulse-wave, .mitype-pulse-current { animation: none; }
+          }
         `}</style>
 
         {/* Profile completeness — nudge users to fill in the gaps */}
@@ -297,14 +354,24 @@ export default function Dashboard() {
           // Map of href → display config. Keeping this as a single source
           // of truth means we can re-order or reshuffle sections cheaply.
           type ActionTone = 'personal' | 'business' | 'market' | 'account' | 'wave' | 'current';
+          // Order rationale (per user request):
+          //   Discover Creators → The Wave Feed → The Current
+          //     — putting the two feed entries directly under Discover
+          //       so returning users find them first.
+          //   Messages → Spotlight
+          //     — Spotlight is a discovery surface; it belongs near
+          //       Discover / feeds but the user asked for it under
+          //       Messages so the account-adjacent surface reads as
+          //       "conversations, then portfolios."
           const explore: Array<{
             label: string; desc: string; href: string; tone: ActionTone;
+            pulse?: boolean;
           }> = [
             { label: 'Discover Creators', desc: 'Browse profiles and connect by craft and city.',         href: '/discover',     tone: 'personal' },
-            { label: 'Spotlight',         desc: 'Portfolio work from the community.',                     href: '/spotlight',    tone: 'personal' },
+            { label: 'The Wave Feed',     desc: 'Scrolling video feed. Watch, like, and post your own.', href: '/wave',         tone: 'wave',    pulse: waveHasNew },
+            { label: 'The Current',       desc: 'Text drops, replies, and rich entity embeds.',          href: '/currents',     tone: 'current', pulse: currentHasNew },
             { label: 'Messages',          desc: 'Your conversations, groups, and rooms.',                 href: '/messages',     tone: 'personal' },
-            { label: 'The Wave Feed',     desc: 'Scrolling video feed. Watch, like, and post your own.', href: '/wave',         tone: 'wave'     },
-            { label: 'The Current',       desc: 'Text drops, replies, and rich entity embeds.',          href: '/currents',     tone: 'current'  },
+            { label: 'Spotlight',         desc: 'Portfolio work from the community.',                     href: '/spotlight',    tone: 'personal' },
             { label: 'Small Businesses',  desc: 'Discover small businesses on Mitype.',                   href: '/businesses',   tone: 'business' },
             { label: 'Mi Home Goods',     desc: 'Buy and sell with your Mitype community.',               href: '/home-goods',   tone: 'market'   },
           ];
@@ -333,13 +400,20 @@ export default function Dashboard() {
             current:  'rgba(30,58,138,0.32)',
           };
 
-          function ActionCard({ a }: { a: { label: string; desc: string; href: string; tone: ActionTone } }) {
+          function ActionCard({ a }: { a: { label: string; desc: string; href: string; tone: ActionTone; pulse?: boolean } }) {
+            const isPulsing = !!a.pulse;
             return (
               <Link
                 href={a.href}
+                className={isPulsing ? `mitype-pulse-${a.tone}` : undefined}
                 style={{
                   background: 'white',
-                  border: `1px solid ${BORDER[a.tone]}`,
+                  // When pulsing, thicken the border and use the tone's
+                  // accent color so it reads as a lit ring, not just a
+                  // shadow. Non-pulsing cards keep their quiet look.
+                  border: isPulsing
+                    ? `2px solid ${ACCENT[a.tone]}`
+                    : `1px solid ${BORDER[a.tone]}`,
                   borderRadius: 14,
                   padding: '14px 16px 14px 18px',
                   textDecoration: 'none',
@@ -348,7 +422,7 @@ export default function Dashboard() {
                   gap: 12,
                   position: 'relative',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-                  transition: 'transform 0.12s, box-shadow 0.12s',
+                  transition: 'transform 0.12s, box-shadow 0.12s, border-color 0.2s',
                 }}
               >
                 {/* Left brand-accent stripe — replaces the icon */}
@@ -373,6 +447,21 @@ export default function Dashboard() {
                     {a.label}
                     {a.href === '/messages' && (
                       <UnreadBadge count={unread.total} size="md" />
+                    )}
+                    {isPulsing && (
+                      <span style={{
+                        marginLeft: 8,
+                        fontSize: 10,
+                        fontWeight: 900,
+                        letterSpacing: '0.8px',
+                        color: 'white',
+                        background: ACCENT[a.tone],
+                        padding: '2px 7px',
+                        borderRadius: 100,
+                        textTransform: 'uppercase',
+                      }}>
+                        New
+                      </span>
                     )}
                   </h3>
                   <p style={{
