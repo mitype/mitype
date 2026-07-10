@@ -164,7 +164,21 @@ export default function WaveCreatePage() {
   async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (!f.type.startsWith('video/')) {
+    // Loose gating so no phone (iPhone HEIC/HEVC, older Android without
+    // MIME support, .mov exports, screen recordings) gets falsely
+    // rejected. If the browser gave us a MIME string we trust the
+    // `video/` prefix; if it didn't set one (some Androids and older
+    // iOS builds send an empty type), we fall back to the file
+    // extension. Any file that fails BOTH tests is truly not a video.
+    const nameLower = (f.name || '').toLowerCase();
+    const VIDEO_EXTS = [
+      '.mp4', '.m4v', '.mov', '.qt', '.webm', '.mkv', '.avi',
+      '.3gp', '.3gpp', '.3g2', '.hevc', '.h264', '.ts', '.mts',
+      '.m2ts', '.wmv', '.flv', '.ogv',
+    ];
+    const looksLikeVideoByExt = VIDEO_EXTS.some((ext) => nameLower.endsWith(ext));
+    const looksLikeVideoByMime = (f.type || '').toLowerCase().startsWith('video/');
+    if (!looksLikeVideoByMime && !looksLikeVideoByExt) {
       toast.error('Please pick a video file');
       return;
     }
@@ -480,10 +494,24 @@ export default function WaveCreatePage() {
       if (!urlRes.ok) throw new Error(urlJson.error ?? 'Could not start upload');
 
       // Direct PUT to Supabase storage with progress.
+      //
+      // Content-Type is normalized to a bare `video/*` string so it
+      // survives every MIME whitelist / gateway sanity check:
+      //   1. Strip anything after the first semicolon (`;codecs=…`) —
+      //      MediaRecorder always appends codec params and those broke
+      //      the old whitelist match.
+      //   2. If the browser produced an empty type (some Androids,
+      //      some older iOS builds), default to a generic `video/mp4`.
+      //   3. If the type doesn't start with `video/`, force it — some
+      //      Android exports report `application/octet-stream` for a
+      //      valid MP4.
+      const rawType = processed.blob.type || '';
+      const stripped = rawType.split(';')[0].trim().toLowerCase();
+      const cleanType = stripped.startsWith('video/') ? stripped : 'video/mp4';
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', urlJson.uploadUrl);
-        xhr.setRequestHeader('Content-Type', processed.blob.type || 'video/mp4');
+        xhr.setRequestHeader('Content-Type', cleanType);
         xhr.upload.onprogress = (e) => {
           if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100));
         };
