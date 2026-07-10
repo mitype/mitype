@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
+import { safeUpload } from '../lib/safeUpload';
 import Link from 'next/link';
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
@@ -951,15 +952,19 @@ export default function MessagesPage() {
       // <conversation_id>/<random-name>.<ext>
       const rand = Math.random().toString(36).slice(2, 9);
       const path = `${selectedConvo.id}/${Date.now()}-${rand}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from('message-media')
-        .upload(path, blob, {
-          upsert: false,
-          contentType: blob.type || (kind === 'image' ? 'image/jpeg' : 'audio/webm'),
+      // Route through safeUpload so image/audio MIME types get
+      // normalized (codec suffixes stripped, extension fallbacks) —
+      // no more surprise 400s from bucket-level MIME checks.
+      try {
+        await safeUpload(blob, {
+          bucket: 'message-media',
+          path,
+          kind: kind === 'image' ? 'image' : 'audio',
+          filename: `attachment.${ext}`,
         });
-      if (upErr) {
+      } catch (upErr: any) {
         console.error('[messages] attachment upload error:', upErr);
-        toast.error("Couldn't upload that. Try again.");
+        toast.error(upErr?.message ?? "Couldn't upload that. Try again.");
         return;
       }
       // Private bucket → signed URL valid for the full 24h lifetime.

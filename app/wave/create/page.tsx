@@ -285,7 +285,13 @@ export default function WaveCreatePage() {
   }
 
   // Pick the best supported MediaRecorder mimeType.
-  function pickMimeType(): string {
+  //
+  // Returns null when no candidate is supported — the caller then
+  // constructs MediaRecorder WITHOUT a mimeType option so the browser
+  // uses its default. That's the safe path on older iOS Safari where
+  // isTypeSupported() sometimes lies about every candidate and passing
+  // an "unsupported" mimeType throws in the constructor.
+  function pickMimeType(): string | null {
     const candidates = [
       'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
       'video/mp4',
@@ -293,12 +299,13 @@ export default function WaveCreatePage() {
       'video/webm;codecs=vp8,opus',
       'video/webm',
     ];
+    if (typeof MediaRecorder === 'undefined') return null;
     for (const m of candidates) {
-      if (typeof MediaRecorder !== 'undefined' && (MediaRecorder as any).isTypeSupported?.(m)) {
+      if ((MediaRecorder as any).isTypeSupported?.(m)) {
         return m;
       }
     }
-    return 'video/webm';
+    return null;
   }
 
   // Process the video through canvas + MediaRecorder. Bakes the trim,
@@ -381,11 +388,25 @@ export default function WaveCreatePage() {
     }
 
     const mimeType = pickMimeType();
-    const ext = mimeType.startsWith('video/mp4') ? 'mp4' : 'webm';
-    const recorder = new MediaRecorder(stream, {
-      mimeType,
-      videoBitsPerSecond: 3_500_000,
-    });
+    // Guess extension for the storage key. If no mimeType, we'll ask
+    // the resulting blob for its .type after encoding and infer from
+    // there — for now assume mp4 since that's the browser default on
+    // both iOS Safari and Chrome/Android in current versions.
+    const ext = !mimeType || mimeType.startsWith('video/mp4') ? 'mp4' : 'webm';
+    // If no candidate was supported (older iOS Safari can lie about
+    // isTypeSupported for every candidate), construct without options
+    // so the browser picks its native default. Trying to force an
+    // unsupported mimeType throws in the constructor.
+    let recorder: MediaRecorder;
+    try {
+      recorder = mimeType
+        ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3_500_000 })
+        : new MediaRecorder(stream, { videoBitsPerSecond: 3_500_000 });
+    } catch {
+      // Absolute fallback: no options at all. Rare but real on some
+      // older Androids where videoBitsPerSecond itself fails.
+      recorder = new MediaRecorder(stream);
+    }
     const chunks: BlobPart[] = [];
     recorder.ondataavailable = (e) => {
       if (e.data && e.data.size > 0) chunks.push(e.data);
@@ -451,7 +472,9 @@ export default function WaveCreatePage() {
       }
     }
 
-    const blob = new Blob(chunks, { type: mimeType });
+    // Use whatever the recorder actually produced (falls back to mp4
+    // when we didn't pass a mimeType and let the browser pick).
+    const blob = new Blob(chunks, { type: mimeType ?? recorder.mimeType ?? 'video/mp4' });
     return { blob, ext };
   }
 

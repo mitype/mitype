@@ -13,6 +13,7 @@ import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
 import { MAX_PHOTOS, type ProfilePhoto } from '../lib/photos';
 import { PhotoEditor } from './PhotoEditor';
+import { safeUpload } from '../lib/safeUpload';
 
 interface PhotoManagerProps {
   userId: string;
@@ -71,27 +72,29 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
     try {
       const version = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const path = `${userId}/photo-${version}.jpg`;
-      const { error: upErr } = await supabase.storage
-        .from('avatars')
-        .upload(path, blob, {
-          upsert: false,
-          contentType: 'image/jpeg',
-        });
-      if (upErr) {
-        toast.error(upErr.message);
-        return;
-      }
-      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+      // Blob comes from PhotoEditor which re-encodes as JPEG, so the
+      // MIME is deterministic. Route through safeUpload anyway so the
+      // whole app has a single upload code path.
+      const { publicUrl } = await safeUpload(blob, {
+        bucket: 'avatars',
+        path,
+        kind: 'image',
+        filename: `${version}.jpg`,
+      });
 
       if (editingIndex !== null) {
         const next = photos.slice();
-        next[editingIndex] = { url: data.publicUrl };
+        next[editingIndex] = { url: publicUrl };
         onChange(next);
         toast.success('Photo updated');
       } else {
-        onChange([...photos, { url: data.publicUrl }]);
+        onChange([...photos, { url: publicUrl }]);
         toast.success('Photo added');
       }
+    } catch (e: any) {
+      // safeUpload throws with a human-readable message on any failure —
+      // surface it verbatim so the user knows what went wrong.
+      toast.error(e?.message ?? 'Photo upload failed');
     } finally {
       setUploading(false);
       setEditorFile(null);

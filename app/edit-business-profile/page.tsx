@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
+import { safeUpload } from '../lib/safeUpload';
 import { toast } from '../lib/toast';
 import { BUSINESS_CATEGORIES } from '../lib/businessCategories';
 import { SiteNav } from '../components/SiteNav';
@@ -145,27 +146,22 @@ export default function EditBusinessProfilePage() {
   async function handleLogoUpload(file: File) {
     if (!user) return;
     // No client-side size cap — owners often have huge product/brand
-    // images straight off their camera roll. We let Supabase Storage's
-    // own per-bucket limit be the final word, and surface that error
-    // verbatim if it ever fires. Same goes for file type: we accept
-    // anything image/* (PNG, JPG, WEBP, HEIC, GIF, SVG, AVIF, etc.).
+    // images straight off their camera roll. Bucket-side size limit is
+    // the final word. MIME normalization is delegated to safeUpload so
+    // codec suffixes, empty types, and octet-stream all upload fine.
     setUploading(true);
     try {
       const ext = (file.name.split('.').pop() ?? 'png').toLowerCase();
       const path = `${user.id}/logo-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from('business-logos')
-        .upload(path, file, {
-          upsert: false,
-          contentType: file.type || undefined,
-        });
-      if (upErr) {
-        toast.error(upErr.message);
-        return;
-      }
-      const { data } = supabase.storage.from('business-logos').getPublicUrl(path);
-      setLogoUrl(data.publicUrl);
+      const { publicUrl } = await safeUpload(file, {
+        bucket: 'business-logos',
+        path,
+        kind: 'image',
+      });
+      setLogoUrl(publicUrl);
       toast.success('Logo uploaded');
+    } catch (e: any) {
+      toast.error(e?.message ?? 'Logo upload failed');
     } finally {
       setUploading(false);
     }

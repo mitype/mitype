@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from '../../lib/toast';
+import { safeUpload } from '../../lib/safeUpload';
 import { checkRateLimit, LIMITS, rateLimitMessage } from '../../lib/rateLimit';
 import { SiteNav } from '../../components/SiteNav';
 import { HomeGoodsSafetyModal } from '../../components/HomeGoodsSafetyModal';
@@ -88,20 +89,16 @@ export default function CreateListingPage() {
       for (const file of list) {
         const ext = (file.name.split('.').pop() ?? 'jpg').toLowerCase();
         const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from('home-goods-photos')
-          .upload(path, file, {
-            upsert: false,
-            contentType: file.type || undefined,
+        try {
+          const { publicUrl } = await safeUpload(file, {
+            bucket: 'home-goods-photos',
+            path,
+            kind: 'image',
           });
-        if (upErr) {
-          toast.error(upErr.message);
-          continue;
+          newUrls.push(publicUrl);
+        } catch (e: any) {
+          toast.error(e?.message ?? 'Photo upload failed');
         }
-        const { data } = supabase.storage
-          .from('home-goods-photos')
-          .getPublicUrl(path);
-        if (data?.publicUrl) newUrls.push(data.publicUrl);
       }
       if (newUrls.length > 0) {
         setPhotoUrls((prev) => [...prev, ...newUrls]);

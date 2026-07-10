@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
+import { safeUpload } from '../lib/safeUpload';
 import {
   PET_TYPES,
   TAG_COLORS,
@@ -90,23 +91,26 @@ export function PetEditor({ userId }: Props) {
   }
 
   async function uploadPhoto(i: number, file: File) {
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Photo must be under 5 MB');
+    // Generous 25 MB cap — comfortably fits any iPhone HEIC + big
+    // Android portrait shots without ever pinching legitimate users.
+    if (file.size > 25 * 1024 * 1024) {
+      toast.error('Photo must be under 25 MB');
       return;
     }
     setUploadingIndex(i);
     try {
       const ext = (file.name.split('.').pop() ?? 'jpg').toLowerCase();
       const path = `${userId}/pet-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from('pet-photos')
-        .upload(path, file, { upsert: false });
-      if (upErr) {
-        toast.error(upErr.message);
-        return;
-      }
-      const { data } = supabase.storage.from('pet-photos').getPublicUrl(path);
-      update(i, { photo_url: data.publicUrl });
+      // Route through safeUpload so MIME + fallbacks are handled the
+      // same way as every other upload site in the app.
+      const { publicUrl } = await safeUpload(file, {
+        bucket: 'pet-photos',
+        path,
+        kind: 'image',
+      });
+      update(i, { photo_url: publicUrl });
+    } catch (e: any) {
+      toast.error(e?.message ?? 'Upload failed');
     } finally {
       setUploadingIndex(null);
     }
