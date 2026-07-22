@@ -1193,6 +1193,33 @@ export default function MessagesPage() {
     toast.success('Conversation removed from your inbox.');
   }
 
+  // Cancel a pending message request I sent. Deletes the conversation
+  // entirely (messages cascade via FK) so the request disappears from
+  // both my "Sent" list and the recipient's "Requests" list — as if I
+  // never sent it. Guarded by the RLS policy that only allows DELETE
+  // on conversations where initiated_by = me AND status = 'pending'.
+  async function handleCancelPendingRequest(convoId: string) {
+    if (!user) return;
+    if (!confirm('Cancel this pending request? It will be removed from your Sent list and the other person will no longer see it.')) return;
+    const { error } = await supabase
+      .from('conversations')
+      .delete()
+      .eq('id', convoId)
+      .eq('initiated_by', user.id)
+      .eq('status', 'pending');
+    if (error) {
+      console.error('[messages] cancel pending error:', error);
+      toast.error("Couldn't cancel that request. Try again.");
+      return;
+    }
+    setConversations((prev) => prev.filter((c: any) => c.id !== convoId));
+    if (selectedConvo?.id === convoId) {
+      setSelectedConvo(null);
+      setMessages([]);
+    }
+    toast.success('Request canceled.');
+  }
+
   async function respondToRequest(status: 'approved' | 'denied') {
     if (!selectedConvo) return;
     const { error } = await supabase
@@ -1622,6 +1649,39 @@ export default function MessagesPage() {
                         <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)' }}>Pending approval</p>
                       </div>
                       <UnreadBadge count={unread.perConvo[convo.id] ?? 0} />
+                      {/* Cancel my own pending request. stopPropagation
+                          so tapping the × doesn't also open the chat. */}
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => { e.stopPropagation(); void handleCancelPendingRequest(convo.id); }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            void handleCancelPendingRequest(convo.id);
+                          }
+                        }}
+                        aria-label={`Cancel pending request to @${other?.username ?? 'user'}`}
+                        title="Cancel request"
+                        style={{
+                          width: 28,
+                          height: 28,
+                          background: 'rgba(0,0,0,0.04)',
+                          borderRadius: '50%',
+                          color: 'var(--brand-personal-text-light)',
+                          fontSize: 14,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          lineHeight: 1,
+                          flexShrink: 0,
+                          userSelect: 'none',
+                        }}
+                      >
+                        ×
+                      </span>
                     </div>
                   </button>
                 );
