@@ -25,6 +25,14 @@ interface Opts {
   hover?: boolean;
   /** Border radius. Default 100 (fully rounded pill). */
   radius?: number;
+  /** 'full'  = real glass with backdrop-filter blur. Beautiful but
+   *           GPU-intensive — use only on a handful of primary CTAs.
+   *  'lite'  = same gradient border + inset shadows + inline tint,
+   *           but NO backdrop-filter. Zero scroll cost. Use on
+   *           high-count elements (category tiles, feature grids,
+   *           anything repeated more than ~10 times on a page).
+   *  Default 'full'. */
+  variant?: 'full' | 'lite';
 }
 
 /** Returns a CSSProperties object you can spread into a button/Link
@@ -32,13 +40,18 @@ interface Opts {
  *  layout properties — everything else (background, border, shadows,
  *  backdrop-filter) comes from this helper. */
 export function liquidGlass(opts: Opts = {}): CSSProperties {
-  const { tone = 'warm', hover = false, radius = 100 } = opts;
+  const { tone = 'warm', hover = false, radius = 100, variant = 'full' } = opts;
 
-  // Body tint — the padding-box layer. Warm gets a warm cream tint,
-  // clear gets a nearly-invisible white tint so it reads as clean glass.
-  const body = tone === 'warm'
-    ? 'linear-gradient(135deg, rgba(255,240,220,0.45) 0%, rgba(255,225,200,0.20) 50%, rgba(255,240,220,0.40) 100%)'
-    : 'linear-gradient(135deg, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.35) 100%)';
+  // Body tint — the padding-box layer. In 'lite' mode we crank the
+  // opacity up so the tile still reads as a distinct glass-like
+  // surface without needing an expensive backdrop-filter blur.
+  const body = variant === 'lite'
+    ? (tone === 'warm'
+        ? 'linear-gradient(135deg, rgba(255,244,228,0.92) 0%, rgba(255,232,208,0.86) 50%, rgba(255,244,228,0.90) 100%)'
+        : 'linear-gradient(135deg, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.78) 50%, rgba(255,255,255,0.88) 100%)')
+    : (tone === 'warm'
+        ? 'linear-gradient(135deg, rgba(255,240,220,0.45) 0%, rgba(255,225,200,0.20) 50%, rgba(255,240,220,0.40) 100%)'
+        : 'linear-gradient(135deg, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.35) 100%)');
 
   // Diagonal shine border — bright white at 0% (top-left corner) and
   // 100% (bottom-right corner), nearly transparent through the middle.
@@ -55,7 +68,7 @@ export function liquidGlass(opts: Opts = {}): CSSProperties {
     ? (hover ? '0 12px 32px rgba(200,149,108,0.30)' : '0 6px 22px rgba(200,149,108,0.20)')
     : (hover ? '0 10px 28px rgba(0,0,0,0.14)'        : '0 4px 18px rgba(0,0,0,0.08)');
 
-  return {
+  const base: CSSProperties = {
     position: 'relative',
     background: [
       `${body} padding-box`,
@@ -63,8 +76,6 @@ export function liquidGlass(opts: Opts = {}): CSSProperties {
     ].join(', '),
     border: '1.5px solid transparent',
     borderRadius: radius,
-    backdropFilter: 'blur(16px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(16px) saturate(180%)',
     boxShadow: [
       // Inset top-left glow — mirrors the top-left shine on the border.
       'inset 2px 2px 6px rgba(255,255,255,0.35)',
@@ -78,4 +89,13 @@ export function liquidGlass(opts: Opts = {}): CSSProperties {
     transition: 'transform 0.18s ease, box-shadow 0.18s ease',
     textShadow: '0 1px 0 rgba(255,255,255,0.5)',
   };
+
+  // Full variant adds the expensive backdrop-filter for true glass;
+  // lite variant leaves it off entirely for scroll performance.
+  if (variant === 'full') {
+    base.backdropFilter = 'blur(16px) saturate(180%)';
+    (base as any).WebkitBackdropFilter = 'blur(16px) saturate(180%)';
+  }
+
+  return base;
 }

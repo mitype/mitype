@@ -32,7 +32,10 @@ export function CategoryShowcase({ categories, initialCount = 20 }: Props) {
       }}>
         {visible.map((cat) => (
           <div key={cat} style={{
-            ...liquidGlass({ tone: 'clear' }),
+            // `lite` variant — same visual glass language (gradient
+            // border shine + inset shadows) but NO backdrop-filter, so
+            // scrolling 140 of these at once stays smooth on mobile.
+            ...liquidGlass({ tone: 'clear', variant: 'lite' }),
             padding: '9px 18px',
             fontSize: 13,
             color: 'var(--brand-personal-text-head)',

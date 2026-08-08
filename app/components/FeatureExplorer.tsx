@@ -78,7 +78,10 @@ export function FeatureExplorer({ features }: Props) {
               onClick={() => setOpenIndex(i)}
               aria-label={`Learn more about ${f.title}`}
               style={{
-                ...liquidGlass({ tone: 'clear', radius: 14 }),
+                // `lite` variant — 14 tiles + they sit in the scroll
+                // path, so backdrop-filter would tank scroll perf.
+                // Same look, zero GPU cost.
+                ...liquidGlass({ tone: 'clear', radius: 14, variant: 'lite' }),
                 // Preserve the tone-color accent stripe on top; the
                 // glass helper's transparent border already wraps the
                 // other three sides.
