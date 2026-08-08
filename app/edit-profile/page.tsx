@@ -11,6 +11,7 @@ import { PetEditor } from '../components/PetEditor';
 import { BusinessRecommendationsEditor } from '../components/BusinessRecommendationsEditor';
 import { FeatureTutorial } from '../components/FeatureTutorial';
 import { toast } from '../lib/toast';
+import { liquidGlass } from '../lib/liquidGlass';
 import { isAtLeast18, maxDobIso, minDobIso } from '../lib/age';
 import { normalizePhotos, type ProfilePhoto } from '../lib/photos';
 import {
@@ -1412,21 +1413,19 @@ export default function EditProfilePage() {
             </div>
           </div>
 
-          {/* Save Button */}
+          {/* Save Button — primary CTA on the page, full glass. */}
           <button
             type="submit"
             disabled={saving}
             style={{
+              ...liquidGlass({ tone: 'warm' }),
               width: '100%',
               padding: '16px',
-              background: saving ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
-              color: 'white',
-              border: 'none',
-              borderRadius: 100,
+              color: 'var(--brand-text-primary)',
               fontSize: 17,
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: saving ? 'not-allowed' : 'pointer',
-              boxShadow: '0 8px 24px rgba(200,149,108,0.3)',
+              opacity: saving ? 0.6 : 1,
             }}
           >
             {saving ? 'Saving...' : 'Save Changes'}

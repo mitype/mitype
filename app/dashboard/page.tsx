@@ -16,6 +16,7 @@ import { useUnreadCounts } from '../lib/useUnreadCounts';
 import { Avatar } from '../components/Avatar';
 import { SiteNav } from '../components/SiteNav';
 import { hasNewSince } from '../lib/lastSeen';
+import { liquidGlass } from '../lib/liquidGlass';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -283,10 +284,10 @@ export default function Dashboard() {
           type="button"
           onClick={() => setShareOpen(true)}
           style={{
+            // Full glass — this is the single hero CTA on the dashboard,
+            // so the expensive backdrop-filter is worth it here.
+            ...liquidGlass({ tone: 'warm', radius: 20 }),
             width: '100%',
-            background: 'linear-gradient(135deg, var(--brand-personal-bg-peach) 0%, #ffe1c8 100%)',
-            border: '1.5px solid rgba(200,149,108,0.35)',
-            borderRadius: 20,
             padding: '20px 24px',
             marginBottom: 32,
             cursor: 'pointer',
@@ -295,7 +296,6 @@ export default function Dashboard() {
             gap: 16,
             textAlign: 'left',
             fontFamily: 'inherit',
-            boxShadow: '0 2px 8px rgba(200,149,108,0.12)',
           }}
         >
           <div
@@ -402,26 +402,27 @@ export default function Dashboard() {
 
           function ActionCard({ a }: { a: { label: string; desc: string; href: string; tone: ActionTone; pulse?: boolean } }) {
             const isPulsing = !!a.pulse;
+            // Lite glass — 10 cards on the page, so backdrop-filter would
+            // start to bite scroll perf. Lite gives the glass look
+            // (specular border shine + inset shadows + tint) for free.
+            const glass = liquidGlass({ tone: 'clear', radius: 14, variant: 'lite' });
             return (
               <Link
                 href={a.href}
                 className={isPulsing ? `mitype-pulse-${a.tone}` : undefined}
                 style={{
-                  background: 'white',
-                  // When pulsing, thicken the border and use the tone's
-                  // accent color so it reads as a lit ring, not just a
-                  // shadow. Non-pulsing cards keep their quiet look.
+                  ...glass,
+                  // Pulsing state overrides the glass border with the
+                  // tone accent so the "NEW" ring reads clearly.
                   border: isPulsing
                     ? `2px solid ${ACCENT[a.tone]}`
-                    : `1px solid ${BORDER[a.tone]}`,
-                  borderRadius: 14,
+                    : glass.border,
                   padding: '14px 16px 14px 18px',
                   textDecoration: 'none',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
                   position: 'relative',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                   transition: 'transform 0.12s, box-shadow 0.12s, border-color 0.2s',
                 }}
               >

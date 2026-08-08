@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { toast } from '../lib/toast';
+import { liquidGlass } from '../lib/liquidGlass';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -204,16 +205,14 @@ export default function SignupPage() {
             type="submit"
             disabled={loading}
             style={{
+              ...liquidGlass({ tone: 'warm' }),
               width: '100%',
               padding: '15px',
-              background: loading ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
-              color: 'white',
-              border: 'none',
-              borderRadius: 100,
+              color: 'var(--brand-text-primary)',
               fontSize: 16,
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 8px 24px rgba(200,149,108,0.3)',
+              opacity: loading ? 0.6 : 1,
               marginBottom: 24,
             }}
           >

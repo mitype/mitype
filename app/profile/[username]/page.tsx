@@ -10,6 +10,7 @@ import { PetTags, type Pet } from '../../components/PetTags';
 import { FeatureTutorial } from '../../components/FeatureTutorial';
 import { ProfileSkeleton } from '../../components/Skeleton';
 import { toast } from '../../lib/toast';
+import { liquidGlass } from '../../lib/liquidGlass';
 import { sanitizeText, safeUrl } from '../../lib/sanitize';
 import { normalizePrompts, type ProfilePrompt } from '../../lib/profilePrompts';
 import { calculateAge } from '../../lib/age';
@@ -715,8 +716,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 ) : currentUser ? (
                   <>
                     <button onClick={sendMessage} style={{
-                      padding: '10px 20px', background: 'var(--brand-personal)', border: 'none',
-                      borderRadius: 100, color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                      ...liquidGlass({ tone: 'warm' }),
+                      padding: '10px 20px',
+                      color: 'var(--brand-text-primary)',
+                      fontSize: 13, fontWeight: 800, cursor: 'pointer',
                     }}>
                       Message
                     </button>

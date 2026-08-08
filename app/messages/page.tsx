@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { safeUpload } from '../lib/safeUpload';
+import { liquidGlass } from '../lib/liquidGlass';
 import Link from 'next/link';
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
@@ -2665,14 +2666,13 @@ export default function MessagesPage() {
                       disabled={sending || !newMessage.trim()}
                       aria-label="Send message"
                       style={{
-                        padding: '10px 18px',
-                        background: sending || !newMessage.trim() ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 100,
+                        ...liquidGlass({ tone: 'warm' }),
+                        padding: '10px 22px',
+                        color: 'var(--brand-text-primary)',
                         fontSize: 14,
-                        fontWeight: 700,
+                        fontWeight: 800,
                         cursor: sending || !newMessage.trim() ? 'not-allowed' : 'pointer',
+                        opacity: sending || !newMessage.trim() ? 0.5 : 1,
                         flexShrink: 0,
                       }}
                     >
