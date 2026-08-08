@@ -4,6 +4,7 @@ import { ScrollIndicator } from './components/ScrollIndicator';
 import { RefBadge } from './components/RefBadge';
 import { CategoryShowcase } from './components/CategoryShowcase';
 import { FeatureExplorer, type Feature } from './components/FeatureExplorer';
+import { liquidGlass } from './lib/liquidGlass';
 
 // Full feature roster shown in the "Why Mitype" explorer. Each card is
 // clickable and opens a modal with the long-form pitch. We surface the
@@ -182,23 +183,21 @@ export default function HomePage() {
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <Link href="/login" style={{
+            ...liquidGlass({ tone: 'clear' }),
             color: 'var(--brand-personal-text-mid)',
             textDecoration: 'none',
             fontSize: 15,
-            padding: '8px 20px',
-            borderRadius: 100,
+            padding: '9px 22px',
           }}>
             Sign In
           </Link>
           <Link href="/signup" style={{
-            background: 'var(--brand-personal)',
-            color: 'white',
+            ...liquidGlass({ tone: 'warm' }),
+            color: 'var(--brand-text-primary)',
             textDecoration: 'none',
             fontSize: 15,
-            fontWeight: 700,
+            fontWeight: 800,
             padding: '10px 26px',
-            borderRadius: 100,
-            boxShadow: '0 4px 20px rgba(200,149,108,0.3)',
           }}>
             Join now
           </Link>
@@ -292,14 +291,12 @@ export default function HomePage() {
           maxWidth: 280,
         }}>
           <Link href="/signup" style={{
-            background: 'var(--brand-personal)',
-            color: 'white',
+            ...liquidGlass({ tone: 'warm' }),
+            color: 'var(--brand-text-primary)',
             textDecoration: 'none',
             fontSize: 16,
-            fontWeight: 700,
+            fontWeight: 800,
             padding: '14px 36px',
-            borderRadius: 100,
-            boxShadow: '0 8px 32px rgba(200,149,108,0.35)',
             width: '100%',
             textAlign: 'center',
             boxSizing: 'border-box',
@@ -307,14 +304,12 @@ export default function HomePage() {
             Create a profile →
           </Link>
           <Link href="/login" style={{
-            border: '1px solid rgba(138,117,96,0.3)',
+            ...liquidGlass({ tone: 'clear' }),
             color: 'var(--brand-personal-text-mid)',
             textDecoration: 'none',
             fontSize: 16,
-            fontWeight: 500,
+            fontWeight: 600,
             padding: '14px 36px',
-            borderRadius: 100,
-            background: 'white',
             width: '100%',
             textAlign: 'center',
             boxSizing: 'border-box',
@@ -591,15 +586,13 @@ export default function HomePage() {
           </ul>
 
           <Link href="/signup" style={{
+            ...liquidGlass({ tone: 'warm' }),
             display: 'block',
-            background: 'var(--brand-personal)',
-            color: 'white',
+            color: 'var(--brand-text-primary)',
             textDecoration: 'none',
             fontSize: 16,
             fontWeight: 800,
             padding: '15px 32px',
-            borderRadius: 100,
-            boxShadow: '0 8px 24px rgba(200,149,108,0.3)',
             textAlign: 'center',
             letterSpacing: '0.3px',
           }}>
@@ -633,14 +626,12 @@ export default function HomePage() {
           Connect with people who share your world.
         </p>
         <Link href="/signup" style={{
-          background: 'var(--brand-personal)',
-          color: 'white',
+          ...liquidGlass({ tone: 'warm' }),
+          color: 'var(--brand-text-primary)',
           textDecoration: 'none',
           fontSize: 18,
-          fontWeight: 700,
+          fontWeight: 800,
           padding: '18px 52px',
-          borderRadius: 100,
-          boxShadow: '0 8px 32px rgba(200,149,108,0.35)',
           display: 'inline-block',
         }}>
           Create a profile →

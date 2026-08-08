@@ -10,6 +10,7 @@
 //   area so it never lands under the home-indicator bar.
 
 import { useEffect, useState } from 'react';
+import { liquidGlass } from '../lib/liquidGlass';
 
 export function ScrollIndicator() {
   const [hidden, setHidden] = useState(false);
@@ -38,23 +39,22 @@ export function ScrollIndicator() {
       onClick={handleClick}
       aria-label="Scroll down to see more"
       style={{
+        ...liquidGlass({ tone: 'warm' }),
         position: 'absolute',
         // Lifted further from the safe area so the iPhone home
         // indicator never overlaps the pill.
         bottom: 'calc(max(40px, env(safe-area-inset-bottom)) + 16px)',
         left: '50%',
+        // The glass helper uses translateY(-1px) on hover, but we
+        // need a horizontal centering translate here too. Compose
+        // both via the animation only; base transform stays centered.
         transform: 'translateX(-50%)',
         opacity: hidden ? 0 : 1,
-        transition: 'opacity 0.35s ease',
         pointerEvents: hidden ? 'none' : 'auto',
-        background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
-        border: 'none',
-        color: 'white',
+        color: 'var(--brand-text-primary)',
         cursor: 'pointer',
         padding: '10px 22px 10px 22px',
         fontFamily: 'inherit',
-        borderRadius: 100,
-        boxShadow: '0 12px 28px rgba(200,149,108,0.45)',
         zIndex: 50,
         display: 'inline-flex',
         alignItems: 'center',
@@ -82,7 +82,7 @@ export function ScrollIndicator() {
       >
         <path
           d="M2 2 L11 11 L20 2"
-          stroke="white"
+          stroke="currentColor"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"

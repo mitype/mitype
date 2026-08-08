@@ -10,6 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { liquidGlass } from '../lib/liquidGlass';
 
 export interface Feature {
   /** Optional emoji rendered as a small accent. Kept tiny so the card
@@ -77,10 +78,11 @@ export function FeatureExplorer({ features }: Props) {
               onClick={() => setOpenIndex(i)}
               aria-label={`Learn more about ${f.title}`}
               style={{
-                background: 'white',
-                border: `1px solid ${tone.border}`,
+                ...liquidGlass({ tone: 'clear', radius: 14 }),
+                // Preserve the tone-color accent stripe on top; the
+                // glass helper's transparent border already wraps the
+                // other three sides.
                 borderTop: `3px solid ${tone.accent}`,
-                borderRadius: 14,
                 padding: '16px 16px 14px',
                 cursor: 'pointer',
                 textAlign: 'left',
@@ -88,8 +90,6 @@ export function FeatureExplorer({ features }: Props) {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 6,
-                transition: 'transform 0.12s, box-shadow 0.12s',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                 minHeight: 100,
               }}
             >
@@ -282,18 +282,15 @@ export function FeatureExplorer({ features }: Props) {
                 href="/signup"
                 onClick={() => setOpenIndex(null)}
                 style={{
+                  ...liquidGlass({ tone: 'warm' }),
                   flex: '1 1 220px',
                   padding: '13px 22px',
-                  background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 100,
+                  color: 'var(--brand-text-primary)',
                   fontSize: 14,
                   fontWeight: 800,
                   cursor: 'pointer',
                   textDecoration: 'none',
                   textAlign: 'center',
-                  boxShadow: '0 10px 22px rgba(200,149,108,0.35)',
                   letterSpacing: '0.3px',
                 }}
               >
@@ -303,11 +300,9 @@ export function FeatureExplorer({ features }: Props) {
                 type="button"
                 onClick={() => setOpenIndex(null)}
                 style={{
+                  ...liquidGlass({ tone: 'clear' }),
                   padding: '13px 22px',
-                  background: 'transparent',
                   color: 'var(--brand-personal-text-mid)',
-                  border: '1px solid rgba(200,149,108,0.35)',
-                  borderRadius: 100,
                   fontSize: 14,
                   fontWeight: 700,
                   cursor: 'pointer',

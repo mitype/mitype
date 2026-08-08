@@ -7,6 +7,7 @@
 // the expand-state can live in React.
 
 import { useState } from 'react';
+import { liquidGlass } from '../lib/liquidGlass';
 
 interface Props {
   categories: string[];
@@ -31,14 +32,11 @@ export function CategoryShowcase({ categories, initialCount = 20 }: Props) {
       }}>
         {visible.map((cat) => (
           <div key={cat} style={{
-            background: 'white',
-            border: '1px solid rgba(200,149,108,0.2)',
-            borderRadius: 100,
+            ...liquidGlass({ tone: 'clear' }),
             padding: '9px 18px',
             fontSize: 13,
             color: 'var(--brand-personal-text-head)',
-            fontWeight: 500,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+            fontWeight: 600,
           }}>
             {cat}
           </div>
@@ -53,17 +51,14 @@ export function CategoryShowcase({ categories, initialCount = 20 }: Props) {
             aria-expanded={expanded}
             aria-label={expanded ? 'Show fewer categories' : `Show ${remaining} more categories`}
             style={{
+              ...liquidGlass({ tone: expanded ? 'clear' : 'warm' }),
               padding: '10px 22px',
-              background: expanded ? 'transparent' : 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
-              color: expanded ? 'var(--brand-personal-text-mid)' : 'white',
-              border: expanded ? '1px solid rgba(200,149,108,0.4)' : 'none',
-              borderRadius: 100,
+              color: 'var(--brand-text-primary)',
               fontSize: 13,
               fontWeight: 800,
               letterSpacing: '0.3px',
               cursor: 'pointer',
               fontFamily: 'inherit',
-              boxShadow: expanded ? 'none' : '0 8px 22px rgba(200,149,108,0.28)',
             }}
           >
             {expanded ? 'Show fewer' : `+ ${remaining} more`}
