@@ -37,6 +37,20 @@ export function OddcastPill() {
           marginBottom: 18,
         }}
       >
+        {/* Liquid Glass pill — Apple iOS 26 style.
+            Layered effect breakdown:
+              1. `backdrop-filter: blur + saturate` → the see-through glass.
+              2. Multi-stop linear-gradient background → refractive tint that
+                 picks up the warm cream color of the page beneath.
+              3. Inset white highlight on top edge (`inset 0 1px 0 ...`) +
+                 inset dark under-shadow on bottom edge → the "curved glass"
+                 illusion.
+              4. Outer box-shadow → the soft floating look above the page.
+              5. Animated shimmer sweep → the "living light" that makes glass
+                 feel alive. Pauses on reduced motion.
+            Fallback: on browsers without backdrop-filter support we get a
+            slightly opaque peach background instead, which still reads as
+            elevated. */}
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -45,30 +59,86 @@ export function OddcastPill() {
           aria-label="Learn more about Oddcast"
           aria-haspopup="dialog"
           aria-expanded={open}
+          className="mitype-glass-pill"
           style={{
-            // Match the size of the regular category pills (padding + fontSize)
-            // but keep the gradient, border, shadow, and hover lift so this
-            // one still reads as the "featured" pill.
-            background: 'linear-gradient(135deg, var(--brand-personal-bg-peach) 0%, #ffe1c8 100%)',
-            border: '1.5px solid rgba(200,149,108,0.45)',
-            borderRadius: 100,
-            padding: '9px 18px',
+            position: 'relative',
+            overflow: 'hidden',
+            padding: '11px 22px',
             fontSize: 13,
             color: 'var(--brand-text-primary)',
             fontWeight: 800,
-            boxShadow: hover
-              ? '0 4px 14px rgba(200,149,108,0.25)'
-              : '0 2px 8px rgba(200,149,108,0.15)',
+            borderRadius: 100,
             cursor: 'pointer',
-            transform: hover ? 'translateY(-1px)' : 'none',
-            transition:
-              'transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease',
             fontFamily: 'inherit',
+            // Layered background: soft warm tint on top of the blur.
+            background:
+              'linear-gradient(135deg, rgba(255,240,220,0.55) 0%, rgba(255,225,200,0.30) 45%, rgba(255,240,220,0.50) 100%)',
+            // Hair-thin border in a semi-transparent bronze so it doesn't
+            // look painted on top — it feels like the edge of the glass.
+            border: '1px solid rgba(200,149,108,0.35)',
+            // Backdrop filter = the actual "glass" — blurs whatever's behind
+            // the button and saturates the color a hair so warmth pops.
+            backdropFilter: 'blur(14px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(14px) saturate(160%)',
+            // Combined shadows:
+            //   - inset top-white → the highlight along the top curve
+            //   - inset bottom-dark → the shadow along the bottom curve
+            //   - outer bronze glow → floats the pill above the page
+            boxShadow: [
+              'inset 0 1px 0 rgba(255,255,255,0.75)',
+              'inset 0 -1px 1px rgba(120,80,40,0.10)',
+              hover
+                ? '0 10px 28px rgba(200,149,108,0.30)'
+                : '0 6px 20px rgba(200,149,108,0.22)',
+            ].join(', '),
+            transform: hover ? 'translateY(-1px) scale(1.02)' : 'none',
+            transition:
+              'transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease',
+            // Slight text shadow to keep the label readable against the
+            // translucent surface without darkening the button.
+            textShadow: '0 1px 0 rgba(255,255,255,0.55)',
           }}
         >
-          ♾️ Oddcast
+          <span style={{ position: 'relative', zIndex: 2 }}>
+            ♾️ Oddcast
+          </span>
+          {/* Animated shimmer — a soft diagonal white streak that sweeps
+              across the pill every ~5s. This is what makes it feel alive. */}
+          <span
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 100,
+              background:
+                'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)',
+              transform: 'translateX(-100%)',
+              animation: 'mitype-glass-shimmer 5.5s ease-in-out infinite',
+              pointerEvents: 'none',
+              mixBlendMode: 'overlay',
+              zIndex: 1,
+            }}
+          />
         </button>
       </div>
+
+      <style>{`
+        @keyframes mitype-glass-shimmer {
+          0%   { transform: translateX(-100%); }
+          55%  { transform: translateX(120%); }
+          100% { transform: translateX(120%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .mitype-glass-pill > span[aria-hidden="true"] { animation: none; opacity: 0; }
+        }
+        /* Fallback: browsers without backdrop-filter get a slightly opaque
+           peach fill so the pill still reads as elevated. */
+        @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+          .mitype-glass-pill {
+            background: linear-gradient(135deg, #ffefd8 0%, #ffe1c8 100%) !important;
+          }
+        }
+      `}</style>
 
       {open && (
         <div
