@@ -10,6 +10,7 @@ import { Coachmark } from '../components/Coachmark';
 import { DiscoverSkeleton } from '../components/Skeleton';
 import { OnlineDot } from '../components/OnlineDot';
 import { sanitizeText } from '../lib/sanitize';
+import { liquidGlass } from '../lib/liquidGlass';
 import { calculateAge } from '../lib/age';
 import { usePresence } from '../lib/usePresence';
 import { ALL_CATEGORIES } from '../lib/categories';
@@ -1451,13 +1452,11 @@ export default function DiscoverPage() {
               <button
                 onClick={applyFilters}
                 style={{
+                  ...liquidGlass({ tone: 'warm' }),
                   padding: '10px 28px',
-                  background: 'var(--brand-personal)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 100,
+                  color: 'var(--brand-text-primary)',
                   fontSize: 14,
-                  fontWeight: 700,
+                  fontWeight: 800,
                   cursor: 'pointer',
                 }}
               >

@@ -2183,13 +2183,11 @@ export default function MessagesPage() {
                       onClick={() => respondToRequest('approved')}
                       aria-label="Approve message request"
                       style={{
+                        ...liquidGlass({ tone: 'warm' }),
                         padding: '8px 18px',
-                        background: 'var(--brand-personal)',
-                        border: 'none',
-                        borderRadius: 100,
-                        color: 'white',
+                        color: 'var(--brand-text-primary)',
                         fontSize: 13,
-                        fontWeight: 700,
+                        fontWeight: 800,
                         cursor: 'pointer',
                       }}
                     >

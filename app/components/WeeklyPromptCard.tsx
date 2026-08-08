@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import { useMemo } from 'react';
+import { liquidGlass } from '../lib/liquidGlass';
 import {
   currentWeekKey,
   getPromptForWeekKey,
@@ -70,13 +71,12 @@ export function WeeklyPromptCard() {
       <Link
         href="/weekly"
         style={{
+          ...liquidGlass({ tone: 'warm' }),
           display: 'inline-block',
           padding: '10px 22px',
-          background: 'var(--brand-personal)',
-          color: 'white',
-          borderRadius: 100,
+          color: 'var(--brand-text-primary)',
           fontSize: 14,
-          fontWeight: 700,
+          fontWeight: 800,
           textDecoration: 'none',
         }}
       >
