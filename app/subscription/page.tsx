@@ -3,28 +3,18 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
-import { toast } from '../lib/toast';
 import { BackButton } from '../components/BackButton';
 import { SiteNav } from '../components/SiteNav';
-import { BraintreeCheckout } from '../components/BraintreeCheckout';
 import { PayPalCheckout } from '../components/PayPalCheckout';
 
-// Switch the active payment provider via env var.
-//
-//   NEXT_PUBLIC_PAYMENT_PROVIDER=stripe    → Stripe Checkout (legacy)
-//   NEXT_PUBLIC_PAYMENT_PROVIDER=braintree → Braintree Drop-in (built but unused)
-//   NEXT_PUBLIC_PAYMENT_PROVIDER=paypal    → PayPal Subscriptions (active path)
-//
-// Default is 'stripe' so existing flow keeps working until PayPal
-// production credentials are wired up and we flip the switch.
-const PAYMENT_PROVIDER =
-  (process.env.NEXT_PUBLIC_PAYMENT_PROVIDER ?? 'stripe').toLowerCase();
+// PayPal is the only active payment provider. The Stripe + Braintree
+// checkout paths that used to live here were removed once PayPal went
+// live in production — see git history if you ever need to reconstruct.
 
 export default function SubscriptionPage() {
   const [user, setUser] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -48,38 +38,9 @@ export default function SubscriptionPage() {
     getData();
   }, []);
 
-  async function handleCheckout() {
-    if (!user) return;
-    setCheckoutLoading(true);
-
-    try {
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          email: user.email,
-        }),
-      });
-
-      const { url, error } = await res.json();
-      if (error) throw new Error(error);
-      window.location.href = url;
-    } catch (err: any) {
-      toast.error(err.message ?? 'Something went wrong. Please try again.');
-      setCheckoutLoading(false);
-    }
-  }
-
-  // Called by the Braintree Drop-in after a successful subscription
-  // create. Optimistically flip the page to the "subscribed" state —
+  // Called by the PayPal Buttons after a successful subscription
+  // approval. Optimistically flip the page to the "subscribed" state —
   // the webhook will keep the row authoritative.
-  function handleBraintreeSuccess() {
-    setSubscription({ ...(subscription ?? {}), status: 'active' });
-  }
-
-  // Same idea, called by the PayPal Buttons after a successful
-  // subscription approval.
   function handlePayPalSuccess() {
     setSubscription({ ...(subscription ?? {}), status: 'active' });
   }
@@ -241,51 +202,13 @@ export default function SubscriptionPage() {
                 ))}
               </ul>
 
-              {/* Conditional checkout: PayPal Subscriptions, Braintree
-                  Drop-in, or Stripe Checkout redirect (legacy). Switch
-                  via the NEXT_PUBLIC_PAYMENT_PROVIDER env var. */}
-              {PAYMENT_PROVIDER === 'paypal' && user ? (
+              {/* PayPal is the only payment provider. */}
+              {user && (
                 <PayPalCheckout
                   userId={user.id}
                   email={user.email}
                   onSuccess={handlePayPalSuccess}
                 />
-              ) : PAYMENT_PROVIDER === 'braintree' && user ? (
-                <BraintreeCheckout
-                  userId={user.id}
-                  email={user.email}
-                  onSuccess={handleBraintreeSuccess}
-                />
-              ) : (
-                <>
-                  <button
-                    onClick={handleCheckout}
-                    disabled={checkoutLoading}
-                    style={{
-                      width: '100%',
-                      padding: '17px',
-                      background: checkoutLoading ? 'var(--brand-personal-disabled)' : 'var(--brand-personal)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 100,
-                      fontSize: 17,
-                      fontWeight: 700,
-                      cursor: checkoutLoading ? 'not-allowed' : 'pointer',
-                      boxShadow: '0 8px 24px rgba(200,149,108,0.3)',
-                      marginBottom: 16,
-                    }}
-                  >
-                    {checkoutLoading ? 'Redirecting...' : 'Start Now'}
-                  </button>
-
-                  <p style={{
-                    textAlign: 'center',
-                    color: 'var(--brand-personal-text-lighter)',
-                    fontSize: 13,
-                  }}>
-                    Your card will not be charged during your 30 day free trial · Cancel anytime
-                  </p>
-                </>
               )}
 
             </div>

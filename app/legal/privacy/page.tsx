@@ -67,7 +67,7 @@ export default function PrivacyPolicyPage() {
 - Account information: Email address and password when you register.
 - Profile information: Username, bio, profile photo, creative categories, ZIP code, social media links, and website URL that you provide.
 - Usage data: Browsing activity, connection history, and messages exchanged on the platform.
-- Payment information: Payment details are processed directly by Stripe and are never stored on our servers. We only retain your subscription status and Stripe customer ID.
+- Payment information: Payment details are processed directly by PayPal and are never stored on our servers. We only retain your subscription status and PayPal subscription ID.
 - Technical data: IP address, browser type, device information, and cookies used to maintain your session.`,
           },
           {
@@ -76,7 +76,7 @@ export default function PrivacyPolicyPage() {
 
 - Create and manage your account and profile.
 - Power the creator discovery, connection, and messaging features.
-- Process subscription payments through Stripe.
+- Process subscription payments through PayPal.
 - Send transactional emails such as email verification and billing notices.
 - Improve platform features and analyze usage patterns.
 - Comply with legal obligations and enforce our Terms of Service.`,
@@ -90,7 +90,7 @@ export default function PrivacyPolicyPage() {
             content: `We use the following trusted third-party providers:
 
 - Supabase: Provides our authentication, database, and file storage infrastructure.
-- Stripe: Handles all payment processing. Stripe is PCI-DSS compliant. We never see or store your full card details.
+- PayPal: Handles all payment processing. PayPal is PCI-DSS compliant. We never see or store your full card details.
 - Vercel: Hosts our web application.
 
 Each provider operates under its own privacy policy.`,
