@@ -297,6 +297,19 @@ export default function EditProfilePage() {
       toast.error('Username is required.');
       return;
     }
+    // Hard gate: profile photo is required. A profile counts as having
+    // a photo if either the multi-photo array holds at least one entry
+    // OR the legacy single avatar_url is set.
+    const hasPhoto = photos.some((p) => (p.url ?? '').trim()) || !!(avatarUrl && avatarUrl.trim());
+    if (!hasPhoto) {
+      toast.error('Add a profile photo to save your profile.');
+      // Scroll the user back to the top where PhotoManager lives so the
+      // required action is right in front of them.
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
     if (dateOfBirth && !isAtLeast18(dateOfBirth)) {
       toast.error('You must be at least 18 to use Mitype.');
       return;

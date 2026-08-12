@@ -1,23 +1,22 @@
 'use client';
-// Profile completeness card.
+// Profile completeness card — photo-only rule.
 //
 // Sits on the dashboard between the welcome header and the Daily Spark.
-// Renders a circular progress ring + a checklist of remaining steps so the
-// user knows exactly what to do next to round out their profile.
+// Under the new photo-only rule (per user request):
+//   * If the user has a profile photo → card hides entirely, no ring,
+//     no celebration, no dashboard real estate consumed. Ever.
+//   * If the user has no profile photo → card shows with a single,
+//     focused "Add a profile photo" CTA and a link straight to
+//     Edit Profile.
 //
-// Behavior at 100%:
-//   - The first time the user lands on the dashboard at 100%, we show a
-//     celebratory "Profile 100% complete" card so the moment is rewarded.
-//   - We immediately persist a localStorage flag so on the next login the
-//     card hides itself entirely and no longer takes up dashboard real estate.
-//   - If the user ever drops back below 100% (e.g., they removed a photo),
-//     we clear the flag so the celebration replays the next time they
-//     re-complete it.
+// All the other fields (bio, prompts, categories, links, ZIP) are still
+// available in Edit Profile but no longer contribute to completeness —
+// so users who don't have a portfolio or don't want to share their ZIP
+// aren't nagged forever.
 //
 // Pure UI — no DB calls. Takes the profile object the dashboard already
 // loaded.
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { scoreProfileCompleteness } from '../lib/profileCompleteness';
 
@@ -27,87 +26,42 @@ interface ProfileCompletenessProps {
 
 const RING_SIZE = 88;
 const RING_STROKE = 9;
-const SEEN_KEY = 'mitype-profile-complete-seen';
 
 export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
-  const { percent, steps, doneCount, totalCount } = scoreProfileCompleteness(
+  const { percent } = scoreProfileCompleteness(
     profile as Parameters<typeof scoreProfileCompleteness>[0]
   );
   const isComplete = percent >= 100;
-  const remaining = steps.filter((s) => !s.done);
 
-  // Track whether the user has already been shown the "complete"
-  // celebration on a previous login. Starts as null so we can render
-  // a stable first paint on the server (matching the not-yet-seen
-  // state) and only hide once the client has read localStorage.
-  const [hasSeenComplete, setHasSeenComplete] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const seen = window.localStorage.getItem(SEEN_KEY) === '1';
-      setHasSeenComplete(seen);
-
-      if (isComplete && !seen) {
-        // Mark immediately so a second tab / refresh hides the card.
-        window.localStorage.setItem(SEEN_KEY, '1');
-      } else if (!isComplete && seen) {
-        // Dropped back below 100% — clear the flag so the next
-        // time they hit 100 the celebration plays again.
-        window.localStorage.removeItem(SEEN_KEY);
-      }
-    } catch {
-      // localStorage can throw in privacy mode — fall back to showing
-      // the card (treat as not-yet-seen).
-      setHasSeenComplete(false);
-    }
-  }, [isComplete]);
-
-  // At 100% AND the user has already seen the celebration on a prior
-  // login — hide entirely. Note: we wait until hasSeenComplete is
-  // resolved (non-null) before hiding so the server-rendered version
-  // doesn't briefly show something inconsistent.
-  if (isComplete && hasSeenComplete === true) {
+  // Photo-only rule: once complete, hide the card entirely and forever
+  // (until the user removes their photo, in which case it comes back).
+  // No celebration state, no localStorage flag — much simpler than the
+  // old weighted-score version.
+  if (isComplete) {
     return null;
   }
 
   // Stroke math for the circular ring.
+  // Empty-avatar visual — a soft bronze circle with a camera-plus glyph
+  // that reads as "you're missing a photo" without needing extra copy.
   const radius = (RING_SIZE - RING_STROKE) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const dashOffset = circumference * (1 - percent / 100);
-
-  // Color shifts from soft → strong as the profile fills in.
-  const ringColor =
-    percent >= 100
-      ? 'var(--brand-market-success)'
-      : percent >= 75
-        ? 'var(--brand-personal)'
-        : percent >= 40
-          ? 'var(--brand-personal-disabled)'
-          : '#e0bca0';
 
   return (
     <div
       style={{
-        background: isComplete
-          ? 'linear-gradient(135deg, var(--brand-market-bg-mint) 0%, #d1fae5 100%)'
-          : 'white',
-        border: isComplete
-          ? '1px solid rgba(22,163,74,0.25)'
-          : '1px solid rgba(200,149,108,0.2)',
+        background: 'white',
+        border: '1px solid rgba(200,149,108,0.2)',
         borderRadius: 24,
         padding: '24px 28px',
         marginBottom: 24,
-        boxShadow: isComplete
-          ? '0 4px 20px rgba(22,163,74,0.12)'
-          : '0 4px 20px rgba(0,0,0,0.04)',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
         display: 'flex',
         gap: 24,
-        alignItems: 'flex-start',
+        alignItems: 'center',
         flexWrap: 'wrap',
       }}
     >
-      {/* Ring */}
+      {/* Empty avatar disc with a camera-plus glyph */}
       <div
         style={{
           position: 'relative',
@@ -115,32 +69,17 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
           height: RING_SIZE,
           flexShrink: 0,
         }}
+        aria-hidden="true"
       >
-        <svg
-          width={RING_SIZE}
-          height={RING_SIZE}
-          style={{ transform: 'rotate(-90deg)' }}
-          aria-hidden="true"
-        >
+        <svg width={RING_SIZE} height={RING_SIZE}>
           <circle
             cx={RING_SIZE / 2}
             cy={RING_SIZE / 2}
             r={radius}
-            stroke={isComplete ? 'rgba(22,163,74,0.18)' : 'rgba(200,149,108,0.15)'}
-            strokeWidth={RING_STROKE}
-            fill="none"
-          />
-          <circle
-            cx={RING_SIZE / 2}
-            cy={RING_SIZE / 2}
-            r={radius}
-            stroke={ringColor}
-            strokeWidth={RING_STROKE}
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={dashOffset}
-            style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+            fill="rgba(200,149,108,0.10)"
+            stroke="rgba(200,149,108,0.35)"
+            strokeWidth={RING_STROKE / 3}
+            strokeDasharray="4 4"
           />
         </svg>
         <div
@@ -150,30 +89,27 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexDirection: 'column',
-            color: ringColor,
+            fontSize: 30,
+            color: 'var(--brand-personal)',
           }}
-          aria-label={`Profile is ${percent}% complete`}
         >
-          <span style={{ fontSize: 22, fontWeight: 900, letterSpacing: '-0.5px' }}>
-            {percent}%
-          </span>
+          📷
         </div>
       </div>
 
       {/* Body */}
-      <div style={{ flex: 1, minWidth: 240 }}>
+      <div style={{ flex: 1, minWidth: 220 }}>
         <p
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: isComplete ? 'var(--brand-market)' : 'var(--brand-personal-text-light)',
+            color: 'var(--brand-personal-text-light)',
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
             marginBottom: 4,
           }}
         >
-          Profile completeness
+          Profile incomplete
         </p>
         <h3
           style={{
@@ -184,84 +120,35 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
             marginBottom: 6,
           }}
         >
-          {isComplete
-            ? 'Profile 100% complete 🎉'
-            : `${doneCount} of ${totalCount} steps done`}
+          Add a profile photo
         </h3>
         <p
           style={{
-            color: isComplete ? 'var(--brand-market)' : 'var(--brand-personal-text-light)',
+            color: 'var(--brand-personal-text-mid)',
             fontSize: 13,
-            marginBottom: isComplete ? 0 : 14,
+            marginBottom: 14,
             lineHeight: 1.5,
           }}
         >
-          {isComplete
-            ? "You're all set. Strong profiles get better matches and richer Daily Spark openers. We'll keep this card tucked away from now on."
-            : 'Filled-in profiles get better matches. Knock these out to give your Daily Spark openers more to work with.'}
+          A profile photo is required to complete your profile. Once it's up, this card will disappear.
         </p>
 
-        {!isComplete && (
-          <>
-            <ul
-              style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: '0 0 14px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 6,
-              }}
-            >
-              {remaining.slice(0, 4).map((step) => (
-                <li
-                  key={step.key}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    color: 'var(--brand-personal-text-head)',
-                    fontSize: 14,
-                  }}
-                >
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      width: 16,
-                      height: 16,
-                      borderRadius: '50%',
-                      border: '1.5px solid rgba(200,149,108,0.4)',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span>{step.label}</span>
-                </li>
-              ))}
-              {remaining.length > 4 && (
-                <li style={{ color: 'var(--brand-personal-text-light)', fontSize: 13, marginLeft: 26 }}>
-                  + {remaining.length - 4} more
-                </li>
-              )}
-            </ul>
-
-            <Link
-              href="/edit-profile"
-              style={{
-                display: 'inline-block',
-                padding: '10px 22px',
-                background: 'var(--brand-personal)',
-                color: 'white',
-                borderRadius: 100,
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: 'none',
-                boxShadow: '0 4px 14px rgba(200,149,108,0.3)',
-              }}
-            >
-              Finish my profile →
-            </Link>
-          </>
-        )}
+        <Link
+          href="/edit-profile"
+          style={{
+            display: 'inline-block',
+            padding: '10px 22px',
+            background: 'var(--brand-personal)',
+            color: 'white',
+            borderRadius: 100,
+            fontSize: 13,
+            fontWeight: 800,
+            textDecoration: 'none',
+            boxShadow: '0 4px 14px rgba(200,149,108,0.3)',
+          }}
+        >
+          Add photo →
+        </Link>
       </div>
     </div>
   );

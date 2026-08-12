@@ -1,32 +1,41 @@
-// Profile completeness scoring.
+// Profile completeness scoring — photo-only rule.
 //
-// Each step has a fixed point value; total = 100. We grade the profile by
-// summing the points for everything that's filled in, and surface the
-// missing steps so the user knows what to do next. The list is also ordered
-// roughly by impact: avatar + bio + prompts move the needle the most for
-// match quality and for Daily Spark openers, so they sit at the top.
-
-import { normalizePrompts } from './profilePrompts';
+// Original design tracked seven fields (photo, bio, prompts, categories,
+// links, latest project, ZIP) and summed weighted points to grade the
+// profile. That was noisy — users without a website or portfolio got
+// nagged forever even though their profile was fine.
+//
+// New rule (user request): the ONLY thing that determines "complete" is
+// whether the user has a profile photo. Everything else in Edit Profile
+// stays as an optional field, but doesn't count toward completeness and
+// doesn't trigger the dashboard card.
+//
+// Behavior:
+//   * Photo present  → percent = 100 → dashboard card hides completely
+//                       (ProfileCompleteness returns null)
+//   * Photo missing  → percent = 0   → card shows with a single, focused
+//                       "Add a profile photo" CTA
 
 export interface CompletenessStep {
   key: string;
   label: string;
   done: boolean;
-  weight: number; // points contributed when complete
-  href?: string;  // where to send the user to fix this step
+  weight: number; // kept on the type for backward compatibility
+  href?: string;
 }
 
 export interface CompletenessResult {
-  percent: number; // 0–100, rounded
+  percent: number;
   steps: CompletenessStep[];
   doneCount: number;
   totalCount: number;
 }
 
-// Loose shape for the bits of the profile we care about. Accepts the raw
-// row from supabase without forcing every page to import a typed model.
+// Loose shape — accepts the raw supabase row so callers don't need to
+// import a typed model. Only `avatar_url` and `photos` are actually read.
 type ProfileShape = {
   avatar_url?: string | null;
+  photos?: Array<{ url?: string | null }> | null;
   bio?: string | null;
   categories?: string[] | null;
   zip_code?: string | null;
@@ -36,73 +45,25 @@ type ProfileShape = {
   creative_status?: string | null;
 };
 
-const MIN_BIO_LEN = 30;
-
 export function scoreProfileCompleteness(profile: ProfileShape | null | undefined): CompletenessResult {
   const p = profile ?? {};
-  const promptCount = normalizePrompts(p.profile_prompts).length;
-  const portfolioCount = (p.portfolio_links ?? []).filter((x) => (x?.url ?? '').trim()).length;
-  const hasLinks = !!(p.website_url && p.website_url.trim()) || portfolioCount > 0;
+  // A user has "a photo" if either the mirrored avatar_url is set or
+  // any of the entries in the multi-photo `photos` array has a URL.
+  const hasAvatar = !!(p.avatar_url && p.avatar_url.trim());
+  const hasAnyPhoto = hasAvatar || ((p.photos ?? []).some((x) => (x?.url ?? '').trim()));
 
-  const steps: CompletenessStep[] = [
-    {
-      key: 'avatar',
-      label: 'Add a profile photo',
-      done: !!(p.avatar_url && p.avatar_url.trim()),
-      weight: 20,
-      href: '/edit-profile',
-    },
-    {
-      key: 'bio',
-      label: 'Write a bio (30+ characters)',
-      done: !!(p.bio && p.bio.trim().length >= MIN_BIO_LEN),
-      weight: 15,
-      href: '/edit-profile',
-    },
-    {
-      key: 'prompts',
-      label: `Answer 3 prompts${promptCount > 0 && promptCount < 3 ? ` (${promptCount}/3 done)` : ''}`,
-      done: promptCount >= 3,
-      weight: 25,
-      href: '/edit-profile',
-    },
-    {
-      key: 'categories',
-      label: 'Pick at least one category',
-      done: (p.categories?.length ?? 0) > 0,
-      weight: 10,
-      href: '/edit-profile',
-    },
-    {
-      key: 'links',
-      label: 'Add a website or portfolio link',
-      done: hasLinks,
-      weight: 15,
-      href: '/edit-profile',
-    },
-    {
-      key: 'creative_status',
-      label: 'Add your latest project',
-      done: !!(p.creative_status && p.creative_status.trim()),
-      weight: 10,
-      href: '/edit-profile',
-    },
-    {
-      key: 'zip',
-      label: 'Add your ZIP code',
-      done: !!(p.zip_code && p.zip_code.trim()),
-      weight: 5,
-      href: '/edit-profile',
-    },
-  ];
-
-  const earned = steps.reduce((sum, s) => sum + (s.done ? s.weight : 0), 0);
-  const doneCount = steps.filter((s) => s.done).length;
+  const step: CompletenessStep = {
+    key: 'avatar',
+    label: 'Add a profile photo',
+    done: hasAnyPhoto,
+    weight: 100,
+    href: '/edit-profile',
+  };
 
   return {
-    percent: Math.round(earned),
-    steps,
-    doneCount,
-    totalCount: steps.length,
+    percent: hasAnyPhoto ? 100 : 0,
+    steps: [step],
+    doneCount: hasAnyPhoto ? 1 : 0,
+    totalCount: 1,
   };
 }
