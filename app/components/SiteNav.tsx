@@ -14,7 +14,7 @@
 // competing for space. A pure hamburger pattern eliminates that
 // every-page sizing battle and gives users one consistent menu.
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BackButton } from './BackButton';
@@ -57,6 +57,24 @@ export function SiteNav({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const { unread } = useUnreadCounts(userId ?? undefined);
+  // Fetch the admin flag for the current user so we can conditionally
+  // render the "Admin" nav link only for staff. RLS on the profiles
+  // table already scopes reads, and this is a tiny query — safe to
+  // fire on every mount.
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (!userId) { setIsAdmin(false); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (!cancelled) setIsAdmin(!!data?.is_admin);
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
 
   const accentColor = accent === 'purple' ? 'var(--brand-business)' : 'var(--brand-personal)';
   const accentText = accent === 'purple' ? 'var(--brand-business-deep)' : 'var(--brand-personal-text-mid)';
@@ -259,6 +277,12 @@ export function SiteNav({
           <NavLink href="/businesses" label="Small Businesses" accent="var(--brand-business)" />
           <NavLink href="/home-goods" label="Mi Home Goods"    accent="var(--brand-market)" />
           <NavLink href="/edit-profile" label="Edit Profile" />
+          {/* Admin link — only rendered when the signed-in user has
+              is_admin === true on their profile row. Invisible to
+              everyone else, so the option doesn't exist for them. */}
+          {isAdmin && (
+            <NavLink href="/admin" label="Admin" accent="var(--brand-personal)" />
+          )}
           {!hideSignOut && userId && (
             <button
               type="button"

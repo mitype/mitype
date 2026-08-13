@@ -64,6 +64,7 @@ type PublicProfile = {
   date_of_birth?: string | null;
   photos?: ProfilePhoto[] | null;
   last_active_at?: string | null;
+  is_admin?: boolean | null;
 };
 
 export default function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -758,17 +759,45 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               </div>
             </div>
 
-            <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--brand-text-primary)', letterSpacing: '-0.5px', marginBottom: 8 }}>
-              @{profile.username}
-              {(() => {
-                const age = calculateAge(profile.date_of_birth);
-                if (age === null) return null;
-                return (
-                  <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600, fontSize: 22, marginLeft: 10 }}>
-                    · {age}
-                  </span>
-                );
-              })()}
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--brand-text-primary)', letterSpacing: '-0.5px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <span>
+                @{profile.username}
+                {(() => {
+                  const age = calculateAge(profile.date_of_birth);
+                  if (age === null) return null;
+                  return (
+                    <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600, fontSize: 22, marginLeft: 10 }}>
+                      · {age}
+                    </span>
+                  );
+                })()}
+              </span>
+              {/* Small "Administrator" tag — only rendered when this
+                  profile's is_admin flag is true. Reads as staff without
+                  being loud. */}
+              {profile.is_admin && (
+                <span
+                  aria-label="Administrator"
+                  title="Mitype Administrator"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '3px 10px',
+                    background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
+                    color: 'white',
+                    borderRadius: 100,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    letterSpacing: '1.4px',
+                    textTransform: 'uppercase',
+                    lineHeight: 1,
+                    boxShadow: '0 2px 8px rgba(200,149,108,0.35)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Administrator
+                </span>
+              )}
             </h1>
 
             {/* Open to collab pill — shows up first thing under the
