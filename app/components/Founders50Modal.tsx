@@ -197,7 +197,7 @@ export function Founders50Modal({ userId, isSubscribed, onDismiss }: Props) {
             margin: '0 0 16px',
           }}
         >
-          Mitype's first 50,000 users get first access to our upcoming Creator Rewards program. The moment we cross 50,000 members, opted-in subscribers start earning.
+          Mitype's early users get first access to our upcoming Creator Rewards program. The moment we cross 50,000 members, opted-in subscribers start earning.
         </p>
 
         {/* Subscription requirement callout — varies by state */}

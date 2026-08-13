@@ -79,8 +79,8 @@ SELECT
       WHERE s.user_id = p.user_id
         AND s.status IN ('active', 'trialing')
     )
-    THEN 'Mitype is launching a Creator Rewards program for our first 50,000 users. Opt in now to reserve your spot.'
-    ELSE 'Mitype is launching a Creator Rewards program for our first 50,000 users. Subscribe to become eligible and opt in.'
+    THEN 'Mitype is launching a Creator Rewards program for our early users. Opt in now to reserve your spot.'
+    ELSE 'Mitype is launching a Creator Rewards program for our early users. Subscribe to become eligible and opt in.'
   END,
   '/subscription',
   FALSE,
