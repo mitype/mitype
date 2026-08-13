@@ -23,7 +23,7 @@ import { supabase } from '../lib/supabaseClient';
 import { SiteNav } from '../components/SiteNav';
 import { Avatar } from '../components/Avatar';
 
-type Tab = 'all' | 'subscribed' | 'unsubscribed';
+type Tab = 'all' | 'subscribed' | 'unsubscribed' | 'founders50';
 
 interface UserRow {
   user_id: string;
@@ -33,6 +33,7 @@ interface UserRow {
   is_admin: boolean;
   is_subscribed: boolean;
   subscription_status: string | null;
+  founders_50_opted_in: boolean;
 }
 
 export default function AdminPage() {
@@ -64,7 +65,7 @@ export default function AdminPage() {
       const [profRes, subRes] = await Promise.all([
         supabase
           .from('profiles')
-          .select('user_id, username, avatar_url, created_at, is_admin')
+          .select('user_id, username, avatar_url, created_at, is_admin, founders_50_opted_in')
           .order('created_at', { ascending: false }),
         supabase
           .from('subscriptions')
@@ -87,6 +88,7 @@ export default function AdminPage() {
           is_admin: !!p.is_admin,
           is_subscribed: isSub,
           subscription_status: status,
+          founders_50_opted_in: !!p.founders_50_opted_in,
         };
       });
       setUsers(rows);
@@ -99,6 +101,7 @@ export default function AdminPage() {
     let base = users;
     if (tab === 'subscribed')   base = users.filter((u) => u.is_subscribed);
     if (tab === 'unsubscribed') base = users.filter((u) => !u.is_subscribed);
+    if (tab === 'founders50')   base = users.filter((u) => u.founders_50_opted_in);
     const q = query.trim().toLowerCase();
     if (!q) return base;
     return base.filter((u) => u.username.toLowerCase().includes(q));
@@ -110,6 +113,7 @@ export default function AdminPage() {
     all: users.length,
     subscribed: users.filter((u) => u.is_subscribed).length,
     unsubscribed: users.filter((u) => !u.is_subscribed).length,
+    founders50: users.filter((u) => u.founders_50_opted_in).length,
   }), [users]);
 
   if (gateChecking) {
@@ -150,11 +154,12 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-          {(['all', 'subscribed', 'unsubscribed'] as const).map((t) => {
+          {(['all', 'subscribed', 'unsubscribed', 'founders50'] as const).map((t) => {
             const active = tab === t;
             const label =
               t === 'all' ? 'All' :
-              t === 'subscribed' ? 'Subscribed' : 'Unsubscribed';
+              t === 'subscribed' ? 'Subscribed' :
+              t === 'unsubscribed' ? 'Unsubscribed' : 'Founders 50';
             return (
               <button
                 key={t}
@@ -270,26 +275,49 @@ export default function AdminPage() {
                     })}
                   </p>
                 </div>
-                {/* Subscription pill */}
-                <span style={{
-                  padding: '4px 10px',
-                  borderRadius: 100,
-                  fontSize: 11,
-                  fontWeight: 800,
-                  letterSpacing: '0.3px',
-                  textTransform: 'uppercase',
-                  background: u.is_subscribed
-                    ? 'rgba(22,163,74,0.12)'
-                    : 'rgba(200,149,108,0.10)',
-                  color: u.is_subscribed
-                    ? 'var(--brand-market)'
-                    : 'var(--brand-personal-text-light)',
-                  flexShrink: 0,
+                {/* Status pills: Founders 50 + subscription. Stacked
+                    vertically to fit on narrow screens. */}
+                <div style={{
+                  display: 'flex', flexDirection: 'column', gap: 4,
+                  alignItems: 'flex-end', flexShrink: 0,
                 }}>
-                  {u.is_subscribed
-                    ? (u.subscription_status === 'trialing' ? 'Trial' : 'Active')
-                    : 'None'}
-                </span>
+                  <span style={{
+                    padding: '4px 10px',
+                    borderRadius: 100,
+                    fontSize: 11,
+                    fontWeight: 800,
+                    letterSpacing: '0.3px',
+                    textTransform: 'uppercase',
+                    background: u.is_subscribed
+                      ? 'rgba(22,163,74,0.12)'
+                      : 'rgba(200,149,108,0.10)',
+                    color: u.is_subscribed
+                      ? 'var(--brand-market)'
+                      : 'var(--brand-personal-text-light)',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {u.is_subscribed
+                      ? (u.subscription_status === 'trialing' ? 'Trial' : 'Active')
+                      : 'None'}
+                  </span>
+                  <span style={{
+                    padding: '3px 8px',
+                    borderRadius: 100,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    letterSpacing: '0.3px',
+                    textTransform: 'uppercase',
+                    background: u.founders_50_opted_in
+                      ? 'rgba(200,149,108,0.15)'
+                      : 'rgba(200,149,108,0.06)',
+                    color: u.founders_50_opted_in
+                      ? 'var(--brand-personal)'
+                      : 'var(--brand-personal-text-light)',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    F50: {u.founders_50_opted_in ? 'In' : 'Out'}
+                  </span>
+                </div>
               </Link>
             ))}
           </div>

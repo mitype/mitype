@@ -32,10 +32,12 @@ export interface CompletenessResult {
 }
 
 // Loose shape — accepts the raw supabase row so callers don't need to
-// import a typed model. Only `avatar_url` and `photos` are actually read.
+// import a typed model. Only avatar/photo fields and the Founders 50
+// opt-in fields are actually read.
 type ProfileShape = {
   avatar_url?: string | null;
   photos?: Array<{ url?: string | null }> | null;
+  founders_50_opted_in?: boolean | null;
   bio?: string | null;
   categories?: string[] | null;
   zip_code?: string | null;
@@ -51,19 +53,35 @@ export function scoreProfileCompleteness(profile: ProfileShape | null | undefine
   // any of the entries in the multi-photo `photos` array has a URL.
   const hasAvatar = !!(p.avatar_url && p.avatar_url.trim());
   const hasAnyPhoto = hasAvatar || ((p.photos ?? []).some((x) => (x?.url ?? '').trim()));
+  const optedInFounders = !!p.founders_50_opted_in;
 
-  const step: CompletenessStep = {
-    key: 'avatar',
-    label: 'Add a profile photo',
-    done: hasAnyPhoto,
-    weight: 100,
-    href: '/edit-profile',
-  };
+  // Two steps: profile photo, then Founders 50 opt-in. Weights split
+  // so photo is worth more (50) since it's the visual/UX priority,
+  // and opt-in is worth 50 so both matter equally to completion.
+  const steps: CompletenessStep[] = [
+    {
+      key: 'avatar',
+      label: 'Add a profile photo',
+      done: hasAnyPhoto,
+      weight: 50,
+      href: '/edit-profile',
+    },
+    {
+      key: 'founders_50',
+      label: 'Opt in to Founders 50',
+      done: optedInFounders,
+      weight: 50,
+      href: '/subscription',
+    },
+  ];
+
+  const earned = steps.reduce((sum, s) => sum + (s.done ? s.weight : 0), 0);
+  const doneCount = steps.filter((s) => s.done).length;
 
   return {
-    percent: hasAnyPhoto ? 100 : 0,
-    steps: [step],
-    doneCount: hasAnyPhoto ? 1 : 0,
-    totalCount: 1,
+    percent: Math.round(earned),
+    steps,
+    doneCount,
+    totalCount: steps.length,
   };
 }

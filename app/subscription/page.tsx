@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { BackButton } from '../components/BackButton';
 import { SiteNav } from '../components/SiteNav';
 import { PayPalCheckout } from '../components/PayPalCheckout';
+import { Founders50Toggle } from '../components/Founders50Toggle';
 
 // PayPal is the only active payment provider. The Stripe + Braintree
 // checkout paths that used to live here were removed once PayPal went
@@ -15,6 +16,8 @@ export default function SubscriptionPage() {
   const [user, setUser] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  // Current profile's Founders 50 opt-in state — used to seed the toggle.
+  const [foundersOptedIn, setFoundersOptedIn] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,17 +29,54 @@ export default function SubscriptionPage() {
       }
       setUser(user);
 
-      const { data: sub } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      const [subRes, profRes] = await Promise.all([
+        supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        supabase
+          .from('profiles')
+          .select('founders_50_opted_in')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+      ]);
 
-      setSubscription(sub);
+      setSubscription(subRes.data);
+      setFoundersOptedIn(!!profRes.data?.founders_50_opted_in);
       setLoading(false);
     };
     getData();
   }, []);
+
+  // Leave-warning: if the user arrived here as a non-subscriber and
+  // tries to navigate away (via SiteNav, back arrow, or in-app link),
+  // confirm they know they can't opt into Founders 50 without subscribing.
+  // Bypasses when they've successfully subscribed. Uses history.pushState
+  // + popstate interception rather than beforeunload because browsers
+  // won't let us show a custom message on beforeunload.
+  useEffect(() => {
+    if (loading) return;
+    const isActive = subscription?.status === 'active' || subscription?.status === 'trialing';
+    if (isActive) return; // No warning needed for subscribed users.
+
+    // Intercept in-app back navigation.
+    function onPopState() {
+      const stay = window.confirm(
+        "You won't be able to participate in the Founders 50 Rewards Program unless you're subscribed. Leave without subscribing?"
+      );
+      if (!stay) {
+        // User chose "Cancel" — push a state back so they stay on this page.
+        window.history.pushState(null, '', window.location.href);
+        return;
+      }
+      // User chose "OK" — send them to dashboard.
+      router.push('/dashboard');
+    }
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [loading, subscription, router]);
 
   // Called by the PayPal Buttons after a successful subscription
   // approval. Optimistically flip the page to the "subscribed" state —
@@ -208,6 +248,17 @@ export default function SubscriptionPage() {
                   userId={user.id}
                   email={user.email}
                   onSuccess={handlePayPalSuccess}
+                />
+              )}
+
+              {/* Founders 50 opt-in — visible to everyone, but the
+                  toggle is gated to subscribed members via the DB
+                  trigger and the client-side check. */}
+              {user && (
+                <Founders50Toggle
+                  userId={user.id}
+                  isSubscribed={isActive}
+                  initialOptedIn={foundersOptedIn}
                 />
               )}
 

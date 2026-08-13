@@ -17,6 +17,7 @@ import { Avatar } from '../components/Avatar';
 import { SiteNav } from '../components/SiteNav';
 import { hasNewSince } from '../lib/lastSeen';
 import { liquidGlass } from '../lib/liquidGlass';
+import { Founders50Modal } from '../components/Founders50Modal';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -32,6 +33,10 @@ export default function Dashboard() {
   // stored in localStorage under mitype-last-seen-*.
   const [waveHasNew, setWaveHasNew] = useState(false);
   const [currentHasNew, setCurrentHasNew] = useState(false);
+  // Founders 50 opt-in modal — shown once per user, gated by
+  // `founders_50_prompted_at IS NULL` on their profile row.
+  const [showFounders50, setShowFounders50] = useState(false);
+  const [founders50IsSubscribed, setFounders50IsSubscribed] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
 
@@ -72,6 +77,27 @@ export default function Dashboard() {
         setHasFreshWave((count ?? 0) > 0);
       } catch {
         // Non-fatal.
+      }
+
+      // Founders 50 opt-in modal: show once per user. Guarded by the
+      // `founders_50_prompted_at` timestamp — null means we've never
+      // asked, anything else means we already asked and shouldn't
+      // repeat. Also load subscription state so the modal knows which
+      // variant to show (subscribed → direct opt-in, non-subscribed →
+      // subscribe-first CTA).
+      if (!profile.founders_50_prompted_at) {
+        try {
+          const { data: sub } = await supabase
+            .from('subscriptions')
+            .select('status')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          const isSub = sub?.status === 'active' || sub?.status === 'trialing';
+          setFounders50IsSubscribed(isSub);
+          setShowFounders50(true);
+        } catch {
+          // Non-fatal — modal just won't appear this session.
+        }
       }
 
       // Fetch the newest wave video timestamp + newest current post
@@ -568,6 +594,18 @@ export default function Dashboard() {
         </div>
 
       </div>
+
+      {/* Founders 50 opt-in modal — renders only when this is the user's
+          first dashboard visit after the migration went live. The
+          modal itself stamps founders_50_prompted_at on any dismissal
+          so this branch will never render again for the same user. */}
+      {showFounders50 && user?.id && (
+        <Founders50Modal
+          userId={user.id}
+          isSubscribed={founders50IsSubscribed}
+          onDismiss={() => setShowFounders50(false)}
+        />
+      )}
     </main>
   );
 }

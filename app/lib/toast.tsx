@@ -18,6 +18,13 @@ export interface ToastRecord {
   id: number;
   type: ToastType;
   message: string;
+  /** Milliseconds before auto-dismiss. Default 4000. Pass a larger
+   *  value for long messages (e.g., the Founders 50 philosophy toast). */
+  duration?: number;
+}
+
+export interface ToastOptions {
+  duration?: number;
 }
 
 type Listener = (t: ToastRecord) => void;
@@ -25,15 +32,15 @@ type Listener = (t: ToastRecord) => void;
 const listeners = new Set<Listener>();
 let nextId = 1;
 
-function emit(type: ToastType, message: string) {
-  const record: ToastRecord = { id: nextId++, type, message };
+function emit(type: ToastType, message: string, opts?: ToastOptions) {
+  const record: ToastRecord = { id: nextId++, type, message, duration: opts?.duration };
   listeners.forEach((l) => l(record));
 }
 
 export const toast = {
-  success: (message: string) => emit('success', message),
-  error: (message: string) => emit('error', message),
-  info: (message: string) => emit('info', message),
+  success: (message: string, opts?: ToastOptions) => emit('success', message, opts),
+  error:   (message: string, opts?: ToastOptions) => emit('error',   message, opts),
+  info:    (message: string, opts?: ToastOptions) => emit('info',    message, opts),
 };
 
 const COLORS: Record<ToastType, { bg: string; border: string; fg: string; icon: string }> = {
@@ -48,10 +55,10 @@ export function Toaster() {
   useEffect(() => {
     const listener: Listener = (t) => {
       setItems((prev) => [...prev, t]);
-      // Auto-dismiss after 4 seconds
+      // Auto-dismiss after the specified duration (or 4s default).
       setTimeout(() => {
         setItems((prev) => prev.filter((i) => i.id !== t.id));
-      }, 4000);
+      }, t.duration ?? 4000);
     };
     listeners.add(listener);
     return () => { listeners.delete(listener); };
