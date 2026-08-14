@@ -1080,39 +1080,6 @@ export default function DiscoverPage() {
           </span>
         </button>
 
-        {/* Mi Home Goods CTA. Soft green outline on white, glowing
-            shadow. Same visual language as the Small Business CTA so
-            the two marketplace surfaces feel like a set. */}
-        <Link
-          href="/home-goods"
-          style={{
-            display: 'flex',
-            width: '100%',
-            background: 'white',
-            border: '1px solid rgba(21,128,61,0.4)',
-            borderRadius: 20,
-            padding: '18px 22px',
-            marginBottom: 32,
-            alignItems: 'center',
-            gap: 14,
-            color: 'var(--brand-market)',
-            fontFamily: 'inherit',
-            boxShadow: '0 10px 28px rgba(21,128,61,0.18)',
-            textDecoration: 'none',
-          }}
-        >
-          <span style={{ fontSize: 22 }}>🏡</span>
-          <span style={{ flex: 1, textAlign: 'left' }}>
-            <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
-              Mi Home Goods marketplace
-            </span>
-            <span style={{ display: 'block', fontSize: 13, color: 'var(--brand-market-text-mid)', marginTop: 2 }}>
-              Buy and sell with your Mitype community. Furniture, electronics, vintage finds, and more.
-            </span>
-          </span>
-          <span aria-hidden="true" style={{ fontSize: 18, fontWeight: 800 }}>→</span>
-        </Link>
-
         {showRoomsTab && (
           <div style={{
             background: '#fffaf2',
@@ -1284,6 +1251,40 @@ export default function DiscoverPage() {
             })()}
           </div>
         )}
+
+        {/* Mi Home Goods CTA. Soft green outline on white, glowing
+            shadow. Same visual language as the Small Business CTA so
+            the two marketplace surfaces feel like a set. */}
+        <Link
+          href="/home-goods"
+          style={{
+            display: 'flex',
+            width: '100%',
+            background: 'white',
+            border: '1px solid rgba(21,128,61,0.4)',
+            borderRadius: 20,
+            padding: '18px 22px',
+            marginBottom: 32,
+            alignItems: 'center',
+            gap: 14,
+            color: 'var(--brand-market)',
+            fontFamily: 'inherit',
+            boxShadow: '0 10px 28px rgba(21,128,61,0.18)',
+            textDecoration: 'none',
+          }}
+        >
+          <span style={{ fontSize: 22 }}>🏡</span>
+          <span style={{ flex: 1, textAlign: 'left' }}>
+            <span style={{ display: 'block', fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px' }}>
+              Mi Home Goods marketplace
+            </span>
+            <span style={{ display: 'block', fontSize: 13, color: 'var(--brand-market-text-mid)', marginTop: 2 }}>
+              Buy and sell with your Mitype community. Furniture, electronics, vintage finds, and more.
+            </span>
+          </span>
+          <span aria-hidden="true" style={{ fontSize: 18, fontWeight: 800 }}>→</span>
+        </Link>
+
 
         {/* Header */}
         <div style={{
