@@ -276,6 +276,9 @@ export function SiteNav({
           <NavLink href="/currents"   label="The Current"      accent="#1e3a8a" />
           <NavLink href="/businesses" label="Small Businesses" accent="var(--brand-business)" />
           <NavLink href="/brand-deals" label="Brand Deals"     accent="var(--brand-business)" />
+          <NavLink href="/collab"      label="Collab Board"    accent="var(--brand-personal)" />
+          <NavLink href="/meetups"     label="Local Meetups"   accent="var(--brand-market)" />
+          <NavLink href="/projects"    label="Project Rooms"   accent="var(--brand-personal)" />
           <NavLink href="/home-goods" label="Mi Home Goods"    accent="var(--brand-market)" />
           <NavLink href="/edit-profile" label="Edit Profile" />
           {/* Admin link — only rendered when the signed-in user has

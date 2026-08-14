@@ -173,6 +173,11 @@ export default function EditProfilePage() {
   const [portfolioLinks, setPortfolioLinks] = useState<PortfolioLink[]>([]);
   const [profilePrompts, setProfilePrompts] = useState<ProfilePrompt[]>([]);
   const [showStatusSuggestions, setShowStatusSuggestions] = useState(false);
+  // Availability + skill tags (new)
+  const [availableForWork, setAvailableForWork] = useState(false);
+  const [availableForCoffee, setAvailableForCoffee] = useState(false);
+  const [skillTagsInput, setSkillTagsInput] = useState('');
+  const [skillTags, setSkillTags] = useState<string[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -228,6 +233,9 @@ export default function EditProfilePage() {
         setPhotos(normalizePhotos(profile.photos));
         setPortfolioLinks(profile.portfolio_links || []);
         setProfilePrompts(normalizePrompts(profile.profile_prompts));
+        setAvailableForWork(!!profile.available_for_work);
+        setAvailableForCoffee(!!profile.available_for_coffee);
+        setSkillTags(Array.isArray(profile.skill_tags) ? profile.skill_tags : []);
       }
 
       // Has this user ever set up a Mi Home Goods shop? One cheap count.
@@ -351,6 +359,9 @@ export default function EditProfilePage() {
       profile_prompts: profilePrompts
         .filter((p) => p.prompt.trim() && p.answer.trim())
         .slice(0, MAX_PROMPTS),
+      available_for_work: availableForWork,
+      available_for_coffee: availableForCoffee,
+      skill_tags: skillTags.slice(0, 12),
     }, { onConflict: 'user_id' });
 
     if (error) {
@@ -1423,6 +1434,60 @@ export default function EditProfilePage() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Availability signal + skill tags */}
+          <div style={{ background: 'white', border: '1px solid rgba(200,149,108,0.2)', borderRadius: 20, padding: '22px 24px', marginTop: 32, marginBottom: 24 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--brand-text-primary)', marginBottom: 6 }}>Availability</h2>
+            <p style={{ fontSize: 13, color: 'var(--brand-personal-text-mid)', marginBottom: 16, lineHeight: 1.5 }}>
+              Signal to other creators whether you are open to new work or a coffee chat. Green pills appear on your profile and in Discover so people know to reach out.
+            </p>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', cursor: 'pointer' }}>
+              <input type="checkbox" checked={availableForWork} onChange={(e) => setAvailableForWork(e.target.checked)} style={{ width: 20, height: 20, cursor: 'pointer' }} />
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand-text-primary)', margin: 0 }}>Available for new work</p>
+                <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)', margin: '2px 0 0' }}>Open to briefs, gigs, and collaborations.</p>
+              </div>
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', cursor: 'pointer' }}>
+              <input type="checkbox" checked={availableForCoffee} onChange={(e) => setAvailableForCoffee(e.target.checked)} style={{ width: 20, height: 20, cursor: 'pointer' }} />
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand-text-primary)', margin: 0 }}>Available for coffee chats</p>
+                <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)', margin: '2px 0 0' }}>Open to informal networking, no project needed.</p>
+              </div>
+            </label>
+          </div>
+
+          <div style={{ background: 'white', border: '1px solid rgba(200,149,108,0.2)', borderRadius: 20, padding: '22px 24px', marginBottom: 32 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--brand-text-primary)', marginBottom: 6 }}>Skill tags</h2>
+            <p style={{ fontSize: 13, color: 'var(--brand-personal-text-mid)', marginBottom: 12, lineHeight: 1.5 }}>
+              Up to 12 short tags for specific tools, styles, or specialties. Other creators use these to find you in Discover. Example: Ableton, Adobe Premiere, 35mm film, Spanish, wedding photography.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              {skillTags.map((tag, i) => (
+                <span key={`${tag}-${i}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 10px', background: 'rgba(56,189,248,0.10)', border: '1px solid rgba(56,189,248,0.28)', borderRadius: 100, fontSize: 12, fontWeight: 700, color: '#0369a1' }}>
+                  {tag}
+                  <button type="button" onClick={() => setSkillTags(skillTags.filter((_, j) => j !== i))} aria-label={`Remove ${tag}`}
+                    style={{ background: 'transparent', border: 'none', color: '#0369a1', fontSize: 14, cursor: 'pointer', padding: 0, lineHeight: 1 }}>×</button>
+                </span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input value={skillTagsInput} onChange={(e) => setSkillTagsInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    const t = skillTagsInput.trim().replace(/,$/,'').trim();
+                    if (t && !skillTags.includes(t) && skillTags.length < 12) {
+                      setSkillTags([...skillTags, t]);
+                      setSkillTagsInput('');
+                    }
+                  }
+                }}
+                placeholder={skillTags.length >= 12 ? 'Maximum 12 tags' : 'Type a tag and press Enter'}
+                disabled={skillTags.length >= 12}
+                style={{ flex: 1, padding: '10px 12px', border: '1px solid rgba(200,149,108,0.28)', borderRadius: 10, fontSize: 15, fontFamily: 'inherit', outline: 'none' }} />
             </div>
           </div>
 

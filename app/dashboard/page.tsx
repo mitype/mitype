@@ -400,6 +400,9 @@ export default function Dashboard() {
             { label: 'Spotlight',         desc: 'Portfolio work from the community.',                     href: '/spotlight',    tone: 'personal' },
             { label: 'Small Businesses',  desc: 'Discover small businesses on Mitype.',                   href: '/businesses',   tone: 'business' },
             { label: 'Brand Deals',       desc: 'Paid creator briefs from Mitype small businesses.',      href: '/brand-deals',  tone: 'business' },
+            { label: 'Collab Board',      desc: 'Creator to creator project briefs. Post or apply.',      href: '/collab',       tone: 'personal' },
+            { label: 'Local Meetups',     desc: 'In person creator meetups near you.',                    href: '/meetups',      tone: 'market'   },
+            { label: 'Project Rooms',     desc: 'Shared workspaces with tasks for teaming up.',           href: '/projects',     tone: 'personal' },
             { label: 'Mi Home Goods',     desc: 'Buy and sell with your Mitype community.',               href: '/home-goods',   tone: 'market'   },
           ];
           const account: Array<{
