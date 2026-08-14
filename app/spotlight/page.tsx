@@ -7,6 +7,7 @@
 // No schema changes — reads `profiles.portfolio_links` (JSONB) directly.
 
 import { useEffect, useMemo, useState } from 'react';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
@@ -259,6 +260,7 @@ export default function SpotlightPage() {
           </div>
         )}
       </div>
+          <FeatureInfoButton featureKey="spotlight" />
     </main>
   );
 }

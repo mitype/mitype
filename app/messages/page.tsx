@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { safeUpload } from '../lib/safeUpload';
@@ -2955,6 +2956,7 @@ export default function MessagesPage() {
           },
         ]}
       />
+          <FeatureInfoButton featureKey="messages" />
     </main>
   );
 }

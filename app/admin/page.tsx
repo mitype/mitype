@@ -17,6 +17,7 @@
 //   paginate.
 
 import { useEffect, useMemo, useState } from 'react';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
@@ -323,6 +324,7 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+          <FeatureInfoButton featureKey="admin" />
     </main>
   );
 }

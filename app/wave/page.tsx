@@ -9,6 +9,7 @@
 // constraints for a TikTok-like experience.
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
@@ -1949,6 +1950,7 @@ export default function WavePage() {
           },
         ]}
       />
+          <FeatureInfoButton featureKey="wave" />
     </main>
   );
 }

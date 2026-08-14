@@ -9,6 +9,7 @@
 // members establish their small business listings.
 
 import { useEffect, useMemo, useState } from 'react';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
@@ -385,6 +386,7 @@ export default function BusinessesPage() {
           </div>
         )}
       </div>
+          <FeatureInfoButton featureKey="businesses" />
     </main>
   );
 }

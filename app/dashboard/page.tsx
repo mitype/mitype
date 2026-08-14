@@ -18,6 +18,8 @@ import { SiteNav } from '../components/SiteNav';
 import { hasNewSince } from '../lib/lastSeen';
 import { liquidGlass } from '../lib/liquidGlass';
 import { Founders50Modal } from '../components/Founders50Modal';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
+import { FeatureInfoAnnouncement } from '../components/FeatureInfoAnnouncement';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -610,6 +612,8 @@ export default function Dashboard() {
           onDismiss={() => setShowFounders50(false)}
         />
       )}
+      <FeatureInfoButton featureKey="dashboard" />
+      <FeatureInfoAnnouncement />
     </main>
   );
 }

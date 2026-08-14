@@ -2,6 +2,7 @@
 // /meetups — Browse upcoming local creator meetups.
 
 import { useEffect, useState } from 'react';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
@@ -95,6 +96,7 @@ export default function MeetupsPage() {
             </div>
           )}
       </div>
+          <FeatureInfoButton featureKey="meetups" />
     </main>
   );
 }

@@ -2,6 +2,7 @@
 // /projects — List of shared project rooms the user is part of.
 
 import { useEffect, useState } from 'react';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
@@ -71,6 +72,7 @@ export default function ProjectsPage() {
             </div>
           )}
       </div>
+          <FeatureInfoButton featureKey="projects" />
     </main>
   );
 }

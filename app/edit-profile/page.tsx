@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
@@ -1549,6 +1550,7 @@ export default function EditProfilePage() {
           },
         ]}
       />
+          <FeatureInfoButton featureKey="editProfile" />
     </main>
   );
 }

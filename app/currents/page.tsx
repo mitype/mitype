@@ -6,6 +6,7 @@
 // the dark ocean background with the per-session vortex intro.
 
 import { useCallback, useEffect, useState } from 'react';
+import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { SiteNav } from '../components/SiteNav';
@@ -198,6 +199,7 @@ export default function CurrentsFeedPage() {
           </div>
         )}
       </div>
+          <FeatureInfoButton featureKey="currents" />
     </main>
   );
 }

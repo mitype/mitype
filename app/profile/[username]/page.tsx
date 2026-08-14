@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import { FeatureInfoButton } from '../../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { User } from '@supabase/supabase-js';
@@ -1269,6 +1270,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           },
         ]}
       />
+          <FeatureInfoButton featureKey="profile" />
     </main>
   );
 }
