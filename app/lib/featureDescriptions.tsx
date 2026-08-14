@@ -124,9 +124,13 @@ export const FEATURE_DESCRIPTIONS: Record<string, FeatureDescription> = {
     key: 'businesses',
     title: 'Small Businesses',
     paragraphs: [
-      'Small Businesses lets any Mitype member set up a business page for their venture. Add your logo, services, hours, contact buttons, social links, address (or mark as online only), and upcoming events.',
-      'Once your business is live, it shows up in Discover for local members to find, and one business per day gets featured as the Daily Business Spotlight. Members can leave recommendations that show up on your page as social proof.',
-      'Business profiles are free to set up. Posting Brand Deals from your business page requires an active Mitype subscription.',
+      'Small Businesses was built to solve one problem: independent businesses struggle to get discovered and struggle to afford the marketing that big brands take for granted. Mitype turns your small business into a first class citizen on a platform full of real potential customers and creators who can help you grow.',
+      'Setup is free. Any Mitype member can build a full business page in minutes: logo, business name, category, services list, hours, contact buttons, social links, physical address (or mark as online only), and upcoming events. Your business appears in Discover for members in your ZIP code and city, so locals find you first.',
+      'Every day, one small business gets featured as the Daily Business Spotlight on the Discover page. This is a real free marketing surface seen by every Mitype member on rotation. No ad spend required. Your business rotates in automatically.',
+      'Customers can leave recommendations right on your page. This is word of mouth made visible: each recommendation shows up as social proof, and the recommender member gets credit as a trusted voice. Businesses with recommendations get labeled and outrank plain listings in discovery.',
+      'Online only businesses are welcome. Etsy shops, Shopify stores, coaches, consultants, online course creators, digital product sellers all show up in Discover just like local shops do. You can toggle the online only badge to signal you serve customers anywhere.',
+      'Once your Mitype subscription is active, you unlock the Brand Deals surface from your business page. Post a creator brief with your budget, and Mitype creators apply directly. This is how a small business can get an Instagram Reel, a TikTok, product photography, or written content without paying agency rates.',
+      'The goal is simple: give small businesses the discovery, social proof, and creator access that big brands buy. All in one place, all built into the same platform your customers are already on.',
     ],
   },
   subscription: {
