@@ -399,6 +399,7 @@ export default function Dashboard() {
             { label: 'Messages',          desc: 'Your conversations, groups, and rooms.',                 href: '/messages',     tone: 'personal' },
             { label: 'Spotlight',         desc: 'Portfolio work from the community.',                     href: '/spotlight',    tone: 'personal' },
             { label: 'Small Businesses',  desc: 'Discover small businesses on Mitype.',                   href: '/businesses',   tone: 'business' },
+            { label: 'Brand Deals',       desc: 'Paid creator briefs from Mitype small businesses.',      href: '/brand-deals',  tone: 'business' },
             { label: 'Mi Home Goods',     desc: 'Buy and sell with your Mitype community.',               href: '/home-goods',   tone: 'market'   },
           ];
           const account: Array<{

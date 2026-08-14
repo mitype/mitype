@@ -275,6 +275,7 @@ export function SiteNav({
           <NavLink href="/wave"       label="The Wave Feed"    accent="#38bdf8" />
           <NavLink href="/currents"   label="The Current"      accent="#1e3a8a" />
           <NavLink href="/businesses" label="Small Businesses" accent="var(--brand-business)" />
+          <NavLink href="/brand-deals" label="Brand Deals"     accent="var(--brand-business)" />
           <NavLink href="/home-goods" label="Mi Home Goods"    accent="var(--brand-market)" />
           <NavLink href="/edit-profile" label="Edit Profile" />
           {/* Admin link — only rendered when the signed-in user has

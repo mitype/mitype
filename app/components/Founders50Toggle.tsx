@@ -46,7 +46,7 @@ export function Founders50Toggle({ userId, isSubscribed, initialOptedIn }: Props
       .eq('user_id', userId);
     setBusy(false);
     if (error) {
-      toast.error(error.message || 'Could not update — try again.');
+      toast.error(error.message || 'Could not update. Try again.');
       return;
     }
     setOptedIn(next);

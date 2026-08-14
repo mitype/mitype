@@ -70,7 +70,7 @@ export function Founders50Modal({ userId, isSubscribed, onDismiss }: Props) {
       .eq('user_id', userId);
     setBusy(false);
     if (error) {
-      toast.error(error.message || 'Could not opt in — try again.');
+      toast.error(error.message || 'Could not opt in. Try again.');
       return;
     }
     toast.success("You're in. Welcome to the Founders 50.");
@@ -220,7 +220,7 @@ export function Founders50Modal({ userId, isSubscribed, onDismiss }: Props) {
           }}
         >
           {isSubscribed
-            ? "You're a subscribed member — you're eligible to opt in right now."
+            ? "You're a subscribed member and eligible to opt in right now."
             : 'Only subscribed members can participate. Subscribe to unlock the option to opt in.'}
         </div>
 
