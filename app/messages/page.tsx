@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { safeUpload } from '../lib/safeUpload';
 import { liquidGlass } from '../lib/liquidGlass';
+import { TranslationButton } from '../components/TranslationButton';
 import Link from 'next/link';
 import { Avatar } from '../components/Avatar';
 import { Coachmark } from '../components/Coachmark';
@@ -2483,6 +2484,11 @@ export default function MessagesPage() {
                             <p style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                               {sanitizeText(msg.content)}
                             </p>
+                            {/* Translation button — only renders when
+                                the message text is non-English. Bronze
+                                on incoming bubbles; light on outgoing
+                                (isMine) bronze bubbles. */}
+                            <TranslationButton text={msg.content} dark={isMine} compact />
                             <p style={{
                               fontSize: 11,
                               margin: '4px 0 0',

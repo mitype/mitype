@@ -30,6 +30,7 @@ import { SailCurrentModal } from './SailCurrentModal';
 import { MAX_CURRENT_LENGTH } from './CurrentComposer';
 import { checkRateLimit, LIMITS, rateLimitMessage } from '../lib/rateLimit';
 import { sendNotification } from '../lib/notify';
+import { TranslationButton } from './TranslationButton';
 
 export interface CurrentRecord {
   id: string;
@@ -431,6 +432,9 @@ export function CurrentCard({
             );
           })}
         </p>
+        <div onClick={(e) => e.stopPropagation()}>
+          <TranslationButton text={current.body} dark />
+        </div>
       </BodyView>
       )}
 
