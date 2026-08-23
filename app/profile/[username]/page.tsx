@@ -66,6 +66,7 @@ type PublicProfile = {
   photos?: ProfilePhoto[] | null;
   last_active_at?: string | null;
   is_admin?: boolean | null;
+  is_cmo?: boolean | null;
 };
 
 export default function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -797,6 +798,32 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   }}
                 >
                   Administrator
+                </span>
+              )}
+              {/* Small "CMO" tag — Chief Marketing Officer role.
+                  Same visual language as the Administrator pill so
+                  staff roles read as a set. */}
+              {profile.is_cmo && (
+                <span
+                  aria-label="CMO"
+                  title="Mitype Chief Marketing Officer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '3px 10px',
+                    background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
+                    color: 'white',
+                    borderRadius: 100,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    letterSpacing: '1.4px',
+                    textTransform: 'uppercase',
+                    lineHeight: 1,
+                    boxShadow: '0 2px 8px rgba(200,149,108,0.35)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  CMO
                 </span>
               )}
             </h1>

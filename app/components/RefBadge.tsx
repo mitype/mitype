@@ -5,6 +5,7 @@
 // dismisses if the user has no ?ref= query param.
 
 import { useEffect, useState } from 'react';
+import { writeReferralCookie } from '../lib/referralCookie';
 
 export function RefBadge() {
   const [username, setUsername] = useState<string | null>(null);
@@ -17,7 +18,12 @@ export function RefBadge() {
       if (raw) {
         // Sanitize: only allow safe username characters
         const clean = raw.replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, 30);
-        if (clean) setUsername(clean);
+        if (clean) {
+          setUsername(clean);
+          // Persist the referral so it survives the signup flow. 30
+          // day cookie, sanitized inside the helper.
+          writeReferralCookie(clean);
+        }
       }
     } catch {
       // ignore

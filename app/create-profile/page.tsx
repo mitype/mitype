@@ -122,6 +122,31 @@ export default function CreateProfilePage() {
       return;
     }
 
+    // If this signup came from a shared referral link, look up the
+    // referrer's user_id from the mitype_ref cookie and stamp it on
+    // the new profile. Attribution is server-verified (we look up the
+    // referrer by username, not by client-supplied id) and immutable
+    // afterward via the profiles trigger.
+    let referredById: string | null = null;
+    try {
+      const { readReferralCookie, clearReferralCookie } = await import('../lib/referralCookie');
+      const refHandle = readReferralCookie();
+      if (refHandle) {
+        const { data: refRow } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('username', refHandle)
+          .maybeSingle();
+        if (refRow?.user_id && refRow.user_id !== user.id) {
+          referredById = refRow.user_id;
+        }
+        // Clear the cookie so it can't accidentally re-attribute anyone else.
+        clearReferralCookie();
+      }
+    } catch {
+      // Non-fatal — profile still saves without referral attribution.
+    }
+
     const { error } = await supabase.from('profiles').insert({
       user_id: user.id,
       username: username.trim().toLowerCase(),
@@ -131,6 +156,7 @@ export default function CreateProfilePage() {
       date_of_birth: dateOfBirth,
       website_url: websiteUrl.trim(),
       social_links: [],
+      referred_by: referredById,
     });
 
     if (error) {

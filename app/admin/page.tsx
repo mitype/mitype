@@ -24,7 +24,7 @@ import { supabase } from '../lib/supabaseClient';
 import { SiteNav } from '../components/SiteNav';
 import { Avatar } from '../components/Avatar';
 
-type Tab = 'all' | 'subscribed' | 'unsubscribed' | 'founders50';
+type Tab = 'all' | 'subscribed' | 'unsubscribed' | 'founders50' | 'referrals';
 
 interface UserRow {
   user_id: string;
@@ -35,6 +35,8 @@ interface UserRow {
   is_subscribed: boolean;
   subscription_status: string | null;
   founders_50_opted_in: boolean;
+  referred_by: string | null;
+  referred_by_username?: string | null;
 }
 
 export default function AdminPage() {
@@ -66,7 +68,7 @@ export default function AdminPage() {
       const [profRes, subRes] = await Promise.all([
         supabase
           .from('profiles')
-          .select('user_id, username, avatar_url, created_at, is_admin, founders_50_opted_in')
+          .select('user_id, username, avatar_url, created_at, is_admin, founders_50_opted_in, referred_by')
           .order('created_at', { ascending: false }),
         supabase
           .from('subscriptions')
@@ -90,8 +92,22 @@ export default function AdminPage() {
           is_subscribed: isSub,
           subscription_status: status,
           founders_50_opted_in: !!p.founders_50_opted_in,
+          referred_by: p.referred_by ?? null,
         };
       });
+
+      // Second pass: attach the referrer's @username to each row that
+      // has a referred_by set, so the Referrals tab can show
+      // "@newuser referred by @jensrealitea" at a glance.
+      const usernameByUserId = new Map<string, string>(
+        rows.map((u) => [u.user_id, u.username])
+      );
+      for (const u of rows) {
+        if (u.referred_by) {
+          u.referred_by_username = usernameByUserId.get(u.referred_by) ?? null;
+        }
+      }
+
       setUsers(rows);
       setGateChecking(false);
     })();
@@ -103,6 +119,7 @@ export default function AdminPage() {
     if (tab === 'subscribed')   base = users.filter((u) => u.is_subscribed);
     if (tab === 'unsubscribed') base = users.filter((u) => !u.is_subscribed);
     if (tab === 'founders50')   base = users.filter((u) => u.founders_50_opted_in);
+    if (tab === 'referrals')    base = users.filter((u) => !!u.referred_by);
     const q = query.trim().toLowerCase();
     if (!q) return base;
     return base.filter((u) => u.username.toLowerCase().includes(q));
@@ -115,6 +132,7 @@ export default function AdminPage() {
     subscribed: users.filter((u) => u.is_subscribed).length,
     unsubscribed: users.filter((u) => !u.is_subscribed).length,
     founders50: users.filter((u) => u.founders_50_opted_in).length,
+    referrals: users.filter((u) => !!u.referred_by).length,
   }), [users]);
 
   if (gateChecking) {
@@ -155,12 +173,13 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-          {(['all', 'subscribed', 'unsubscribed', 'founders50'] as const).map((t) => {
+          {(['all', 'subscribed', 'unsubscribed', 'founders50', 'referrals'] as const).map((t) => {
             const active = tab === t;
             const label =
               t === 'all' ? 'All' :
               t === 'subscribed' ? 'Subscribed' :
-              t === 'unsubscribed' ? 'Unsubscribed' : 'Founders 50';
+              t === 'unsubscribed' ? 'Unsubscribed' :
+              t === 'founders50' ? 'Founders 50' : 'Referrals';
             return (
               <button
                 key={t}
@@ -274,6 +293,11 @@ export default function AdminPage() {
                     Joined {new Date(u.created_at).toLocaleDateString(undefined, {
                       year: 'numeric', month: 'short', day: 'numeric',
                     })}
+                    {u.referred_by_username && (
+                      <span style={{ marginLeft: 8, color: 'var(--brand-personal)', fontWeight: 700 }}>
+                        · Referred by @{u.referred_by_username}
+                      </span>
+                    )}
                   </p>
                 </div>
                 {/* Status pills: Founders 50 + subscription. Stacked
