@@ -32,6 +32,7 @@ interface UserRow {
   avatar_url: string | null;
   created_at: string;
   is_admin: boolean;
+  is_cmo: boolean;
   is_subscribed: boolean;
   subscription_status: string | null;
   founders_50_opted_in: boolean;
@@ -68,7 +69,7 @@ export default function AdminPage() {
       const [profRes, subRes] = await Promise.all([
         supabase
           .from('profiles')
-          .select('user_id, username, avatar_url, created_at, is_admin, founders_50_opted_in, referred_by')
+          .select('user_id, username, avatar_url, created_at, is_admin, is_cmo, founders_50_opted_in, referred_by')
           .order('created_at', { ascending: false }),
         supabase
           .from('subscriptions')
@@ -89,6 +90,7 @@ export default function AdminPage() {
           avatar_url: p.avatar_url ?? null,
           created_at: p.created_at,
           is_admin: !!p.is_admin,
+          is_cmo: !!p.is_cmo,
           is_subscribed: isSub,
           subscription_status: status,
           founders_50_opted_in: !!p.founders_50_opted_in,
@@ -224,8 +226,127 @@ export default function AdminPage() {
           }}
         />
 
-        {/* Results */}
-        {filtered.length === 0 ? (
+        {/* Referrals tab renders a CMO-grouped view: the CMO's
+            profile picture + username at the top, then their list of
+            referrals underneath split into Subscribed and Not
+            subscribed. Only one CMO for now (@jensrealitea), so this
+            renders as a single grouped card. */}
+        {tab === 'referrals' && (() => {
+          const cmos = users.filter((u) => u.is_cmo);
+          if (cmos.length === 0) {
+            return (
+              <div style={{
+                padding: '32px 20px', textAlign: 'center', background: 'white',
+                border: '1px solid rgba(200,149,108,0.15)', borderRadius: 16,
+                color: 'var(--brand-personal-text-light)', fontSize: 14,
+              }}>
+                No CMO assigned yet.
+              </div>
+            );
+          }
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {cmos.map((cmo) => {
+                const cmoReferrals = users.filter((u) => u.referred_by === cmo.user_id);
+                const subs = cmoReferrals.filter((u) => u.is_subscribed);
+                const nonSubs = cmoReferrals.filter((u) => !u.is_subscribed);
+                return (
+                  <div key={cmo.user_id}>
+                    {/* Compact CMO row: small circle + username, no card wrapper */}
+                    <Link href={`/profile/${cmo.username}`} style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 10,
+                      textDecoration: 'none', marginBottom: 14,
+                    }}>
+                      <div style={{
+                        width: 32, height: 32, borderRadius: '50%', overflow: 'hidden',
+                        flexShrink: 0, background: 'var(--brand-personal-bg-pale)',
+                      }}>
+                        <Avatar src={cmo.avatar_url} alt={`@${cmo.username}`}
+                          width={32} height={32} fallbackFontSize={14} sizes="32px" />
+                      </div>
+                      <span style={{
+                        fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)',
+                        letterSpacing: '-0.2px',
+                      }}>
+                        @{cmo.username}
+                      </span>
+                      <span style={{
+                        padding: '2px 8px', fontSize: 9, fontWeight: 900,
+                        letterSpacing: '1.2px', textTransform: 'uppercase',
+                        background: 'var(--brand-personal)', color: 'white', borderRadius: 100,
+                      }}>
+                        CMO
+                      </span>
+                      <span style={{
+                        fontSize: 12, color: 'var(--brand-personal-text-light)', fontWeight: 600,
+                      }}>
+                        · {subs.length} subscribed · {nonSubs.length} not
+                      </span>
+                    </Link>
+
+                    {/* Referred users: single tight list, each row is
+                        a small circle + username + subscription state. */}
+                    {cmoReferrals.length === 0 ? (
+                      <p style={{
+                        margin: 0, padding: '12px 0', fontSize: 13,
+                        color: 'var(--brand-personal-text-light)',
+                      }}>
+                        No referrals yet. Signups from their share link will appear here.
+                      </p>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {cmoReferrals.map((r) => (
+                          <Link key={r.user_id} href={`/profile/${r.username}`}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 10,
+                              padding: '8px 12px',
+                              background: 'white',
+                              border: '1px solid rgba(200,149,108,0.15)',
+                              borderRadius: 100,
+                              textDecoration: 'none',
+                            }}>
+                            <div style={{
+                              width: 28, height: 28, borderRadius: '50%', overflow: 'hidden',
+                              flexShrink: 0, background: 'var(--brand-personal-bg-pale)',
+                            }}>
+                              <Avatar src={r.avatar_url} alt={`@${r.username}`}
+                                width={28} height={28} fallbackFontSize={12} sizes="28px" />
+                            </div>
+                            <span style={{
+                              flex: 1, minWidth: 0, fontSize: 13, fontWeight: 700,
+                              color: 'var(--brand-text-primary)', letterSpacing: '-0.2px',
+                              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                            }}>
+                              @{r.username}
+                            </span>
+                            <span style={{
+                              padding: '3px 10px', borderRadius: 100,
+                              fontSize: 11, fontWeight: 700, letterSpacing: '0.2px',
+                              background: r.is_subscribed
+                                ? 'rgba(22,163,74,0.12)'
+                                : 'rgba(0,0,0,0.05)',
+                              color: r.is_subscribed
+                                ? 'var(--brand-market)'
+                                : 'var(--brand-personal-text-light)',
+                              flexShrink: 0, whiteSpace: 'nowrap',
+                            }}>
+                              {r.is_subscribed
+                                ? (r.subscription_status === 'trialing' ? 'Trial' : 'Subscribed')
+                                : 'Unsubscribed'}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
+        {/* Standard flat list rendered for every other tab */}
+        {tab !== 'referrals' && (filtered.length === 0 ? (
           <div style={{
             padding: '32px 20px',
             textAlign: 'center',
@@ -346,7 +467,7 @@ export default function AdminPage() {
               </Link>
             ))}
           </div>
-        )}
+        ))}
       </div>
           <FeatureInfoButton featureKey="admin" />
     </main>
