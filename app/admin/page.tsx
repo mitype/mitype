@@ -33,6 +33,7 @@ interface UserRow {
   created_at: string;
   is_admin: boolean;
   is_cmo: boolean;
+  is_referrer: boolean;
   is_subscribed: boolean;
   subscription_status: string | null;
   founders_50_opted_in: boolean;
@@ -69,7 +70,7 @@ export default function AdminPage() {
       const [profRes, subRes] = await Promise.all([
         supabase
           .from('profiles')
-          .select('user_id, username, avatar_url, created_at, is_admin, is_cmo, founders_50_opted_in, referred_by')
+          .select('user_id, username, avatar_url, created_at, is_admin, is_cmo, is_referrer, founders_50_opted_in, referred_by')
           .order('created_at', { ascending: false }),
         supabase
           .from('subscriptions')
@@ -91,6 +92,7 @@ export default function AdminPage() {
           created_at: p.created_at,
           is_admin: !!p.is_admin,
           is_cmo: !!p.is_cmo,
+          is_referrer: !!p.is_referrer,
           is_subscribed: isSub,
           subscription_status: status,
           founders_50_opted_in: !!p.founders_50_opted_in,
@@ -232,7 +234,9 @@ export default function AdminPage() {
             subscribed. Only one CMO for now (@jensrealitea), so this
             renders as a single grouped card. */}
         {tab === 'referrals' && (() => {
-          const cmos = users.filter((u) => u.is_cmo);
+          // Any user with is_cmo OR is_referrer gets a grouped block
+          // in this tab. Only CMOs render the CMO pill on their row.
+          const cmos = users.filter((u) => u.is_cmo || u.is_referrer);
           if (cmos.length === 0) {
             return (
               <div style={{
@@ -240,7 +244,7 @@ export default function AdminPage() {
                 border: '1px solid rgba(200,149,108,0.15)', borderRadius: 16,
                 color: 'var(--brand-personal-text-light)', fontSize: 14,
               }}>
-                No CMO assigned yet.
+                No referrers assigned yet.
               </div>
             );
           }
@@ -270,13 +274,15 @@ export default function AdminPage() {
                       }}>
                         @{cmo.username}
                       </span>
-                      <span style={{
-                        padding: '2px 8px', fontSize: 9, fontWeight: 900,
-                        letterSpacing: '1.2px', textTransform: 'uppercase',
-                        background: 'var(--brand-personal)', color: 'white', borderRadius: 100,
-                      }}>
-                        CMO
-                      </span>
+                      {cmo.is_cmo && (
+                        <span style={{
+                          padding: '2px 8px', fontSize: 9, fontWeight: 900,
+                          letterSpacing: '1.2px', textTransform: 'uppercase',
+                          background: 'var(--brand-personal)', color: 'white', borderRadius: 100,
+                        }}>
+                          CMO
+                        </span>
+                      )}
                       <span style={{
                         fontSize: 12, color: 'var(--brand-personal-text-light)', fontWeight: 600,
                       }}>

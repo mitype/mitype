@@ -62,21 +62,22 @@ export function SiteNav({
   // table already scopes reads, and this is a tiny query — safe to
   // fire on every mount.
   const [isAdmin, setIsAdmin] = useState(false);
-  // CMO flag drives the "Mi Referrals" nav link visibility. Only the
-  // CMO(s) see it — everyone else has no idea the option exists.
-  const [isCmo, setIsCmo] = useState(false);
+  // The "Mi Referrals" nav link shows for anyone with a referral role:
+  // either the CMO(s) or a plain referrer. Everyone else has no idea
+  // the option exists.
+  const [canSeeReferrals, setCanSeeReferrals] = useState(false);
   useEffect(() => {
-    if (!userId) { setIsAdmin(false); setIsCmo(false); return; }
+    if (!userId) { setIsAdmin(false); setCanSeeReferrals(false); return; }
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('is_admin, is_cmo')
+        .select('is_admin, is_cmo, is_referrer')
         .eq('user_id', userId)
         .maybeSingle();
       if (!cancelled) {
         setIsAdmin(!!data?.is_admin);
-        setIsCmo(!!data?.is_cmo);
+        setCanSeeReferrals(!!data?.is_cmo || !!data?.is_referrer);
       }
     })();
     return () => { cancelled = true; };
@@ -294,10 +295,10 @@ export function SiteNav({
           {isAdmin && (
             <NavLink href="/admin" label="Admin" accent="var(--brand-personal)" />
           )}
-          {/* Mi Referrals — CMO-only leaderboard of users the CMO
-              personally brought to the platform. Invisible to every
-              non-CMO user. */}
-          {isCmo && (
+          {/* Mi Referrals — leaderboard of users this account personally
+              brought to the platform. Visible to CMOs and plain
+              referrers; invisible to everyone else. */}
+          {canSeeReferrals && (
             <NavLink href="/mi-referrals" label="Mi Referrals" accent="var(--brand-personal)" />
           )}
           {!hideSignOut && userId && (

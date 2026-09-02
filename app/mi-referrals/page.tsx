@@ -36,13 +36,14 @@ export default function MiReferralsPage() {
       if (!user) { router.replace('/login'); return; }
       setUserId(user.id);
 
-      // Gate: only CMOs can see this page.
+      // Gate: CMOs and plain referrers can see this page; everyone
+      // else is bounced back to the dashboard.
       const { data: me } = await supabase
         .from('profiles')
-        .select('is_cmo')
+        .select('is_cmo, is_referrer')
         .eq('user_id', user.id)
         .maybeSingle();
-      if (!me?.is_cmo) {
+      if (!me?.is_cmo && !me?.is_referrer) {
         router.replace('/dashboard');
         return;
       }
@@ -113,7 +114,7 @@ export default function MiReferralsPage() {
           fontSize: 12, fontWeight: 800, color: 'var(--brand-personal)',
           textTransform: 'uppercase', letterSpacing: '1.4px', marginBottom: 6,
         }}>
-          CMO
+          Referrals
         </p>
         <h1 style={{
           fontSize: 32, fontWeight: 900, color: 'var(--brand-text-primary)',
