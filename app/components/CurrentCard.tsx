@@ -27,6 +27,7 @@ import {
   type ListingEmbed,
 } from './CurrentEntityEmbed';
 import { SailCurrentModal } from './SailCurrentModal';
+import { CurrentShareModal } from './CurrentShareModal';
 import { MAX_CURRENT_LENGTH } from './CurrentComposer';
 import { checkRateLimit, LIMITS, rateLimitMessage } from '../lib/rateLimit';
 import { sendNotification } from '../lib/notify';
@@ -80,6 +81,7 @@ export function CurrentCard({
   const [editing, setEditing] = useState(false);
   const [editBody, setEditBody] = useState(current.body);
   const [sailOpen, setSailOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   // Close the kebab menu on outside-click.
@@ -534,6 +536,37 @@ export function CurrentCard({
             <BoatIcon />
           </button>
         )}
+
+        {/* Share button — opens a sheet that generates a story or feed
+            image of this current and lets the user hand it off to
+            Instagram, TikTok, X, and other social apps at the correct
+            aspect ratio for each. */}
+        {!editing && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setShareOpen(true); }}
+            aria-label="Share this current to a social app"
+            title="Share to a social app"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '5px 10px',
+              background: 'rgba(200,149,108,0.14)',
+              border: '1px solid rgba(200,149,108,0.45)',
+              borderRadius: 100,
+              color: '#c8956c',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontSize: 12,
+              fontWeight: 800,
+              letterSpacing: '0.3px',
+            }}
+          >
+            <ShareIcon />
+            Share
+          </button>
+        )}
       </div>
 
       {/* Sail-to-DM modal — opens when the boat icon is tapped. */}
@@ -547,7 +580,33 @@ export function CurrentCard({
           onClose={() => setSailOpen(false)}
         />
       )}
+
+      {/* Share-to-social modal — opens when the share button is tapped. */}
+      <CurrentShareModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        currentId={current.id}
+        authorUsername={current.author?.username ?? null}
+        authorAvatarUrl={current.author?.avatar_url ?? null}
+        body={current.body}
+      />
     </article>
+  );
+}
+
+// Share icon — small paper-plane outline that matches the site's
+// bronze accent when used on the current card action row.
+function ShareIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M22 2 L11 13 M22 2 L15 22 L11 13 L2 9 Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
