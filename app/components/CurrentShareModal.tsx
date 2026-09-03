@@ -34,22 +34,32 @@ interface Platform {
 }
 
 const STORY_PLATFORMS: Platform[] = [
-  { key: 'ig-story',    label: 'Instagram Story',  format: 'story', deepLink: 'instagram://story-camera', hint: 'Tap your profile ring, then swipe up to pick the saved image from your camera roll.' },
-  { key: 'tiktok',      label: 'TikTok',           format: 'story', deepLink: 'snssdk1233://', hint: 'Tap the + button, then pick the saved image from Upload.' },
-  { key: 'snapchat',    label: 'Snapchat',         format: 'story', deepLink: 'snapchat://', hint: 'Swipe up from the camera to pick the saved image from Memories.' },
-  { key: 'fb-story',    label: 'Facebook Story',   format: 'story', deepLink: 'fb://', hint: 'Tap Create Story, then pick the saved image from your camera roll.' },
+  { key: 'ig-story',    label: 'Instagram Story',  format: 'story', deepLink: 'instagram://story-camera',
+    hint: 'Inside the Story camera, tap the small photo thumbnail in the bottom-left corner, then pick the saved image.' },
+  { key: 'tiktok',      label: 'TikTok',           format: 'story', deepLink: 'snssdk1233://',
+    hint: 'Tap the + button, tap Upload, then pick the saved image.' },
+  { key: 'snapchat',    label: 'Snapchat',         format: 'story', deepLink: 'snapchat://',
+    hint: 'From the camera screen, swipe up to open Memories, then pick the saved image from your camera roll.' },
+  { key: 'fb-story',    label: 'Facebook Story',   format: 'story', deepLink: 'fb://',
+    hint: 'Tap Create Story, choose Photo, then pick the saved image.' },
 ];
 
 const POST_PLATFORMS: Platform[] = [
-  { key: 'ig-post',     label: 'Instagram Post',   format: 'post', deepLink: 'instagram://camera', hint: 'Tap the + button, then pick the saved image from your camera roll.' },
-  { key: 'fb-post',     label: 'Facebook Post',    format: 'post', deepLink: 'fb://', hint: 'Tap What is on your mind, then attach the saved image.' },
-  { key: 'pinterest',   label: 'Pinterest',        format: 'post', deepLink: 'pinterest://', hint: 'Tap Create, then pick the saved image.' },
+  { key: 'ig-post',     label: 'Instagram Post',   format: 'post', deepLink: 'instagram://camera',
+    hint: 'Tap the + button, choose Post, then pick the saved image from your camera roll.' },
+  { key: 'fb-post',     label: 'Facebook Post',    format: 'post', deepLink: 'fb://',
+    hint: 'Tap What is on your mind, tap Photo, then pick the saved image.' },
+  { key: 'pinterest',   label: 'Pinterest',        format: 'post', deepLink: 'pinterest://',
+    hint: 'Tap Create, choose Pin, then pick the saved image.' },
 ];
 
 const SQUARE_PLATFORMS: Platform[] = [
-  { key: 'x',           label: 'X',                format: 'square', deepLink: 'twitter://post', hint: 'Attach the saved image to your post.' },
-  { key: 'linkedin',    label: 'LinkedIn',         format: 'square', deepLink: 'linkedin://', hint: 'Start a post, then attach the saved image.' },
-  { key: 'threads',     label: 'Threads',          format: 'square', deepLink: 'barcelona://', hint: 'Start a new thread, then attach the saved image.' },
+  { key: 'x',           label: 'X',                format: 'square', deepLink: 'twitter://post',
+    hint: 'Tap the image icon on the post composer, then pick the saved image.' },
+  { key: 'linkedin',    label: 'LinkedIn',         format: 'square', deepLink: 'linkedin://',
+    hint: 'Start a post, tap the photo icon, then pick the saved image.' },
+  { key: 'threads',     label: 'Threads',          format: 'square', deepLink: 'barcelona://',
+    hint: 'Start a new thread, tap the paperclip icon, then pick the saved image.' },
 ];
 
 interface Props {
@@ -258,6 +268,24 @@ export function CurrentShareModal({
                   boxShadow: '0 12px 30px rgba(0,0,0,0.55)',
                 }}
               />
+            </div>
+
+            {/* Reality-check notice. Web browsers can't hand a file
+                straight into another app's composer, so the image will
+                NOT auto-appear inside Instagram / TikTok / etc. The
+                user has to pick it from their camera roll. Calling
+                this out up front prevents "the button is broken"
+                confusion. */}
+            <div style={{
+              margin: '0 0 14px', padding: '12px 14px',
+              background: 'rgba(200,149,108,0.14)',
+              border: '1px solid rgba(200,149,108,0.45)',
+              borderRadius: 12,
+              fontSize: 13, lineHeight: 1.5, color: '#ffd7ac',
+            }}>
+              iOS and Android do not let a browser drop an image
+              directly into another app. You will pick the image from
+              your camera roll once {selected.label} opens.
             </div>
 
             <ol style={{
