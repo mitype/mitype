@@ -1,19 +1,20 @@
 'use client';
 // CurrentShareModal — the "Share this current" sheet.
 //
-// Renders a grouped platform grid organized by canonical aspect
-// ratio, so a tap on any platform generates a correctly-sized PNG
-// for that surface (Story 9:16 / Feed post 4:5 / Square 1:1).
+// Two-step flow (matches how Threads and X handle it, because
+// browsers can't post to a third-party app directly):
+//   Step 1: pick a platform. We build a PNG at the aspect ratio
+//           that platform expects (Story 9:16 / Post 4:5 / Square 1:1).
+//   Step 2: show a save-and-open screen. Tap "Save image" to drop
+//           it into the camera roll (uses Web Share on iOS/Android
+//           so the OS shows Save to Photos; falls back to a browser
+//           download on desktop). Tap "Open <app>" to deep-link
+//           straight into that platform so the user can pick the
+//           image from their camera roll and post it.
 //
-// The share flow is:
-//   1. Fetch /api/current-share-image at the format the platform expects
-//   2. Wrap it in a File and try navigator.share({ files }) — the phone
-//      OS surfaces every installed app that accepts an image
-//   3. If Web Share is unavailable (desktop, older browsers), download
-//      the PNG and show a toast telling the user to upload it
-//
-// Every image also carries the referral link at the bottom so a share
-// doubles as a growth surface.
+// Why not auto-post: iOS/Android do not let a web page hand a file
+// into another app's compose screen. This save-then-launch flow is
+// the most reliable pattern that still works everywhere.
 
 import { useState } from 'react';
 import { toast } from '../lib/toast';
@@ -24,25 +25,31 @@ interface Platform {
   key: string;
   label: string;
   format: Format;
+  /** iOS/Android URL scheme that opens the app. Falls back silently
+   *  if the app isn't installed. */
+  deepLink?: string;
+  /** Short one-line instruction for how to actually post the image
+   *  once the target app is open. */
+  hint: string;
 }
 
 const STORY_PLATFORMS: Platform[] = [
-  { key: 'ig-story',    label: 'Instagram Story',  format: 'story' },
-  { key: 'tiktok',      label: 'TikTok',           format: 'story' },
-  { key: 'snapchat',    label: 'Snapchat',         format: 'story' },
-  { key: 'fb-story',    label: 'Facebook Story',   format: 'story' },
+  { key: 'ig-story',    label: 'Instagram Story',  format: 'story', deepLink: 'instagram://story-camera', hint: 'Tap your profile ring, then swipe up to pick the saved image from your camera roll.' },
+  { key: 'tiktok',      label: 'TikTok',           format: 'story', deepLink: 'snssdk1233://', hint: 'Tap the + button, then pick the saved image from Upload.' },
+  { key: 'snapchat',    label: 'Snapchat',         format: 'story', deepLink: 'snapchat://', hint: 'Swipe up from the camera to pick the saved image from Memories.' },
+  { key: 'fb-story',    label: 'Facebook Story',   format: 'story', deepLink: 'fb://', hint: 'Tap Create Story, then pick the saved image from your camera roll.' },
 ];
 
 const POST_PLATFORMS: Platform[] = [
-  { key: 'ig-post',     label: 'Instagram Post',   format: 'post' },
-  { key: 'fb-post',     label: 'Facebook Post',    format: 'post' },
-  { key: 'pinterest',   label: 'Pinterest',        format: 'post' },
+  { key: 'ig-post',     label: 'Instagram Post',   format: 'post', deepLink: 'instagram://camera', hint: 'Tap the + button, then pick the saved image from your camera roll.' },
+  { key: 'fb-post',     label: 'Facebook Post',    format: 'post', deepLink: 'fb://', hint: 'Tap What is on your mind, then attach the saved image.' },
+  { key: 'pinterest',   label: 'Pinterest',        format: 'post', deepLink: 'pinterest://', hint: 'Tap Create, then pick the saved image.' },
 ];
 
 const SQUARE_PLATFORMS: Platform[] = [
-  { key: 'x',           label: 'X',                format: 'square' },
-  { key: 'linkedin',    label: 'LinkedIn',         format: 'square' },
-  { key: 'threads',     label: 'Threads',          format: 'square' },
+  { key: 'x',           label: 'X',                format: 'square', deepLink: 'twitter://post', hint: 'Attach the saved image to your post.' },
+  { key: 'linkedin',    label: 'LinkedIn',         format: 'square', deepLink: 'linkedin://', hint: 'Start a post, then attach the saved image.' },
+  { key: 'threads',     label: 'Threads',          format: 'square', deepLink: 'barcelona://', hint: 'Start a new thread, then attach the saved image.' },
 ];
 
 interface Props {
@@ -57,7 +64,11 @@ interface Props {
 export function CurrentShareModal({
   open, onClose, currentId, authorUsername, authorAvatarUrl, body,
 }: Props) {
+  const [selected, setSelected] = useState<Platform | null>(null);
+  const [imgUrl, setImgUrl] = useState<string | null>(null);
+  const [imgBlob, setImgBlob] = useState<Blob | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [savingImage, setSavingImage] = useState(false);
 
   if (!open) return null;
 
@@ -74,21 +85,49 @@ export function CurrentShareModal({
     return `/api/current-share-image?${params.toString()}`;
   }
 
-  async function shareToPlatform(p: Platform) {
+  function reset() {
+    setSelected(null);
+    if (imgUrl) URL.revokeObjectURL(imgUrl);
+    setImgUrl(null);
+    setImgBlob(null);
+    setBusyKey(null);
+    setSavingImage(false);
+  }
+
+  function handleClose() {
+    reset();
+    onClose();
+  }
+
+  async function pickPlatform(p: Platform) {
     setBusyKey(p.key);
     try {
       const res = await fetch(buildImageUrl(p.format));
       if (!res.ok) throw new Error(`image build failed: ${res.status}`);
       const blob = await res.blob();
-      const filename = `mitype-current-${p.format}-${currentId.slice(0, 8)}.png`;
-      const file = new File([blob], filename, { type: 'image/png' });
+      const url = URL.createObjectURL(blob);
+      setImgBlob(blob);
+      setImgUrl(url);
+      setSelected(p);
+    } catch (e: any) {
+      console.error('[currents/share] build failed:', e);
+      toast.error(e?.message || 'Could not build share image.');
+    } finally {
+      setBusyKey(null);
+    }
+  }
 
-      // Web Share API with files: works on iOS Safari + Android Chrome.
-      const shareData: ShareData = {
-        files: [file],
-        title: `@${authorUsername || 'mitype'} on The Current`,
-        text: `${body}\n\n${currentUrl}`,
-      };
+  async function saveImage() {
+    if (!imgBlob || !selected) return;
+    setSavingImage(true);
+    try {
+      const filename = `mitype-current-${selected.format}-${currentId.slice(0, 8)}.png`;
+      const file = new File([imgBlob], filename, { type: 'image/png' });
+
+      // On iOS/Android, navigator.share with a file surfaces the
+      // native share sheet where "Save to Photos" (or Save Image on
+      // Android) writes the image to the camera roll.
+      const shareData: ShareData = { files: [file] };
       const canShareFiles =
         typeof navigator !== 'undefined' &&
         typeof navigator.canShare === 'function' &&
@@ -97,30 +136,33 @@ export function CurrentShareModal({
       if (canShareFiles && typeof navigator.share === 'function') {
         try {
           await navigator.share(shareData);
-          toast.success(`Ready for ${p.label}`);
+          toast.success('Saved. Now open the app.');
         } catch (err: any) {
-          // User cancelled — silent.
           if (err?.name !== 'AbortError') throw err;
         }
       } else {
-        // Desktop / unsupported: download the PNG so the user can
-        // upload it into the target app themselves.
-        const url = URL.createObjectURL(blob);
+        // Desktop / unsupported browsers: plain download.
         const a = document.createElement('a');
-        a.href = url;
+        a.href = imgUrl!;
         a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        toast.success(`Image saved. Open ${p.label} and upload it.`);
+        toast.success('Image saved. Now open the app.');
       }
     } catch (e: any) {
-      console.error('[currents/share] failed:', e);
-      toast.error(e?.message || 'Could not build share image.');
+      console.error('[currents/share] save failed:', e);
+      toast.error(e?.message || 'Could not save image.');
     } finally {
-      setBusyKey(null);
+      setSavingImage(false);
     }
+  }
+
+  function openApp() {
+    if (!selected?.deepLink) return;
+    // Deep-link into the target app. If the app isn't installed the
+    // URL scheme fails silently and the user stays on the page.
+    window.location.href = selected.deepLink;
   }
 
   async function copyLink() {
@@ -134,7 +176,7 @@ export function CurrentShareModal({
 
   return (
     <div
-      onClick={onClose}
+      onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-label="Share this current"
@@ -161,7 +203,7 @@ export function CurrentShareModal({
           borderTopRightRadius: 24,
           padding: '20px 22px 28px',
           color: 'white',
-          maxHeight: '85vh',
+          maxHeight: '90vh',
           overflowY: 'auto',
           boxShadow: '0 -30px 60px rgba(0,0,0,0.6)',
         }}
@@ -174,91 +216,178 @@ export function CurrentShareModal({
 
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: 18,
+          marginBottom: 14,
         }}>
           <h2 style={{
             margin: 0, fontSize: 18, fontWeight: 800, letterSpacing: '-0.3px',
           }}>
-            Share this current
+            {selected ? `Share to ${selected.label}` : 'Share this current'}
           </h2>
           <button
             type="button"
-            onClick={onClose}
-            aria-label="Close"
+            onClick={selected ? reset : handleClose}
+            aria-label={selected ? 'Back' : 'Close'}
             style={{
-              width: 34, height: 34, borderRadius: '50%',
+              minWidth: 34, height: 34, padding: '0 10px',
+              borderRadius: 100,
               background: 'rgba(255,255,255,0.10)', border: 'none',
-              color: 'white', cursor: 'pointer', fontSize: 18, fontWeight: 700,
+              color: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 700,
               fontFamily: 'inherit',
             }}
           >
-            ×
+            {selected ? 'Back' : '×'}
           </button>
         </div>
 
-        <p style={{
-          margin: '0 0 20px', fontSize: 13, color: 'rgba(255,255,255,0.70)',
-          lineHeight: 1.5,
-        }}>
-          Pick where you want to post. The image renders at the exact size that platform needs so nothing gets cropped.
-        </p>
+        {selected && imgUrl ? (
+          /* ---------- Step 2: save + open ---------- */
+          <div>
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              marginBottom: 18,
+            }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imgUrl}
+                alt=""
+                style={{
+                  maxWidth: 200,
+                  maxHeight: 320,
+                  borderRadius: 14,
+                  border: '1px solid rgba(125,211,252,0.4)',
+                  boxShadow: '0 12px 30px rgba(0,0,0,0.55)',
+                }}
+              />
+            </div>
 
-        <Group label="Story (9:16)" caption="Full-screen vertical stories">
-          {STORY_PLATFORMS.map((p) => (
-            <PlatformButton
-              key={p.key}
-              label={p.label}
-              onClick={() => shareToPlatform(p)}
-              busy={busyKey === p.key}
-              disabled={!!busyKey}
-            />
-          ))}
-        </Group>
+            <ol style={{
+              margin: '0 0 18px', padding: '0 0 0 20px',
+              fontSize: 14, lineHeight: 1.55, color: 'rgba(255,255,255,0.85)',
+            }}>
+              <li style={{ marginBottom: 6 }}>
+                Tap <strong>Save image</strong> to add it to your camera roll.
+              </li>
+              <li style={{ marginBottom: 6 }}>
+                Tap <strong>Open {selected.label}</strong>.
+              </li>
+              <li>{selected.hint}</li>
+            </ol>
 
-        <Group label="Feed post (4:5)" caption="Portrait feed posts">
-          {POST_PLATFORMS.map((p) => (
-            <PlatformButton
-              key={p.key}
-              label={p.label}
-              onClick={() => shareToPlatform(p)}
-              busy={busyKey === p.key}
-              disabled={!!busyKey}
-            />
-          ))}
-        </Group>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button
+                type="button"
+                onClick={saveImage}
+                disabled={savingImage}
+                style={{
+                  width: '100%', padding: '14px 16px',
+                  background: 'linear-gradient(135deg, #0ea5e9, #7dd3fc)',
+                  border: 'none', borderRadius: 12,
+                  color: '#0a1730', fontSize: 15, fontWeight: 900,
+                  cursor: savingImage ? 'wait' : 'pointer',
+                  fontFamily: 'inherit', letterSpacing: '-0.2px',
+                }}
+              >
+                {savingImage ? 'Saving…' : 'Save image'}
+              </button>
+              {selected.deepLink && (
+                <button
+                  type="button"
+                  onClick={openApp}
+                  style={{
+                    width: '100%', padding: '14px 16px',
+                    background: 'rgba(200,149,108,0.20)',
+                    border: '1px solid rgba(200,149,108,0.55)',
+                    borderRadius: 12,
+                    color: '#ffb37c', fontSize: 15, fontWeight: 800,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                >
+                  Open {selected.label}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={copyLink}
+                style={{
+                  width: '100%', padding: '12px 16px',
+                  background: 'transparent',
+                  border: '1px solid rgba(255,255,255,0.20)',
+                  borderRadius: 12, color: 'white',
+                  fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Copy link instead
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* ---------- Step 1: pick a platform ---------- */
+          <div>
+            <p style={{
+              margin: '0 0 20px', fontSize: 13, color: 'rgba(255,255,255,0.70)',
+              lineHeight: 1.5,
+            }}>
+              Pick where you want to post. The image renders at the exact size that platform needs so nothing gets cropped.
+            </p>
 
-        <Group label="Square (1:1)" caption="Standard square posts">
-          {SQUARE_PLATFORMS.map((p) => (
-            <PlatformButton
-              key={p.key}
-              label={p.label}
-              onClick={() => shareToPlatform(p)}
-              busy={busyKey === p.key}
-              disabled={!!busyKey}
-            />
-          ))}
-        </Group>
+            <Group label="Story (9:16)" caption="Full-screen vertical stories">
+              {STORY_PLATFORMS.map((p) => (
+                <PlatformButton
+                  key={p.key}
+                  label={p.label}
+                  onClick={() => pickPlatform(p)}
+                  busy={busyKey === p.key}
+                  disabled={!!busyKey}
+                />
+              ))}
+            </Group>
 
-        <div style={{
-          marginTop: 18, paddingTop: 18,
-          borderTop: '1px solid rgba(255,255,255,0.10)',
-          display: 'flex', flexDirection: 'column', gap: 8,
-        }}>
-          <button
-            type="button"
-            onClick={copyLink}
-            style={{
-              width: '100%', padding: '12px 16px',
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: 12, color: 'white',
-              fontSize: 14, fontWeight: 700, cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
-            Copy link
-          </button>
-        </div>
+            <Group label="Feed post (4:5)" caption="Portrait feed posts">
+              {POST_PLATFORMS.map((p) => (
+                <PlatformButton
+                  key={p.key}
+                  label={p.label}
+                  onClick={() => pickPlatform(p)}
+                  busy={busyKey === p.key}
+                  disabled={!!busyKey}
+                />
+              ))}
+            </Group>
+
+            <Group label="Square (1:1)" caption="Standard square posts">
+              {SQUARE_PLATFORMS.map((p) => (
+                <PlatformButton
+                  key={p.key}
+                  label={p.label}
+                  onClick={() => pickPlatform(p)}
+                  busy={busyKey === p.key}
+                  disabled={!!busyKey}
+                />
+              ))}
+            </Group>
+
+            <div style={{
+              marginTop: 18, paddingTop: 18,
+              borderTop: '1px solid rgba(255,255,255,0.10)',
+            }}>
+              <button
+                type="button"
+                onClick={copyLink}
+                style={{
+                  width: '100%', padding: '12px 16px',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: 12, color: 'white',
+                  fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Copy link only
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
