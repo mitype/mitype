@@ -114,7 +114,7 @@ export default function CollabBriefDetailPage({ params }: { params: Promise<{ id
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)', fontFamily: "'Helvetica Neue', Arial, sans-serif", paddingBottom: 80 }}>
       <SiteNav userId={userId ?? undefined} showBack backFallbackHref="/collab" />
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 20px' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 720, margin: '0 auto', padding: '24px 20px' }}>
         {brief.poster && (
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
             <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', background: 'var(--brand-personal-bg-pale)', flexShrink: 0 }}>

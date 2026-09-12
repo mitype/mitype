@@ -132,7 +132,7 @@ export default function CurrentsFeedPage() {
 
       <SiteNav userId={viewerId ?? undefined} showBack backFallbackHref="/dashboard" />
 
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '20px 16px 0' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 680, margin: '0 auto', padding: '20px 16px 0' }}>
         {/* First-time tutorial — all "how to use The Current" content
             lives here so the feed itself stays uncluttered. Shows once
             per device (localStorage gated). Held back until the vortex

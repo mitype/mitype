@@ -52,7 +52,7 @@ export default function InfoCenterPage() {
     }}>
       <SiteNav userId={userId ?? undefined} showBack backFallbackHref="/dashboard" />
 
-      <div style={{ maxWidth: 820, margin: '0 auto', padding: '24px 20px' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 820, margin: '0 auto', padding: '24px 20px' }}>
         <p style={{
           fontSize: 12, fontWeight: 800, color: 'var(--brand-personal)',
           textTransform: 'uppercase', letterSpacing: '1.4px', marginBottom: 6,

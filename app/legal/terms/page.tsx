@@ -41,7 +41,7 @@ export default function TermsOfServicePage() {
         </Link>
       </nav>
 
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '48px 24px' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 800, margin: '0 auto', padding: '48px 24px' }}>
         <h1 style={{
           fontSize: 40,
           fontWeight: 900,

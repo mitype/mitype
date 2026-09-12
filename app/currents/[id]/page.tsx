@@ -133,7 +133,7 @@ export default function CurrentDetailPage() {
       <OceanBackground />
       <SiteNav userId={viewerId ?? undefined} showBack backFallbackHref="/currents" />
 
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '20px 16px 0' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 680, margin: '0 auto', padding: '20px 16px 0' }}>
         {loading || !parent ? (
           <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.65)', padding: 40 }}>
             Loading…

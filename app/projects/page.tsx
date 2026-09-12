@@ -43,7 +43,7 @@ export default function ProjectsPage() {
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)', fontFamily: "'Helvetica Neue', Arial, sans-serif", paddingBottom: 80 }}>
       <SiteNav userId={userId ?? undefined} showBack backFallbackHref="/dashboard" />
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 20px' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 720, margin: '0 auto', padding: '24px 20px' }}>
         <p style={{ fontSize: 12, fontWeight: 800, color: 'var(--brand-personal)', textTransform: 'uppercase', letterSpacing: '1.4px', marginBottom: 6 }}>Workspace</p>
         <h1 style={{ fontSize: 32, fontWeight: 900, color: 'var(--brand-text-primary)', letterSpacing: '-0.8px', marginBottom: 8 }}>Project Rooms</h1>
         <p style={{ color: 'var(--brand-personal-text-mid)', fontSize: 14, lineHeight: 1.5, marginBottom: 20 }}>

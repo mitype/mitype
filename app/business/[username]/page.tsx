@@ -235,7 +235,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
         brandSuffix=" · business"
       />
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
 
         {/* Header card */}
         <div style={{

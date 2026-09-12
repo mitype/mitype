@@ -302,7 +302,7 @@ export default function EditBusinessProfilePage() {
         brandSuffix=" · business"
       />
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
 
         <h1 style={{ fontSize: 32, fontWeight: 900, color: 'var(--brand-text-primary)', letterSpacing: '-0.6px', marginBottom: 8 }}>
           Your Business Profile

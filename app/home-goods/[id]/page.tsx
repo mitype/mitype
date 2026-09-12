@@ -237,7 +237,7 @@ export default function ListingDetailPage() {
     }}>
       <SiteNav userId={user?.id} showBack backFallbackHref="/home-goods" />
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px' }}>
         {/* Photo gallery */}
         <div style={{
           background: 'white',

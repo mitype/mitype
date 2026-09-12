@@ -284,7 +284,7 @@ export default function BrandDealDetailPage({ params }: { params: Promise<{ id: 
     }}>
       <SiteNav userId={userId ?? undefined} showBack backFallbackHref="/brand-deals" />
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 20px' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 720, margin: '0 auto', padding: '24px 20px' }}>
         {/* Business header */}
         {deal.business && (
           <div style={{

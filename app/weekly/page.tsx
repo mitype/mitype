@@ -281,7 +281,7 @@ export default function WeeklyPromptPage() {
 
       <SiteNav userId={user?.id} showBack backFallbackHref="/dashboard" />
 
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 24px 0' }}>
+      <div className="mitype-container-wide" style={{ maxWidth: 760, margin: '0 auto', padding: '40px 24px 0' }}>
         {/* Hero */}
         <div
           style={{
