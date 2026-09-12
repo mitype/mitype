@@ -112,6 +112,14 @@ export default function WavePage() {
   // the visible video changes so scrolling back to a previously-paused
   // video still auto-plays a fresh viewing.
   const [pausedId, setPausedId] = useState<string | null>(null);
+  // "now" snapshot for expiration display — updated every 60s via a
+  // background timer instead of reading Date.now() during render (which
+  // React 19 treats as impure and refuses to run).
+  const [nowMs, setNowMs] = useState<number>(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
   // Swipe-to-exit tracking. We capture the start point of a touch on
   // each video section and, on touchend, compare to the end point. A
   // right-to-left swipe with low vertical drift dismisses the Wave and
@@ -762,8 +770,11 @@ export default function WavePage() {
     setMenuVideoId(null);
   }
 
-  function timeRemaining(expiresAt: string): string {
-    const ms = new Date(expiresAt).getTime() - Date.now();
+  // Pure formatter — takes an explicit "now" so it can be called from
+  // render bodies without violating React 19's purity rules. Callers
+  // snapshot Date.now() once per render pass and pass it in.
+  function timeRemaining(expiresAt: string, nowMs: number): string {
+    const ms = new Date(expiresAt).getTime() - nowMs;
     if (ms <= 0) return 'expiring';
     const hours = Math.floor(ms / (1000 * 60 * 60));
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
@@ -998,7 +1009,7 @@ export default function WavePage() {
           // decoded buffers — important on long scroll sessions.
           const isWithinWindow = Math.abs(index - activeIndex) <= WINDOW_RADIUS;
           const expiringSoon =
-            new Date(item.expiresAt).getTime() - Date.now() <= EXPIRING_SOON_MS;
+            new Date(item.expiresAt).getTime() - nowMs <= EXPIRING_SOON_MS;
           return (
           <section
             key={item.id}
@@ -1198,7 +1209,7 @@ export default function WavePage() {
                   : undefined,
               }}
             >
-              ⏱ {timeRemaining(item.expiresAt)}
+              ⏱ {timeRemaining(item.expiresAt, nowMs)}
             </div>
 
             {/* Category badge */}

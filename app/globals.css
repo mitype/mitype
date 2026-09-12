@@ -153,3 +153,63 @@ body {
 .mitype-messages-back-button {
   display: none;
 }
+
+/* ---------- Foldable-device support (Apple iPhone Duo, Samsung Fold,
+ *            Pixel Fold, Surface Duo, and any book-style device) ----------
+ *
+ * The web standard for hinge/fold awareness is the Viewport Segments
+ * spec: the browser exposes CSS environment variables and media queries
+ * that describe how many logical panels a device has and how big the
+ * hinge is between them. Safari 18+ and Chromium ship this.
+ *
+ * We use it two ways:
+ *   1. Any element that opts in with .mitype-fold-safe gets padding
+ *      applied so its content isn't split by the hinge on a spanned
+ *      window (e.g. drawer overlays that stretch across both panels).
+ *   2. When the app is spanned across two horizontal segments, our
+ *      messages sidebar stays visible on the left panel and the chat
+ *      pane fills the right panel — matches how you'd expect a
+ *      messaging app to render on an unfolded book device.
+ */
+
+/* Environment fallback: browsers without the spec return 0 for these,
+ * so nothing changes on non-foldable devices. */
+:root {
+  --mitype-hinge-left:  env(viewport-segment-right 0 0, 0px);
+  --mitype-hinge-right: env(viewport-segment-left 1 0, 0px);
+  --mitype-hinge-width: calc(var(--mitype-hinge-right) - var(--mitype-hinge-left));
+}
+
+/* When the app is spanned across two horizontal segments, keep both
+ * panels of the messages layout visible so the hinge lands cleanly
+ * between the sidebar and the conversation. */
+@media (horizontal-viewport-segments: 2) {
+  .mitype-messages-sidebar,
+  .mitype-messages-chat {
+    display: flex !important;
+  }
+  .mitype-messages-sidebar--hidden-mobile,
+  .mitype-messages-chat--hidden-mobile {
+    display: flex !important;
+  }
+}
+
+/* Unfolded book devices (iPhone Duo inner display, iPad mini portrait,
+ * Samsung Fold inner) land in the 600-820px logical width band. Give
+ * long-form reading columns and dashboard grids more breathing room
+ * so they don't look like a phone layout stranded on a tablet screen. */
+@media (min-width: 600px) and (max-width: 900px) {
+  .mitype-container-wide {
+    max-width: 820px !important;
+  }
+}
+
+/* Foldable outer displays (iPhone Duo outer) tend to be 4:3 — much
+ * squatter than a normal iPhone. Anything that assumes a tall 9:16
+ * viewport (Wave feed, story previews) should let media fit inside
+ * instead of stretching. This class opts in. */
+@media (min-aspect-ratio: 4 / 3) and (max-aspect-ratio: 5 / 4) and (max-width: 600px) {
+  .mitype-media-fit {
+    object-fit: contain !important;
+  }
+}
