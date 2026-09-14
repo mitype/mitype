@@ -5,6 +5,7 @@
 // can use it to network their creativity or find opportunities.
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { SiteNav } from '../components/SiteNav';
 import { liquidGlass } from '../lib/liquidGlass';
@@ -33,15 +34,31 @@ const TONES: Partial<Record<keyof typeof FEATURE_DESCRIPTIONS, string>> = {
 };
 
 export default function InfoCenterPage() {
+  const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [openKey, setOpenKey] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      setUserId(user?.id ?? null);
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      // Hard paywall gate — Info Center is authenticated content.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+      setUserId(user.id);
     })();
-  }, []);
+  }, [router]);
 
   return (
     <main style={{

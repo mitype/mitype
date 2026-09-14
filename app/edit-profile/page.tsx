@@ -188,6 +188,19 @@ export default function EditProfilePage() {
         router.push('/login');
         return;
       }
+      // Hard paywall gate — every authed surface requires an active or
+      // trialing subscription. Paused / cancelled / expired subs get
+      // bounced to /subscription along with anyone who never subscribed.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
       setUser(user);
 
       const { data: profile } = await supabase

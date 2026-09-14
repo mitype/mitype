@@ -116,6 +116,21 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         setCurrentUser(user);
 
         if (user) {
+          // Hard paywall gate — an authenticated viewer without an
+          // active or trialing subscription gets bounced to the
+          // paywall. Anonymous visitors can still view the profile so
+          // shared profile links continue to drive signups.
+          const { data: sub } = await supabase
+            .from('subscriptions')
+            .select('status')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+          if (!subscribed) {
+            router.push('/subscription');
+            return;
+          }
+
           const { data: myProfile } = await supabase
             .from('profiles')
             .select('categories')

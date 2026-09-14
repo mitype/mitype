@@ -69,6 +69,18 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
         router.push('/login');
         return;
       }
+      // Hard paywall gate — every authenticated surface on the site
+      // requires an active or trialing subscription.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', u.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
       setUser(u);
 
       // Resolve username to user_id

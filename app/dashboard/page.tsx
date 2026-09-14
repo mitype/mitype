@@ -64,6 +64,23 @@ export default function Dashboard() {
         return;
       }
 
+      // Hard paywall gate. Users without an active or trialing
+      // subscription (including anyone whose sub is paused, cancelled,
+      // or expired) get bounced to /subscription. The dashboard and
+      // every other authenticated surface is off-limits until they
+      // subscribe again. RLS keeps their data safe server-side; this
+      // is the UX bounce.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+
       setProfile(profile);
 
       // Check whether the user has wave videos in the last 24h so we
