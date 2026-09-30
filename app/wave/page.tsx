@@ -681,16 +681,16 @@ export default function WavePage() {
   // Whether the viewer is the creator of a given video AND it's still
   // inside the 1-hour delete window. Drives the "Delete video" option
   // in the More menu.
-  function canDelete(item: WaveItem): boolean {
+  function canDelete(item: WaveItem, nowMs: number): boolean {
     if (!isOwnVideo(item)) return false;
-    const ageMs = Date.now() - new Date(item.createdAt).getTime();
+    const ageMs = nowMs - new Date(item.createdAt).getTime();
     return ageMs <= 60 * 60 * 1000;
   }
 
   // Human-readable "X minutes ago" type string used to explain why
   // delete is unavailable when past the 1-hour window.
-  function minutesSincePost(item: WaveItem): number {
-    const ms = Date.now() - new Date(item.createdAt).getTime();
+  function minutesSincePost(item: WaveItem, nowMs: number): number {
+    const ms = nowMs - new Date(item.createdAt).getTime();
     return Math.floor(ms / (60 * 1000));
   }
 
@@ -1557,7 +1557,7 @@ export default function WavePage() {
                     creator understands the 1-hour window. Clickable
                     inside the window, greyed-out + explanatory outside. */}
                 {isOwnVideo(item) ? (
-                  canDelete(item) ? (
+                  canDelete(item, nowMs) ? (
                     <button
                       type="button"
                       onClick={() => handleDelete(item.id)}
@@ -1578,7 +1578,7 @@ export default function WavePage() {
                     >
                       🗑️ Delete window closed
                       <div style={{ fontSize: 11, marginTop: 2, fontWeight: 400 }}>
-                        Posted {minutesSincePost(item)} min ago. Videos can only
+                        Posted {minutesSincePost(item, nowMs)} min ago. Videos can only
                         be deleted within 1 hour of posting. This video will
                         auto-expire 24 hours after posting.
                       </div>

@@ -110,7 +110,7 @@ export function PetEditor({ userId }: Props) {
       });
       update(i, { photo_url: publicUrl });
     } catch (e: any) {
-      toast.error(e?.message ?? 'Upload failed');
+      toast.error("Couldn't upload that photo. Check your connection and try again.");
     } finally {
       setUploadingIndex(null);
     }
@@ -304,6 +304,9 @@ export function PetEditor({ userId }: Props) {
                       style={{ display: 'none' }}
                     />
                   </label>
+                  <div style={{ fontSize: 10, color: '#a08a6a', textAlign: 'center', marginTop: 22 }}>
+                    JPG, PNG, or HEIC up to 25 MB
+                  </div>
                 </div>
                 <div style={{ flex: 1, minWidth: 180 }}>
                   <Field label="Pet's name *">

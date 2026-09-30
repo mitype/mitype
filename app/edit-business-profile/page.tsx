@@ -145,10 +145,14 @@ export default function EditBusinessProfilePage() {
 
   async function handleLogoUpload(file: File) {
     if (!user) return;
-    // No client-side size cap — owners often have huge product/brand
-    // images straight off their camera roll. Bucket-side size limit is
-    // the final word. MIME normalization is delegated to safeUpload so
-    // codec suffixes, empty types, and octet-stream all upload fine.
+    // Client-side size cap matching the pattern used elsewhere in the
+    // app (e.g. PhotoManager's 12MB check) — bucket-side limits are
+    // still the final word, but we reject obviously oversized files
+    // before spending a round trip on them.
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('Logo must be under 20 MB.');
+      return;
+    }
     setUploading(true);
     try {
       const ext = (file.name.split('.').pop() ?? 'png').toLowerCase();
@@ -161,7 +165,7 @@ export default function EditBusinessProfilePage() {
       setLogoUrl(publicUrl);
       toast.success('Logo uploaded');
     } catch (e: any) {
-      toast.error(e?.message ?? 'Logo upload failed');
+      toast.error("Couldn't upload that photo. Check your connection and try again.");
     } finally {
       setUploading(false);
     }
@@ -373,6 +377,9 @@ export default function EditBusinessProfilePage() {
                 />
               </label>
               <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 12, marginTop: 8 }}>
+                JPG, PNG, or WebP up to 20 MB.
+              </p>
+              <p style={{ color: 'var(--brand-business-text-mid)', fontSize: 12, marginTop: 4 }}>
                 Square images look best. Any image file works. Upload
                 whatever size and format you have, big or small.
               </p>

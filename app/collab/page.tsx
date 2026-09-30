@@ -57,16 +57,26 @@ export default function CollabBoardPage() {
       if (!user) { router.replace('/login'); return; }
       setUserId(user.id);
 
-      const [subRes, briefsRes] = await Promise.all([
-        supabase.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle(),
-        supabase.from('collab_briefs')
-          .select('id, posted_by, title, description, looking_for_category, compensation_type, compensation_details, location_type, city, applications_count, created_at')
-          .eq('status', 'open')
-          .order('created_at', { ascending: false })
-          .limit(60),
-      ]);
-      const s = subRes.data?.status;
-      setIsSubscribed(s === 'active' || s === 'trialing');
+      // Hard paywall gate. Users without an active or trialing
+      // subscription get bounced to /subscription before they can
+      // browse the collab board.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+      setIsSubscribed(true);
+
+      const briefsRes = await supabase.from('collab_briefs')
+        .select('id, posted_by, title, description, looking_for_category, compensation_type, compensation_details, location_type, city, applications_count, created_at')
+        .eq('status', 'open')
+        .order('created_at', { ascending: false })
+        .limit(60);
 
       const posterIds = Array.from(new Set((briefsRes.data ?? []).map((b: any) => b.posted_by)));
       const postersRes = posterIds.length

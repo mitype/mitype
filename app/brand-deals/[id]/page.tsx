@@ -1,10 +1,9 @@
 'use client';
 // /brand-deals/[id] — Individual brief detail + apply flow.
 //
-// Any signed-in member can view the brief (no paywall on browsing).
-// The Apply CTA is gated: only subscribed creators can submit an
-// application. Non-subscribers get a soft paywall pointing to the
-// subscription page.
+// Hard paywall: only actively subscribed members (active/trialing) can
+// reach this page at all. Unsubscribed authenticated users are
+// redirected to /subscription before the brief loads.
 //
 // After a successful application we also insert a message into the
 // existing conversations/messages tables so the negotiation moves
@@ -81,27 +80,32 @@ export default function BrandDealDetailPage({ params }: { params: Promise<{ id: 
       }
       setUserId(user.id);
 
-      const [dealRes, subRes] = await Promise.all([
-        supabase
-          .from('brand_deals')
-          .select('*')
-          .eq('id', id)
-          .maybeSingle(),
-        supabase
-          .from('subscriptions')
-          .select('status')
-          .eq('user_id', user.id)
-          .maybeSingle(),
-      ]);
+      // Hard paywall gate. Users without an active or trialing
+      // subscription get bounced to /subscription before they can
+      // view the brand deal detail page.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+      setIsSubscribed(true);
+
+      const dealRes = await supabase
+        .from('brand_deals')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
 
       if (!dealRes.data) {
         setLoading(false);
         return;
       }
       const d = dealRes.data;
-      const sub = subRes.data?.status;
-      const subscribed = sub === 'active' || sub === 'trialing';
-      setIsSubscribed(subscribed);
       setIsOwner(d.posted_by === user.id);
 
       // Load the business + owner username

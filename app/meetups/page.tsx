@@ -34,17 +34,28 @@ export default function MeetupsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace('/login'); return; }
       setUserId(user.id);
-      const [subRes, meetupsRes] = await Promise.all([
-        supabase.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle(),
-        supabase.from('meetups')
-          .select('id, host_id, title, description, meetup_time, venue_name, city, state, zip_code, capacity, rsvp_count')
-          .eq('status', 'open')
-          .gte('meetup_time', new Date().toISOString())
-          .order('meetup_time', { ascending: true })
-          .limit(60),
-      ]);
-      const s = subRes.data?.status;
-      setIsSubscribed(s === 'active' || s === 'trialing');
+
+      // Hard paywall gate. Users without an active or trialing
+      // subscription get bounced to /subscription before they can
+      // browse the meetups list.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+      setIsSubscribed(true);
+
+      const meetupsRes = await supabase.from('meetups')
+        .select('id, host_id, title, description, meetup_time, venue_name, city, state, zip_code, capacity, rsvp_count')
+        .eq('status', 'open')
+        .gte('meetup_time', new Date().toISOString())
+        .order('meetup_time', { ascending: true })
+        .limit(60);
       const hostIds = Array.from(new Set((meetupsRes.data ?? []).map((m: any) => m.host_id)));
       const hostsRes = hostIds.length
         ? await supabase.from('profiles').select('user_id, username, avatar_url').in('user_id', hostIds)

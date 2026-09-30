@@ -32,6 +32,21 @@ export default function ProjectRoomPage({ params }: { params: Promise<{ id: stri
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace('/login'); return; }
       setUserId(user.id);
+
+      // Hard paywall gate. Users without an active or trialing
+      // subscription get bounced to /subscription before they can
+      // view the project room.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+
       const { data: p } = await supabase.from('project_rooms').select('*').eq('id', id).maybeSingle();
       if (!p) { setLoading(false); return; }
       setProject(p);

@@ -47,14 +47,25 @@ export default function CollabBriefDetailPage({ params }: { params: Promise<{ id
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace('/login'); return; }
       setUserId(user.id);
-      const [briefRes, subRes] = await Promise.all([
-        supabase.from('collab_briefs').select('*').eq('id', id).maybeSingle(),
-        supabase.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle(),
-      ]);
+
+      // Hard paywall gate. Users without an active or trialing
+      // subscription get bounced to /subscription before they can
+      // view the collab brief detail page.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+      setIsSubscribed(true);
+
+      const briefRes = await supabase.from('collab_briefs').select('*').eq('id', id).maybeSingle();
       if (!briefRes.data) { setLoading(false); return; }
       const b = briefRes.data;
-      const s = subRes.data?.status;
-      setIsSubscribed(s === 'active' || s === 'trialing');
       setIsOwner(b.posted_by === user.id);
 
       const [posterRes, appRes] = await Promise.all([

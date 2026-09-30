@@ -26,15 +26,26 @@ export default function ProjectsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace('/login'); return; }
       setUserId(user.id);
-      const [subRes, projRes] = await Promise.all([
-        supabase.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle(),
-        supabase.from('project_rooms')
-          .select('id, title, description, participant_ids, status, updated_at')
-          .contains('participant_ids', [user.id])
-          .order('updated_at', { ascending: false }),
-      ]);
-      const s = subRes.data?.status;
-      setIsSubscribed(s === 'active' || s === 'trialing');
+
+      // Hard paywall gate. Users without an active or trialing
+      // subscription get bounced to /subscription before they can
+      // browse the project rooms list.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+      setIsSubscribed(true);
+
+      const projRes = await supabase.from('project_rooms')
+        .select('id, title, description, participant_ids, status, updated_at')
+        .contains('participant_ids', [user.id])
+        .order('updated_at', { ascending: false });
       setProjects(projRes.data ?? []);
       setLoading(false);
     })();

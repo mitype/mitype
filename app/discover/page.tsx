@@ -106,7 +106,7 @@ export default function DiscoverPage() {
         .from('subscriptions')
         .select('status')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
       if (!isSubscribed) {

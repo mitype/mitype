@@ -1,3 +1,14 @@
+-- ============================================================================
+-- SUPERSEDED — do not run against a fresh database as-is.
+--
+-- This migration references storage bucket IDs (`profile-photos`,
+-- `business-photos`) that no longer match what the live app code actually
+-- uploads to (`avatars`, `business-logos`). It has been superseded by
+-- `supabase-uploads-universal-fix.sql`, which uses the correct bucket
+-- names. Check bucket ID naming against current app code before applying
+-- any part of this file to a new environment.
+-- ============================================================================
+
 -- Security hardening pass.
 --
 -- This migration adds:

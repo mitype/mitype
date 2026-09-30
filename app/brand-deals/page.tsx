@@ -1,9 +1,9 @@
 'use client';
 // /brand-deals — Browse open brand deals.
 //
-// Any signed-in member can browse (encourages non-subscribers to sign
-// up). The subscription paywall bites only when they try to APPLY on
-// the detail page, or when a business owner tries to POST.
+// Hard paywall: only actively subscribed members (active/trialing) can
+// reach this page at all. Unsubscribed authenticated users are
+// redirected to /subscription before the list loads.
 //
 // Filters: category + location + budget bracket. Filtering is client-
 // side against the loaded page since Phase 1 is unlikely to have more
@@ -100,9 +100,23 @@ export default function BrandDealsPage() {
       }
       setUserId(user.id);
 
-      // Check subscription + business ownership in parallel with deal load.
-      const [subRes, bizRes, dealsRes] = await Promise.all([
-        supabase.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle(),
+      // Hard paywall gate. Users without an active or trialing
+      // subscription get bounced to /subscription before they can
+      // browse brand deals at all.
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      if (!subscribed) {
+        router.push('/subscription');
+        return;
+      }
+      setIsSubscribed(true);
+
+      // Check business ownership in parallel with deal load.
+      const [bizRes, dealsRes] = await Promise.all([
         supabase.from('business_profiles').select('id').eq('user_id', user.id).maybeSingle(),
         supabase
           .from('brand_deals')
@@ -112,8 +126,6 @@ export default function BrandDealsPage() {
           .limit(60),
       ]);
 
-      const sub = subRes.data?.status;
-      setIsSubscribed(sub === 'active' || sub === 'trialing');
       setHasBusiness(!!bizRes.data?.id);
 
       // Load business profile + owner username per deal for the card.

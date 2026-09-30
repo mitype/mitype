@@ -23,6 +23,22 @@ export async function POST(req: NextRequest) {
 
     const supabaseAdmin = getSupabaseAdmin();
 
+    // Subscription gate — only actively subscribed (active/trialing)
+    // users may upload Wave videos.
+    const { data: sub, error: subErr } = await supabaseAdmin
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (subErr) {
+      console.error('[wave/upload-url] subscription check error:', subErr);
+      return NextResponse.json({ error: 'Could not verify subscription' }, { status: 500 });
+    }
+    const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+    if (!subscribed) {
+      return NextResponse.json({ error: 'Subscription required' }, { status: 403 });
+    }
+
     // Check how many videos this user has posted in the last 24h
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count, error: countErr } = await supabaseAdmin

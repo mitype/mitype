@@ -103,6 +103,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
+  // Snapshot of "now" for the travel-mode-live check below. Reading it
+  // from state (rather than calling Date.now() inline during render)
+  // keeps the render pure and avoids a server/client hydration mismatch.
+  const [nowMs] = useState<number>(() => Date.now());
   const router = useRouter();
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineUsers = usePresence();
@@ -933,7 +937,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 ? [profile.city, profile.state].filter(Boolean).join(', ')
                 : profile.zip_code ?? null;
               const travelLive = profile.travel_ends_at
-                && new Date(profile.travel_ends_at).getTime() > Date.now()
+                && new Date(profile.travel_ends_at).getTime() > nowMs
                 && (profile.travel_city || profile.travel_state);
               if (!home && !travelLive) return null;
               return (

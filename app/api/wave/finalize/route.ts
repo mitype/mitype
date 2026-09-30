@@ -23,6 +23,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: authErr ?? 'Unauthenticated' }, { status: 401 });
     }
 
+    const supabaseAdmin = getSupabaseAdmin();
+
+    // Subscription gate — only actively subscribed (active/trialing)
+    // users may finalize/post Wave videos.
+    const { data: sub, error: subErr } = await supabaseAdmin
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (subErr) {
+      console.error('[wave/finalize] subscription check error:', subErr);
+      return NextResponse.json({ error: 'Could not verify subscription' }, { status: 500 });
+    }
+    const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+    if (!subscribed) {
+      return NextResponse.json({ error: 'Subscription required' }, { status: 403 });
+    }
+
     const body = await req.json();
     const {
       storagePath,
@@ -59,8 +77,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    const supabaseAdmin = getSupabaseAdmin();
 
     // Confirm the upload actually exists in storage before creating the row.
     const { data: fileInfo, error: statErr } = await supabaseAdmin.storage

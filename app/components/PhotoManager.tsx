@@ -92,9 +92,7 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
         toast.success('Photo added');
       }
     } catch (e: any) {
-      // safeUpload throws with a human-readable message on any failure —
-      // surface it verbatim so the user knows what went wrong.
-      toast.error(e?.message ?? 'Photo upload failed');
+      toast.error("Couldn't upload that photo. Check your connection and try again.");
     } finally {
       setUploading(false);
       setEditorFile(null);
@@ -147,6 +145,9 @@ export function PhotoManager({ userId, photos, onChange }: PhotoManagerProps) {
           </label>
           <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginTop: 4 }}>
             Up to {MAX_PHOTOS}. The first photo is your main profile picture.
+          </p>
+          <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 13, marginTop: 2 }}>
+            JPG, PNG, or HEIC up to 12 MB.
           </p>
         </div>
         <label

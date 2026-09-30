@@ -97,7 +97,7 @@ export default function CreateListingPage() {
           });
           newUrls.push(publicUrl);
         } catch (e: any) {
-          toast.error(e?.message ?? 'Photo upload failed');
+          toast.error("Couldn't upload that photo. Check your connection and try again.");
         }
       }
       if (newUrls.length > 0) {
@@ -296,6 +296,9 @@ export default function CreateListingPage() {
               </label>
             )}
           </div>
+          <p style={{ fontSize: 11, color: 'var(--brand-market-text-mid)', marginTop: 6 }}>
+            Up to {MAX_PHOTOS} photos, JPG or PNG.
+          </p>
         </Section>
 
         {/* Title */}

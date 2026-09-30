@@ -4,6 +4,7 @@ import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { safeUpload } from '../lib/safeUpload';
+import { checkRateLimit, LIMITS, rateLimitMessage } from '../lib/rateLimit';
 import { liquidGlass } from '../lib/liquidGlass';
 import { TranslationButton } from '../components/TranslationButton';
 import Link from 'next/link';
@@ -424,7 +425,7 @@ export default function MessagesPage() {
         .from('subscriptions')
         .select('status')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
       if (!isSubscribed) {
@@ -948,6 +949,14 @@ export default function MessagesPage() {
         toast.info('Wait for the recipient to approve your request before sending more messages.');
         return;
       }
+    }
+
+    // Same rate-limit policy as text message sends — covers the
+    // attachment path consistently rather than leaving it ungated.
+    const allowed = await checkRateLimit(LIMITS.MESSAGE_SEND);
+    if (!allowed) {
+      toast.error(rateLimitMessage(LIMITS.MESSAGE_SEND));
+      return;
     }
 
     setSending(true);
