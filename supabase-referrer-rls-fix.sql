@@ -33,6 +33,7 @@ CREATE INDEX IF NOT EXISTS idx_profiles_is_referrer
 
 -- ---------- fix: referrers (CMO or plain) read their referred users' subs --
 DROP POLICY IF EXISTS "CMO reads referred users subscriptions" ON public.subscriptions;
+DROP POLICY IF EXISTS "Referrers read referred users subscriptions" ON public.subscriptions;
 
 CREATE POLICY "Referrers read referred users subscriptions"
   ON public.subscriptions FOR SELECT TO authenticated

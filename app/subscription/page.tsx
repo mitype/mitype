@@ -193,7 +193,7 @@ export default function SubscriptionPage() {
                 textAlign: 'center',
                 marginBottom: 8,
               }}>
-                🎉 First month completely FREE
+                🔓 Unlock full access instantly
               </p>
 
               <p style={{
@@ -202,7 +202,7 @@ export default function SubscriptionPage() {
                 textAlign: 'center',
                 marginBottom: 40,
               }}>
-                Card required to start · You will not be charged for 30 days
+                Billed $5/month, starting today · Cancel anytime
               </p>
 
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: 40 }}>

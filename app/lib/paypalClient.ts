@@ -202,7 +202,7 @@ export function getPayPalPlanId(): string {
   const planId = process.env.PAYPAL_PLAN_ID;
   if (!planId) {
     throw new Error(
-      'PAYPAL_PLAN_ID env var is not set. Create a $5/month plan with a 30-day trial in the PayPal Developer Dashboard (Catalog & Billing Plans) and put the Plan ID here.'
+      'PAYPAL_PLAN_ID env var is not set. Create a $5/month plan with no trial period in the PayPal Developer Dashboard (Catalog & Billing Plans) and put the Plan ID here.'
     );
   }
   return planId;

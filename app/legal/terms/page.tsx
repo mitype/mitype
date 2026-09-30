@@ -89,11 +89,11 @@ export default function TermsOfServicePage() {
           },
           {
             title: '5. Subscription & Billing',
-            content: `Mitype offers a subscription plan at $5.00 per month with a 30-day free trial for new subscribers.
+            content: `Mitype offers a subscription plan at $5.00 per month for new subscribers.
 
-- Auto-renewal: Your subscription renews automatically each month until canceled. By subscribing you authorize us to charge your payment method on a recurring monthly basis.
-- Free trial: Your first 30 days are free. You will not be charged until the trial period ends. You may cancel at any time before the trial ends to avoid being charged.
-- Card required: A valid payment method is required to start your free trial.
+- Auto-renewal: Your subscription renews automatically each month until canceled. By subscribing you authorize us to charge your payment method on a recurring monthly basis, starting immediately.
+- Billing: You will be charged $5.00 at the time you subscribe, and $5.00 again on the same date each month after that.
+- Card required: A valid payment method is required to subscribe.
 - Cancellation: You may cancel your subscription at any time through the billing portal. Cancellation takes effect at the end of the current billing period and you retain access until then.
 - Refunds: We do not offer refunds for partial subscription periods. If you believe you were charged in error contact us at support.mitypeapp@gmail.com.
 - Price changes: We will notify you at least 30 days in advance of any price changes.`,

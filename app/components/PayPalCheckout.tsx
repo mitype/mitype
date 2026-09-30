@@ -136,7 +136,7 @@ export function PayPalCheckout({ userId, email, onSuccess }: Props) {
         fontSize: 13,
         marginTop: 12,
       }}>
-        Your card will not be charged during your 30 day free trial · Cancel anytime
+        You'll be charged $5.00 today, then $5.00/month · Cancel anytime
       </p>
     </div>
   );

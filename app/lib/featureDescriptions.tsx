@@ -138,7 +138,7 @@ export const FEATURE_DESCRIPTIONS: Record<string, FeatureDescription> = {
     title: 'Subscription',
     paragraphs: [
       'Your Mitype subscription unlocks the entire earning and collaboration layer of the platform: posting to The Current, applying to Brand Deals, using the Collab Board, hosting or RSVPing to Meetups, starting Project Rooms, and being eligible for the Founders 50 Rewards Program.',
-      'Your first 30 days are free with no charge. Cancel anytime through PayPal.',
+      'Your subscription is $5/month, billed starting the day you subscribe. Cancel anytime through PayPal.',
       'The Founders 50 Rewards Program is our creator revenue share program. Once Mitype crosses 50,000 subscribers, opted in members start receiving a share of platform revenue every month. Opt in on this page.',
     ],
   },
@@ -164,7 +164,7 @@ export const FEATURE_DESCRIPTIONS: Record<string, FeatureDescription> = {
     title: 'Mi Referrals',
     paragraphs: [
       'Mi Referrals is your CMO leaderboard. Every profile created on Mitype through your personal share link (mitypeapp.com/?ref=@yourhandle) is tracked here automatically.',
-      'You will see each referred user by their username, when they joined, and whether they are currently subscribed to Mitype or still on the free tier. That is the complete scope of user data you have access to on the platform. You cannot see any user outside of the ones you brought in.',
+      'You will see each referred user by their username, when they joined, and whether they are currently subscribed to Mitype or not yet subscribed. That is the complete scope of user data you have access to on the platform. You cannot see any user outside of the ones you brought in.',
       'To grow your leaderboard, share your personal link wherever you post: TikTok bio, Instagram Story swipe-ups, X profile, YouTube description, DMs. Anyone who lands on Mitype through that link and creates a profile gets automatically attributed to you.',
       'Attribution is set once at signup and is permanent. If someone lands on your link but does not sign up right away, they still have a 30 day window before the attribution expires. Once they create a profile with your link active, they belong to your referral list forever.',
     ],
