@@ -522,21 +522,11 @@ export default function HomePage() {
             alignItems: 'baseline',
             justifyContent: 'center',
             gap: 4,
-            marginBottom: 4,
+            marginBottom: 28,
           }}>
             <span style={{ fontSize: 64, fontWeight: 900, color: 'var(--brand-text-primary)', letterSpacing: '-2px' }}>$5</span>
             <span style={{ color: 'var(--brand-personal-text-light)', fontSize: 17 }}>/month</span>
           </div>
-          <p style={{
-            color: 'var(--brand-personal)',
-            fontWeight: 800,
-            fontSize: 14,
-            marginBottom: 28,
-            textAlign: 'center',
-            letterSpacing: '0.3px',
-          }}>
-            Billed monthly. Cancel anytime.
-          </p>
 
           {/* Comprehensive feature list. Short bullets, no paragraphs.
               Grouped subtly (no headers) so the eye reads fast. */}

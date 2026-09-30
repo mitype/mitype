@@ -191,18 +191,9 @@ export default function SubscriptionPage() {
                 fontWeight: 700,
                 fontSize: 16,
                 textAlign: 'center',
-                marginBottom: 8,
-              }}>
-                🔓 Unlock full access instantly
-              </p>
-
-              <p style={{
-                color: 'var(--brand-personal-text-light)',
-                fontSize: 13,
-                textAlign: 'center',
                 marginBottom: 40,
               }}>
-                Billed $5/month, starting today · Cancel anytime
+                🔓 Unlock full access instantly
               </p>
 
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: 40 }}>
