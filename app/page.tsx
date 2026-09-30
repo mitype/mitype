@@ -535,7 +535,7 @@ export default function HomePage() {
             textAlign: 'center',
             letterSpacing: '0.3px',
           }}>
-            First month free. Cancel anytime.
+            Billed monthly. Cancel anytime.
           </p>
 
           {/* Comprehensive feature list. Short bullets, no paragraphs.
@@ -596,7 +596,7 @@ export default function HomePage() {
             textAlign: 'center',
             letterSpacing: '0.3px',
           }}>
-            Start your free month
+            Create your account today
           </Link>
         </div>
       </section>
