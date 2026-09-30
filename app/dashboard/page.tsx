@@ -83,6 +83,15 @@ export default function Dashboard() {
 
       setProfile(profile);
 
+      // Live subscription status for ProfileCompleteness (Founders 50
+      // step) and the opt-in modal below. We already fetched `sub` for
+      // the hard paywall gate above, so reuse it here instead of
+      // re-querying — this also means it's always set (not just for
+      // first-time users), fixing a bug where returning users who'd
+      // already seen the modal never got this value populated and so
+      // always showed as "not subscribed" to ProfileCompleteness.
+      setFounders50IsSubscribed(subscribed);
+
       // Check whether the user has wave videos in the last 24h so we
       // can light up the avatar as a one-tap entry to their own Wave.
       try {
@@ -101,22 +110,10 @@ export default function Dashboard() {
       // Founders 50 opt-in modal: show once per user. Guarded by the
       // `founders_50_prompted_at` timestamp — null means we've never
       // asked, anything else means we already asked and shouldn't
-      // repeat. Also load subscription state so the modal knows which
-      // variant to show (subscribed → direct opt-in, non-subscribed →
-      // subscribe-first CTA).
+      // repeat. Subscription state (for which modal variant to show)
+      // is already set above from the hard paywall gate check.
       if (!profile.founders_50_prompted_at) {
-        try {
-          const { data: sub } = await supabase
-            .from('subscriptions')
-            .select('status')
-            .eq('user_id', user.id)
-            .maybeSingle();
-          const isSub = sub?.status === 'active' || sub?.status === 'trialing';
-          setFounders50IsSubscribed(isSub);
-          setShowFounders50(true);
-        } catch {
-          // Non-fatal — modal just won't appear this session.
-        }
+        setShowFounders50(true);
       }
 
       // Fetch the newest wave video timestamp + newest current post
@@ -319,7 +316,7 @@ export default function Dashboard() {
         `}</style>
 
         {/* Profile completeness — nudge users to fill in the gaps */}
-        <ProfileCompleteness profile={profile} />
+        <ProfileCompleteness profile={profile} isSubscribed={founders50IsSubscribed} />
 
         {/* Quick stats — your week at a glance */}
         <ProfileStatsCard userId={user?.id} />

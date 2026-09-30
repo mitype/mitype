@@ -47,13 +47,22 @@ type ProfileShape = {
   creative_status?: string | null;
 };
 
-export function scoreProfileCompleteness(profile: ProfileShape | null | undefined): CompletenessResult {
+export function scoreProfileCompleteness(
+  profile: ProfileShape | null | undefined,
+  isSubscribed?: boolean
+): CompletenessResult {
   const p = profile ?? {};
   // A user has "a photo" if either the mirrored avatar_url is set or
   // any of the entries in the multi-photo `photos` array has a URL.
   const hasAvatar = !!(p.avatar_url && p.avatar_url.trim());
   const hasAnyPhoto = hasAvatar || ((p.photos ?? []).some((x) => (x?.url ?? '').trim()));
-  const optedInFounders = !!p.founders_50_opted_in;
+  // The opted-in flag is a permanent historical record and is never
+  // cleared when a subscription lapses (so resubscribing restores
+  // membership automatically). But this "done" step reflects CURRENT
+  // membership, so it also requires an active/trialing subscription
+  // right now. Callers that don't pass isSubscribed (legacy call
+  // sites) fall back to the raw flag rather than breaking.
+  const optedInFounders = !!p.founders_50_opted_in && (isSubscribed ?? true);
 
   // Two steps: profile photo, then Founders 50 opt-in. Weights split
   // so photo is worth more (50) since it's the visual/UX priority,

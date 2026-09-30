@@ -24,14 +24,20 @@ import { Founders50InfoIcon } from './Founders50InfoIcon';
 
 interface ProfileCompletenessProps {
   profile: unknown;
+  // Live subscription status, so a lapsed subscriber who opted into
+  // Founders 50 in the past doesn't get shown a "done" step for
+  // membership they no longer currently hold. The stored opt-in flag
+  // itself is never touched — this is display-only.
+  isSubscribed?: boolean;
 }
 
 const RING_SIZE = 88;
 const RING_STROKE = 9;
 
-export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
+export function ProfileCompleteness({ profile, isSubscribed }: ProfileCompletenessProps) {
   const { percent, steps } = scoreProfileCompleteness(
-    profile as Parameters<typeof scoreProfileCompleteness>[0]
+    profile as Parameters<typeof scoreProfileCompleteness>[0],
+    isSubscribed
   );
   const isComplete = percent >= 100;
 

@@ -122,7 +122,12 @@ export default function AdminPage() {
     let base = users;
     if (tab === 'subscribed')   base = users.filter((u) => u.is_subscribed);
     if (tab === 'unsubscribed') base = users.filter((u) => !u.is_subscribed);
-    if (tab === 'founders50')   base = users.filter((u) => u.founders_50_opted_in);
+    // Founders 50 membership requires a currently active/trialing
+    // subscription. The opted-in flag itself is never cleared when a
+    // subscription lapses (so resubscribing restores membership with
+    // no re-opt-in needed), but a lapsed subscriber should not show
+    // up as a current member anywhere in the admin view.
+    if (tab === 'founders50')   base = users.filter((u) => u.founders_50_opted_in && u.is_subscribed);
     if (tab === 'referrals')    base = users.filter((u) => !!u.referred_by);
     const q = query.trim().toLowerCase();
     if (!q) return base;
@@ -135,7 +140,7 @@ export default function AdminPage() {
     all: users.length,
     subscribed: users.filter((u) => u.is_subscribed).length,
     unsubscribed: users.filter((u) => !u.is_subscribed).length,
-    founders50: users.filter((u) => u.founders_50_opted_in).length,
+    founders50: users.filter((u) => u.founders_50_opted_in && u.is_subscribed).length,
     referrals: users.filter((u) => !!u.referred_by).length,
   }), [users]);
 
@@ -459,15 +464,23 @@ export default function AdminPage() {
                     fontWeight: 800,
                     letterSpacing: '0.3px',
                     textTransform: 'uppercase',
-                    background: u.founders_50_opted_in
+                    background: (u.founders_50_opted_in && u.is_subscribed)
                       ? 'rgba(200,149,108,0.15)'
                       : 'rgba(200,149,108,0.06)',
-                    color: u.founders_50_opted_in
+                    color: (u.founders_50_opted_in && u.is_subscribed)
                       ? 'var(--brand-personal)'
                       : 'var(--brand-personal-text-light)',
                     whiteSpace: 'nowrap',
                   }}>
-                    F50: {u.founders_50_opted_in ? 'In' : 'Out'}
+                    {/* Opted in but not currently subscribed shows as
+                        "Lapsed" rather than "Out" — the flag is never
+                        cleared automatically, so this tells an admin
+                        the person opted in before and will resume
+                        membership automatically if they resubscribe,
+                        as opposed to never having opted in at all. */}
+                    F50: {u.founders_50_opted_in
+                      ? (u.is_subscribed ? 'In' : 'Lapsed')
+                      : 'Out'}
                   </span>
                 </div>
               </Link>
