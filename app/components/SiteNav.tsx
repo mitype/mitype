@@ -287,6 +287,7 @@ export function SiteNav({
           <NavLink href="/meetups"     label="Local Meetups"   accent="var(--brand-market)" />
           <NavLink href="/projects"    label="Project Rooms"   accent="var(--brand-personal)" />
           <NavLink href="/home-goods" label="Mi Home Goods"    accent="var(--brand-market)" />
+          <NavLink href="/black-sheep-university" label="Black Sheep University" accent="var(--brand-personal-deep)" />
           <NavLink href="/edit-profile" label="Edit Profile" />
           <NavLink href="/info" label="Information Center" />
           {/* Admin link — only rendered when the signed-in user has
