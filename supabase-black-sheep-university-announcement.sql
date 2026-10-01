@@ -28,7 +28,7 @@ SELECT
   p.user_id,
   'black_sheep_university_announce',
   'Black Sheep University is here',
-  'Masterclass-grade creator training is now included free with your subscription. The first course, a full YouTube Masterclass, is live now.',
+  'Masterclass-grade creator training is now included with your membership. The first course, a full YouTube Masterclass, is live now.',
   '/black-sheep-university',
   FALSE,
   NOW()

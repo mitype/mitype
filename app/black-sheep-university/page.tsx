@@ -119,7 +119,7 @@ export default function BlackSheepUniversityPage() {
             maxWidth: 480,
             margin: '0 auto',
           }}>
-            Masterclass-grade training for creators, included free with your Mitype subscription.
+            Masterclass-grade training for creators, included with your membership.
             One class per platform. Learn it here, take it everywhere.
           </p>
         </div>

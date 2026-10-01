@@ -170,7 +170,7 @@ export function BlackSheepUniversityAnnouncementModal({ userId, onDismiss }: Pro
             margin: '0 0 22px',
           }}
         >
-          Masterclass-grade creator training, included free with your Mitype subscription. The first course, a full YouTube Masterclass, is live now: equipment, content strategy, SEO, monetization and the YouTube Shop, growing subscribers, and brand deals. More masterclasses are coming soon.
+          Masterclass-grade creator training, included with your membership. The first course, a full YouTube Masterclass, is live now: equipment, content strategy, SEO, monetization and the YouTube Shop, growing subscribers, and brand deals. More masterclasses are coming soon.
         </p>
 
         <div style={{ display: 'flex', gap: 10, flexDirection: 'column' }}>
