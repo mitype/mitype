@@ -1,5 +1,5 @@
 'use client';
-// /black-sheep-university/youtube — YouTube Masterclass.
+// /black-sheep-university/youtube - YouTube Masterclass.
 //
 // This is the UI shell + placeholder curriculum for the first Black
 // Sheep University course. Real lesson copy gets written and dropped
@@ -8,7 +8,7 @@
 // is fully built and does not change when content is added.
 //
 // Copy protection (display-only, same approach real course platforms
-// use — nothing fully stops a screenshot, but this removes the easy
+// use - nothing fully stops a screenshot, but this removes the easy
 // paths):
 //   - No download/export control anywhere on this page.
 //   - Right-click and text selection are disabled on the lesson body.
@@ -101,6 +101,11 @@ export default function YouTubeMasterclassPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [watermarkLabel, setWatermarkLabel] = useState('');
   const [activeLessonId, setActiveLessonId] = useState(ALL_LESSONS[0].id);
+  // On narrow screens the sidebar and lesson viewer can't sit
+  // side-by-side without squeezing the lesson text into a sliver, so
+  // only one panel shows at a time there. Desktop ignores this and
+  // always shows both (see .bsu-course-grid in globals.css).
+  const [mobileView, setMobileView] = useState<'list' | 'lesson'>('list');
   // Local-only for this UI preview. Once real content ships, completed
   // lesson ids should be read from / written to a
   // `university_progress` table so progress survives across devices.
@@ -208,26 +213,32 @@ export default function YouTubeMasterclassPage() {
         </div>
       </div>
 
-      <div style={{
-        maxWidth: 1040,
-        margin: '0 auto',
-        padding: '28px 24px',
-        display: 'grid',
-        gridTemplateColumns: 'minmax(220px, 280px) 1fr',
-        gap: 24,
-        alignItems: 'start',
-      }}>
+      <div
+        className="bsu-course-grid"
+        style={{
+          maxWidth: 1040,
+          margin: '0 auto',
+          padding: '28px 24px',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(220px, 280px) 1fr',
+          gap: 24,
+          alignItems: 'start',
+        }}
+      >
         {/* Sidebar: modules + lessons */}
-        <nav style={{
-          background: 'white',
-          border: '1px solid rgba(200,149,108,0.15)',
-          borderRadius: 20,
-          padding: 10,
-          position: 'sticky',
-          top: 84,
-          maxHeight: 'calc(100vh - 110px)',
-          overflowY: 'auto',
-        }}>
+        <nav
+          className={`bsu-sidebar${mobileView === 'lesson' ? ' bsu-sidebar--hidden-mobile' : ''}`}
+          style={{
+            background: 'white',
+            border: '1px solid rgba(200,149,108,0.15)',
+            borderRadius: 20,
+            padding: 10,
+            position: 'sticky',
+            top: 84,
+            maxHeight: 'calc(100vh - 110px)',
+            overflowY: 'auto',
+          }}
+        >
           {MODULES.map((mod) => (
             <div key={mod.id} style={{ marginBottom: 10 }}>
               <p style={{
@@ -244,7 +255,7 @@ export default function YouTubeMasterclassPage() {
                   <button
                     key={lesson.id}
                     type="button"
-                    onClick={() => setActiveLessonId(lesson.id)}
+                    onClick={() => { setActiveLessonId(lesson.id); setMobileView('lesson'); }}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -281,6 +292,7 @@ export default function YouTubeMasterclassPage() {
 
         {/* Lesson viewer */}
         <div
+          className={`bsu-lesson${mobileView === 'list' ? ' bsu-lesson--hidden-mobile' : ''}`}
           style={{
             background: 'white',
             border: '1px solid rgba(200,149,108,0.15)',
@@ -293,6 +305,28 @@ export default function YouTubeMasterclassPage() {
           }}
           onContextMenu={(e) => e.preventDefault()}
         >
+          <button
+            type="button"
+            className="bsu-mobile-back-button"
+            onClick={() => setMobileView('list')}
+            aria-label="Back to modules"
+            style={{
+              alignItems: 'center',
+              gap: 6,
+              background: 'transparent',
+              border: 'none',
+              padding: '0 0 16px',
+              fontSize: 14,
+              fontWeight: 800,
+              color: 'var(--brand-personal)',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
+            ← All modules
+          </button>
           {/* Watermark: faint, tiled, carries the viewer's own
               username/email so a leaked screenshot is traceable. */}
           <div

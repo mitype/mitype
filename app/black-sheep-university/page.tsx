@@ -1,10 +1,10 @@
 'use client';
-// /black-sheep-university — Masterclass hub.
+// /black-sheep-university - Masterclass hub.
 //
-// Subscriber-only. Lists every masterclass (one per social platform).
-// YouTube is the first fully built course; the rest render as
-// "Coming Soon" tiles so subscribers can see the roadmap without
-// being able to open anything that isn't built yet.
+// Subscriber-only. Lists every live masterclass (one per social
+// platform). Only YouTube is built right now, so that's the only
+// card shown; a simple note underneath says more are coming rather
+// than previewing specific unbuilt platforms with no ETA.
 //
 // Hard paywall gate matches every other gated page on the site: no
 // active/trialing subscription -> bounced to /subscription.
@@ -36,15 +36,6 @@ function YouTubeBadge({ color }: { color: string }) {
   );
 }
 
-function LockBadge() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 const MASTERCLASSES: Masterclass[] = [
   {
     slug: 'youtube',
@@ -54,33 +45,6 @@ const MASTERCLASSES: Masterclass[] = [
     bg: 'rgba(204,0,0,0.07)',
     available: true,
     badge: <YouTubeBadge color="#CC0000" />,
-  },
-  {
-    slug: 'instagram',
-    name: 'Instagram Masterclass',
-    tagline: 'Reels, feed strategy, monetization, and growth.',
-    color: '#C13584',
-    bg: 'rgba(193,53,132,0.07)',
-    available: false,
-    badge: <LockBadge />,
-  },
-  {
-    slug: 'tiktok',
-    name: 'TikTok Masterclass',
-    tagline: 'Short-form content, the algorithm, and the Creator Fund.',
-    color: '#000000',
-    bg: 'rgba(0,0,0,0.05)',
-    available: false,
-    badge: <LockBadge />,
-  },
-  {
-    slug: 'podcasting',
-    name: 'Podcasting Masterclass',
-    tagline: 'Recording, editing, distribution, and sponsorships.',
-    color: '#6b4f33',
-    bg: 'rgba(107,79,51,0.07)',
-    available: false,
-    badge: <LockBadge />,
   },
 ];
 
@@ -160,10 +124,13 @@ export default function BlackSheepUniversityPage() {
           </p>
         </div>
 
-        {/* Masterclass grid */}
+        {/* Masterclass grid. Capped column width + centered so a
+            single card (today) doesn't stretch awkwardly full-width;
+            more cards later will simply wrap into the grid normally. */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 360px))',
+          justifyContent: 'center',
           gap: 18,
         }}>
           {MASTERCLASSES.map((mc) => {
@@ -236,7 +203,19 @@ export default function BlackSheepUniversityPage() {
           })}
         </div>
 
-        {/* Protection notice — sets expectations up front, matches the
+        {/* No other platform cards yet since there's no firm ETA on
+            them - just a simple heads up that more are on the way. */}
+        <p style={{
+          textAlign: 'center',
+          fontSize: 13.5,
+          fontWeight: 700,
+          color: 'var(--brand-personal-text-light)',
+          marginTop: 22,
+        }}>
+          More masterclasses coming soon.
+        </p>
+
+        {/* Protection notice - sets expectations up front, matches the
             copy-protection actually enforced inside each masterclass. */}
         <p style={{
           textAlign: 'center',

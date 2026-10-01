@@ -154,6 +154,36 @@ body {
   display: none;
 }
 
+/* Mobile-responsive overrides for Black Sheep University course pages
+ * (e.g. /black-sheep-university/youtube). Desktop renders the module
+ * sidebar + lesson viewer side-by-side in a two-column grid. On narrow
+ * screens only one panel shows at a time - tapping a lesson switches
+ * to the reader, and a back button returns to the module list -
+ * otherwise the lesson text gets squeezed into a sliver and cuts off. */
+@media (max-width: 700px) {
+  .bsu-course-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .bsu-sidebar {
+    position: static !important;
+    max-height: none !important;
+  }
+  .bsu-sidebar--hidden-mobile {
+    display: none !important;
+  }
+  .bsu-lesson--hidden-mobile {
+    display: none !important;
+  }
+  .bsu-mobile-back-button {
+    display: inline-flex !important;
+  }
+}
+
+/* Desktop hides the mobile-only back button on course pages. */
+.bsu-mobile-back-button {
+  display: none;
+}
+
 /* ---------- Foldable-device support (Apple iPhone Duo, Samsung Fold,
  *            Pixel Fold, Surface Duo, and any book-style device) ----------
  *
