@@ -186,7 +186,7 @@ export default function LoginPage() {
               fontWeight: 700,
               textDecoration: 'none',
             }}>
-              Join free
+              Sign up today
             </Link>
           </p>
         </form>

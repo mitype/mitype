@@ -74,19 +74,11 @@ export default function SignupPage() {
           fontSize: 28,
           fontWeight: 800,
           color: 'var(--brand-text-primary)',
-          marginBottom: 8,
+          marginBottom: 36,
           letterSpacing: '-0.5px',
         }}>
           Create your account
         </h1>
-        <p style={{
-          color: 'var(--brand-personal-text-light)',
-          fontSize: 15,
-          marginBottom: 36,
-        }}>
-          First month completely free 🎉
-        </p>
-
         <form onSubmit={handleSignup}>
 
           {/* Email */}
@@ -216,7 +208,7 @@ export default function SignupPage() {
               marginBottom: 24,
             }}
           >
-            {loading ? 'Creating account...' : 'Create Free Account'}
+            {loading ? 'Creating account...' : 'Create Account'}
           </button>
 
           {/* Login link */}
