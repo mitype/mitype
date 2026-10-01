@@ -18,6 +18,7 @@ import { SiteNav } from '../components/SiteNav';
 import { hasNewSince } from '../lib/lastSeen';
 import { liquidGlass } from '../lib/liquidGlass';
 import { Founders50Modal } from '../components/Founders50Modal';
+import { BlackSheepUniversityAnnouncementModal } from '../components/BlackSheepUniversityAnnouncementModal';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { FeatureInfoAnnouncement } from '../components/FeatureInfoAnnouncement';
 
@@ -39,6 +40,11 @@ export default function Dashboard() {
   // `founders_50_prompted_at IS NULL` on their profile row.
   const [showFounders50, setShowFounders50] = useState(false);
   const [founders50IsSubscribed, setFounders50IsSubscribed] = useState(false);
+  // Black Sheep University launch announcement - shown once per user,
+  // gated by `black_sheep_university_announced_at IS NULL` on their
+  // profile row. Dashboard is already subscriber-only (hard paywall
+  // gate above), so every user who can reach this code is eligible.
+  const [showBsuAnnouncement, setShowBsuAnnouncement] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
 
@@ -114,6 +120,12 @@ export default function Dashboard() {
       // is already set above from the hard paywall gate check.
       if (!profile.founders_50_prompted_at) {
         setShowFounders50(true);
+      }
+
+      // Black Sheep University launch announcement, same one-time
+      // pattern as Founders 50 above.
+      if (!profile.black_sheep_university_announced_at) {
+        setShowBsuAnnouncement(true);
       }
 
       // Fetch the newest wave video timestamp + newest current post
@@ -624,6 +636,14 @@ export default function Dashboard() {
           userId={user.id}
           isSubscribed={founders50IsSubscribed}
           onDismiss={() => setShowFounders50(false)}
+        />
+      )}
+      {/* Only one modal should ever be on screen at once; Founders 50
+          takes priority since it has an opt-in action tied to it. */}
+      {!showFounders50 && showBsuAnnouncement && user?.id && (
+        <BlackSheepUniversityAnnouncementModal
+          userId={user.id}
+          onDismiss={() => setShowBsuAnnouncement(false)}
         />
       )}
       <FeatureInfoButton featureKey="dashboard" />
