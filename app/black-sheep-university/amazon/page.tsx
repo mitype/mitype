@@ -12,10 +12,10 @@ export default function AmazonMasterclassPage() {
       title="Amazon Seller Masterclass"
       badgeBg="rgba(200,149,108,0.14)"
       badge={(
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M3 4h2.2l2 11h10.4l2-8H6.4" stroke="#a07a4d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="9" cy="19" r="1.5" fill="#a07a4d" />
-          <circle cx="17" cy="19" r="1.5" fill="#a07a4d" />
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3.5 8.5 12 4l8.5 4.5v7L12 20l-8.5-4.5v-7Z" stroke="#a07a4d" strokeWidth="1.7" strokeLinejoin="round" />
+          <path d="M3.5 8.5 12 13l8.5-4.5M12 13v7" stroke="#a07a4d" strokeWidth="1.7" strokeLinejoin="round" />
+          <path d="M16 3.5h4v4M20 3.5l-5 5" stroke="#a07a4d" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )}
       modules={AMAZON_MODULES}

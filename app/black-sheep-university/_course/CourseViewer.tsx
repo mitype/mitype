@@ -78,12 +78,19 @@ export function CourseViewer({ title, badge, badgeBg, modules }: Props) {
   );
   const percent = Math.round((completed.size / allLessons.length) * 100);
 
+  function backToModules() {
+    setMobileView('list');
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Marking a lesson complete returns the user to the full module list.
   function markComplete(id: string) {
     setCompleted((prev) => {
       const next = new Set(prev);
       next.add(id);
       return next;
     });
+    backToModules();
   }
 
   if (loading) {
@@ -359,6 +366,26 @@ export function CourseViewer({ title, badge, badgeBg, modules }: Props) {
             >
               {completed.has(activeLesson.id) ? '✓ Lesson complete' : 'Mark lesson complete'}
             </button>
+
+            <div style={{ marginTop: 18 }}>
+              <button
+                type="button"
+                onClick={backToModules}
+                style={{
+                  padding: '12px 26px',
+                  background: 'transparent',
+                  color: 'var(--brand-personal)',
+                  border: '1.5px solid rgba(200,149,108,0.5)',
+                  borderRadius: 100,
+                  fontSize: 14,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                ← Back to course modules
+              </button>
+            </div>
           </div>
         </div>
       </div>
