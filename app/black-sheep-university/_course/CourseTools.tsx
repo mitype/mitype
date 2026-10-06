@@ -173,7 +173,7 @@ export function CapTracker() {
       <p style={{ fontSize: 14, fontWeight: 800, color: 'var(--brand-text-primary)', marginBottom: 12 }}>
         Sales Cap Tracker
       </p>
-      <label htmlFor="ct-state" style={labelStyle}>Look up your state's cap (optional)</label>
+      <label htmlFor="ct-state" style={labelStyle}>Look up your state&apos;s cap (optional)</label>
       <select
         id="ct-state"
         value={state}
