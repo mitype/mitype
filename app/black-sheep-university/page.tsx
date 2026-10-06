@@ -46,6 +46,19 @@ function CartBadge({ color }: { color: string }) {
   );
 }
 
+function BoothBadge({ color }: { color: string }) {
+  return (
+    <svg width="34" height="34" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <path d="M4 12 6.5 5h19L28 12Z" fill={color} opacity="0.25" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M4 12c0 2 2 3 4 3s4-1 4-3c0 2 2 3 4 3s4-1 4-3c0 2 2 3 4 3s4-1 4-3" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7 15v13M25 15v13" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M5 21h22v2H5z" fill={color} />
+      <path d="M11 21c0-2 1.2-3.5 3-3.5s3 1.5 3 3.5" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="21" cy="19" r="1.8" fill={color} />
+    </svg>
+  );
+}
+
 const MASTERCLASSES: Masterclass[] = [
   {
     slug: 'youtube',
@@ -64,6 +77,15 @@ const MASTERCLASSES: Masterclass[] = [
     bg: 'rgba(200,149,108,0.14)',
     available: true,
     badge: <CartBadge color="#a07a4d" />,
+  },
+  {
+    slug: 'cottage-bakery',
+    name: 'Cottage Bakery Masterclass',
+    tagline: 'Your state rules, food safety, packaging and supplies, labels, pricing, selling, and a 90 day launch plan.',
+    color: '#a07a4d',
+    bg: 'rgba(200,149,108,0.14)',
+    available: true,
+    badge: <BoothBadge color="#a07a4d" />,
   },
 ];
 

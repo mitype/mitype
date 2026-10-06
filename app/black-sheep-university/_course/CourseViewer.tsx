@@ -27,9 +27,12 @@ interface Props {
   badge: React.ReactNode;
   badgeBg: string;
   modules: Module[];
+  /** Optional interactive blocks keyed by lesson id, rendered after the
+   *  lesson text (used for tools like the cottage bakery state finder). */
+  lessonExtras?: Record<string, React.ReactNode>;
 }
 
-export function CourseViewer({ title, badge, badgeBg, modules }: Props) {
+export function CourseViewer({ title, badge, badgeBg, modules, lessonExtras }: Props) {
   const router = useRouter();
   const allLessons = useMemo(() => modules.flatMap((m) => m.lessons), [modules]);
   const [loading, setLoading] = useState(true);
@@ -317,6 +320,8 @@ export function CourseViewer({ title, badge, badgeBg, modules }: Props) {
                 </p>
               );
             })}
+
+            {lessonExtras?.[activeLesson.id]}
 
             {activeLesson.links && activeLesson.links.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '20px 0 8px' }}>
