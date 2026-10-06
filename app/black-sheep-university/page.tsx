@@ -36,6 +36,16 @@ function YouTubeBadge({ color }: { color: string }) {
   );
 }
 
+function CartBadge({ color }: { color: string }) {
+  return (
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 4h2.2l2 11h10.4l2-8H6.4" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="9" cy="19" r="1.5" fill={color} />
+      <circle cx="17" cy="19" r="1.5" fill={color} />
+    </svg>
+  );
+}
+
 const MASTERCLASSES: Masterclass[] = [
   {
     slug: 'youtube',
@@ -45,6 +55,15 @@ const MASTERCLASSES: Masterclass[] = [
     bg: 'rgba(204,0,0,0.07)',
     available: true,
     badge: <YouTubeBadge color="#CC0000" />,
+  },
+  {
+    slug: 'amazon',
+    name: 'Amazon Seller Masterclass',
+    tagline: 'Accounts, sourcing, compliant dropshipping, FBA, the Buy Box, ads, 2026 features, and a 90 day plan.',
+    color: '#a07a4d',
+    bg: 'rgba(200,149,108,0.14)',
+    available: true,
+    badge: <CartBadge color="#a07a4d" />,
   },
 ];
 
