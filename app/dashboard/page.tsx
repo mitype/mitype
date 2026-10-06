@@ -19,6 +19,7 @@ import { hasNewSince } from '../lib/lastSeen';
 import { liquidGlass } from '../lib/liquidGlass';
 import { Founders50Modal } from '../components/Founders50Modal';
 import { BlackSheepUniversityAnnouncementModal } from '../components/BlackSheepUniversityAnnouncementModal';
+import { AmazonMasterclassAnnouncementModal } from '../components/AmazonMasterclassAnnouncementModal';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { FeatureInfoAnnouncement } from '../components/FeatureInfoAnnouncement';
 
@@ -45,6 +46,7 @@ export default function Dashboard() {
   // profile row. Dashboard is already subscriber-only (hard paywall
   // gate above), so every user who can reach this code is eligible.
   const [showBsuAnnouncement, setShowBsuAnnouncement] = useState(false);
+  const [showAmazonAnnouncement, setShowAmazonAnnouncement] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
 
@@ -126,6 +128,9 @@ export default function Dashboard() {
       // pattern as Founders 50 above.
       if (!profile.black_sheep_university_announced_at) {
         setShowBsuAnnouncement(true);
+      } else if (!profile.amazon_masterclass_announced_at) {
+        // Amazon Seller Masterclass launch, same one-time pattern.
+        setShowAmazonAnnouncement(true);
       }
 
       // Fetch the newest wave video timestamp + newest current post
@@ -644,6 +649,12 @@ export default function Dashboard() {
         <BlackSheepUniversityAnnouncementModal
           userId={user.id}
           onDismiss={() => setShowBsuAnnouncement(false)}
+        />
+      )}
+      {!showFounders50 && !showBsuAnnouncement && showAmazonAnnouncement && user?.id && (
+        <AmazonMasterclassAnnouncementModal
+          userId={user.id}
+          onDismiss={() => setShowAmazonAnnouncement(false)}
         />
       )}
       <FeatureInfoButton featureKey="dashboard" />
