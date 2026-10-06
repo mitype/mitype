@@ -22,6 +22,14 @@ const FEATURES: Feature[] = [
     body: 'Mitype is built around real, considered profiles, not endless swipes. Browse creators in your area, see what they actually do, and reach out when you find someone you click with.',
   },
   {
+    icon: '🎓',
+    logo: '/black-sheep-university/logo.png',
+    tone: 'personal',
+    title: 'Black Sheep University',
+    blurb: 'Masterclass training to help you succeed on other platforms.',
+    body: 'Black Sheep University is professional creator training included with your membership. Each masterclass is built to help creators become successful on the other networks they use, with structured modules and lessons you can work through at your own pace. New masterclasses are added over time.',
+  },
+  {
     icon: '🔐',
     tone: 'personal',
     title: 'You Control Your Inbox',

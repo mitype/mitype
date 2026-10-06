@@ -25,8 +25,8 @@ export const FEATURE_DESCRIPTIONS: Record<string, FeatureDescription> = {
     key: 'black_sheep_university',
     title: 'Black Sheep University',
     paragraphs: [
-      'Black Sheep University is masterclass-grade creator training, included with your membership. One course per social platform, starting with YouTube.',
-      'Each masterclass is broken into modules and lessons, covering everything from equipment and content strategy to SEO, monetization, growth, and brand deals. A progress tracker shows how far along you are, and you can jump between lessons anytime.',
+      'Black Sheep University is Mitype\'s creator education program, included with your membership. Its masterclasses are designed to help creators build success on the other networks they use, not only on Mitype.',
+      'Each masterclass is organized into modules and lessons, with a progress tracker and the freedom to move between lessons at your own pace. New masterclasses are added over time.',
       'Lesson content stays inside Mitype. There is no download option, and lessons carry a faint watermark of your own account so the content stays traceable if it is ever shared outside the app.',
     ],
   },

@@ -16,6 +16,9 @@ export interface Feature {
   /** Optional emoji rendered as a small accent. Kept tiny so the card
    *  reads as professional, not toy-like. */
   icon: string;
+  /** Optional logo image path. When set it replaces the emoji and
+   *  renders larger so the brand mark is legible. */
+  logo?: string;
   title: string;
   blurb: string;
   /** Long-form pitch shown in the modal. Optional bullet list for
@@ -106,7 +109,12 @@ export function FeatureExplorer({ features }: Props) {
                 letterSpacing: '-0.2px',
                 lineHeight: 1.2,
               }}>
-                <span aria-hidden="true" style={{ fontSize: 16 }}>{f.icon}</span>
+                {f.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={f.logo} alt="" aria-hidden="true" style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }} />
+                ) : (
+                  <span aria-hidden="true" style={{ fontSize: 16 }}>{f.icon}</span>
+                )}
                 <span style={{ flex: 1, minWidth: 0 }}>{f.title}</span>
               </div>
               <p style={{
@@ -200,7 +208,12 @@ export function FeatureExplorer({ features }: Props) {
                   alignItems: 'center',
                   gap: 10,
                 }}>
-                  <span aria-hidden="true">{open.icon}</span>
+                  {open.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={open.logo} alt="" aria-hidden="true" style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }} />
+                  ) : (
+                    <span aria-hidden="true">{open.icon}</span>
+                  )}
                   {open.title}
                 </h2>
               </div>

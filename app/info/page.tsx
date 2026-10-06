@@ -20,6 +20,7 @@ const GROUPS: Array<{ label: string; keys: Array<keyof typeof FEATURE_DESCRIPTIO
   { label: 'Connect and message',   keys: ['messages', 'rooms'] },
   { label: 'Network your creativity', keys: ['collab', 'meetups', 'projects'] },
   { label: 'Find opportunities',    keys: ['brandDeals'] },
+  { label: 'Learn and grow',        keys: ['black_sheep_university'] },
   { label: 'For small businesses',  keys: ['businesses'] },
   { label: 'Buy and sell',          keys: ['homeGoods'] },
 ];
