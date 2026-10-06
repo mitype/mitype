@@ -7,6 +7,7 @@
 import { CourseViewer } from '../_course/CourseViewer';
 import { COTTAGE_MODULES } from '../_course/cottageModules';
 import { StateRulesFinder } from '../_course/StateRulesFinder';
+import { PriceCalculator, CapTracker } from '../_course/CourseTools';
 
 export default function CottageBakeryMasterclassPage() {
   return (
@@ -24,7 +25,11 @@ export default function CottageBakeryMasterclassPage() {
         </svg>
       )}
       modules={COTTAGE_MODULES}
-      lessonExtras={{ 'state-rules': <StateRulesFinder /> }}
+      lessonExtras={{
+        'state-rules': <StateRulesFinder />,
+        'cost-per-unit': <PriceCalculator />,
+        'cap-and-growth-math': <CapTracker />,
+      }}
     />
   );
 }

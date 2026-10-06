@@ -269,7 +269,7 @@ export const COTTAGE_MODULES_C: Module[] = [
   },
   {
     id: 'launch-plan',
-    title: 'Module 11: Your 90 Day Launch Plan',
+    title: 'Module 15: Your 90 Day Launch Plan',
     lessons: [
       {
         id: 'plan-90',
