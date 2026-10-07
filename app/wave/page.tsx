@@ -93,6 +93,9 @@ export default function WavePage() {
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const [user, setUser] = useState<any>(null);
   const [items, setItems] = useState<WaveItem[]>([]);
+  // Ids of videos the browser could not load or decode. Shows a friendly
+  // message instead of a silent black screen.
+  const [failedVideoIds, setFailedVideoIds] = useState<Set<string>>(new Set());
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -1041,6 +1044,16 @@ export default function WavePage() {
               playsInline
               // Tap the video: single-tap pauses/resumes, double-tap likes.
               onClick={(e) => handleVideoTap(item.id, e)}
+              onError={() => {
+                // Only count it when a src was actually set.
+                if (!isWithinWindow) return;
+                setFailedVideoIds((prev) => {
+                  if (prev.has(item.id)) return prev;
+                  const next = new Set(prev);
+                  next.add(item.id);
+                  return next;
+                });
+              }}
               // Start muted only when sound isn't yet enabled — the
               // IntersectionObserver flips `el.muted = !soundEnabled`
               // and gracefully retries muted if the browser blocks
@@ -1062,6 +1075,30 @@ export default function WavePage() {
                 cursor: 'pointer',
               }}
             />
+
+            {failedVideoIds.has(item.id) && (
+              <div
+                role="status"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  color: 'rgba(255,255,255,0.85)',
+                  textAlign: 'center',
+                  padding: 24,
+                  pointerEvents: 'none',
+                  zIndex: 5,
+                }}
+              >
+                <span style={{ fontSize: 34 }} aria-hidden="true">🎬</span>
+                <span style={{ fontSize: 15, fontWeight: 700 }}>This video could not be played.</span>
+                <span style={{ fontSize: 13, opacity: 0.75 }}>Swipe or tap Skip to see the next one.</span>
+              </div>
+            )}
 
             {/* Floating hearts spawned by double-tap-to-like. Only
                 visible on the active section to avoid stale visuals on
