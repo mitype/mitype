@@ -59,25 +59,37 @@ export function Coachmark({
   useEffect(() => {
     if (hasSeen !== false) return;
 
-    const enterTimer = setTimeout(() => {
+    let cancelled = false;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    // Never show a tip on top of a modal (for example a feature
+    // tutorial). Wait until no modal dialog is open, then run the
+    // enter, visible, leave sequence.
+    function modalOpen() {
+      return !!document.querySelector('[role="dialog"][aria-modal="true"]');
+    }
+
+    function begin() {
+      if (cancelled) return;
+      if (modalOpen()) {
+        timers.push(setTimeout(begin, 800));
+        return;
+      }
       setPhase('entering');
       // Next frame, flip to visible so the CSS transition runs.
       requestAnimationFrame(() => setPhase('visible'));
-    }, delay);
+      timers.push(setTimeout(() => setPhase('leaving'), duration));
+      timers.push(setTimeout(() => {
+        setPhase('gone');
+        markSeen();
+      }, duration + 300));
+    }
 
-    const leaveTimer = setTimeout(() => {
-      setPhase('leaving');
-    }, delay + duration);
-
-    const goneTimer = setTimeout(() => {
-      setPhase('gone');
-      markSeen();
-    }, delay + duration + 300);
+    timers.push(setTimeout(begin, delay));
 
     return () => {
-      clearTimeout(enterTimer);
-      clearTimeout(leaveTimer);
-      clearTimeout(goneTimer);
+      cancelled = true;
+      timers.forEach(clearTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasSeen, delay, duration]);

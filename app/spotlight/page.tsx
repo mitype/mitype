@@ -167,9 +167,7 @@ export default function SpotlightPage() {
     }}>
 
       <Coachmark storageKey="mitype-coachmark-spotlight-v1" title="The Spotlight feed">
-        Browse the actual <strong>work</strong> the community is making -
-        music, video, photos, writing, more. Tap a card to open a creator&rsquo;s
-        portfolio link, or filter the chips up top.
+        {'Browse the actual '}<strong>work</strong>{' the community is making - music, video, photos, writing, more. Tap a card to open a creator’s portfolio link, or filter the chips up top.'}
       </Coachmark>
 
       <SiteNav userId={userId} showBack backFallbackHref="/dashboard" />
