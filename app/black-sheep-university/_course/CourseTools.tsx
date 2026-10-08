@@ -7,7 +7,7 @@
 import { useMemo, useState } from 'react';
 import { STATE_RULES } from './cottageStateRules';
 
-const box: React.CSSProperties = {
+export const box: React.CSSProperties = {
   margin: '8px 0 24px',
   padding: '20px 18px',
   background: 'rgba(200,149,108,0.07)',
@@ -15,7 +15,7 @@ const box: React.CSSProperties = {
   borderRadius: 18,
 };
 
-const labelStyle: React.CSSProperties = {
+export const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 12.5,
   fontWeight: 800,
@@ -23,7 +23,7 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 4,
 };
 
-const inputStyle: React.CSSProperties = {
+export const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '11px 12px',
   borderRadius: 12,
@@ -33,9 +33,12 @@ const inputStyle: React.CSSProperties = {
   fontFamily: 'inherit',
   color: 'var(--brand-text-primary)',
   boxSizing: 'border-box',
+  // The lesson area blocks text selection; inputs must stay typeable on iPhone.
+  userSelect: 'text',
+  WebkitUserSelect: 'text',
 };
 
-const resultRow: React.CSSProperties = {
+export const resultRow: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   gap: 12,

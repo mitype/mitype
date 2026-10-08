@@ -10,6 +10,7 @@ import { CourseViewer } from '../_course/CourseViewer';
 import { COTTAGE_MODULES } from '../_course/cottageModules';
 import { StateRulesFinder } from '../_course/StateRulesFinder';
 import { PriceCalculator, CapTracker } from '../_course/CourseTools';
+import { LabelBuilder, RecipeScaler, PrintableChecklists, SeasonalCalendar } from '../_course/CourseTools2';
 
 export default function CottageBakeryMasterclassPage() {
   // Hidden until the launch announcement is ready (see releaseFlags.ts).
@@ -34,6 +35,10 @@ export default function CottageBakeryMasterclassPage() {
         'state-rules': <StateRulesFinder />,
         'cost-per-unit': <PriceCalculator />,
         'cap-and-growth-math': <CapTracker />,
+        'label-design': <LabelBuilder />,
+        'recipe-testing': <RecipeScaler />,
+        'checklists': <PrintableChecklists />,
+        'seasonal': <SeasonalCalendar />,
       }}
     />
   );

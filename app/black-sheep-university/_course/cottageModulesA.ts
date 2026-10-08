@@ -85,6 +85,7 @@ export const COTTAGE_MODULES_A: Module[] = [
         minutes: 15,
         body: [
           `Use the finder below to see the headline rules for your state. It covers three things every baker needs to know before the first sale: your yearly sales cap, whether you need a license, permit, registration, or training, and what the state says about online orders and shipping.`,
+          `The finder covers the 50 states. If you live in Washington, D.C. or a U.S. territory, go straight to the local health department and ask for its cottage food or home food business rules.`,
           `## How to read the results`,
           `* Sales cap: usually your gross sales, meaning the money customers pay you before costs, not your profit. Plan to track it from your very first sale.`,
           `* No cap: the state's own source says there is no limit. Some states show Not listed, which usually means there is no cap on the state page, but you should ask the agency before you count on it.`,
@@ -121,6 +122,9 @@ export const COTTAGE_MODULES_A: Module[] = [
           `* Do I need a business license or a home occupation permit, and what does it cost?`,
           `* Does the health department want to see my labels or my food safety certificate?`,
           `* Does the county impose any rule beyond the state law?`,
+          `## A short phone script`,
+          `"Hello, I am a home baker planning to sell baked goods under my state's cottage food law. I live at [address]. Can you tell me whether my address allows a home food business, whether I need a business license or a home occupation permit, and whether the county or city adds any rules beyond the state law? Could you also email me the answer so I can keep it with my records?"`,
+          `Stay friendly and specific. Ask for the name of the person you spoke to and the date, and write both in your log.`,
           `## Write it all down`,
           `Keep a simple log with the date, the office, the person you spoke to, and what they told you. If the answer was by email, save it. If it was by phone, send a short confirming email afterward.`,
           `## If the answer is no`,

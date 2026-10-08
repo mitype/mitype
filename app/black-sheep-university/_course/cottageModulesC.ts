@@ -134,6 +134,13 @@ export const COTTAGE_MODULES_C: Module[] = [
           `## Follow the rules`,
           `Mitype is a place to meet and connect. Your state and local rules about how you sell food still apply, including what you can sell, how you take payment, and how you deliver. Use Mitype to build awareness and relationships, and take orders only in ways your state allows.`,
         ],
+        links: [
+          { label: 'Mi Home Goods marketplace', url: '/home-goods' },
+          { label: 'Meetups near you', url: '/meetups' },
+          { label: 'The Wave Feed', url: '/wave' },
+          { label: 'The Current', url: '/currents' },
+          { label: 'Local businesses', url: '/businesses' },
+        ],
       },
       {
         id: 'seasonal',

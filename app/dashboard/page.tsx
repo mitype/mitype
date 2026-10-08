@@ -20,6 +20,7 @@ import { liquidGlass } from '../lib/liquidGlass';
 import { Founders50Modal } from '../components/Founders50Modal';
 import { BlackSheepUniversityAnnouncementModal } from '../components/BlackSheepUniversityAnnouncementModal';
 import { AmazonMasterclassAnnouncementModal } from '../components/AmazonMasterclassAnnouncementModal';
+import { CottageBakeryAnnouncementModal } from '../components/CottageBakeryAnnouncementModal';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { FeatureInfoAnnouncement } from '../components/FeatureInfoAnnouncement';
 
@@ -47,6 +48,7 @@ export default function Dashboard() {
   // gate above), so every user who can reach this code is eligible.
   const [showBsuAnnouncement, setShowBsuAnnouncement] = useState(false);
   const [showAmazonAnnouncement, setShowAmazonAnnouncement] = useState(false);
+  const [showCottageAnnouncement, setShowCottageAnnouncement] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
 
@@ -131,6 +133,9 @@ export default function Dashboard() {
       } else if (!profile.amazon_masterclass_announced_at) {
         // Amazon Seller Masterclass launch, same one-time pattern.
         setShowAmazonAnnouncement(true);
+      } else if (!profile.cottage_bakery_announced_at) {
+        // Cottage Bakery Masterclass launch, same one-time pattern.
+        setShowCottageAnnouncement(true);
       }
 
       // Fetch the newest wave video timestamp + newest current post
@@ -655,6 +660,12 @@ export default function Dashboard() {
         <AmazonMasterclassAnnouncementModal
           userId={user.id}
           onDismiss={() => setShowAmazonAnnouncement(false)}
+        />
+      )}
+      {!showFounders50 && !showBsuAnnouncement && !showAmazonAnnouncement && showCottageAnnouncement && user?.id && (
+        <CottageBakeryAnnouncementModal
+          userId={user.id}
+          onDismiss={() => setShowCottageAnnouncement(false)}
         />
       )}
       <FeatureInfoButton featureKey="dashboard" />
