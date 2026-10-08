@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { SiteNav } from '../components/SiteNav';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
+import { COTTAGE_BAKERY_LIVE } from './_course/releaseFlags';
 
 interface Masterclass {
   slug: string;
@@ -84,10 +85,10 @@ const MASTERCLASSES: Masterclass[] = [
     tagline: 'Your state rules, food safety, packaging and supplies, labels, pricing, selling, and a 90 day launch plan.',
     color: '#a07a4d',
     bg: 'rgba(200,149,108,0.14)',
-    available: true,
+    available: COTTAGE_BAKERY_LIVE,
     badge: <BoothBadge color="#a07a4d" />,
   },
-];
+].filter((mc) => mc.available);
 
 export default function BlackSheepUniversityPage() {
   const router = useRouter();

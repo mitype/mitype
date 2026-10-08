@@ -4,12 +4,16 @@
 // ../_course/cottageModules*.ts and the state rules data in
 // ../_course/cottageStateRules.ts.
 
+import { notFound } from 'next/navigation';
+import { COTTAGE_BAKERY_LIVE } from '../_course/releaseFlags';
 import { CourseViewer } from '../_course/CourseViewer';
 import { COTTAGE_MODULES } from '../_course/cottageModules';
 import { StateRulesFinder } from '../_course/StateRulesFinder';
 import { PriceCalculator, CapTracker } from '../_course/CourseTools';
 
 export default function CottageBakeryMasterclassPage() {
+  // Hidden until the launch announcement is ready (see releaseFlags.ts).
+  if (!COTTAGE_BAKERY_LIVE) notFound();
   return (
     <CourseViewer
       title="Cottage Bakery Masterclass"
