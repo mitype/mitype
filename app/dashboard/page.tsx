@@ -17,7 +17,6 @@ import { Avatar } from '../components/Avatar';
 import { SiteNav } from '../components/SiteNav';
 import { hasNewSince } from '../lib/lastSeen';
 import { liquidGlass } from '../lib/liquidGlass';
-import { Founders50Modal } from '../components/Founders50Modal';
 import { BlackSheepUniversityAnnouncementModal } from '../components/BlackSheepUniversityAnnouncementModal';
 import { AmazonMasterclassAnnouncementModal } from '../components/AmazonMasterclassAnnouncementModal';
 import { CottageBakeryAnnouncementModal } from '../components/CottageBakeryAnnouncementModal';
@@ -38,9 +37,6 @@ export default function Dashboard() {
   // stored in localStorage under mitype-last-seen-*.
   const [waveHasNew, setWaveHasNew] = useState(false);
   const [currentHasNew, setCurrentHasNew] = useState(false);
-  // Founders 50 opt-in modal — shown once per user, gated by
-  // `founders_50_prompted_at IS NULL` on their profile row.
-  const [showFounders50, setShowFounders50] = useState(false);
   const [founders50IsSubscribed, setFounders50IsSubscribed] = useState(false);
   // Black Sheep University launch announcement - shown once per user,
   // gated by `black_sheep_university_announced_at IS NULL` on their
@@ -115,15 +111,6 @@ export default function Dashboard() {
         setHasFreshWave((count ?? 0) > 0);
       } catch {
         // Non-fatal.
-      }
-
-      // Founders 50 opt-in modal: show once per user. Guarded by the
-      // `founders_50_prompted_at` timestamp — null means we've never
-      // asked, anything else means we already asked and shouldn't
-      // repeat. Subscription state (for which modal variant to show)
-      // is already set above from the hard paywall gate check.
-      if (!profile.founders_50_prompted_at) {
-        setShowFounders50(true);
       }
 
       // Black Sheep University launch announcement, same one-time
@@ -637,32 +624,20 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Founders 50 opt-in modal — renders only when this is the user's
-          first dashboard visit after the migration went live. The
-          modal itself stamps founders_50_prompted_at on any dismissal
-          so this branch will never render again for the same user. */}
-      {showFounders50 && user?.id && (
-        <Founders50Modal
-          userId={user.id}
-          isSubscribed={founders50IsSubscribed}
-          onDismiss={() => setShowFounders50(false)}
-        />
-      )}
-      {/* Only one modal should ever be on screen at once; Founders 50
-          takes priority since it has an opt-in action tied to it. */}
-      {!showFounders50 && showBsuAnnouncement && user?.id && (
+      {/* Only one announcement modal is on screen at a time. */}
+      {showBsuAnnouncement && user?.id && (
         <BlackSheepUniversityAnnouncementModal
           userId={user.id}
           onDismiss={() => setShowBsuAnnouncement(false)}
         />
       )}
-      {!showFounders50 && !showBsuAnnouncement && showAmazonAnnouncement && user?.id && (
+      {!showBsuAnnouncement && showAmazonAnnouncement && user?.id && (
         <AmazonMasterclassAnnouncementModal
           userId={user.id}
           onDismiss={() => setShowAmazonAnnouncement(false)}
         />
       )}
-      {!showFounders50 && !showBsuAnnouncement && !showAmazonAnnouncement && showCottageAnnouncement && user?.id && (
+      {!showBsuAnnouncement && !showAmazonAnnouncement && showCottageAnnouncement && user?.id && (
         <CottageBakeryAnnouncementModal
           userId={user.id}
           onDismiss={() => setShowCottageAnnouncement(false)}

@@ -50,35 +50,6 @@ export default function SubscriptionPage() {
     getData();
   }, []);
 
-  // Leave-warning: if the user arrived here as a non-subscriber and
-  // tries to navigate away (via SiteNav, back arrow, or in-app link),
-  // confirm they know they can't opt into Founders 50 without subscribing.
-  // Bypasses when they've successfully subscribed. Uses history.pushState
-  // + popstate interception rather than beforeunload because browsers
-  // won't let us show a custom message on beforeunload.
-  useEffect(() => {
-    if (loading) return;
-    const isActive = subscription?.status === 'active' || subscription?.status === 'trialing';
-    if (isActive) return; // No warning needed for subscribed users.
-
-    // Intercept in-app back navigation.
-    function onPopState() {
-      const stay = window.confirm(
-        "You won't be able to participate in the Founders 50 Rewards Program unless you're subscribed. Leave without subscribing?"
-      );
-      if (!stay) {
-        // User chose "Cancel" — push a state back so they stay on this page.
-        window.history.pushState(null, '', window.location.href);
-        return;
-      }
-      // User chose "OK" — send them to dashboard.
-      router.push('/dashboard');
-    }
-    window.history.pushState(null, '', window.location.href);
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
-  }, [loading, subscription, router]);
-
   // Called by the PayPal Buttons after a successful subscription
   // approval. Optimistically flip the page to the "subscribed" state —
   // the webhook will keep the row authoritative.
@@ -143,6 +114,16 @@ export default function SubscriptionPage() {
             }}>
               Start Discovering People
             </Link>
+
+            {/* Founders 50 opt in for subscribed members who skipped it
+                when they subscribed. */}
+            {user && (
+              <Founders50Toggle
+                userId={user.id}
+                isSubscribed={isActive}
+                initialOptedIn={foundersOptedIn}
+              />
+            )}
           </div>
         ) : (
           <div>
@@ -240,17 +221,6 @@ export default function SubscriptionPage() {
                   userId={user.id}
                   email={user.email}
                   onSuccess={handlePayPalSuccess}
-                />
-              )}
-
-              {/* Founders 50 opt-in — visible to everyone, but the
-                  toggle is gated to subscribed members via the DB
-                  trigger and the client-side check. */}
-              {user && (
-                <Founders50Toggle
-                  userId={user.id}
-                  isSubscribed={isActive}
-                  initialOptedIn={foundersOptedIn}
                 />
               )}
 

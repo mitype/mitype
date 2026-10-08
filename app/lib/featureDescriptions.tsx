@@ -146,9 +146,9 @@ export const FEATURE_DESCRIPTIONS: Record<string, FeatureDescription> = {
     key: 'subscription',
     title: 'Subscription',
     paragraphs: [
-      'Your Mitype subscription unlocks the entire earning and collaboration layer of the platform: posting to The Current, applying to Brand Deals, using the Collab Board, hosting or RSVPing to Meetups, starting Project Rooms, and being eligible for the Founders 50 Rewards Program.',
+      'Your Mitype subscription unlocks the entire earning and collaboration layer of the platform: posting to The Current, applying to Brand Deals, using the Collab Board, hosting or RSVPing to Meetups, starting Project Rooms, and joining the Founders 50 referral program while spots remain.',
       'Your subscription is $5/month, billed starting the day you subscribe. Cancel anytime through PayPal.',
-      'The Founders 50 Rewards Program is our creator revenue share program. Once Mitype crosses 50,000 subscribers, opted in members start receiving a share of platform revenue every month. Opt in on this page.',
+      'The Founders 50 is our referral program, limited to the first 50 members. Opt in on this page and your profile share link becomes a tracked referral link, with every signup listed on your Mi Referrals page.',
     ],
   },
   spotlight: {

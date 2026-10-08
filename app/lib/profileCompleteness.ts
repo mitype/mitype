@@ -49,38 +49,23 @@ type ProfileShape = {
 
 export function scoreProfileCompleteness(
   profile: ProfileShape | null | undefined,
-  isSubscribed?: boolean
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _isSubscribed?: boolean
 ): CompletenessResult {
   const p = profile ?? {};
   // A user has "a photo" if either the mirrored avatar_url is set or
   // any of the entries in the multi-photo `photos` array has a URL.
   const hasAvatar = !!(p.avatar_url && p.avatar_url.trim());
   const hasAnyPhoto = hasAvatar || ((p.photos ?? []).some((x) => (x?.url ?? '').trim()));
-  // The opted-in flag is a permanent historical record and is never
-  // cleared when a subscription lapses (so resubscribing restores
-  // membership automatically). But this "done" step reflects CURRENT
-  // membership, so it also requires an active/trialing subscription
-  // right now. Callers that don't pass isSubscribed (legacy call
-  // sites) fall back to the raw flag rather than breaking.
-  const optedInFounders = !!p.founders_50_opted_in && (isSubscribed ?? true);
-
-  // Two steps: profile photo, then Founders 50 opt-in. Weights split
-  // so photo is worth more (50) since it's the visual/UX priority,
-  // and opt-in is worth 50 so both matter equally to completion.
+  // One step: a profile photo. (Founders 50 opt in lives on the
+  // subscription page and is no longer part of profile completeness.)
   const steps: CompletenessStep[] = [
     {
       key: 'avatar',
       label: 'Add a profile photo',
       done: hasAnyPhoto,
-      weight: 50,
+      weight: 100,
       href: '/edit-profile',
-    },
-    {
-      key: 'founders_50',
-      label: 'Opt in to Founders 50',
-      done: optedInFounders,
-      weight: 50,
-      href: '/subscription',
     },
   ];
 

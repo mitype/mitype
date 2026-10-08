@@ -1,33 +1,20 @@
 'use client';
-// Profile completeness card — two-step rule.
+// Profile completeness card.
 //
 // Sits on the dashboard between the welcome header and the Daily Spark.
-// Under the current rule:
-//   * If the user has BOTH a profile photo AND has opted in to
-//     Founders 50 → card hides entirely.
-//   * If either is missing → card shows with the next incomplete step
-//     as a focused CTA. Photo step routes to /edit-profile;
-//     Founders 50 step routes to /subscription (where subscribed
-//     users can toggle opt-in, and non-subscribed users can subscribe
-//     first, which unlocks the toggle).
-//
-// The (i) icon on the Founders 50 step fires the shared philosophy
-// toast so users can read the pitch before opting in.
+// Shows only while the profile has no photo, and links to /edit-profile.
+// Once a photo is added the card hides entirely.
 //
 // All the other Edit Profile fields (bio, prompts, categories, links,
 // ZIP, latest project) stay available but no longer contribute to
-// completeness — so users aren't nagged about optional fields.
+// completeness, so users aren't nagged about optional fields.
 
 import Link from 'next/link';
 import { scoreProfileCompleteness } from '../lib/profileCompleteness';
-import { Founders50InfoIcon } from './Founders50InfoIcon';
 
 interface ProfileCompletenessProps {
   profile: unknown;
-  // Live subscription status, so a lapsed subscriber who opted into
-  // Founders 50 in the past doesn't get shown a "done" step for
-  // membership they no longer currently hold. The stored opt-in flag
-  // itself is never touched — this is display-only.
+  // Kept so existing callers keep working; no longer affects the card.
   isSubscribed?: boolean;
 }
 
@@ -48,9 +35,7 @@ export function ProfileCompleteness({ profile, isSubscribed }: ProfileCompletene
   }
 
   // Prioritize the photo step. If photo missing, that's the CTA.
-  // If photo done but founders_50 missing, that becomes the CTA.
   const nextStep = steps.find((s) => !s.done)!;
-  const isPhotoStep = nextStep.key === 'avatar';
 
   // Stroke math for the circular ring.
   // Empty-avatar visual — a soft bronze circle with a camera-plus glyph
@@ -72,7 +57,7 @@ export function ProfileCompleteness({ profile, isSubscribed }: ProfileCompletene
         flexWrap: 'wrap',
       }}
     >
-      {/* Icon disc — camera for photo step, star for Founders 50 step */}
+      {/* Icon disc: camera for the photo step */}
       <div
         style={{
           position: 'relative',
@@ -104,7 +89,7 @@ export function ProfileCompleteness({ profile, isSubscribed }: ProfileCompletene
             color: 'var(--brand-personal)',
           }}
         >
-          {isPhotoStep ? '📷' : '⭐'}
+          📷
         </div>
       </div>
 
@@ -123,7 +108,6 @@ export function ProfileCompleteness({ profile, isSubscribed }: ProfileCompletene
           >
             Profile incomplete
           </p>
-          {!isPhotoStep && <Founders50InfoIcon size={16} />}
         </div>
         <h3
           style={{
@@ -134,7 +118,7 @@ export function ProfileCompleteness({ profile, isSubscribed }: ProfileCompletene
             marginBottom: 6,
           }}
         >
-          {isPhotoStep ? 'Add a profile photo' : 'Opt in to Founders 50'}
+          Add a profile photo
         </h3>
         <p
           style={{
@@ -144,9 +128,7 @@ export function ProfileCompleteness({ profile, isSubscribed }: ProfileCompletene
             lineHeight: 1.5,
           }}
         >
-          {isPhotoStep
-            ? "A profile photo is required to complete your profile. Once it's up, this card will disappear."
-            : 'Reserve your spot in the Founders 50 Rewards Program. Subscribed members can opt in directly; non-subscribers will be routed to subscribe first.'}
+          A profile photo is required to complete your profile. Once it&apos;s up, this card will disappear.
         </p>
 
         <Link
@@ -163,7 +145,7 @@ export function ProfileCompleteness({ profile, isSubscribed }: ProfileCompletene
             boxShadow: '0 4px 14px rgba(200,149,108,0.3)',
           }}
         >
-          {isPhotoStep ? 'Add photo →' : 'Opt in →'}
+          Add photo →
         </Link>
       </div>
     </div>

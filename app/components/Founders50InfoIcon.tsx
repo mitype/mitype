@@ -1,15 +1,11 @@
 'use client';
-// A small (i) icon that, on click, shows the Founders 50 philosophy
-// message as a toast. Used in the opt-in modal, on the subscription
-// page, and inside the ProfileCompleteness card.
+// A small (i) icon that shows a short Founders 50 explanation as a toast.
 //
-// All three locations share one source of truth for the copy so if we
-// ever tune the messaging it changes site-wide in one edit.
 
 import { toast } from '../lib/toast';
 
 export const FOUNDERS_50_INFO_MESSAGE =
-  'Mitype seeks to revolutionize the Creator rewards system, different from every other social media platform. We understand the economy and what our creators go through to earn a living, and we plan on assisting our users from simply being an active member. Thank you for being part of the beginning.';
+  'The Founders 50 is Mitype\'s referral program, limited to the first 50 members. Opting in turns your profile share link into a tracked referral link, and everyone who joins through it appears on your Mi Referrals page.';
 
 interface Props {
   /** Optional size override — defaults to 20px for inline placement. */
@@ -18,7 +14,7 @@ interface Props {
   ariaLabel?: string;
 }
 
-export function Founders50InfoIcon({ size = 20, ariaLabel = 'About the Founders 50 Rewards Program' }: Props) {
+export function Founders50InfoIcon({ size = 20, ariaLabel = 'About the Founders 50' }: Props) {
   return (
     <button
       type="button"
@@ -28,7 +24,7 @@ export function Founders50InfoIcon({ size = 20, ariaLabel = 'About the Founders 
         toast.info(FOUNDERS_50_INFO_MESSAGE, { duration: 12000 });
       }}
       aria-label={ariaLabel}
-      title="About the Founders 50 Rewards Program"
+      title="About the Founders 50"
       style={{
         width: size,
         height: size,

@@ -1,23 +1,25 @@
 'use client';
-// Founders 50 opt-in section — rendered on /subscription.
+// Founders 50 opt in, shown on /subscription to subscribed members.
 //
-// Shows the user's current opt-in state as a toggle switch, an (i) info
-// icon that fires the shared philosophy toast, and a one-line status.
-// Non-subscribed users see the section too but the toggle is disabled
-// with clear "Subscribe to unlock" copy.
+// The Founders 50 is Mitype's referral program and is capped at 50
+// members. Opting in turns the member's profile share link into a
+// tracked referral link and adds Mi Referrals to their burger menu
+// (the database does that part when the opt in is saved).
 //
-// Toggle behavior:
-//   * Subscribed + not opted in → tapping the toggle opts in (writes
-//     to profiles). Success toast confirms.
-//   * Subscribed + opted in → tapping the toggle opts out. Confirm toast.
-//   * Non-subscribed → toggle is visually disabled + reads-only. The
-//     surrounding CTA says "Subscribe to unlock the Founders 50 Rewards
-//     Program." Tapping the toggle is a no-op with a friendly toast.
+// States:
+//   * Not opted in, spots left  -> "Opt in" button with a spots counter.
+//   * Not opted in, all taken   -> disabled with a "full" message.
+//   * Opted in                  -> confirmation and a small opt out link.
+// The 50 member cap and the subscription requirement are both enforced
+// by a database trigger, so this component is only the friendly front.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
 import { Founders50InfoIcon } from './Founders50InfoIcon';
+
+const MAX_FOUNDERS = 50;
 
 interface Props {
   userId: string;
@@ -28,30 +30,51 @@ interface Props {
 export function Founders50Toggle({ userId, isSubscribed, initialOptedIn }: Props) {
   const [optedIn, setOptedIn] = useState(initialOptedIn);
   const [busy, setBusy] = useState(false);
+  const [taken, setTaken] = useState<number | null>(null);
 
-  async function handleToggle() {
-    if (busy) return;
-    if (!isSubscribed) {
-      toast.info('Subscribe first to unlock the Founders 50 Rewards Program.');
-      return;
+  async function loadSpots() {
+    try {
+      const { data, error } = await supabase.rpc('founders_50_spots_taken');
+      if (!error && typeof data === 'number') setTaken(data);
+    } catch {
+      /* the counter is optional */
     }
-    const next = !optedIn;
+  }
+
+  useEffect(() => {
+    let alive = true;
+    Promise.resolve(supabase.rpc('founders_50_spots_taken')).then(({ data, error }) => {
+      if (alive && !error && typeof data === 'number') setTaken(data);
+    }, () => { /* the counter is optional */ });
+    return () => { alive = false; };
+  }, []);
+
+  const spotsLeft = taken === null ? null : Math.max(MAX_FOUNDERS - taken, 0);
+  const full = spotsLeft === 0 && !optedIn;
+
+  async function setOptIn(next: boolean) {
+    if (busy) return;
     setBusy(true);
     const { error } = await supabase
       .from('profiles')
-      .update({
-        founders_50_opted_in: next,
-        founders_50_prompted_at: new Date().toISOString(),
-      })
+      .update({ founders_50_opted_in: next })
       .eq('user_id', userId);
     setBusy(false);
     if (error) {
       toast.error(error.message || 'Could not update. Try again.');
+      loadSpots();
       return;
     }
     setOptedIn(next);
-    toast.success(next ? "You're in. Welcome to the Founders 50." : 'Opted out of the Founders 50.');
+    loadSpots();
+    toast.success(
+      next
+        ? "You're in. Your share link is now a referral link."
+        : 'You opted out of the Founders 50.',
+    );
   }
+
+  if (!isSubscribed) return null;
 
   return (
     <div
@@ -60,7 +83,8 @@ export function Founders50Toggle({ userId, isSubscribed, initialOptedIn }: Props
         border: '1px solid rgba(200,149,108,0.2)',
         borderRadius: 20,
         padding: '20px 22px',
-        marginTop: 20,
+        marginTop: 28,
+        textAlign: 'left',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
@@ -74,107 +98,80 @@ export function Founders50Toggle({ userId, isSubscribed, initialOptedIn }: Props
             margin: 0,
           }}
         >
-          Founders 50 Rewards Program
+          Founders 50
         </p>
         <Founders50InfoIcon size={18} />
       </div>
-      <p
-        style={{
-          fontSize: 14,
-          color: 'var(--brand-personal-text-mid)',
-          lineHeight: 1.5,
-          margin: '0 0 14px',
-        }}
-      >
-        {isSubscribed
-          ? optedIn
-            ? "You're opted in. The moment we cross 50,000 members, you'll start earning."
-            : 'Opt in below to reserve your spot before we cross 50,000 members.'
-          : 'Available to subscribed members only. Subscribe below to unlock the option to opt in.'}
-      </p>
 
-      {/* Toggle row */}
-      <button
-        type="button"
-        onClick={handleToggle}
-        disabled={busy}
-        role="switch"
-        aria-checked={optedIn}
-        aria-label={optedIn ? 'Opt out of Founders 50' : 'Opt in to Founders 50'}
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '12px 14px',
-          background: !isSubscribed
-            ? 'rgba(200,149,108,0.06)'
-            : optedIn
-              ? 'rgba(22,163,74,0.08)'
-              : 'rgba(200,149,108,0.06)',
-          border: !isSubscribed
-            ? '1px solid rgba(200,149,108,0.22)'
-            : optedIn
-              ? '1px solid rgba(22,163,74,0.30)'
-              : '1px solid rgba(200,149,108,0.30)',
-          borderRadius: 12,
-          cursor: isSubscribed && !busy ? 'pointer' : 'not-allowed',
-          fontFamily: 'inherit',
-          opacity: !isSubscribed ? 0.75 : 1,
-        }}
-      >
-        {/* Switch UI */}
-        <span
-          aria-hidden="true"
-          style={{
-            width: 44,
-            height: 26,
-            borderRadius: 100,
-            background: optedIn && isSubscribed
-              ? 'var(--brand-market)'
-              : 'rgba(200,149,108,0.35)',
-            position: 'relative',
-            transition: 'background 0.18s ease',
-            flexShrink: 0,
-          }}
-        >
-          <span
+      {optedIn ? (
+        <>
+          <p style={{ fontSize: 15, fontWeight: 800, color: 'var(--brand-text-primary)', margin: '0 0 6px' }}>
+            You are a Founders 50 member
+          </p>
+          <p style={{ fontSize: 14, color: 'var(--brand-personal-text-mid)', lineHeight: 1.5, margin: '0 0 12px' }}>
+            Your profile share link is a referral link, and everyone who joins through it is listed on your
+            Mi Referrals page in the burger menu.
+          </p>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Link
+              href="/mi-referrals"
+              style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--brand-personal)', textDecoration: 'none' }}
+            >
+              Open Mi Referrals
+            </Link>
+            <button
+              type="button"
+              onClick={() => setOptIn(false)}
+              disabled={busy}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                fontSize: 12.5,
+                color: 'var(--brand-personal-text-light)',
+                textDecoration: 'underline',
+                cursor: busy ? 'default' : 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              Opt out
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p style={{ fontSize: 15, fontWeight: 800, color: 'var(--brand-text-primary)', margin: '0 0 6px' }}>
+            {full ? 'All 50 founder spots are taken' : 'Join the Founders 50'}
+          </p>
+          <p style={{ fontSize: 14, color: 'var(--brand-personal-text-mid)', lineHeight: 1.5, margin: '0 0 14px' }}>
+            {full
+              ? 'The Founders 50 is limited to the first 50 members and every spot has been claimed.'
+              : `The Founders 50 is Mitype's referral program, limited to the first 50 members. Opting in turns your profile share link into a tracked referral link.${
+                  spotsLeft !== null ? ` ${spotsLeft} of ${MAX_FOUNDERS} spots left.` : ''
+                }`}
+          </p>
+          <button
+            type="button"
+            onClick={() => setOptIn(true)}
+            disabled={busy || full}
             style={{
-              position: 'absolute',
-              top: 3,
-              left: optedIn && isSubscribed ? 21 : 3,
-              width: 20,
-              height: 20,
-              borderRadius: '50%',
-              background: 'white',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-              transition: 'left 0.18s ease',
+              width: '100%',
+              padding: '14px 20px',
+              borderRadius: 100,
+              border: 'none',
+              background: full ? 'rgba(200,149,108,0.35)' : 'var(--brand-personal)',
+              color: 'white',
+              fontSize: 15,
+              fontWeight: 800,
+              cursor: busy || full ? 'not-allowed' : 'pointer',
+              fontFamily: 'inherit',
+              boxShadow: full ? 'none' : '0 6px 18px rgba(200,149,108,0.3)',
             }}
-          />
-        </span>
-        <div style={{ flex: 1, textAlign: 'left', minWidth: 0 }}>
-          <p style={{
-            fontSize: 14,
-            fontWeight: 800,
-            color: 'var(--brand-text-primary)',
-            margin: 0,
-            letterSpacing: '-0.2px',
-          }}>
-            {isSubscribed
-              ? optedIn ? "You're opted in" : 'Not opted in'
-              : 'Subscribe to unlock'}
-          </p>
-          <p style={{
-            fontSize: 12,
-            color: 'var(--brand-personal-text-light)',
-            margin: '2px 0 0',
-          }}>
-            {isSubscribed
-              ? 'Tap to toggle your status.'
-              : 'Only subscribed members can opt in.'}
-          </p>
-        </div>
-      </button>
+          >
+            {busy ? 'Saving...' : full ? 'Spots full' : 'Opt in to the Founders 50'}
+          </button>
+        </>
+      )}
     </div>
   );
 }
