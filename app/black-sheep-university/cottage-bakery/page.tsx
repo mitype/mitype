@@ -16,6 +16,7 @@ export default function CottageBakeryMasterclassPage() {
   if (!COTTAGE_BAKERY_LIVE) notFound();
   return (
     <CourseViewer
+      courseSlug="cottage-bakery"
       title="Cottage Bakery Masterclass"
       badgeBg="rgba(200,149,108,0.14)"
       badge={(

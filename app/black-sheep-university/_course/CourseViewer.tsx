@@ -21,6 +21,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { SiteNav } from '../../components/SiteNav';
 import { FeatureInfoButton } from '../../components/FeatureInfoButton';
 import type { Module } from './types';
+import { CertificateModal } from './CertificateModal';
 
 interface Props {
   title: string;
@@ -30,9 +31,11 @@ interface Props {
   /** Optional interactive blocks keyed by lesson id, rendered after the
    *  lesson text (used for tools like the cottage bakery state finder). */
   lessonExtras?: Record<string, React.ReactNode>;
+  /** Short stable id for the course (youtube, amazon, cottage-bakery). */
+  courseSlug: string;
 }
 
-export function CourseViewer({ title, badge, badgeBg, modules, lessonExtras }: Props) {
+export function CourseViewer({ title, badge, badgeBg, modules, lessonExtras, courseSlug }: Props) {
   const router = useRouter();
   const allLessons = useMemo(() => modules.flatMap((m) => m.lessons), [modules]);
   const [loading, setLoading] = useState(true);
@@ -43,9 +46,13 @@ export function CourseViewer({ title, badge, badgeBg, modules, lessonExtras }: P
   // side without squeezing the lesson text, so only one panel shows at
   // a time there (see .bsu-course-grid in globals.css).
   const [mobileView, setMobileView] = useState<'list' | 'lesson'>('list');
-  // Local only for now. Completed lesson ids should eventually be read
-  // from and written to a progress table so they survive across devices.
+  // Saved to the bsu_progress table (and mirrored in localStorage so
+  // progress still works if the table has not been created yet).
   const [completed, setCompleted] = useState<Set<string>>(new Set());
+  const [username, setUsername] = useState('');
+  const [isReferrer, setIsReferrer] = useState(false);
+  const [certDate, setCertDate] = useState<string | null>(null);
+  const [showCert, setShowCert] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -66,14 +73,48 @@ export function CourseViewer({ title, badge, badgeBg, modules, lessonExtras }: P
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('username')
+        .select('username, is_referrer')
         .eq('user_id', user.id)
         .maybeSingle();
       setWatermarkLabel(profile?.username ? `@${profile.username}` : user.email ?? user.id);
+      setUsername(profile?.username ?? '');
+      setIsReferrer(profile?.is_referrer === true);
+
+      // Saved progress: database first, localStorage as a safety net.
+      const validIds = new Set(allLessons.map((l) => l.id));
+      let ids: string[] = [];
+      try {
+        const raw = window.localStorage.getItem(`bsu-progress-${courseSlug}-${user.id}`);
+        if (raw) ids = JSON.parse(raw);
+      } catch { /* ignore */ }
+      try {
+        const { data: rows, error } = await supabase
+          .from('bsu_progress')
+          .select('lesson_id')
+          .eq('user_id', user.id)
+          .eq('course', courseSlug);
+        if (!error && rows) ids = [...ids, ...rows.map((r: { lesson_id: string }) => r.lesson_id)];
+      } catch { /* table may not exist yet */ }
+      setCompleted(new Set(ids.filter((id) => validIds.has(id))));
+
+      let savedDate: string | null = null;
+      try {
+        const { data: cert, error } = await supabase
+          .from('bsu_certificates')
+          .select('completed_at')
+          .eq('user_id', user.id)
+          .eq('course', courseSlug)
+          .maybeSingle();
+        if (!error && cert?.completed_at) savedDate = cert.completed_at;
+      } catch { /* table may not exist yet */ }
+      if (!savedDate) {
+        try { savedDate = window.localStorage.getItem(`bsu-cert-${courseSlug}-${user.id}`); } catch { /* ignore */ }
+      }
+      setCertDate(savedDate);
 
       setLoading(false);
     })();
-  }, [router]);
+  }, [router, allLessons, courseSlug]);
 
   const activeLesson = useMemo(
     () => allLessons.find((l) => l.id === activeLessonId) ?? allLessons[0],
@@ -88,13 +129,42 @@ export function CourseViewer({ title, badge, badgeBg, modules, lessonExtras }: P
 
   // Marking a lesson complete returns the user to the full module list.
   function markComplete(id: string) {
-    setCompleted((prev) => {
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
+    const next = new Set(completed);
+    next.add(id);
+    setCompleted(next);
     backToModules();
+
+    if (userId) {
+      try {
+        window.localStorage.setItem(`bsu-progress-${courseSlug}-${userId}`, JSON.stringify([...next]));
+      } catch { /* ignore */ }
+      Promise.resolve(
+        supabase.from('bsu_progress').upsert(
+          { user_id: userId, course: courseSlug, lesson_id: id },
+          { onConflict: 'user_id,course,lesson_id', ignoreDuplicates: true },
+        ),
+      ).catch(() => { /* table may not exist yet */ });
+
+      // First time every lesson is done: record the date and show the certificate.
+      if (next.size >= allLessons.length && !certDate) {
+        const now = new Date().toISOString();
+        setCertDate(now);
+        try { window.localStorage.setItem(`bsu-cert-${courseSlug}-${userId}`, now); } catch { /* ignore */ }
+        Promise.resolve(
+          supabase.from('bsu_certificates').upsert(
+            { user_id: userId, course: courseSlug, completed_at: now },
+            { onConflict: 'user_id,course', ignoreDuplicates: true },
+          ),
+        ).catch(() => { /* table may not exist yet */ });
+        setShowCert(true);
+      }
+    }
   }
+
+  const finished = percent === 100 || !!certDate;
+  const shareUrl = isReferrer && username
+    ? `https://mitypeapp.com/?ref=${encodeURIComponent(username)}`
+    : 'https://mitypeapp.com';
 
   if (loading) {
     return (
@@ -152,6 +222,46 @@ export function CourseViewer({ title, badge, badgeBg, modules, lessonExtras }: P
           </div>
         </div>
       </div>
+
+      {finished && username && (
+        <div style={{ maxWidth: 1040, margin: '20px auto 0', padding: '0 24px' }}>
+          <div style={{
+            background: 'white', border: '1px solid rgba(200,149,108,0.35)', borderRadius: 18,
+            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap',
+          }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <p style={{ fontSize: 15, fontWeight: 900, color: 'var(--brand-text-primary)' }}>
+                You completed the {title}.
+              </p>
+              <p style={{ fontSize: 13, color: 'var(--brand-personal-text-mid)', marginTop: 2 }}>
+                Download your certificate or share it with your followers.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCert(true)}
+              style={{
+                padding: '11px 20px', borderRadius: 100, border: 'none', background: 'var(--brand-personal)',
+                color: 'white', fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              View my certificate
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showCert && username && (
+        <CertificateModal
+          open={showCert}
+          onClose={() => setShowCert(false)}
+          username={username}
+          courseTitle={title}
+          courseSlug={courseSlug}
+          completedAt={certDate ? new Date(certDate) : new Date()}
+          shareUrl={shareUrl}
+        />
+      )}
 
       <div
         className="bsu-course-grid"

@@ -9,6 +9,7 @@ import { MODULES } from '../_course/youtubeModules';
 export default function YouTubeMasterclassPage() {
   return (
     <CourseViewer
+      courseSlug="youtube"
       title="YouTube Masterclass"
       badgeBg="rgba(204,0,0,0.08)"
       badge={(

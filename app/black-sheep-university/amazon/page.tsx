@@ -9,6 +9,7 @@ import { AMAZON_MODULES } from '../_course/amazonModules';
 export default function AmazonMasterclassPage() {
   return (
     <CourseViewer
+      courseSlug="amazon"
       title="Amazon Seller Masterclass"
       badgeBg="rgba(200,149,108,0.14)"
       badge={(
