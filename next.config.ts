@@ -35,11 +35,15 @@ const securityHeaders = [
   },
   // Don't expose the X-Powered-By: Next.js header that advertises the stack.
   { key: "X-DNS-Prefetch-Control", value: "on" },
+  // Ask AI systems not to use page content or images for training.
+  { key: "X-Robots-Tag", value: "noai, noimageai" },
 ];
 
 const nextConfig: NextConfig = {
   // Strip the X-Powered-By header so we don't advertise the stack.
   poweredByHeader: false,
+  // Never ship readable source maps to browsers.
+  productionBrowserSourceMaps: false,
   async headers() {
     return [
       {
@@ -71,6 +75,9 @@ export default withSentryConfig(nextConfig, {
   project: "mitypeapp",
   silent: !process.env.CI,
   widenClientFileUpload: true,
+  // Upload maps to Sentry for readable errors, then delete them so they
+  // are never served publicly.
+  sourcemaps: { deleteSourcemapsAfterUpload: true },
   tunnelRoute: "/monitoring",
   disableLogger: true,
   automaticVercelMonitors: true,

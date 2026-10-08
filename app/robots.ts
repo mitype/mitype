@@ -6,6 +6,19 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
+        // AI training and scraping crawlers: no access to anything.
+        userAgent: [
+          "GPTBot", "ChatGPT-User", "OAI-SearchBot", "ClaudeBot", "Claude-Web",
+          "anthropic-ai", "Claude-User", "Claude-SearchBot", "CCBot",
+          "Google-Extended", "GoogleOther", "PerplexityBot", "Perplexity-User",
+          "Bytespider", "Amazonbot", "Applebot-Extended", "cohere-ai",
+          "Diffbot", "FacebookBot", "meta-externalagent", "meta-externalfetcher",
+          "ImagesiftBot", "Omgilibot", "Timpibot", "YouBot", "Ai2Bot",
+          "DuckAssistBot", "MistralAI-User", "PetalBot", "img2dataset",
+        ],
+        disallow: "/",
+      },
+      {
         userAgent: "*",
         allow: "/",
         disallow: [
