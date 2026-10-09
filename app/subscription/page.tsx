@@ -19,6 +19,7 @@ export default function SubscriptionPage() {
   const [loading, setLoading] = useState(true);
   // Current profile's Founders 50 opt-in state — used to seed the toggle.
   const [foundersOptedIn, setFoundersOptedIn] = useState(false);
+  const [foundersRemoved, setFoundersRemoved] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -38,13 +39,14 @@ export default function SubscriptionPage() {
           .maybeSingle(),
         supabase
           .from('profiles')
-          .select('founders_50_opted_in')
+          .select('founders_50_opted_in, founders_50_removed_at')
           .eq('user_id', user.id)
           .maybeSingle(),
       ]);
 
       setSubscription(subRes.data);
       setFoundersOptedIn(!!profRes.data?.founders_50_opted_in);
+      setFoundersRemoved(!!profRes.data?.founders_50_removed_at);
       setLoading(false);
     };
     getData();
@@ -122,6 +124,7 @@ export default function SubscriptionPage() {
                 userId={user.id}
                 isSubscribed={isActive}
                 initialOptedIn={foundersOptedIn}
+                removedForLapse={foundersRemoved}
               />
             )}
           </div>
@@ -221,6 +224,16 @@ export default function SubscriptionPage() {
                   userId={user.id}
                   email={user.email}
                   onSuccess={handlePayPalSuccess}
+                />
+              )}
+
+              {/* Shows only for members removed because a payment lapsed. */}
+              {user && (
+                <Founders50Toggle
+                  userId={user.id}
+                  isSubscribed={isActive}
+                  initialOptedIn={foundersOptedIn}
+                  removedForLapse={foundersRemoved}
                 />
               )}
 
