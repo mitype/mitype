@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated social videos (large, not for the repo)
+marketing/videos/
+
+# internal setup notes (contain account details)
+/braintree-setup.md
+/paypal-setup.md
+/stripe-response.md
+/marketing/videos/
+.env*
+!.env.example

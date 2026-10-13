@@ -37,6 +37,17 @@ const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   // Ask AI systems not to use page content or images for training.
   { key: "X-Robots-Tag", value: "noai, noimageai" },
+  // Safe subset of a Content-Security-Policy: blocks framing, plugin
+  // embeds, <base> tag hijacking and form posts to other sites. Script
+  // and style sources are left open so PayPal, Sentry and Next.js keep
+  // working.
+  {
+    key: "Content-Security-Policy",
+    value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'",
+  },
+  // Keep other sites from opening our pages in a way that lets them
+  // script the window.
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
 ];
 
 const nextConfig: NextConfig = {
