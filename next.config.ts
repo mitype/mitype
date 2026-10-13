@@ -45,9 +45,6 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'",
   },
-  // Keep other sites from opening our pages in a way that lets them
-  // script the window.
-  { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
 ];
 
 const nextConfig: NextConfig = {
