@@ -45,6 +45,38 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+// Fixed ribbon background (does not move with the carousel). Two peach
+// ribbons flow down the screen with MI MOMENTS written along them.
+const RIBBON_LEFT =
+  'M -20 415 C 60 410, 90 392, 140 400 C 230 420, 300 470, 335 560 C 370 650, 360 700, 310 780 C 250 880, 210 960, 210 1060 C 205 1160, 220 1230, 270 1295 C 320 1360, 360 1380, 400 1400 C 470 1440, 530 1530, 545 1620 C 560 1730, 540 1880, 495 2040';
+const RIBBON_RIGHT =
+  'M 908 80 C 925 150, 880 200, 850 270 C 800 380, 765 500, 755 650 C 748 760, 790 810, 840 835 C 900 860, 920 920, 990 990 C 1060 1060, 1100 1200, 1095 1400 C 1090 1480, 1110 1560, 1125 1650';
+const RIBBON_TEXT = 'MI MOMENTS  •  '.repeat(9);
+
+function RibbonBackground() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 1125 2000"
+      preserveAspectRatio="xMidYMid slice"
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+    >
+      <defs>
+        <path id="momentsRibbonL" d={RIBBON_LEFT} />
+        <path id="momentsRibbonR" d={RIBBON_RIGHT} />
+      </defs>
+      <g fill="none" stroke="#ffc078" strokeWidth="64" strokeLinecap="round" opacity="0.95">
+        <use href="#momentsRibbonL" />
+        <use href="#momentsRibbonR" />
+      </g>
+      <g fontFamily="'Helvetica Neue', Arial, sans-serif" fontSize="34" fontWeight="800" letterSpacing="7" fill="#7a4a1c">
+        <text dy="12"><textPath href="#momentsRibbonL">{RIBBON_TEXT}</textPath></text>
+        <text dy="12"><textPath href="#momentsRibbonR">{RIBBON_TEXT}</textPath></text>
+      </g>
+    </svg>
+  );
+}
+
 export default function MomentsPage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
@@ -136,7 +168,7 @@ export default function MomentsPage() {
     return [...deck, ...Array.from({ length: blanks }, () => null)];
   }, [deck]);
   const len = items.length;
-  const cardH = Math.max(280, Math.min(vh - 235, Math.round(((vw * 0.8) * 16) / 9)));
+  const cardH = Math.max(280, Math.min(vh - 250, Math.round(((vw * 0.8) * 16) / 9)));
   const cardW = Math.round((cardH * 9) / 16);
   const current = mod(Math.round(pos), len);
   const currentMoment = items[current];
@@ -347,15 +379,18 @@ export default function MomentsPage() {
             }}
           />
         )}
+        <RibbonBackground />
       </div>
 
-      <div style={{ position: 'relative', flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'calc(14px + env(safe-area-inset-top)) 56px 4px' }}>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900, letterSpacing: '0.5px', color: 'var(--brand-personal-text-head)' }}>MI Moments</h1>
+      <div style={{ position: 'relative', flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'calc(12px + env(safe-area-inset-top)) 56px 4px' }}>
+        <h1 style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', margin: -1 }}>MI Moments</h1>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icon-512.png" alt="Mitype" width={64} height={64} style={{ width: 64, height: 64, borderRadius: 16, boxShadow: '0 6px 18px rgba(90,60,30,0.3)', background: '#e9e9e9' }} />
         <button
           type="button"
           onClick={() => router.push('/dashboard')}
           aria-label="Close MI Moments"
-          style={{ ...iconBtn, position: 'absolute', right: 14, top: 'calc(8px + env(safe-area-inset-top))', width: 40, height: 40, fontSize: 22 }}
+          style={{ ...iconBtn, position: 'absolute', right: 14, top: 'calc(14px + env(safe-area-inset-top))', width: 40, height: 40, fontSize: 22 }}
         >
           <span aria-hidden style={{ lineHeight: 1, fontWeight: 700 }}>×</span>
         </button>
@@ -393,7 +428,7 @@ export default function MomentsPage() {
                   key={m}
                   style={{
                     position: 'absolute', inset: 0, borderRadius: 20, overflow: 'hidden',
-                    background: moment ? '#3b2d1f' : 'rgba(255,255,255,0.55)',
+                    background: moment ? '#3b2d1f' : '#fbf1e6',
                     border: moment ? 'none' : '2px dashed rgba(160,122,77,0.55)',
                     boxSizing: 'border-box',
                     backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
