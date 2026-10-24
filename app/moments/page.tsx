@@ -63,14 +63,18 @@ function RibbonBackground() {
       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
     >
       <defs>
+        <linearGradient id="momentsRibbonFade" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="2000">
+          <stop offset="0" stopColor="#4a2810" />
+          <stop offset="1" stopColor="#b98457" />
+        </linearGradient>
         <path id="momentsRibbonL" d={RIBBON_LEFT} />
         <path id="momentsRibbonR" d={RIBBON_RIGHT} />
       </defs>
-      <g fill="none" stroke="#ffc078" strokeWidth="120" strokeLinecap="round" opacity="0.95">
+      <g fill="none" stroke="url(#momentsRibbonFade)" strokeWidth="120" strokeLinecap="round">
         <use href="#momentsRibbonL" />
         <use href="#momentsRibbonR" />
       </g>
-      <g fontFamily="'Helvetica Neue', Arial, sans-serif" fontSize="56" fontWeight="800" letterSpacing="9" fill="#7a4a1c">
+      <g fontFamily="'Helvetica Neue', Arial, sans-serif" fontSize="56" fontWeight="800" letterSpacing="9" fill="none" stroke="#f3dcc0" strokeWidth="2.5" strokeLinejoin="round">
         <text dy="20"><textPath href="#momentsRibbonL">{RIBBON_TEXT}</textPath></text>
         <text dy="20"><textPath href="#momentsRibbonR">{RIBBON_TEXT}</textPath></text>
       </g>
@@ -358,7 +362,7 @@ export default function MomentsPage() {
     <div
       style={{
         position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column',
-        background: '#f1dfcc', overscrollBehavior: 'none',
+        background: '#6e6e72', overscrollBehavior: 'none',
       }}
     >
       {/* Ambient backdrop: soft brand color fields plus the current photo,
@@ -368,10 +372,7 @@ export default function MomentsPage() {
         aria-hidden
         style={{
           position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none',
-          background:
-            'radial-gradient(ellipse at 15% 8%, rgba(255,179,124,0.55) 0%, rgba(255,179,124,0) 55%),' +
-            'radial-gradient(ellipse at 90% 95%, rgba(160,122,77,0.45) 0%, rgba(160,122,77,0) 60%),' +
-            'linear-gradient(160deg, #fff3ec 0%, #f5e4d3 50%, #ecd3bb 100%)',
+          background: 'radial-gradient(ellipse at 50% 42%, #d4d4d7 0%, #9a9a9e 50%, #55555a 100%)',
         }}
       >
         {currentMoment && (
@@ -382,7 +383,7 @@ export default function MomentsPage() {
             alt=""
             style={{
               position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', objectFit: 'cover',
-              transform: 'scale(1.3)', filter: 'blur(28px) saturate(1.2)', opacity: 0.4,
+              transform: 'scale(1.3)', filter: 'blur(28px) saturate(1.2)', opacity: 0.35,
             }}
           />
         )}
@@ -489,7 +490,7 @@ export default function MomentsPage() {
       )}
 
       {ready && (
-        <p style={{ position: 'relative', flex: '0 0 auto', margin: '0 0 4px', textAlign: 'center', fontSize: 12.5, color: 'var(--brand-personal-text-head)', opacity: 0.8 }}>
+        <p style={{ position: 'relative', flex: '0 0 auto', margin: '0 0 4px', textAlign: 'center', fontSize: 12.5, color: '#f2f2f4', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
           Swipe to spin. Double tap to like.
         </p>
       )}
