@@ -30,8 +30,9 @@ interface Moment {
   liked: boolean;
 }
 
-const STEP = 36;            // degrees between photos on the ring
-const DRAG_PER_PHOTO = 120; // pixels of drag that move one photo
+const STEP = 40;            // degrees between photos on the ring
+const DRAG_PER_PHOTO = 150; // pixels of drag that move one photo
+const MIN_CARDS = 5;        // blank cards pad the ring so neighbors always show
 const MAX_PHOTOS = 400;
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
@@ -56,6 +57,7 @@ export default function MomentsPage() {
   const [pop, setPop] = useState<{ id: string; n: number } | null>(null);
   const [editing, setEditing] = useState<{ img: HTMLImageElement; url: string } | null>(null);
   const [vw, setVw] = useState(390);
+  const [vh, setVh] = useState(800);
   const fileRef = useRef<HTMLInputElement>(null);
   const drag = useRef({ x: 0, pos: 0, moved: 0, t: 0, lastX: 0, lastT: 0, v: 0, active: false });
   const lastTap = useRef(0);
@@ -119,18 +121,27 @@ export default function MomentsPage() {
   }, [router]);
 
   useEffect(() => {
-    const onResize = () => setVw(window.innerWidth);
+    const onResize = () => {
+      setVw(window.innerWidth);
+      setVh(window.visualViewport?.height ?? window.innerHeight);
+    };
     onResize();
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  const len = deck.length;
-  const cardW = Math.min(230, Math.round(vw * 0.6));
-  const cardH = Math.round((cardW * 16) / 9);
-  const radius = Math.round(cardW / 2 / Math.tan((STEP / 2) * (Math.PI / 180)));
-  const current = len ? mod(Math.round(pos), len) : 0;
-  const currentMoment = len ? deck[current] : null;
+  // The ring is the photos plus blank "add yours" cards, so there are
+  // always cards on both sides to swipe to, even before anyone posts.
+  const items = useMemo<Array<Moment | null>>(() => {
+    const blanks = deck.length < MIN_CARDS ? MIN_CARDS - deck.length : 1;
+    return [...deck, ...Array.from({ length: blanks }, () => null)];
+  }, [deck]);
+  const len = items.length;
+  const cardH = Math.max(280, Math.min(vh - 235, Math.round(((vw * 0.8) * 16) / 9)));
+  const cardW = Math.round((cardH * 9) / 16);
+  const radius = Math.round(cardW * 1.2);
+  const current = mod(Math.round(pos), len);
+  const currentMoment = items[current];
 
   const go = useCallback((target: number) => setPos(target), []);
 
@@ -180,9 +191,17 @@ export default function MomentsPage() {
     d.active = false;
     setDragging(false);
     if (d.moved < 8) {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const mid = rect.left + rect.width / 2;
+      if (e.clientX < mid - cardW / 2) { go(Math.round(d.pos) - 1); return; }
+      if (e.clientX > mid + cardW / 2) { go(Math.round(d.pos) + 1); return; }
       const now = Date.now();
-      const m = len ? deck[mod(Math.round(d.pos), len)] : null;
-      if (now - lastTap.current < 320 && m) {
+      const m = items[mod(Math.round(d.pos), len)];
+      if (!m) {
+        // Tapping a blank card opens the photo picker.
+        lastTap.current = 0;
+        fileRef.current?.click();
+      } else if (now - lastTap.current < 320) {
         lastTap.current = 0;
         setPop({ id: m.id, n: now });
         if (!m.liked) void setLiked(m.id, true);
@@ -248,9 +267,9 @@ export default function MomentsPage() {
       likeCount: 0,
       liked: false,
     };
-    const at = len ? mod(Math.round(pos), len) + 1 : 0;
+    const at = Math.min(mod(Math.round(pos), len) + 1, deck.length);
     setDeck((d) => { const n = [...d]; n.splice(at, 0, fresh); return n; });
-    setPos(Math.round(pos) + 1);
+    setPos(at);
     if (editing) URL.revokeObjectURL(editing.url);
     setEditing(null);
     toast.success('Your photo is on MI Moments.');
@@ -281,15 +300,12 @@ export default function MomentsPage() {
 
   // ---- ring cards -------------------------------------------------------------
   const cards = useMemo(() => {
-    if (!len) return [];
     const r = Math.round(pos);
     const half = Math.min(3, Math.floor((len - 1) / 2));
-    const lo = r - half;
-    const hi = len === 2 ? r + 1 : r + half;
-    const out: { m: number; moment: Moment }[] = [];
-    for (let m = lo; m <= hi; m++) out.push({ m, moment: deck[mod(m, len)] });
+    const out: { m: number; moment: Moment | null }[] = [];
+    for (let m = r - half; m <= r + half; m++) out.push({ m, moment: items[mod(m, len)] });
     return out;
-  }, [deck, pos, len]);
+  }, [items, pos, len]);
 
   const canDelete = !!currentMoment && (currentMoment.userId === meId || isAdmin);
 
@@ -299,36 +315,49 @@ export default function MomentsPage() {
     background: 'rgba(255,255,255,0.85)', color: 'var(--brand-personal-text-head)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0,
   };
+  const heartPath = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2 0 3.6 1.1 5.4 3 1.8-1.9 3.4-3 5.4-3 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z';
 
   return (
     <div
       style={{
-        position: 'relative', minHeight: '100dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
-        background: 'linear-gradient(160deg, #fff3ec 0%, #f5e4d3 45%, #ecd3bb 100%)',
+        position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column',
+        background: '#f1dfcc', overscrollBehavior: 'none',
       }}
     >
-      {/* Ambient backdrop: soft brand glow plus the current photo, blurred. */}
-      <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', top: '-12%', left: '-18%', width: '70%', height: '45%', borderRadius: '50%', background: 'rgba(255,179,124,0.35)', filter: 'blur(60px)' }} />
-        <div style={{ position: 'absolute', bottom: '-10%', right: '-20%', width: '75%', height: '45%', borderRadius: '50%', background: 'rgba(160,122,77,0.28)', filter: 'blur(70px)' }} />
+      {/* Ambient backdrop: soft brand color fields plus the current photo,
+          blurred. Radial gradients instead of blurred blobs so every
+          browser paints the full screen without seams. */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none',
+          background:
+            'radial-gradient(ellipse at 15% 8%, rgba(255,179,124,0.55) 0%, rgba(255,179,124,0) 55%),' +
+            'radial-gradient(ellipse at 90% 95%, rgba(160,122,77,0.45) 0%, rgba(160,122,77,0) 60%),' +
+            'linear-gradient(160deg, #fff3ec 0%, #f5e4d3 50%, #ecd3bb 100%)',
+        }}
+      >
         {currentMoment && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={currentMoment.id}
             src={currentMoment.imageUrl}
             alt=""
-            style={{ position: 'absolute', inset: '-10%', width: '120%', height: '120%', objectFit: 'cover', filter: 'blur(48px) saturate(1.2)', opacity: 0.38, transition: 'opacity .5s' }}
+            style={{
+              position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', objectFit: 'cover',
+              transform: 'scale(1.3)', filter: 'blur(28px) saturate(1.2)', opacity: 0.4,
+            }}
           />
         )}
       </div>
 
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '18px 56px 6px' }}>
+      <div style={{ position: 'relative', flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'calc(14px + env(safe-area-inset-top)) 56px 4px' }}>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900, letterSpacing: '0.5px', color: 'var(--brand-personal-text-head)' }}>MI Moments</h1>
         <button
           type="button"
           onClick={() => router.push('/dashboard')}
           aria-label="Close MI Moments"
-          style={{ ...iconBtn, position: 'absolute', right: 14, top: 12, width: 40, height: 40, fontSize: 22 }}
+          style={{ ...iconBtn, position: 'absolute', right: 14, top: 'calc(8px + env(safe-area-inset-top))', width: 40, height: 40, fontSize: 22 }}
         >
           <span aria-hidden style={{ lineHeight: 1, fontWeight: 700 }}>×</span>
         </button>
@@ -338,13 +367,6 @@ export default function MomentsPage() {
         <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand-personal-text-mid)', fontSize: 15 }}>
           Loading moments...
         </div>
-      ) : len === 0 ? (
-        <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 32px', gap: 10 }}>
-          <p style={{ margin: 0, fontSize: 20, fontWeight: 900, color: 'var(--brand-personal-text-head)' }}>Share the first moment</p>
-          <p style={{ margin: 0, fontSize: 14.5, color: 'var(--brand-personal-text-mid)', maxWidth: 280, lineHeight: 1.5 }}>
-            Post a full screen photo for the whole community to spin through.
-          </p>
-        </div>
       ) : (
         <div
           onPointerDown={onDown}
@@ -352,8 +374,8 @@ export default function MomentsPage() {
           onPointerUp={(e) => onUp(e)}
           onPointerCancel={(e) => onUp(e)}
           style={{
-            position: 'relative', flex: 1, minHeight: cardH + 60, touchAction: 'pan-y', userSelect: 'none', WebkitUserSelect: 'none',
-            perspective: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: dragging ? 'grabbing' : 'grab',
+            position: 'relative', flex: 1, minHeight: 0, touchAction: 'pan-y', userSelect: 'none', WebkitUserSelect: 'none',
+            perspective: 1400, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: dragging ? 'grabbing' : 'grab',
           }}
         >
           <div style={{ position: 'relative', width: cardW, height: cardH, transformStyle: 'preserve-3d', transform: `translateZ(${-radius}px)` }}>
@@ -364,42 +386,57 @@ export default function MomentsPage() {
                 <div
                   key={m}
                   style={{
-                    position: 'absolute', inset: 0, borderRadius: 18, overflow: 'hidden', background: '#3b2d1f',
+                    position: 'absolute', inset: 0, borderRadius: 20, overflow: 'hidden',
+                    background: moment ? '#3b2d1f' : 'rgba(255,255,255,0.55)',
+                    border: moment ? 'none' : '2px dashed rgba(160,122,77,0.55)',
+                    boxSizing: 'border-box',
                     backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
                     transform: `rotateY(${rel * STEP}deg) translateZ(${radius}px)`,
                     transition: dragging ? 'none' : 'transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s',
-                    opacity: Math.max(0, 1 - Math.max(0, Math.abs(rel) - 1.6) * 0.8),
-                    boxShadow: '0 14px 34px rgba(60,35,15,0.35)',
+                    opacity: Math.max(0, 1 - Math.max(0, Math.abs(rel) - 1.5) * 0.9),
+                    boxShadow: '0 14px 34px rgba(60,35,15,0.3)',
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={moment.imageUrl}
-                    alt={`Photo by ${moment.username}`}
-                    draggable={false}
-                    loading={Math.abs(rel) <= 2 ? 'eager' : 'lazy'}
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }}
-                  />
-                  <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 90, background: 'linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0))', pointerEvents: 'none' }} />
-                  <div style={{ position: 'absolute', left: 12, bottom: 12, right: 64, color: 'white', fontSize: 14, fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-                    @{moment.username}
-                  </div>
-                  <button
-                    type="button"
-                    aria-label={moment.liked ? 'Unlike photo' : 'Like photo'}
-                    aria-pressed={moment.liked}
-                    onClick={(e) => { e.stopPropagation(); if (isFront) void setLiked(moment.id, !moment.liked); }}
-                    style={{ position: 'absolute', right: 8, bottom: 6, background: 'none', border: 'none', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, cursor: 'pointer', padding: 6, fontFamily: 'inherit' }}
-                  >
-                    <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden fill={moment.liked ? '#ff4d6d' : 'none'} stroke={moment.liked ? '#ff4d6d' : 'white'} strokeWidth="2" strokeLinejoin="round">
-                      <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2 0 3.6 1.1 5.4 3 1.8-1.9 3.4-3 5.4-3 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z" />
-                    </svg>
-                    <span style={{ fontSize: 12, fontWeight: 800, textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{moment.likeCount}</span>
-                  </button>
-                  {pop && pop.id === moment.id && isFront && (
-                    <svg key={pop.n} width="96" height="96" viewBox="0 0 24 24" aria-hidden fill="#ff4d6d" style={{ position: 'absolute', left: '50%', top: '50%', marginLeft: -48, marginTop: -48, pointerEvents: 'none', animation: 'momentPop .75s ease-out forwards' }}>
-                      <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2 0 3.6 1.1 5.4 3 1.8-1.9 3.4-3 5.4-3 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z" />
-                    </svg>
+                  {moment ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={moment.imageUrl}
+                        alt={`Photo by ${moment.username}`}
+                        draggable={false}
+                        loading={Math.abs(rel) <= 2 ? 'eager' : 'lazy'}
+                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }}
+                      />
+                      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 110, background: 'linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0))', pointerEvents: 'none' }} />
+                      <div style={{ position: 'absolute', left: 14, bottom: 14, right: 74, color: 'white', fontSize: 15, fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+                        @{moment.username}
+                      </div>
+                      <button
+                        type="button"
+                        aria-label={moment.liked ? 'Unlike photo' : 'Like photo'}
+                        aria-pressed={moment.liked}
+                        onClick={(e) => { e.stopPropagation(); if (isFront) void setLiked(moment.id, !moment.liked); }}
+                        style={{ position: 'absolute', right: 8, bottom: 8, background: 'none', border: 'none', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, cursor: 'pointer', padding: 8, fontFamily: 'inherit' }}
+                      >
+                        <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden fill={moment.liked ? '#ff4d6d' : 'none'} stroke={moment.liked ? '#ff4d6d' : 'white'} strokeWidth="2" strokeLinejoin="round">
+                          <path d={heartPath} />
+                        </svg>
+                        <span style={{ fontSize: 13, fontWeight: 800, textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{moment.likeCount}</span>
+                      </button>
+                      {pop && pop.id === moment.id && isFront && (
+                        <svg key={pop.n} width="110" height="110" viewBox="0 0 24 24" aria-hidden fill="#ff4d6d" style={{ position: 'absolute', left: '50%', top: '50%', marginLeft: -55, marginTop: -55, pointerEvents: 'none', animation: 'momentPop .75s ease-out forwards' }}>
+                          <path d={heartPath} />
+                        </svg>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: 'var(--brand-personal-text-head)', textAlign: 'center', padding: 20 }}>
+                      <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--brand-personal)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, fontWeight: 300 }}>
+                        <span aria-hidden style={{ lineHeight: 1, marginTop: -3 }}>+</span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: 17, fontWeight: 900 }}>Add your photo</p>
+                      <p style={{ margin: 0, fontSize: 13, color: 'var(--brand-personal-text-mid)', lineHeight: 1.4 }}>Tap to share a moment with the community</p>
+                    </div>
                   )}
                 </div>
               );
@@ -408,13 +445,13 @@ export default function MomentsPage() {
         </div>
       )}
 
-      {ready && len > 0 && (
-        <p style={{ position: 'relative', margin: '0 0 6px', textAlign: 'center', fontSize: 12.5, color: 'var(--brand-personal-text-mid)' }}>
+      {ready && (
+        <p style={{ position: 'relative', flex: '0 0 auto', margin: '0 0 4px', textAlign: 'center', fontSize: 12.5, color: 'var(--brand-personal-text-head)', opacity: 0.8 }}>
           Swipe to spin. Double tap to like.
         </p>
       )}
 
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 28, padding: '8px 0 calc(22px + env(safe-area-inset-bottom))' }}>
+      <div style={{ position: 'relative', flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 28, padding: '6px 0 calc(20px + env(safe-area-inset-bottom))' }}>
         <button type="button" onClick={report} aria-label="Report this photo" disabled={!currentMoment} style={{ ...iconBtn, visibility: currentMoment ? 'visible' : 'hidden' }}>
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5" /></svg>
         </button>
