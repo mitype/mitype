@@ -32,6 +32,7 @@ interface Moment {
 
 const STEP = 60;            // degrees between cards on the circle
 const DRAG_PER_PHOTO = 150; // pixels of drag that move one photo
+const EDGE_GUARD = 24;      // px at the screen edge left to the phone's back gesture
 const MIN_CARDS = 5;        // blank cards pad the ring so neighbors always show
 const PAGE = 1000;
 
@@ -212,8 +213,11 @@ export default function MomentsPage() {
   // ---- gestures ---------------------------------------------------------------
   function onDown(e: React.PointerEvent) {
     if ((e.target as HTMLElement).closest('button')) return;
+    // A touch that starts at the very edge of the screen belongs to the
+    // phone's own back gesture; leave it alone.
+    if (e.clientX < EDGE_GUARD || e.clientX > window.innerWidth - EDGE_GUARD) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    drag.current = { x: e.clientX, pos, moved: 0, t: Date.now(), lastX: e.clientX, lastT: Date.now(), v: 0, active: true };
+    drag.current = { x: e.clientX, pos: Math.round(pos), moved: 0, t: Date.now(), lastX: e.clientX, lastT: Date.now(), v: 0, active: true };
     setDragging(true);
   }
   function onMove(e: React.PointerEvent) {
@@ -221,12 +225,16 @@ export default function MomentsPage() {
     if (!d.active) return;
     const dx = e.clientX - d.x;
     d.moved = Math.max(d.moved, Math.abs(dx));
-    const now = Date.now();
-    const dt = Math.max(1, now - d.lastT);
-    d.v = (-(e.clientX - d.lastX) / DRAG_PER_PHOTO) / (dt / 1000);
-    d.lastX = e.clientX;
-    d.lastT = now;
-    setPos(d.pos - dx / DRAG_PER_PHOTO);
+    // Follow the finger, but never more than one photo away from where
+    // the gesture started, so a swipe can never skip a photo.
+    setPos(d.pos + Math.max(-1, Math.min(1, -dx / DRAG_PER_PHOTO)));
+  }
+  function onCancel() {
+    const d = drag.current;
+    if (!d.active) return;
+    d.active = false;
+    setDragging(false);
+    setPos(d.pos);
   }
   function onUp(e: React.PointerEvent) {
     const d = drag.current;
@@ -254,10 +262,32 @@ export default function MomentsPage() {
       setPos(Math.round(d.pos));
       return;
     }
-    const fling = Math.max(-3, Math.min(3, d.v * 0.25));
-    const target = Math.round(d.pos - (e.clientX - d.x) / DRAG_PER_PHOTO + fling);
-    go(Math.max(Math.round(d.pos) - 4, Math.min(Math.round(d.pos) + 4, target)));
+    // One swipe moves exactly one photo: a drag past a third of a photo,
+    // or a quick flick, goes to the next one; a short slow drag snaps back.
+    const dx = e.clientX - d.x;
+    const elapsed = Math.max(1, Date.now() - d.t);
+    const flick = Math.abs(dx) > 24 && Math.abs(dx) / elapsed > 0.35;
+    const far = Math.abs(dx) > DRAG_PER_PHOTO / 3;
+    const step = flick || far ? (dx < 0 ? 1 : -1) : 0;
+    go(d.pos + step);
   }
+
+  // The only way out is the X button. Swiping back from the screen edge
+  // (iPhone Safari) would otherwise leave this page, so keep one extra
+  // history entry in front and re-add it whenever the browser pops it.
+  useEffect(() => {
+    window.history.pushState({ moments: true }, '', window.location.href);
+    function onPop() {
+      window.history.pushState({ moments: true }, '', window.location.href);
+    }
+    window.addEventListener('popstate', onPop);
+    const prev = document.documentElement.style.overscrollBehaviorX;
+    document.documentElement.style.overscrollBehaviorX = 'none';
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      document.documentElement.style.overscrollBehaviorX = prev;
+    };
+  }, []);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -413,9 +443,9 @@ export default function MomentsPage() {
           onPointerDown={onDown}
           onPointerMove={onMove}
           onPointerUp={(e) => onUp(e)}
-          onPointerCancel={(e) => onUp(e)}
+          onPointerCancel={onCancel}
           style={{
-            position: 'relative', flex: 1, minHeight: 0, touchAction: 'pan-y', userSelect: 'none', WebkitUserSelect: 'none',
+            position: 'relative', flex: 1, minHeight: 0, touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none',
             perspective: 1400, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: dragging ? 'grabbing' : 'grab',
           }}
         >
