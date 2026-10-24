@@ -30,9 +30,10 @@ interface Moment {
   liked: boolean;
 }
 
+const STEP = 60;            // degrees between cards on the circle
 const DRAG_PER_PHOTO = 150; // pixels of drag that move one photo
 const MIN_CARDS = 5;        // blank cards pad the ring so neighbors always show
-const MAX_PHOTOS = 400;
+const PAGE = 1000;
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
 
@@ -48,10 +49,10 @@ function shuffle<T>(arr: T[]): T[] {
 // Fixed ribbon background (does not move with the carousel). Two peach
 // ribbons flow down the screen with MI MOMENTS written along them.
 const RIBBON_LEFT =
-  'M -20 415 C 60 410, 90 392, 140 400 C 230 420, 300 470, 335 560 C 370 650, 360 700, 310 780 C 250 880, 210 960, 210 1060 C 205 1160, 220 1230, 270 1295 C 320 1360, 360 1380, 400 1400 C 470 1440, 530 1530, 545 1620 C 560 1730, 540 1880, 495 2040';
+  'M -260 440 C -120 430, -40 400, 20 405 C 70 405, 100 395, 140 400 C 230 420, 300 470, 335 560 C 370 650, 360 700, 310 780 C 250 880, 210 960, 210 1060 C 205 1160, 220 1230, 270 1295 C 320 1360, 360 1380, 400 1400 C 470 1440, 530 1530, 545 1620 C 560 1730, 540 1880, 495 2040';
 const RIBBON_RIGHT =
-  'M 908 80 C 925 150, 880 200, 850 270 C 800 380, 765 500, 755 650 C 748 760, 790 810, 840 835 C 900 860, 920 920, 990 990 C 1060 1060, 1100 1200, 1095 1400 C 1090 1480, 1110 1560, 1125 1650';
-const RIBBON_TEXT = 'MI MOMENTS  •  '.repeat(9);
+  'M 930 -160 C 925 -40, 925 40, 908 80 C 925 150, 880 200, 850 270 C 800 380, 765 500, 755 650 C 748 760, 790 810, 840 835 C 900 860, 920 920, 990 990 C 1060 1060, 1100 1200, 1095 1400 C 1090 1480, 1110 1560, 1140 1650 C 1175 1740, 1260 1800, 1400 1860';
+const RIBBON_TEXT = 'MI MOMENTS  •  '.repeat(8);
 
 function RibbonBackground() {
   return (
@@ -65,13 +66,13 @@ function RibbonBackground() {
         <path id="momentsRibbonL" d={RIBBON_LEFT} />
         <path id="momentsRibbonR" d={RIBBON_RIGHT} />
       </defs>
-      <g fill="none" stroke="#ffc078" strokeWidth="64" strokeLinecap="round" opacity="0.95">
+      <g fill="none" stroke="#ffc078" strokeWidth="120" strokeLinecap="round" opacity="0.95">
         <use href="#momentsRibbonL" />
         <use href="#momentsRibbonR" />
       </g>
-      <g fontFamily="'Helvetica Neue', Arial, sans-serif" fontSize="34" fontWeight="800" letterSpacing="7" fill="#7a4a1c">
-        <text dy="12"><textPath href="#momentsRibbonL">{RIBBON_TEXT}</textPath></text>
-        <text dy="12"><textPath href="#momentsRibbonR">{RIBBON_TEXT}</textPath></text>
+      <g fontFamily="'Helvetica Neue', Arial, sans-serif" fontSize="56" fontWeight="800" letterSpacing="9" fill="#7a4a1c">
+        <text dy="20"><textPath href="#momentsRibbonL">{RIBBON_TEXT}</textPath></text>
+        <text dy="20"><textPath href="#momentsRibbonR">{RIBBON_TEXT}</textPath></text>
       </g>
     </svg>
   );
@@ -113,21 +114,27 @@ export default function MomentsPage() {
       setMeId(user.id);
       setIsAdmin(admin);
 
-      const { data: rows } = await supabase
-        .from('moments')
-        .select('id, user_id, image_url, storage_path, like_count')
-        .order('created_at', { ascending: false })
-        .limit(MAX_PHOTOS);
-      if (cancelled) return;
-      const list = rows ?? [];
+      // Load every photo (metadata only; images load as the ring reaches
+      // them), a page at a time.
+      const list: Array<Record<string, unknown>> = [];
+      for (let from = 0; ; from += PAGE) {
+        const { data: rows } = await supabase
+          .from('moments')
+          .select('id, user_id, image_url, storage_path, like_count')
+          .order('created_at', { ascending: false })
+          .range(from, from + PAGE - 1);
+        if (cancelled) return;
+        list.push(...(rows ?? []));
+        if (!rows || rows.length < PAGE) break;
+      }
 
       const userIds = [...new Set(list.map((r) => r.user_id as string))];
       const names = new Map<string, string>();
-      for (let i = 0; i < userIds.length; i += 100) {
+      for (let i = 0; i < userIds.length; i += 200) {
         const { data: profs } = await supabase
           .from('profiles')
           .select('user_id, username')
-          .in('user_id', userIds.slice(i, i + 100));
+          .in('user_id', userIds.slice(i, i + 200));
         (profs ?? []).forEach((p) => names.set(p.user_id as string, p.username as string));
       }
       const { data: mine } = await supabase
@@ -170,6 +177,8 @@ export default function MomentsPage() {
   const len = items.length;
   const cardH = Math.max(280, Math.min(vh - 250, Math.round(((vw * 0.8) * 16) / 9)));
   const cardW = Math.round((cardH * 9) / 16);
+  // Radius of a circle whose flat cards touch edge to edge.
+  const radius = Math.round(cardW / 2 / Math.tan((STEP / 2) * (Math.PI / 180)));
   const current = mod(Math.round(pos), len);
   const currentMoment = items[current];
 
@@ -274,8 +283,6 @@ export default function MomentsPage() {
   }
 
   async function postPhoto(blob: Blob) {
-    const allowed = await checkRateLimit(LIMITS.MOMENT_POST);
-    if (!allowed) throw new Error(rateLimitMessage(LIMITS.MOMENT_POST));
     const path = `${meId}/${crypto.randomUUID()}.jpg`;
     const up = await safeUpload(blob, { bucket: 'moments', path, kind: 'image', filename: 'moment.jpg' });
     const { data, error } = await supabase
@@ -331,7 +338,7 @@ export default function MomentsPage() {
   // ---- ring cards -------------------------------------------------------------
   const cards = useMemo(() => {
     const r = Math.round(pos);
-    const half = Math.min(3, Math.floor((len - 1) / 2));
+    const half = Math.min(2, Math.floor((len - 1) / 2));
     const out: { m: number; moment: Moment | null }[] = [];
     for (let m = r - half; m <= r + half; m++) out.push({ m, moment: items[mod(m, len)] });
     return out;
@@ -411,18 +418,13 @@ export default function MomentsPage() {
             perspective: 1400, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: dragging ? 'grabbing' : 'grab',
           }}
         >
-          <div style={{ position: 'relative', width: cardW, height: cardH, transformStyle: 'preserve-3d' }}>
+          <div style={{ position: 'relative', width: cardW, height: cardH, transformStyle: 'preserve-3d', transform: `translateZ(${-radius}px)` }}>
             {cards.map(({ m, moment }) => {
               const rel = m - pos;
               const isFront = Math.abs(rel) < 0.5;
-              // Cover flow layout: neighbors sit behind the front photo,
-              // turned slightly toward the center, so they never cut
-              // through it.
+              // Cards stand on a real circle (a carousel): each one is
+              // turned around the center and pushed out by the radius.
               const ar = Math.abs(rel);
-              const sign = rel < 0 ? -1 : 1;
-              const tx = sign * (ar <= 1 ? ar * cardW * 0.87 : cardW * 0.87 + (ar - 1) * cardW * 0.5);
-              const tz = -Math.min(ar, 2) * 220;
-              const rot = -sign * Math.min(ar, 1) * 38;
               return (
                 <div
                   key={m}
@@ -432,10 +434,8 @@ export default function MomentsPage() {
                     border: moment ? 'none' : '2px dashed rgba(160,122,77,0.55)',
                     boxSizing: 'border-box',
                     backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-                    transform: `translateX(${tx}px) translateZ(${tz}px) rotateY(${rot}deg)`,
-                    zIndex: 100 - Math.round(ar * 10),
-                    transition: dragging ? 'none' : 'transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s',
-                    opacity: Math.max(0, 1 - Math.max(0, ar - 1.3) * 1.2),
+                    transform: `rotateY(${rel * STEP}deg) translateZ(${radius}px)`,
+                    transition: dragging ? 'none' : 'transform .45s cubic-bezier(.2,.8,.2,1)',
                     boxShadow: '0 14px 34px rgba(60,35,15,0.3)',
                   }}
                 >
@@ -480,6 +480,7 @@ export default function MomentsPage() {
                       <p style={{ margin: 0, fontSize: 13, color: 'var(--brand-personal-text-mid)', lineHeight: 1.4 }}>Tap to share a moment with the community</p>
                     </div>
                   )}
+                  <div aria-hidden style={{ position: 'absolute', inset: 0, background: '#1a1208', opacity: Math.min(ar, 1) * 0.3, pointerEvents: 'none' }} />
                 </div>
               );
             })}

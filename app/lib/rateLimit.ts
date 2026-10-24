@@ -41,7 +41,6 @@ export const LIMITS = {
   MESSAGE_SEND:    { action: 'message_send',    max: 80,  windowSeconds: 3600  }, // 80 / hour
   SAIL_CURRENT:    { action: 'sail_current',    max: 20,  windowSeconds: 3600  }, // 20 / hour
   NOTIFY_SEND:     { action: 'notify_send',     max: 120, windowSeconds: 3600  }, // 120 / hour
-  MOMENT_POST:     { action: 'moment_post',     max: 12,  windowSeconds: 3600  }, // 12 / hour
   MOMENT_REPORT:   { action: 'moment_report',   max: 20,  windowSeconds: 3600  }, // 20 / hour
 } as const satisfies Record<string, RateLimitSpec>;
 
