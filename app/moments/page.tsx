@@ -30,7 +30,6 @@ interface Moment {
   liked: boolean;
 }
 
-const STEP = 40;            // degrees between photos on the ring
 const DRAG_PER_PHOTO = 150; // pixels of drag that move one photo
 const MIN_CARDS = 5;        // blank cards pad the ring so neighbors always show
 const MAX_PHOTOS = 400;
@@ -139,7 +138,6 @@ export default function MomentsPage() {
   const len = items.length;
   const cardH = Math.max(280, Math.min(vh - 235, Math.round(((vw * 0.8) * 16) / 9)));
   const cardW = Math.round((cardH * 9) / 16);
-  const radius = Math.round(cardW * 1.2);
   const current = mod(Math.round(pos), len);
   const currentMoment = items[current];
 
@@ -378,10 +376,18 @@ export default function MomentsPage() {
             perspective: 1400, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: dragging ? 'grabbing' : 'grab',
           }}
         >
-          <div style={{ position: 'relative', width: cardW, height: cardH, transformStyle: 'preserve-3d', transform: `translateZ(${-radius}px)` }}>
+          <div style={{ position: 'relative', width: cardW, height: cardH, transformStyle: 'preserve-3d' }}>
             {cards.map(({ m, moment }) => {
               const rel = m - pos;
               const isFront = Math.abs(rel) < 0.5;
+              // Cover flow layout: neighbors sit behind the front photo,
+              // turned slightly toward the center, so they never cut
+              // through it.
+              const ar = Math.abs(rel);
+              const sign = rel < 0 ? -1 : 1;
+              const tx = sign * (ar <= 1 ? ar * cardW * 0.87 : cardW * 0.87 + (ar - 1) * cardW * 0.5);
+              const tz = -Math.min(ar, 2) * 220;
+              const rot = -sign * Math.min(ar, 1) * 38;
               return (
                 <div
                   key={m}
@@ -391,9 +397,10 @@ export default function MomentsPage() {
                     border: moment ? 'none' : '2px dashed rgba(160,122,77,0.55)',
                     boxSizing: 'border-box',
                     backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-                    transform: `rotateY(${rel * STEP}deg) translateZ(${radius}px)`,
+                    transform: `translateX(${tx}px) translateZ(${tz}px) rotateY(${rot}deg)`,
+                    zIndex: 100 - Math.round(ar * 10),
                     transition: dragging ? 'none' : 'transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s',
-                    opacity: Math.max(0, 1 - Math.max(0, Math.abs(rel) - 1.5) * 0.9),
+                    opacity: Math.max(0, 1 - Math.max(0, ar - 1.3) * 1.2),
                     boxShadow: '0 14px 34px rgba(60,35,15,0.3)',
                   }}
                 >
