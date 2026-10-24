@@ -20,6 +20,8 @@ import { liquidGlass } from '../lib/liquidGlass';
 import { BlackSheepUniversityAnnouncementModal } from '../components/BlackSheepUniversityAnnouncementModal';
 import { AmazonMasterclassAnnouncementModal } from '../components/AmazonMasterclassAnnouncementModal';
 import { CottageBakeryAnnouncementModal } from '../components/CottageBakeryAnnouncementModal';
+import { MomentsAnnouncementModal } from '../components/MomentsAnnouncementModal';
+import { MOMENTS_LIVE } from '../lib/momentsFlags';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { FeatureInfoAnnouncement } from '../components/FeatureInfoAnnouncement';
 
@@ -45,6 +47,8 @@ export default function Dashboard() {
   const [showBsuAnnouncement, setShowBsuAnnouncement] = useState(false);
   const [showAmazonAnnouncement, setShowAmazonAnnouncement] = useState(false);
   const [showCottageAnnouncement, setShowCottageAnnouncement] = useState(false);
+  const [showMomentsAnnouncement, setShowMomentsAnnouncement] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
 
@@ -113,6 +117,8 @@ export default function Dashboard() {
         // Non-fatal.
       }
 
+      setIsAdmin(!!profile.is_admin);
+
       // Black Sheep University launch announcement, same one-time
       // pattern as Founders 50 above.
       if (!profile.black_sheep_university_announced_at) {
@@ -123,6 +129,10 @@ export default function Dashboard() {
       } else if (!profile.cottage_bakery_announced_at) {
         // Cottage Bakery Masterclass launch, same one-time pattern.
         setShowCottageAnnouncement(true);
+      } else if (MOMENTS_LIVE && !profile.moments_announced_at) {
+        // MI Moments launch, same one-time pattern. Only after the
+        // release flag is switched on.
+        setShowMomentsAnnouncement(true);
       }
 
       // Fetch the newest wave video timestamp + newest current post
@@ -419,6 +429,9 @@ export default function Dashboard() {
             pulse?: boolean;
           }> = [
             { label: 'Discover Creators', desc: 'Browse profiles and connect by craft and city.',         href: '/discover',     tone: 'personal' },
+            ...((MOMENTS_LIVE || isAdmin)
+              ? [{ label: 'MI Moments', desc: 'Spin through photos from the community.', href: '/moments', tone: 'personal' as ActionTone }]
+              : []),
             { label: 'The Wave Feed',     desc: 'Scrolling video feed. Watch, like, and post your own.', href: '/wave',         tone: 'wave',    pulse: waveHasNew },
             { label: 'The Current',       desc: 'Text drops, replies, and rich entity embeds.',          href: '/currents',     tone: 'current', pulse: currentHasNew },
             { label: 'Messages',          desc: 'Your conversations, groups, and rooms.',                 href: '/messages',     tone: 'personal' },
@@ -635,6 +648,12 @@ export default function Dashboard() {
         <AmazonMasterclassAnnouncementModal
           userId={user.id}
           onDismiss={() => setShowAmazonAnnouncement(false)}
+        />
+      )}
+      {!showBsuAnnouncement && !showAmazonAnnouncement && !showCottageAnnouncement && showMomentsAnnouncement && user?.id && (
+        <MomentsAnnouncementModal
+          userId={user.id}
+          onDismiss={() => setShowMomentsAnnouncement(false)}
         />
       )}
       {!showBsuAnnouncement && !showAmazonAnnouncement && showCottageAnnouncement && user?.id && (

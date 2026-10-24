@@ -22,6 +22,7 @@ import { NotificationBell } from './NotificationBell';
 import { UnreadBadge } from './UnreadBadge';
 import { useUnreadCounts } from '../lib/useUnreadCounts';
 import { supabase } from '../lib/supabaseClient';
+import { MOMENTS_LIVE } from '../lib/momentsFlags';
 
 interface Props {
   /** Pass this to enable the unread badge on the menu's dot and the
@@ -279,6 +280,9 @@ export function SiteNav({
           {/* Feature pills — same shape as the regular nav items, just
               with a tiny colored accent stripe on the left. Mirrors the
               dashboard quick-action design language. */}
+          {(MOMENTS_LIVE || isAdmin) && (
+            <NavLink href="/moments" label="MI Moments" accent="var(--brand-personal)" />
+          )}
           <NavLink href="/wave"       label="The Wave Feed"    accent="#38bdf8" />
           <NavLink href="/currents"   label="The Current"      accent="#1e3a8a" />
           <NavLink href="/businesses" label="Small Businesses" accent="var(--brand-business)" />
