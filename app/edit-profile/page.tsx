@@ -12,6 +12,7 @@ import { PetEditor } from '../components/PetEditor';
 import { BusinessRecommendationsEditor } from '../components/BusinessRecommendationsEditor';
 import { FeatureTutorial } from '../components/FeatureTutorial';
 import { toast } from '../lib/toast';
+import { isReservedUsername, RESERVED_USERNAME_MESSAGE } from '../lib/reservedUsernames';
 import { liquidGlass } from '../lib/liquidGlass';
 import { isAtLeast18, maxDobIso, minDobIso } from '../lib/age';
 import { normalizePhotos, type ProfilePhoto } from '../lib/photos';
@@ -132,6 +133,7 @@ interface PortfolioLink {
 export default function EditProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [username, setUsername] = useState('');
+  const [originalUsername, setOriginalUsername] = useState('');
   const [bio, setBio] = useState('');
   const [zipCode, setZipCode] = useState('');
   // Location fields. City + state are display-friendly + filter-friendly
@@ -211,6 +213,7 @@ export default function EditProfilePage() {
 
       if (profile) {
         setUsername(profile.username || '');
+        setOriginalUsername((profile.username || '').toLowerCase());
         setBio(profile.bio || '');
         setZipCode(profile.zip_code || '');
         setCity(profile.city || '');
@@ -317,6 +320,10 @@ export default function EditProfilePage() {
     e.preventDefault();
     if (!username.trim()) {
       toast.error('Username is required.');
+      return;
+    }
+    if (username.trim().toLowerCase() !== originalUsername && isReservedUsername(username)) {
+      toast.error(RESERVED_USERNAME_MESSAGE);
       return;
     }
     // Hard gate: profile photo is required. A profile counts as having

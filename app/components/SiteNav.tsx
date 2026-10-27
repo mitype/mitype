@@ -23,6 +23,8 @@ import { UnreadBadge } from './UnreadBadge';
 import { useUnreadCounts } from '../lib/useUnreadCounts';
 import { supabase } from '../lib/supabaseClient';
 import { MOMENTS_LIVE } from '../lib/momentsFlags';
+import { isActingAsOfficial, switchToOfficial, switchBackFromOfficial, clearOfficialReturn } from '../lib/officialProfile';
+import { toast } from '../lib/toast';
 
 interface Props {
   /** Pass this to enable the unread badge on the menu's dot and the
@@ -67,6 +69,25 @@ export function SiteNav({
   // either the CMO(s) or a plain referrer. Everyone else has no idea
   // the option exists.
   const [canSeeReferrals, setCanSeeReferrals] = useState(false);
+  // True only while an admin is signed in to the official profile. This
+  // is private to the admin's own browser; nothing public shows it.
+  const [actingOfficial, setActingOfficial] = useState(false);
+  const [switching, setSwitching] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setActingOfficial(isActingAsOfficial()));
+  }, [userId]);
+
+  async function handleOfficial(toOfficial: boolean) {
+    if (switching) return;
+    setSwitching(true);
+    try {
+      if (toOfficial) await switchToOfficial();
+      else await switchBackFromOfficial();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Could not switch profiles.');
+      setSwitching(false);
+    }
+  }
   useEffect(() => {
     if (!userId) { setIsAdmin(false); setCanSeeReferrals(false); return; }
     let cancelled = false;
@@ -96,6 +117,7 @@ export function SiteNav({
   const wantsBell = (showBell ?? true) && !!userId;
 
   async function handleSignOut() {
+    clearOfficialReturn();
     await supabase.auth.signOut();
     setOpen(false);
     router.push('/');
@@ -178,6 +200,19 @@ export function SiteNav({
         borderBottom: `1px solid ${borderColor}`,
       }}
     >
+      {actingOfficial && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '7px 14px', background: '#3b2d1f', color: '#f3dcc0', fontSize: 13, fontWeight: 700 }}>
+          <span>You are on @mitype</span>
+          <button
+            type="button"
+            onClick={() => handleOfficial(false)}
+            disabled={switching}
+            style={{ background: '#f3dcc0', color: '#3b2d1f', border: 'none', borderRadius: 100, padding: '4px 12px', fontSize: 12.5, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            {switching ? 'Switching...' : 'Switch back'}
+          </button>
+        </div>
+      )}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -299,6 +334,34 @@ export function SiteNav({
               everyone else, so the option doesn't exist for them. */}
           {isAdmin && (
             <NavLink href="/admin" label="Admin" accent="var(--brand-personal)" />
+          )}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => handleOfficial(true)}
+              disabled={switching}
+              style={{
+                display: 'flex', alignItems: 'center', padding: '13px 20px', color: pillText, fontSize: 15, fontWeight: 700,
+                borderRadius: 100, background: pillBg, border: `1px solid ${pillBorder}`, letterSpacing: '0.1px',
+                cursor: switching ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: 'left',
+              }}
+            >
+              {switching ? 'Opening...' : 'Official Mitype profile'}
+            </button>
+          )}
+          {actingOfficial && (
+            <button
+              type="button"
+              onClick={() => handleOfficial(false)}
+              disabled={switching}
+              style={{
+                display: 'flex', alignItems: 'center', padding: '13px 20px', color: pillText, fontSize: 15, fontWeight: 700,
+                borderRadius: 100, background: pillBg, border: `1px solid ${pillBorder}`, letterSpacing: '0.1px',
+                cursor: switching ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: 'left',
+              }}
+            >
+              {switching ? 'Switching...' : 'Switch back to my account'}
+            </button>
           )}
           {/* Mi Referrals — leaderboard of users this account personally
               brought to the platform. Visible to CMOs and plain

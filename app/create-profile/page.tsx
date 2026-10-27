@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 import { toast } from '../lib/toast';
+import { isReservedUsername, RESERVED_USERNAME_MESSAGE } from '../lib/reservedUsernames';
 import { isAtLeast18, maxDobIso, minDobIso } from '../lib/age';
 
 const ALL_CATEGORIES = [
@@ -99,6 +100,10 @@ export default function CreateProfilePage() {
     e.preventDefault();
     if (!username.trim()) {
       toast.error('Please enter a username.');
+      return;
+    }
+    if (isReservedUsername(username)) {
+      toast.error(RESERVED_USERNAME_MESSAGE);
       return;
     }
     if (selectedCategories.length === 0) {

@@ -23,6 +23,8 @@ import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { SiteNav } from '../components/SiteNav';
 import { Avatar } from '../components/Avatar';
+import { switchToOfficial } from '../lib/officialProfile';
+import { toast } from '../lib/toast';
 
 type Tab = 'all' | 'subscribed' | 'unsubscribed' | 'founders50' | 'referrals';
 
@@ -42,6 +44,7 @@ interface UserRow {
 }
 
 export default function AdminPage() {
+  const [openingOfficial, setOpeningOfficial] = useState(false);
   const router = useRouter();
   const [gateChecking, setGateChecking] = useState(true);
   const [users, setUsers] = useState<UserRow[]>([]);
@@ -175,10 +178,31 @@ export default function AdminPage() {
         </p>
         <h1 style={{
           fontSize: 32, fontWeight: 900, color: 'var(--brand-text-primary)',
-          letterSpacing: '-0.8px', marginBottom: 24,
+          letterSpacing: '-0.8px', marginBottom: 16,
         }}>
           Users
         </h1>
+
+        <button
+          type="button"
+          disabled={openingOfficial}
+          onClick={async () => {
+            setOpeningOfficial(true);
+            try {
+              await switchToOfficial();
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : 'Could not open the official profile.');
+              setOpeningOfficial(false);
+            }
+          }}
+          style={{
+            marginBottom: 24, padding: '12px 22px', borderRadius: 100, border: '1px solid rgba(200,149,108,0.35)',
+            background: 'white', color: 'var(--brand-personal-text-head)', fontSize: 14, fontWeight: 800,
+            cursor: openingOfficial ? 'default' : 'pointer', fontFamily: 'inherit',
+          }}
+        >
+          {openingOfficial ? 'Opening...' : 'Open official Mitype profile'}
+        </button>
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
