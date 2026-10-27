@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
 import { safeUpload } from '../lib/safeUpload';
@@ -212,7 +213,7 @@ export default function MomentsPage() {
 
   // ---- gestures ---------------------------------------------------------------
   function onDown(e: React.PointerEvent) {
-    if ((e.target as HTMLElement).closest('button')) return;
+    if ((e.target as HTMLElement).closest('button, a')) return;
     // A touch that starts at the very edge of the screen belongs to the
     // phone's own back gesture; leave it alone.
     if (e.clientX < EDGE_GUARD || e.clientX > window.innerWidth - EDGE_GUARD) return;
@@ -481,9 +482,14 @@ export default function MomentsPage() {
                         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }}
                       />
                       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 110, background: 'linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0))', pointerEvents: 'none' }} />
-                      <div style={{ position: 'absolute', left: 14, bottom: 14, right: 74, color: 'white', fontSize: 15, fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+                      <Link
+                        href={`/profile/${moment.username}`}
+                        onClick={(e) => { if (!isFront) e.preventDefault(); }}
+                        aria-label={`Open ${moment.username}'s profile`}
+                        style={{ position: 'absolute', left: 14, bottom: 6, right: 74, color: 'white', fontSize: 15, fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: '0 1px 4px rgba(0,0,0,0.5)', textDecoration: 'underline', textUnderlineOffset: 3, textDecorationColor: 'rgba(255,255,255,0.6)', padding: '8px 0', pointerEvents: isFront ? 'auto' : 'none' }}
+                      >
                         @{moment.username}
-                      </div>
+                      </Link>
                       <button
                         type="button"
                         aria-label={moment.liked ? 'Unlike photo' : 'Like photo'}
