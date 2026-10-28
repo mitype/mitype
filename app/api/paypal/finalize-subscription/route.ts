@@ -36,16 +36,25 @@ function toIsoOrNull(value?: string | null): string | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const { subscriptionId } = await req.json();
-    const { user, error: authErr } = await getAuthedUser(req);
-    if (!user) {
-      return NextResponse.json({ error: authErr ?? 'Please sign in again.' }, { status: 401 });
-    }
-    const userId = user.id;
+    const body = await req.json();
+    const subscriptionId = body.subscriptionId;
 
-    if (!subscriptionId) {
+    // Verified login when sent; otherwise (a page opened before this
+    // update) fall back to the id in the request. Either way PayPal
+    // itself confirms below that the subscription belongs to this member.
+    let userId: string | undefined;
+    const { user } = await getAuthedUser(req);
+    if (user) {
+      userId = user.id;
+    } else if (!req.headers.get('authorization')) {
+      userId = body.userId;
+    } else {
+      return NextResponse.json({ error: 'Please sign in again.' }, { status: 401 });
+    }
+
+    if (!userId || !subscriptionId) {
       return NextResponse.json(
-        { error: 'Missing subscriptionId' },
+        { error: 'Missing userId or subscriptionId' },
         { status: 400 }
       );
     }

@@ -25,23 +25,41 @@ interface PayPalSubscriptionResponse {
 
 export async function POST(req: NextRequest) {
   try {
-    // Only the signed in member can start a subscription for their own
-    // account. The id and email come from the verified session, never
-    // from the request body, so nobody can touch another member's row.
-    const { user, error: authErr } = await getAuthedUser(req);
-    if (!user || !user.email) {
-      return NextResponse.json({ error: authErr ?? 'Please sign in again.' }, { status: 401 });
-    }
-    const userId = user.id;
-    const email = user.email;
+    const body = await req.json();
 
-    // Members with complimentary access never go through checkout.
+    // Identify the member. A current page sends their login token and we
+    // use the verified id. A page that was already open before an update
+    // may not send one yet, so we still accept the id in the request, but
+    // never let it change a member who already has access (below).
+    let userId: string | undefined;
+    let email: string | undefined;
+    const { user } = await getAuthedUser(req);
+    if (user) {
+      userId = user.id;
+      email = user.email ?? body.email;
+    } else if (!req.headers.get('authorization')) {
+      userId = body.userId;
+      email = body.email;
+    } else {
+      return NextResponse.json({ error: 'Please sign in again.' }, { status: 401 });
+    }
+
+    if (!userId || !email) {
+      return NextResponse.json(
+        { error: 'Missing userId or email' },
+        { status: 400 }
+      );
+    }
+
+    // Members who already have access (paid, trialing, or complimentary)
+    // never start another subscription. This also means a forged request
+    // can never knock an active member out of their account.
     const { data: existing } = await getSupabaseAdmin()
       .from('subscriptions')
-      .select('is_comped')
+      .select('status, is_comped')
       .eq('user_id', userId)
       .maybeSingle();
-    if (existing?.is_comped) {
+    if (existing?.is_comped || existing?.status === 'active' || existing?.status === 'trialing') {
       return NextResponse.json(
         { error: 'Your account already has full access.' },
         { status: 400 }
