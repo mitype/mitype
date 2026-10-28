@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { paypalRequest, getPayPalPlanId } from '../../../lib/paypalClient';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
+import { getAuthedUser } from '../../../lib/waveAuth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,11 +25,25 @@ interface PayPalSubscriptionResponse {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, email } = await req.json();
+    // Only the signed in member can start a subscription for their own
+    // account. The id and email come from the verified session, never
+    // from the request body, so nobody can touch another member's row.
+    const { user, error: authErr } = await getAuthedUser(req);
+    if (!user || !user.email) {
+      return NextResponse.json({ error: authErr ?? 'Please sign in again.' }, { status: 401 });
+    }
+    const userId = user.id;
+    const email = user.email;
 
-    if (!userId || !email) {
+    // Members with complimentary access never go through checkout.
+    const { data: existing } = await getSupabaseAdmin()
+      .from('subscriptions')
+      .select('is_comped')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (existing?.is_comped) {
       return NextResponse.json(
-        { error: 'Missing userId or email' },
+        { error: 'Your account already has full access.' },
         { status: 400 }
       );
     }

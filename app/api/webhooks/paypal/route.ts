@@ -53,7 +53,9 @@ async function updateBySubscriptionId(
   return supabaseAdmin
     .from('subscriptions')
     .update(patch)
-    .eq('paypal_subscription_id', subscriptionId);
+    .eq('paypal_subscription_id', subscriptionId)
+    // Members given complimentary access are never changed by PayPal events.
+    .eq('is_comped', false);
 }
 
 export async function POST(req: NextRequest) {

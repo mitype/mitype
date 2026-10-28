@@ -25,6 +25,17 @@ import {
   type ReactPayPalScriptOptions,
 } from '@paypal/react-paypal-js';
 import { toast } from '../lib/toast';
+import { supabase } from '../lib/supabaseClient';
+
+// The server identifies the member from their session, so every checkout
+// request carries the access token.
+async function authHeaders(): Promise<Record<string, string>> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return {
+    'Content-Type': 'application/json',
+    ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+  };
+}
 
 interface Props {
   userId: string;
@@ -80,7 +91,7 @@ export function PayPalCheckout({ userId, email, onSuccess }: Props) {
             try {
               const res = await fetch('/api/paypal/create-subscription', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: await authHeaders(),
                 body: JSON.stringify({ userId, email }),
               });
               const data = await res.json();
@@ -100,7 +111,7 @@ export function PayPalCheckout({ userId, email, onSuccess }: Props) {
             try {
               const res = await fetch('/api/paypal/finalize-subscription', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: await authHeaders(),
                 body: JSON.stringify({
                   userId,
                   subscriptionId: data.subscriptionID,

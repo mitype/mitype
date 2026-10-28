@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { paypalRequest } from '../../../lib/paypalClient';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
+import { getAuthedUser } from '../../../lib/waveAuth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -35,13 +36,28 @@ function toIsoOrNull(value?: string | null): string | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, subscriptionId } = await req.json();
+    const { subscriptionId } = await req.json();
+    const { user, error: authErr } = await getAuthedUser(req);
+    if (!user) {
+      return NextResponse.json({ error: authErr ?? 'Please sign in again.' }, { status: 401 });
+    }
+    const userId = user.id;
 
-    if (!userId || !subscriptionId) {
+    if (!subscriptionId) {
       return NextResponse.json(
-        { error: 'Missing userId or subscriptionId' },
+        { error: 'Missing subscriptionId' },
         { status: 400 }
       );
+    }
+
+    // Members with complimentary access keep it; nothing to save.
+    const { data: existing } = await getSupabaseAdmin()
+      .from('subscriptions')
+      .select('is_comped')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (existing?.is_comped) {
+      return NextResponse.json({ success: true, subscriptionId, status: 'active' });
     }
 
     // Re-fetch the subscription from PayPal — never trust the client.
