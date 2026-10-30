@@ -15,7 +15,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: signedIn, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -24,7 +24,25 @@ export default function LoginPage() {
       setLoading(false);
       return;
     }
-    router.push('/dashboard');
+    // Members with a profile who have not subscribed go straight to the
+    // profile editor (they save, then land on the paywall). Everyone else
+    // goes to the dashboard exactly as before. Any lookup failure falls
+    // back to the dashboard, which has its own gates.
+    let dest = '/dashboard';
+    try {
+      const uid = signedIn.user?.id;
+      if (uid) {
+        const [{ data: sub }, { data: prof }] = await Promise.all([
+          supabase.from('subscriptions').select('status').eq('user_id', uid).maybeSingle(),
+          supabase.from('profiles').select('user_id').eq('user_id', uid).maybeSingle(),
+        ]);
+        const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+        if (prof && !subscribed) dest = '/edit-profile';
+      }
+    } catch {
+      dest = '/dashboard';
+    }
+    router.push(dest);
   };
 
   return (

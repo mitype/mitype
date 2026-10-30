@@ -22,6 +22,8 @@ import { AmazonMasterclassAnnouncementModal } from '../components/AmazonMastercl
 import { CottageBakeryAnnouncementModal } from '../components/CottageBakeryAnnouncementModal';
 import { MomentsAnnouncementModal } from '../components/MomentsAnnouncementModal';
 import { MOMENTS_LIVE } from '../lib/momentsFlags';
+import { PushAnnouncementModal } from '../components/PushAnnouncementModal';
+import { PUSH_ANNOUNCE_LIVE } from '../lib/pushFlags';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { FeatureInfoAnnouncement } from '../components/FeatureInfoAnnouncement';
 
@@ -48,6 +50,7 @@ export default function Dashboard() {
   const [showAmazonAnnouncement, setShowAmazonAnnouncement] = useState(false);
   const [showCottageAnnouncement, setShowCottageAnnouncement] = useState(false);
   const [showMomentsAnnouncement, setShowMomentsAnnouncement] = useState(false);
+  const [showPushAnnouncement, setShowPushAnnouncement] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
@@ -133,6 +136,9 @@ export default function Dashboard() {
         // MI Moments launch, same one-time pattern. Only after the
         // release flag is switched on.
         setShowMomentsAnnouncement(true);
+      } else if (PUSH_ANNOUNCE_LIVE && !profile.push_announced_at) {
+        // Phone notifications announcement, same one-time pattern.
+        setShowPushAnnouncement(true);
       }
 
       // Fetch the newest wave video timestamp + newest current post
@@ -648,6 +654,12 @@ export default function Dashboard() {
         <AmazonMasterclassAnnouncementModal
           userId={user.id}
           onDismiss={() => setShowAmazonAnnouncement(false)}
+        />
+      )}
+      {!showBsuAnnouncement && !showAmazonAnnouncement && !showCottageAnnouncement && !showMomentsAnnouncement && showPushAnnouncement && user?.id && (
+        <PushAnnouncementModal
+          userId={user.id}
+          onDismiss={() => setShowPushAnnouncement(false)}
         />
       )}
       {!showBsuAnnouncement && !showAmazonAnnouncement && !showCottageAnnouncement && showMomentsAnnouncement && user?.id && (

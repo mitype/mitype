@@ -132,6 +132,7 @@ interface PortfolioLink {
 
 export default function EditProfilePage() {
   const [user, setUser] = useState<any>(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [username, setUsername] = useState('');
   const [originalUsername, setOriginalUsername] = useState('');
   const [bio, setBio] = useState('');
@@ -199,10 +200,9 @@ export default function EditProfilePage() {
         .eq('user_id', user.id)
         .maybeSingle();
       const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
-      if (!subscribed) {
-        router.push('/subscription');
-        return;
-      }
+      // Unsubscribed members may edit their profile (photo etc.); Save
+      // then sends them on to the paywall.
+      setIsSubscribed(subscribed);
       setUser(user);
 
       const { data: profile } = await supabase
@@ -392,7 +392,7 @@ export default function EditProfilePage() {
     }
 
     toast.success('Profile saved!');
-    router.push('/dashboard');
+    router.push(isSubscribed ? '/dashboard' : '/subscription');
   }
 
   if (loading) return (
