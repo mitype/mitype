@@ -15,8 +15,8 @@ import { FEATURE_DESCRIPTIONS, type FeatureDescription } from '../lib/featureDes
 // giant list. Order is intentional: what you do first, what you do
 // after, what you keep doing.
 const GROUPS: Array<{ label: string; keys: Array<keyof typeof FEATURE_DESCRIPTIONS> }> = [
-  { label: 'Start here',            keys: ['dashboard', 'editProfile', 'profile', 'discover'] },
-  { label: 'Create and share',      keys: ['wave', 'currents', 'spotlight'] },
+  { label: 'Start here',            keys: ['dashboard', 'editProfile', 'profile', 'discover', 'notifications'] },
+  { label: 'Create and share',      keys: ['wave', 'moments', 'currents', 'spotlight'] },
   { label: 'Connect and message',   keys: ['messages', 'rooms'] },
   { label: 'Network your creativity', keys: ['collab', 'meetups', 'projects'] },
   { label: 'Find opportunities',    keys: ['brandDeals'] },
@@ -27,6 +27,7 @@ const GROUPS: Array<{ label: string; keys: Array<keyof typeof FEATURE_DESCRIPTIO
 
 const TONES: Partial<Record<keyof typeof FEATURE_DESCRIPTIONS, string>> = {
   wave: '#38bdf8',
+  moments: '#a07a4d',
   currents: '#1e3a8a',
   brandDeals: 'var(--brand-business)',
   businesses: 'var(--brand-business)',

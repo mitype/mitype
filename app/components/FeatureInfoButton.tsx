@@ -23,7 +23,7 @@ interface Props {
   bottomOffset?: number;
 }
 
-export function FeatureInfoButton({ featureKey, bottomOffset = 20 }: Props) {
+export function FeatureInfoButton({ featureKey, bottomOffset = 96 }: Props) {
   const [open, setOpen] = useState(false);
   const desc: FeatureDescription | undefined = FEATURE_DESCRIPTIONS[featureKey];
 
@@ -51,22 +51,23 @@ export function FeatureInfoButton({ featureKey, bottomOffset = 20 }: Props) {
         style={{
           position: 'fixed',
           bottom: `calc(max(${bottomOffset}px, env(safe-area-inset-bottom)) + 10px)`,
-          right: 16,
-          width: 40,
-          height: 40,
+          right: 4,
+          width: 22,
+          height: 22,
           borderRadius: '50%',
           border: '1.5px solid var(--brand-personal)',
-          background: 'rgba(255,255,255,0.92)',
+          background: 'rgba(255,255,255,0.85)',
+          opacity: 0.8,
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
           color: 'var(--brand-personal)',
-          fontSize: 20,
+          fontSize: 13,
           fontWeight: 900,
           fontFamily: 'Georgia, serif',
           fontStyle: 'italic',
           cursor: 'pointer',
-          zIndex: 90,
-          boxShadow: '0 6px 20px rgba(200,149,108,0.30)',
+          zIndex: 40,
+          boxShadow: '0 2px 8px rgba(200,149,108,0.25)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

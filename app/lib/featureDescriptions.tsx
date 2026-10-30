@@ -151,6 +151,24 @@ export const FEATURE_DESCRIPTIONS: Record<string, FeatureDescription> = {
       'The Founders 50 is our referral program. Opt in on this page and your profile share link becomes a tracked referral link, with every signup listed on your Mi Referrals page. If you opt out or your subscription payment lapses, you are removed from the program.',
     ],
   },
+  moments: {
+    key: 'moments',
+    title: 'MI Moments',
+    paragraphs: [
+      'MI Moments is a full screen photo carousel for members. Photos from the whole Mitype community spin past on a 3D carousel, mixed together, and every photo is shown before any repeats.',
+      'Swipe left or right to move through photos. Double tap a photo to like it, and double tap again to unlike. Tap the username on a photo to visit that profile. Tap the plus at the bottom to post your own: crop and zoom it, add a filter, adjust the brightness, then share. There is no limit on how many you post.',
+      'You can delete your own photos any time. Tap the flag to report a photo that does not belong. Tap the X to leave.',
+    ],
+  },
+  notifications: {
+    key: 'notifications',
+    title: 'Phone notifications',
+    paragraphs: [
+      'Phone notifications let Mitype alert you when other members interact with you, even when the app is closed. They are free and you can turn them off any time.',
+      'To turn them on, open the menu and switch on Phone notifications, then allow notifications when your phone asks.',
+      'On an iPhone, first add Mitype to your Home Screen: tap the Share button in Safari, choose Add to Home Screen, then open Mitype from the new icon. On Android it works right from your browser.',
+    ],
+  },
   spotlight: {
     key: 'spotlight',
     title: 'Spotlight',
