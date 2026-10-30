@@ -391,6 +391,9 @@ export default function MomentsPage() {
 
   return (
     <div
+      // Opt out of the app wide swipe-right-to-go-back gesture: swiping the
+      // carousel must never leave this page. The X button is the exit.
+      data-no-swipe-back="true"
       style={{
         position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column',
         background: '#6e6e72', overscrollBehavior: 'none',
