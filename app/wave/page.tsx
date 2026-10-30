@@ -18,6 +18,7 @@ import { FeatureTutorial } from '../components/FeatureTutorial';
 import { WaveIntro } from '../components/WaveIntro';
 import { toast } from '../lib/toast';
 import { markSeen } from '../lib/lastSeen';
+import { feedback } from '../lib/feedback';
 
 interface WaveItem {
   id: string;
@@ -534,6 +535,8 @@ export default function WavePage() {
   }
 
   async function handleLike(videoId: string) {
+    const wasLiked = items.find((it) => it.id === videoId)?.likedByMe;
+    if (wasLiked) feedback.unlike(); else feedback.like();
     // Optimistic UI: flip immediately.
     setItems((prev) =>
       prev.map((it) =>

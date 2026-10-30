@@ -20,6 +20,7 @@ import { checkRateLimit, LIMITS, rateLimitMessage } from '../lib/rateLimit';
 import { MOMENTS_LIVE } from '../lib/momentsFlags';
 import { loadImage } from './momentsImage';
 import { MomentEditor } from './MomentEditor';
+import { feedback } from '../lib/feedback';
 
 interface Moment {
   id: string;
@@ -200,6 +201,7 @@ export default function MomentsPage() {
       return { ...m, liked: next, likeCount: Math.max(0, m.likeCount + (next ? 1 : -1)) };
     }));
     if (prevLiked === next) return;
+    if (next) feedback.like(); else feedback.unlike();
     const { error } = next
       ? await supabase.from('moment_likes').insert({ moment_id: id, user_id: meId })
       : await supabase.from('moment_likes').delete().eq('moment_id', id).eq('user_id', meId);

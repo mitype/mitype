@@ -32,6 +32,7 @@ import { MAX_CURRENT_LENGTH } from './CurrentComposer';
 import { checkRateLimit, LIMITS, rateLimitMessage } from '../lib/rateLimit';
 import { sendNotification } from '../lib/notify';
 import { TranslationButton } from './TranslationButton';
+import { feedback } from '../lib/feedback';
 
 export interface CurrentRecord {
   id: string;
@@ -151,6 +152,7 @@ export function CurrentCard({
     setBusy(true);
     try {
       if (echoed) {
+        feedback.unlike();
         await supabase
           .from('current_echoes')
           .delete()
@@ -175,6 +177,7 @@ export function CurrentCard({
           router.push('/subscription');
           return;
         }
+        feedback.like();
         const next = echoCount + 1;
         setEchoed(true);
         setEchoCount(next);

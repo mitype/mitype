@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
+import { feedback } from '../lib/feedback';
 
 interface MessageRow {
   id: string;
@@ -19,39 +20,6 @@ interface MessageRow {
   sender_id: string;
   content: string | null;
   created_at: string;
-}
-
-// A short two-tone chime via Web Audio. Lazy-init the AudioContext on
-// first call (browsers block creation before a user gesture in some
-// circumstances; if it fails, we just stay silent — better than crashing).
-let audioCtx: AudioContext | null = null;
-function playChime() {
-  if (typeof window === 'undefined') return;
-  try {
-    type WindowWithWebkitAudio = Window & { webkitAudioContext?: typeof AudioContext };
-    const w = window as WindowWithWebkitAudio;
-    const Ctor = window.AudioContext ?? w.webkitAudioContext;
-    if (!Ctor) return;
-    if (!audioCtx) audioCtx = new Ctor();
-    const ctx = audioCtx;
-    const now = ctx.currentTime;
-    const beep = (freq: number, start: number, dur: number) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, now + start);
-      gain.gain.linearRampToValueAtTime(0.08, now + start + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(now + start);
-      osc.stop(now + start + dur);
-    };
-    beep(880, 0, 0.12);
-    beep(1175, 0.09, 0.16);
-  } catch {
-    // Silent fail — chime is non-essential.
-  }
 }
 
 export function NewMessageToastListener() {
@@ -85,8 +53,8 @@ export function NewMessageToastListener() {
           const row = payload.new as MessageRow;
           // Skip own sends.
           if (!row || row.sender_id === userId) return;
-          // Skip if user is already viewing messages — they'll see it live.
-          if (pathname?.startsWith('/messages')) return;
+          // Already viewing messages: they see it live, just a soft chime.
+          if (pathname?.startsWith('/messages')) { feedback.message(); return; }
 
           // Resolve sender username for the toast.
           const { data: sender } = await supabase
@@ -97,7 +65,24 @@ export function NewMessageToastListener() {
 
           const handle = sender?.username ? `@${sender.username}` : 'someone';
           toast.info(`💬 New message from ${handle}`);
-          playChime();
+          feedback.message();
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'conversations' },
+        (payload) => {
+          const row = payload.new as { initiated_by?: string; participant_ids?: string[]; kind?: string | null };
+          if (row && row.initiated_by !== userId && (row.kind ?? 'dm') === 'dm') feedback.connection();
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'conversations' },
+        (payload) => {
+          const row = payload.new as { initiated_by?: string; status?: string };
+          const old = payload.old as { status?: string };
+          if (row && row.initiated_by === userId && row.status === 'approved' && old?.status !== 'approved') feedback.connection();
         },
       )
       .subscribe();

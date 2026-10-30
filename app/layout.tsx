@@ -7,6 +7,7 @@ import { NewMessageToastListener } from "./components/NewMessageToastListener";
 import { PresenceTracker } from "./components/PresenceTracker";
 import { SwipeBackProvider } from "./components/SwipeBackProvider";
 import { PageTransition } from "./components/PageTransition";
+import { GoldenHour } from "./components/GoldenHour";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
@@ -72,6 +73,7 @@ export default function RootLayout({
         <UnreadTitleSync />
         <NewMessageToastListener />
         <PresenceTracker />
+        <GoldenHour />
       </body>
     </html>
   );

@@ -26,6 +26,7 @@ import { MOMENTS_LIVE } from '../lib/momentsFlags';
 import { isActingAsOfficial, switchToOfficial, switchBackFromOfficial, clearOfficialReturn } from '../lib/officialProfile';
 import { toast } from '../lib/toast';
 import { PushNotificationsToggle } from './PushNotificationsToggle';
+import { FeedbackToggle } from './FeedbackToggle';
 import { disablePush } from '../lib/pushNotifications';
 
 interface Props {
@@ -374,7 +375,10 @@ export function SiteNav({
             <NavLink href="/mi-referrals" label="Mi Referrals" accent="var(--brand-personal)" />
           )}
           {userId && (
+            <>
             <PushNotificationsToggle userId={userId} pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
+            <FeedbackToggle pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
+            </>
           )}
           {!hideSignOut && userId && (
             <button
