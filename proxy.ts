@@ -51,6 +51,6 @@ export function proxy(request: NextRequest) {
 export const config = {
   // Skip static assets, the monitoring tunnel and cron/webhook endpoints.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|monitoring|api/cron|api/webhooks|api/stripe|api/paypal|manifest.json|icon-|apple-touch-icon).*)',
+    '/((?!_next/static|_next/image|favicon.ico|monitoring|api/cron|api/webhooks|api/push|api/stripe|api/paypal|manifest.json|sw.js|icon-|apple-touch-icon).*)',
   ],
 };

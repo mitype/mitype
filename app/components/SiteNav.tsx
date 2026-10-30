@@ -25,6 +25,8 @@ import { supabase } from '../lib/supabaseClient';
 import { MOMENTS_LIVE } from '../lib/momentsFlags';
 import { isActingAsOfficial, switchToOfficial, switchBackFromOfficial, clearOfficialReturn } from '../lib/officialProfile';
 import { toast } from '../lib/toast';
+import { PushNotificationsToggle } from './PushNotificationsToggle';
+import { disablePush } from '../lib/pushNotifications';
 
 interface Props {
   /** Pass this to enable the unread badge on the menu's dot and the
@@ -118,6 +120,8 @@ export function SiteNav({
 
   async function handleSignOut() {
     clearOfficialReturn();
+    // Stop this phone receiving the signed-out member's notifications.
+    await disablePush(userId ?? undefined);
     await supabase.auth.signOut();
     setOpen(false);
     router.push('/');
@@ -368,6 +372,9 @@ export function SiteNav({
               referrers; invisible to everyone else. */}
           {canSeeReferrals && (
             <NavLink href="/mi-referrals" label="Mi Referrals" accent="var(--brand-personal)" />
+          )}
+          {userId && (
+            <PushNotificationsToggle userId={userId} pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
           )}
           {!hideSignOut && userId && (
             <button
