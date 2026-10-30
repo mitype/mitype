@@ -5,7 +5,7 @@
 const KEY = 'mitype-feedback';
 
 export function feedbackEnabled(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') return true;
   try { return window.localStorage.getItem(KEY) !== 'off'; } catch { return true; }
 }
 
