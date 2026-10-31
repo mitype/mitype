@@ -236,6 +236,8 @@ export function SiteNav({
             textDecoration: 'none',
             whiteSpace: 'nowrap',
           }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/icon-192.png" alt="" aria-hidden="true" className="mt-sig-logo" />
             mitype
             {brandSuffix && (
               <span style={{ color: 'var(--brand-text-primary)' }}>{brandSuffix}</span>

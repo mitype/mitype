@@ -725,6 +725,7 @@ html[data-theme="signal"] [style*="linear-gradient"][style*="#f3e3cd" i],
 html[data-theme="signal"] [style*="linear-gradient"][style*="#ffe1c8" i]
 {
   background: var(--sig-card-solid) !important;
+  box-shadow: 0 0 0 1px rgba(200,149,108,0.16), 0 10px 30px rgba(0,0,0,0.35) !important;
 }
 html[data-theme="signal"] [style*=" color: rgb(3, 105, 161)" i],
 html[data-theme="signal"] [style*=";color:#0369a1" i],
@@ -796,4 +797,68 @@ html[data-theme="signal"] [style^="color: rgb(26, 18, 8)" i]
 /* White rings around avatars/cards read harsh on dark; soften them. */
 html[data-theme="signal"] [style*="solid white"] {
   border-color: rgba(246,232,214,0.55) !important;
+}
+
+/* ======================================================================
+ * Signal theme polish (phase 3). Shared touches that apply app-wide while
+ * the preview is on. Nothing here changes layout or behavior.
+ * ====================================================================== */
+html[data-theme="signal"] {
+  --sig-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sig-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(200,149,108,0.35) transparent;
+}
+html[data-theme="signal"] ::selection { background: rgba(242,207,168,0.35); color: #fff; }
+html[data-theme="signal"] *::-webkit-scrollbar { width: 8px; height: 8px; }
+html[data-theme="signal"] *::-webkit-scrollbar-thumb { background: rgba(200,149,108,0.35); border-radius: 8px; }
+html[data-theme="signal"] *::-webkit-scrollbar-track { background: transparent; }
+
+/* Headings: tighter and balanced, like the landing page. */
+html[data-theme="signal"] h1,
+html[data-theme="signal"] h2 { letter-spacing: -0.035em; text-wrap: balance; }
+html[data-theme="signal"] h3 { letter-spacing: -0.02em; }
+
+/* Small uppercase labels become the copper monospace "eyebrow" style. */
+html[data-theme="signal"] [style*="text-transform: uppercase"],
+html[data-theme="signal"] [style*="text-transform:uppercase"] {
+  font-family: var(--sig-mono) !important;
+}
+
+/* Keyboard focus is clearly visible. */
+html[data-theme="signal"] :focus-visible {
+  outline: 2px solid rgba(242,207,168,0.85);
+  outline-offset: 2px;
+}
+
+/* Press feedback on buttons and links that do not set their own motion. */
+@media (hover: hover) and (pointer: fine) {
+  html[data-theme="signal"] a, html[data-theme="signal"] button {
+    transition-property: transform, box-shadow, background-color, border-color, opacity;
+    transition-duration: 0.16s;
+    transition-timing-function: var(--sig-ease);
+  }
+}
+html[data-theme="signal"] button:active:not(:disabled) { transform: scale(0.98); }
+
+/* Navigation: hairline copper edge and soft depth. */
+html[data-theme="signal"] nav {
+  box-shadow: 0 1px 0 rgba(200,149,108,0.14), 0 10px 30px rgba(0,0,0,0.35);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.mt-sig-logo { display: none; }
+html[data-theme="signal"] .mt-sig-logo {
+  display: inline-block;
+  width: 26px; height: 26px; border-radius: 8px;
+  margin-right: 8px; vertical-align: -6px;
+}
+
+/* Pages fade in softly (opacity only, so fixed elements stay put). */
+@keyframes sig-fade { from { opacity: 0; } to { opacity: 1; } }
+html[data-theme="signal"] main { animation: sig-fade 0.45s var(--sig-ease) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="signal"] main { animation: none; }
+  html[data-theme="signal"] button:active:not(:disabled) { transform: none; }
 }
