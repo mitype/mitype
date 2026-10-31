@@ -10,6 +10,7 @@ import { SwipeBackProvider } from "./components/SwipeBackProvider";
 import { PageTransition } from "./components/PageTransition";
 import { GoldenHour } from "./components/GoldenHour";
 import { SignalBackdrop } from "./components/SignalBackdrop";
+import { DesignAnnouncement } from "./components/DesignAnnouncement";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
@@ -83,6 +84,7 @@ export default function RootLayout({
         <PresenceTracker />
         <GoldenHour />
         <SignalBackdrop />
+        <DesignAnnouncement />
       </body>
     </html>
   );

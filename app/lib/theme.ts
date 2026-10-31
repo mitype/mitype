@@ -6,7 +6,7 @@
 
 export const THEME_KEY = 'mitype-theme';
 export const THEME_EVENT = 'mitype-theme-change';
-export const SIGNAL_DEFAULT_ON = false;
+export const SIGNAL_DEFAULT_ON = true;
 export type Theme = 'default' | 'signal';
 
 export function getTheme(): Theme {
