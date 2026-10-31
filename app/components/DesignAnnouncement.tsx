@@ -18,7 +18,7 @@ export function DesignAnnouncement() {
     if (!pathname || pathname === '/' || pathname.startsWith('/login') || pathname.startsWith('/signup')) return;
     try {
       if (window.localStorage.getItem(SEEN_KEY)) return;
-      if (window.localStorage.getItem(THEME_KEY)) { // member already chose a design
+      if (window.localStorage.getItem(THEME_KEY) === 'classic') { // member already chose Classic
         window.localStorage.setItem(SEEN_KEY, '1');
         return;
       }
