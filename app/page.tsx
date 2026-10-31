@@ -262,7 +262,7 @@ export default function HomePage() {
           <div>
             <div className="lp-mono lp-rv">The social media that networks</div>
             <h1 id="lp-hero-title" className="lp-rv" style={{ ['--i' as string]: 1 }}>
-              Find your <span>type.</span>
+              Find your type <span>of people.</span>
             </h1>
             <p className="lp-lead lp-rv" style={{ ['--i' as string]: 2 }}>
               Mitype connects creative professionals, hobbyists, and passionate people based on what they actually love doing. Not just how they look.
