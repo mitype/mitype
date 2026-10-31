@@ -839,7 +839,11 @@ html[data-theme="signal"] :focus-visible {
     transition-timing-function: var(--sig-ease);
   }
 }
-html[data-theme="signal"] button:active:not(:disabled) { transform: scale(0.98); }
+html[data-theme="signal"] button:active:not(:disabled):not([style*="translate"]),
+html[data-theme="signal"] a:active:not([style*="translate"]) {
+  transform: scale(0.94) !important;
+  filter: brightness(1.15);
+}
 
 /* Navigation: hairline copper edge and soft depth. */
 html[data-theme="signal"] nav {
@@ -856,9 +860,48 @@ html[data-theme="signal"] .mt-sig-logo {
 
 /* Pages fade in softly (opacity only, so fixed elements stay put). */
 @keyframes sig-fade { from { opacity: 0; } to { opacity: 1; } }
-html[data-theme="signal"] main { animation: sig-fade 0.45s var(--sig-ease) both; }
+html[data-theme="signal"] main { animation: sig-fade 0.5s var(--sig-ease) both; }
+@keyframes sig-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+html[data-theme="signal"] main > * { animation: sig-rise 0.7s var(--sig-ease) backwards; }
+html[data-theme="signal"] main > *:nth-child(2) { animation-delay: 0.07s; }
+html[data-theme="signal"] main > *:nth-child(3) { animation-delay: 0.14s; }
+html[data-theme="signal"] main > *:nth-child(4) { animation-delay: 0.21s; }
+html[data-theme="signal"] main > *:nth-child(5) { animation-delay: 0.28s; }
+html[data-theme="signal"] main > *:nth-child(n+6) { animation-delay: 0.35s; }
 
+
+
+/* Phase 3b: stronger, more visible touches. */
+html[data-theme="signal"] h1 {
+  background: linear-gradient(90deg, #f6e0c4, #d19f77 60%, #f2cfa8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent !important;
+}
+html[data-theme="signal"] {
+  --lg-body-lite-warm:  linear-gradient(135deg, #b07b52 0%, #8a5d3a 50%, #a46f47 100%);
+  --lg-body-full-warm:  linear-gradient(135deg, #b07b52 0%, #8a5d3a 50%, #a46f47 100%);
+  --lg-glow-warm:       0 0 26px rgba(242,207,168,0.38), 0 6px 22px rgba(0,0,0,0.35);
+  --lg-glow-warm-hover: 0 0 36px rgba(242,207,168,0.6), 0 10px 30px rgba(0,0,0,0.4);
+  --lg-shine:           rgba(255,226,190,0.8);
+}
+.sig-aurora { display: none; }
+html[data-theme="signal"] .sig-aurora {
+  display: block;
+  position: fixed; inset: -20%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(40% 35% at 18% 22%, rgba(200,149,108,0.20), transparent 70%),
+    radial-gradient(35% 30% at 82% 72%, rgba(242,207,168,0.13), transparent 70%),
+    radial-gradient(30% 28% at 60% 10%, rgba(200,149,108,0.10), transparent 70%);
+  animation: sig-drift 20s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes sig-drift {
+  from { transform: translate3d(-4%, -3%, 0) scale(1); }
+  to   { transform: translate3d(4%, 3%, 0) scale(1.1); }
+}
 @media (prefers-reduced-motion: reduce) {
-  html[data-theme="signal"] main { animation: none; }
-  html[data-theme="signal"] button:active:not(:disabled) { transform: none; }
+  html[data-theme="signal"] main, html[data-theme="signal"] main > *, html[data-theme="signal"] .sig-aurora { animation: none; }
+  html[data-theme="signal"] button:active:not(:disabled), html[data-theme="signal"] a:active { transform: none !important; }
 }

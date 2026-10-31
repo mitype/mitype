@@ -29,8 +29,11 @@ export function SignalBackdrop() {
   if (SKIP.some((p) => pathname === p || (p !== '/' && pathname?.startsWith(p + '/')))) return null;
 
   return (
-    <LandingBackground
-      appStyle={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1, pointerEvents: 'none' }}
-    />
+    <>
+      <div className="sig-aurora" aria-hidden="true" />
+      <LandingBackground
+        appStyle={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1, pointerEvents: 'none' }}
+      />
+    </>
   );
 }
