@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from 'react';
 
-export function OddcastPill() {
+export function OddcastPill({ dark = false }: { dark?: boolean }) {
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
 
@@ -102,6 +102,17 @@ export function OddcastPill() {
             transition:
               'transform 0.18s ease, box-shadow 0.18s ease',
             textShadow: '0 1px 0 rgba(255,255,255,0.5)',
+            ...(dark
+              ? {
+                  color: '#25180e',
+                  background: 'linear-gradient(180deg, #f5d6b0, #cf9a6b)',
+                  border: '1px solid transparent',
+                  backdropFilter: 'none',
+                  WebkitBackdropFilter: 'none',
+                  boxShadow: hover ? '0 10px 34px rgba(242,207,168,0.45)' : '0 6px 22px rgba(200,149,108,0.28)',
+                  textShadow: 'none',
+                }
+              : {}),
           }}
         >
           ♾️ Oddcast

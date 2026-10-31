@@ -13,9 +13,11 @@ interface Props {
   categories: string[];
   /** How many to show before collapsing. Default 20. */
   initialCount?: number;
+  /** Dark landing-page styling. */
+  dark?: boolean;
 }
 
-export function CategoryShowcase({ categories, initialCount = 20 }: Props) {
+export function CategoryShowcase({ categories, initialCount = 20, dark = false }: Props) {
   const [expanded, setExpanded] = useState(false);
   const remaining = Math.max(0, categories.length - initialCount);
   const visible = expanded || remaining === 0
@@ -35,10 +37,16 @@ export function CategoryShowcase({ categories, initialCount = 20 }: Props) {
             // `lite` variant — same visual glass language (gradient
             // border shine + inset shadows) but NO backdrop-filter, so
             // scrolling 140 of these at once stays smooth on mobile.
-            ...liquidGlass({ tone: 'clear', variant: 'lite' }),
+            ...(dark
+              ? {
+                  border: '1px solid rgba(200,149,108,0.24)',
+                  borderRadius: 100,
+                  background: 'rgba(255,255,255,0.04)',
+                  color: '#f6e8d6',
+                }
+              : { ...liquidGlass({ tone: 'clear', variant: 'lite' }), color: 'var(--brand-personal-text-head)' }),
             padding: '9px 18px',
             fontSize: 13,
-            color: 'var(--brand-personal-text-head)',
             fontWeight: 600,
           }}>
             {cat}
@@ -54,9 +62,13 @@ export function CategoryShowcase({ categories, initialCount = 20 }: Props) {
             aria-expanded={expanded}
             aria-label={expanded ? 'Show fewer categories' : `Show ${remaining} more categories`}
             style={{
-              ...liquidGlass({ tone: expanded ? 'clear' : 'warm' }),
+              ...(dark
+                ? expanded
+                  ? { border: '1px solid rgba(246,232,214,0.3)', borderRadius: 100, background: 'rgba(255,255,255,0.05)' }
+                  : { border: '1px solid transparent', borderRadius: 100, background: 'linear-gradient(180deg, #f5d6b0, #cf9a6b)' }
+                : liquidGlass({ tone: expanded ? 'clear' : 'warm' })),
               padding: '10px 22px',
-              color: 'var(--brand-text-primary)',
+              color: dark ? (expanded ? '#f6e8d6' : '#25180e') : 'var(--brand-text-primary)',
               fontSize: 13,
               fontWeight: 800,
               letterSpacing: '0.3px',

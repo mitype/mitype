@@ -1,64 +1,56 @@
 import Link from 'next/link';
+import './landing.css';
 import { OddcastPill } from './components/OddcastPill';
-import { ScrollIndicator } from './components/ScrollIndicator';
 import { RefBadge } from './components/RefBadge';
 import { CategoryShowcase } from './components/CategoryShowcase';
-import { FeatureExplorer, type Feature } from './components/FeatureExplorer';
-import { liquidGlass } from './lib/liquidGlass';
+import { LandingFeatures, type LandingFeature } from './components/landing/LandingFeatures';
+import { LandingBackground } from './components/landing/LandingBackground';
+import { HeroOrb } from './components/landing/HeroOrb';
+import { LandingEffects, ScrollHint } from './components/landing/LandingEffects';
 
-// Full feature roster shown in the "Why Mitype" explorer. Each card is
-// clickable and opens a modal with the long-form pitch. We surface the
-// original 6 trust pillars plus every major feature shipped since
-// (Wave, Daily Spark, Small Business, Mi Home Goods, Messages + games,
-// Rooms/Groups, Endorsements, Mipets) so curious visitors can see the
-// full breadth without scrolling four screens.
-const FEATURES: Feature[] = [
+// Full feature roster shown in the "Built different. On purpose." grid.
+// Each card is clickable and opens a modal with the long-form pitch.
+const FEATURES: LandingFeature[] = [
   // Original trust pillars (smaller cards, full pitch on click).
   {
-    icon: '🤝',
     tone: 'personal',
     title: 'Connect With Purpose',
     blurb: 'Real profiles of creators who share your craft.',
     body: 'Mitype is built around real, considered profiles, not endless swipes. Browse creators in your area, see what they actually do, and reach out when you find someone you click with.',
   },
   {
-    icon: '🎓',
     logo: '/black-sheep-university/logo.png',
     tone: 'personal',
     title: 'Black Sheep University',
+    wide: true,
     blurb: 'Masterclass training to help you succeed on other platforms.',
     body: 'Black Sheep University is professional creator training included with your membership. Each masterclass is built to help creators become successful on the other networks they use, with structured modules and lessons you can work through at your own pace. New masterclasses are added over time.',
   },
   {
-    icon: '🔐',
     tone: 'personal',
     title: 'You Control Your Inbox',
     blurb: 'Every message request needs your approval first.',
     body: 'No spam, no cold openers piling up. Every new conversation lands as a request you can accept or skip. Your inbox stays yours.',
   },
   {
-    icon: '🎯',
     tone: 'personal',
     title: 'Filter By What Matters',
     blurb: 'Search by category, city, distance, and ZIP.',
     body: 'Find a guitarist in your neighborhood, a chef across town, or a photographer in the next state over. Filter Discover by category, ZIP, city, or distance, and toggle a "near me" view that respects how far you actually want to travel.',
   },
   {
-    icon: '🔗',
     tone: 'personal',
     title: 'Share Your Profile',
     blurb: 'One public link for any social platform.',
     body: 'Your Mitype URL is portable. Drop it in an Instagram bio, a TikTok pinned comment, or a business card. People who tap it land on your profile no matter where they came from.',
   },
   {
-    icon: '🛡️',
     tone: 'personal',
     title: 'Safe & Private',
     blurb: 'Your email and personal details stay yours.',
     body: 'We never expose your email, phone number, or location beyond what you choose to display. Block and report are one tap away on every profile and every video.',
   },
   {
-    icon: '📍',
     tone: 'personal',
     title: 'Local First',
     blurb: 'Find creators in your actual neighborhood.',
@@ -67,14 +59,24 @@ const FEATURES: Feature[] = [
 
   // New features.
   {
-    icon: '🌊',
     tone: 'personal',
     title: 'The Wave Feed',
+    wide: true,
     blurb: 'Short, 60-second videos from your community.',
     body: 'Post a 60-second clip of what you are working on. The Wave Feed surfaces fresh videos from creators you are compatible with, ranked by craft overlap. Likes, undo skips, and double-tap-to-like are built in.',
   },
   {
-    icon: '🌀',
+    tone: 'personal',
+    title: 'MI Moments',
+    blurb: 'A full screen photo carousel. Double tap to like.',
+    body: 'MI Moments is a full screen photo carousel for members. Photos from the whole Mitype community spin past on a 3D carousel, mixed together, and every photo is shown before any repeat. Swipe to move through photos, double tap to like, and tap a name to visit that profile.',
+    bullets: [
+      'Post your own: crop and zoom, add a filter, adjust the brightness, then share.',
+      'No limit on how many photos you post. Delete your own any time.',
+      'Report anything that does not belong with one tap.',
+    ],
+  },
+  {
     tone: 'personal',
     title: 'The Current',
     blurb: 'Text drops with rich entity embeds. A feed unlike any other.',
@@ -87,16 +89,15 @@ const FEATURES: Feature[] = [
     ],
   },
   {
-    icon: '✨',
     tone: 'personal',
     title: 'Daily Spark',
     blurb: 'One hand-picked profile per day, with an opener.',
     body: 'Every morning Mitype picks one creator we think you should meet and writes a personalized icebreaker based on their profile prompts. Edit the opener, send it, or skip. Your call.',
   },
   {
-    icon: '🏪',
     tone: 'business',
     title: 'Small Business profiles',
+    wide: true,
     blurb: 'Run a shop, online or local.',
     body: 'Mitype gives small businesses a clean home: logo, services, hours, contact buttons, social links, and events. Local discovery + word-of-mouth recommendations make sure the right people find you.',
     bullets: [
@@ -109,7 +110,6 @@ const FEATURES: Feature[] = [
     ],
   },
   {
-    icon: '🏡',
     tone: 'market',
     title: 'Mi Home Goods',
     blurb: 'Buy and sell with your Mitype community.',
@@ -123,28 +123,25 @@ const FEATURES: Feature[] = [
     ],
   },
   {
-    icon: '💬',
     tone: 'personal',
     title: 'Messages, Games & Voice',
+    wide: true,
     blurb: '14 mini-games, Story Builder, voice notes, photos.',
     body: 'Mitype messaging is a real chat, not a stripped-down DM box. Send voice notes, share photos, and challenge a friend to one of 14 built-in games (Chess, Battleship, Pictionary, Word Duel, Trivia Battle, Hangman, and more). The collaborative Story Builder lets you co-write a story and export it as a shareable image.',
   },
   {
-    icon: '🛋️',
     tone: 'personal',
     title: 'Rooms & Groups',
     blurb: 'Open chat by interest. Private group chats.',
     body: 'Rooms are public chat lounges organized by interest like film geeks, beat-makers, and plant parents, with daily prompts to keep conversation alive. Groups are private chats for your crew. Both come with the full messaging toolkit.',
   },
   {
-    icon: '💜',
     tone: 'personal',
     title: 'Endorsements',
     blurb: 'Peer testimonials on your profile.',
     body: 'Anyone you\'ve messaged can leave a short endorsement on your profile. The social proof that says "I worked with this person and here\'s what they\'re actually like." Public, honest, and stackable.',
   },
   {
-    icon: '🐾',
     tone: 'personal',
     title: 'Mipets',
     blurb: 'Show off your pet with a hanging tag.',
@@ -152,233 +149,7 @@ const FEATURES: Feature[] = [
   },
 ];
 
-
-export default function HomePage() {
-  return (
-    <main style={{
-      minHeight: '100vh',
-      background: 'var(--brand-personal-bg-cream-deep)',
-      fontFamily: "'Helvetica Neue', Arial, sans-serif",
-      color: 'var(--brand-text-primary)',
-      overflowX: 'hidden',
-    }}>
-
-      {/* "Invited by @username" badge — appears only when ?ref=… is in URL */}
-      <RefBadge />
-
-      {/* Navigation */}
-      <nav style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '20px 48px',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        background: 'rgba(245,240,232,0.85)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(180,155,120,0.2)',
-      }}>
-        <div style={{
-          fontSize: 26,
-          fontWeight: 900,
-          letterSpacing: '-1px',
-          color: 'var(--brand-personal)',
-        }}>
-          mitype
-        </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <Link href="/login" style={{
-            ...liquidGlass({ tone: 'clear' }),
-            color: 'var(--brand-personal-text-mid)',
-            textDecoration: 'none',
-            fontSize: 15,
-            padding: '9px 22px',
-          }}>
-            Sign In
-          </Link>
-          <Link href="/signup" style={{
-            ...liquidGlass({ tone: 'warm' }),
-            color: 'var(--brand-text-primary)',
-            textDecoration: 'none',
-            fontSize: 15,
-            fontWeight: 800,
-            padding: '10px 26px',
-          }}>
-            Join now
-          </Link>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        // Vertically centered between the nav and the scroll pill so the
-        // content sits in the optical middle of the viewport on phones
-        // rather than bunching up against the top edge. Top padding still
-        // clears the fixed nav (~80px) and bottom padding still reserves
-        // space for the absolutely-positioned scroll pill.
-        justifyContent: 'center',
-        textAlign: 'center',
-        // Top padding clears the fixed nav; bottom padding reserves
-        // room for the scroll pill so the social-proof line doesn't
-        // sit on top of it on shorter phone screens.
-        padding: '100px 24px 130px',
-        position: 'relative',
-        background: 'linear-gradient(180deg, var(--brand-personal-bg-cream) 0%, var(--brand-personal-bg-cream-deep) 100%)',
-      }}>
-        {/* Soft background circle */}
-        <div style={{
-          position: 'absolute',
-          top: '15%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 700,
-          height: 700,
-          background: 'radial-gradient(circle, rgba(200,149,108,0.12) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Headline */}
-        <h1 style={{
-          fontSize: 'clamp(44px, 8vw, 90px)',
-          fontWeight: 900,
-          lineHeight: 1.05,
-          letterSpacing: '-2.5px',
-          marginBottom: 12,
-          maxWidth: 820,
-          color: 'var(--brand-text-primary)',
-        }}>
-          Connect with people who
-          <br />
-          <span style={{ color: 'var(--brand-personal)' }}>
-            share your world
-          </span>
-        </h1>
-
-        {/* Tagline — smaller print sits right under the headline. Black
-            for stronger emphasis against the cream background. */}
-        <p style={{
-          fontSize: 'clamp(13px, 1.5vw, 16px)',
-          color: 'var(--brand-text-primary)',
-          fontWeight: 800,
-          letterSpacing: '1.8px',
-          textTransform: 'uppercase',
-          marginBottom: 18,
-        }}>
-          The social media that networks
-        </p>
-
-        {/* Supporting copy — kept but trimmed and shrunk so the hero
-            stays compact enough that the scroll hint fits on screen. */}
-        <p style={{
-          fontSize: 'clamp(13px, 1.6vw, 15px)',
-          color: 'var(--brand-personal-text-mid)',
-          maxWidth: 460,
-          lineHeight: 1.55,
-          marginBottom: 26,
-        }}>
-          Mitype connects creative professionals, hobbyists, and passionate people based on what they actually love doing. Not just how they look.
-        </p>
-
-        {/* CTAs stacked vertically — Create a profile on top, Sign In
-            beneath. Same width so they line up cleanly on every screen.
-            Centered as a column on phones and small tablets. */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-          alignItems: 'center',
-          marginBottom: 18,
-          width: '100%',
-          maxWidth: 280,
-        }}>
-          <Link href="/signup" style={{
-            ...liquidGlass({ tone: 'warm' }),
-            color: 'var(--brand-text-primary)',
-            textDecoration: 'none',
-            fontSize: 16,
-            fontWeight: 800,
-            padding: '14px 36px',
-            width: '100%',
-            textAlign: 'center',
-            boxSizing: 'border-box',
-          }}>
-            Create a profile →
-          </Link>
-          <Link href="/login" style={{
-            ...liquidGlass({ tone: 'clear' }),
-            color: 'var(--brand-personal-text-mid)',
-            textDecoration: 'none',
-            fontSize: 16,
-            fontWeight: 600,
-            padding: '14px 36px',
-            width: '100%',
-            textAlign: 'center',
-            boxSizing: 'border-box',
-          }}>
-            Sign In
-          </Link>
-        </div>
-
-        {/* Social proof line — centered under the buttons, emoji-free. */}
-        <p style={{
-          textAlign: 'center',
-          color: 'var(--brand-personal-text-light)',
-          fontSize: 13,
-          fontWeight: 600,
-          letterSpacing: '0.3px',
-          margin: 0,
-        }}>
-          Thousands of creatives already collaborating
-        </p>
-
-        {/* Scroll-down hint — bounces gently, fades out on first scroll */}
-        <ScrollIndicator />
-      </section>
-
-      {/* Categories Section */}
-      <section style={{
-        padding: '100px 24px',
-        background: '#fff9f2',
-        borderTop: '1px solid rgba(200,149,108,0.12)',
-        borderBottom: '1px solid rgba(200,149,108,0.12)',
-      }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{
-            color: 'var(--brand-personal)',
-            fontSize: 12,
-            letterSpacing: 4,
-            textTransform: 'uppercase',
-            fontWeight: 700,
-            marginBottom: 16,
-          }}>
-            Who you'll connect with
-          </p>
-          <h2 style={{
-            fontSize: 'clamp(28px, 4vw, 44px)',
-            fontWeight: 800,
-            letterSpacing: '-1px',
-            marginBottom: 48,
-            color: 'var(--brand-text-primary)',
-          }}>
-            Every type of creator. One platform.
-          </h2>
-
-          {/* Featured: Oddcast — solo at the top. Clickable pill that opens
-              a modal explaining the category. */}
-          <OddcastPill />
-
-          {/* CategoryShowcase keeps the page tight on mobile: it
-              shows the first 20 categories by default with a "+N more"
-              button that expands the full list on tap. */}
-          <CategoryShowcase
-            categories={[
+const CATEGORIES: string[] = [
               // Creative Arts
               'Painters', 'Writers', 'Photographers', 'Actors',
               'Dancers', 'Filmmakers', 'Illustrators', 'Sculptors',
@@ -445,236 +216,172 @@ export default function HomePage() {
               'Free Thinkers', 'Alternative Media', 'Truth Seekers',
               'Minimalists', 'Visionaries',
               'Faith Based', 'Activists', 'Environmentalists',
-            ]}
-          />
-        </div>
-      </section>
+            ];
 
-      {/* Why Mitype — clickable feature explorer. Each tile opens a
-          modal with the longer pitch so the page stays compact while
-          still surfacing every feature on the platform. */}
-      <section style={{ padding: '80px 24px', maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: 36 }}>
-          <p style={{
-            color: 'var(--brand-personal)',
-            fontSize: 12,
-            letterSpacing: 4,
-            textTransform: 'uppercase',
-            fontWeight: 700,
-            marginBottom: 14,
-          }}>
-            Why Mitype
-          </p>
-          <h2 style={{
-            fontSize: 'clamp(28px, 4vw, 42px)',
-            fontWeight: 800,
-            letterSpacing: '-0.8px',
-            color: 'var(--brand-text-primary)',
-            margin: 0,
-          }}>
-            Built different. On purpose.
-          </h2>
-          <p style={{
-            margin: '12px auto 0',
-            maxWidth: 540,
-            color: 'var(--brand-personal-text-mid)',
-            fontSize: 15,
-            lineHeight: 1.55,
-          }}>
-            Tap any card to see how it works.
-          </p>
-        </div>
+const PRICING_ITEMS: string[] = [
+  'Full Wave Feed access: post, watch, and connect',
+  'MI Moments, the full screen photo carousel',
+  'The Current: text drops, replies, and rich entity embeds',
+  'Unlimited Discover + a personalized Daily Spark each day',
+  'Run a Small Business profile (local or online-only)',
+  'Featured in the Daily Business Spotlight rotation',
+  'Sell on Mi Home Goods, the community marketplace',
+  'Unlimited messaging with voice notes and photos',
+  '14 mini-games + collaborative Story Builder in chat',
+  'Create unlimited Rooms and private Groups',
+  'Endorsements, Mipets, and Featured Wave on your profile',
+  'Filter people by category, city, distance, and ZIP',
+  'Travel mode and Open-to-collab signaling',
+  'Cancel anytime. No commitment.',
+];
 
-        <FeatureExplorer features={FEATURES} />
-      </section>
+export default function HomePage() {
+  return (
+    <main className="lp-root">
+      <LandingBackground />
+      <LandingEffects />
 
-      {/* Pricing */}
-      <section style={{
-        padding: '80px 24px',
-        background: '#fff9f2',
-        borderTop: '1px solid rgba(200,149,108,0.12)',
-        textAlign: 'center',
-      }}>
-        <p style={{
-          color: 'var(--brand-personal)',
-          fontSize: 12,
-          letterSpacing: 4,
-          textTransform: 'uppercase',
-          fontWeight: 700,
-          marginBottom: 16,
-        }}>
-          Pricing
-        </p>
-        <h2 style={{
-          fontSize: 'clamp(28px, 4vw, 44px)',
-          fontWeight: 800,
-          letterSpacing: '-1px',
-          marginBottom: 36,
-          color: 'var(--brand-text-primary)',
-        }}>
-          One subscription. Every feature.
-        </h2>
+      {/* "Invited by @username" badge, appears only when ?ref=... is in URL */}
+      <RefBadge />
 
-        <div style={{
-          maxWidth: 480,
-          margin: '0 auto',
-          background: 'white',
-          border: '1px solid rgba(200,149,108,0.25)',
-          borderRadius: 28,
-          padding: '44px 36px 36px',
-          boxShadow: '0 20px 60px rgba(200,149,108,0.1)',
-          textAlign: 'left',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'center',
-            gap: 4,
-            marginBottom: 28,
-          }}>
-            <span style={{ fontSize: 64, fontWeight: 900, color: 'var(--brand-text-primary)', letterSpacing: '-2px' }}>$5</span>
-            <span style={{ color: 'var(--brand-personal-text-light)', fontSize: 17 }}>/month</span>
-          </div>
-
-          {/* Comprehensive feature list. Short bullets, no paragraphs.
-              Grouped subtly (no headers) so the eye reads fast. */}
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px' }}>
-            {[
-              'Full Wave Feed access — post, watch, and connect',
-              'The Current — text drops, replies, and rich entity embeds',
-              'Unlimited Discover + a personalized Daily Spark each day',
-              'Run a Small Business profile (local or online-only)',
-              'Featured in the Daily Business Spotlight rotation',
-              'Sell on Mi Home Goods, the community marketplace',
-              'Unlimited messaging with voice notes and photos',
-              '14 mini-games + collaborative Story Builder in chat',
-              'Create unlimited Rooms and private Groups',
-              'Endorsements, Mipets, and Featured Wave on your profile',
-              'Filter people by category, city, distance, and ZIP',
-              'Travel mode and Open-to-collab signaling',
-              'Cancel anytime. No commitment.',
-            ].map((item) => (
-              <li key={item} style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 12,
-                padding: '9px 0',
-                borderBottom: '1px solid rgba(200,149,108,0.08)',
-                color: 'var(--brand-personal-text-head)',
-                fontSize: 14,
-                lineHeight: 1.4,
-              }}>
-                <span aria-hidden="true" style={{
-                  width: 18,
-                  height: 18,
-                  background: 'rgba(200,149,108,0.15)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--brand-personal)',
-                  fontSize: 11,
-                  fontWeight: 800,
-                  flexShrink: 0,
-                  marginTop: 2,
-                }}>✓</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-
-          <Link href="/signup" style={{
-            ...liquidGlass({ tone: 'warm' }),
-            display: 'block',
-            color: 'var(--brand-text-primary)',
-            textDecoration: 'none',
-            fontSize: 16,
-            fontWeight: 800,
-            padding: '15px 32px',
-            textAlign: 'center',
-            letterSpacing: '0.3px',
-          }}>
-            Create your account today
-          </Link>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section style={{
-        padding: '100px 24px',
-        textAlign: 'center',
-        background: 'linear-gradient(180deg, var(--brand-personal-bg-cream-deep) 0%, #ede5d8 100%)',
-      }}>
-        <h2 style={{
-          fontSize: 'clamp(32px, 5vw, 60px)',
-          fontWeight: 900,
-          letterSpacing: '-1.5px',
-          marginBottom: 16,
-          color: 'var(--brand-text-primary)',
-        }}>
-          Your type of people are out there.
-        </h2>
-        <p style={{
-          color: 'var(--brand-personal-text-mid)',
-          fontSize: 18,
-          marginBottom: 48,
-          maxWidth: 400,
-          margin: '0 auto 48px',
-        }}>
-          Connect with people who share your world.
-        </p>
-        <Link href="/signup" style={{
-          ...liquidGlass({ tone: 'warm' }),
-          color: 'var(--brand-text-primary)',
-          textDecoration: 'none',
-          fontSize: 18,
-          fontWeight: 800,
-          padding: '18px 52px',
-          display: 'inline-block',
-        }}>
-          Create a profile →
-        </Link>
-      </section>
-
-      {/* Footer */}
-      <footer style={{
-        borderTop: '1px solid rgba(200,149,108,0.15)',
-        padding: '36px 48px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: 16,
-        background: 'var(--brand-personal-bg-cream-deep)',
-      }}>
-        <div style={{
-          fontSize: 22,
-          fontWeight: 900,
-          color: 'var(--brand-personal)',
-          letterSpacing: '-0.5px',
-        }}>
+      <nav className="lp-nav" aria-label="Main">
+        <Link href="/" className="lp-logo">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icon-192.png" alt="" aria-hidden="true" />
           mitype
+        </Link>
+        <div className="lp-nl">
+          <Link href="/login" className="lp-btn lp-gh lp-sm">Sign In</Link>
+          <Link href="/signup" className="lp-btn lp-pri lp-sm">Join now</Link>
         </div>
-        <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-          {[
-            { label: 'Privacy Policy', href: '/legal/privacy' },
-            { label: 'Terms of Service', href: '/legal/terms' },
-            { label: 'Contact & Support', href: '/legal/contact' },
-          ].map((link) => (
-            <Link key={link.href} href={link.href} style={{
-              color: 'var(--brand-personal-text-light)',
-              textDecoration: 'none',
-              fontSize: 14,
-            }}>
-              {link.label}
-            </Link>
-          ))}
-        </div>
-        <p style={{ color: '#c4aa90', fontSize: 13 }}>
-          © {new Date().getFullYear()} Mitype · www.mitypeapp.com
-        </p>
-      </footer>
+      </nav>
 
+      <div className="lp-layer">
+        {/* Hero */}
+        <section className="lp-hero" aria-labelledby="lp-hero-title">
+          <div>
+            <div className="lp-mono lp-rv">The social media that networks</div>
+            <h1 id="lp-hero-title" className="lp-rv" style={{ ['--i' as string]: 1 }}>
+              Find your <span>type.</span>
+            </h1>
+            <p className="lp-lead lp-rv" style={{ ['--i' as string]: 2 }}>
+              Mitype connects creative professionals, hobbyists, and passionate people based on what they actually love doing. Not just how they look.
+            </p>
+            <div className="lp-cta lp-rv" style={{ ['--i' as string]: 3 }}>
+              <Link href="/signup" className="lp-btn lp-pri">Create a profile →</Link>
+              <Link href="/login" className="lp-btn lp-gh">Sign In</Link>
+            </div>
+            <p className="lp-proof lp-rv" style={{ ['--i' as string]: 4 }}>
+              Thousands of creatives already collaborating
+            </p>
+          </div>
+          <HeroOrb />
+          <ScrollHint />
+        </section>
+
+        {/* How the signal travels */}
+        <section className="lp-sec" aria-labelledby="lp-how-title">
+          <div className="lp-mono lp-rv">How the signal travels</div>
+          <h2 id="lp-how-title" className="lp-h2 lp-rv" style={{ ['--i' as string]: 1 }}>
+            From your craft to the right people.
+          </h2>
+          <div className="lp-path">
+            <div className="lp-track"><div className="lp-fill" /></div>
+            <div className="lp-step lp-rv">
+              <span className="lp-dot" />
+              <div className="lp-mono">01</div>
+              <h3>Build your profile</h3>
+              <p>Share your craft, your city, and what you make. Real profiles, not endless swipes.</p>
+            </div>
+            <div className="lp-step lp-rv" style={{ ['--i' as string]: 1 }}>
+              <span className="lp-dot" />
+              <div className="lp-mono">02</div>
+              <h3>Get matched by craft</h3>
+              <p>Discover ranks creators by what you do and where you are, with one hand picked profile every day.</p>
+            </div>
+            <div className="lp-step lp-rv" style={{ ['--i' as string]: 2 }}>
+              <span className="lp-dot" />
+              <div className="lp-mono">03</div>
+              <h3>Connect on your terms</h3>
+              <p>Every message request needs your approval first. Your inbox stays yours.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Categories */}
+        <section className="lp-sec lp-center" aria-labelledby="lp-cat-title">
+          <div className="lp-mono lp-rv">Who you&apos;ll connect with</div>
+          <h2 id="lp-cat-title" className="lp-h2 lp-rv" style={{ ['--i' as string]: 1 }}>
+            Every type of creator. One platform.
+          </h2>
+          <div className="lp-oddwrap">
+            <OddcastPill dark />
+          </div>
+          <div style={{ marginTop: 22 }}>
+            <CategoryShowcase dark categories={CATEGORIES} />
+          </div>
+        </section>
+
+        {/* Why Mitype: clickable feature grid */}
+        <section className="lp-sec" aria-labelledby="lp-why-title">
+          <div className="lp-center">
+            <div className="lp-mono lp-rv">Why Mitype</div>
+            <h2 id="lp-why-title" className="lp-h2 lp-rv" style={{ ['--i' as string]: 1 }}>
+              Built different. On purpose.
+            </h2>
+            <p className="lp-sub lp-rv" style={{ ['--i' as string]: 2 }}>
+              Everything your craft needs, in one place. Tap any card to see how it works.
+            </p>
+          </div>
+          <LandingFeatures features={FEATURES} />
+        </section>
+
+        {/* Pricing */}
+        <section className="lp-sec lp-center" aria-labelledby="lp-price-title">
+          <div className="lp-mono lp-rv">Pricing</div>
+          <h2 id="lp-price-title" className="lp-h2 lp-rv" style={{ ['--i' as string]: 1 }}>
+            One subscription. Every feature.
+          </h2>
+          <div className="lp-price lp-rv" style={{ ['--i' as string]: 2 }}>
+            <div className="lp-amt">$5<small>/month</small></div>
+            <ul className="lp-list">
+              {PRICING_ITEMS.map((item) => (
+                <li key={item}>
+                  <span aria-hidden="true">✓</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <Link href="/signup" className="lp-btn lp-pri" style={{ width: '100%' }}>
+              Create your account today
+            </Link>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="lp-final lp-center" aria-labelledby="lp-final-title">
+          <div className="lp-mono lp-rv">Your signal starts here</div>
+          <h2 id="lp-final-title" className="lp-h2 lp-rv" style={{ ['--i' as string]: 1 }}>
+            Your type of people are out there.
+          </h2>
+          <p className="lp-sub lp-rv" style={{ ['--i' as string]: 2 }}>
+            Connect with people who share your world.
+          </p>
+          <div className="lp-cta lp-rv" style={{ ['--i' as string]: 3, justifyContent: 'center' }}>
+            <Link href="/signup" className="lp-btn lp-pri">Create a profile →</Link>
+          </div>
+        </section>
+      </div>
+
+      <footer className="lp-footer">
+        <div className="lp-logo">mitype</div>
+        <nav aria-label="Footer">
+          <Link href="/legal/privacy">Privacy Policy</Link>
+          <Link href="/legal/terms">Terms of Service</Link>
+          <Link href="/legal/contact">Contact &amp; Support</Link>
+        </nav>
+        <p>© {new Date().getFullYear()} Mitype · www.mitypeapp.com</p>
+      </footer>
     </main>
   );
 }
