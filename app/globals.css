@@ -994,3 +994,43 @@ html[data-theme="signal"] [style*="background: var(--brand-market)"][style*="col
   background: linear-gradient(135deg, #1f9d55, #15703c) !important; color: #fff !important;
 }
 html[data-theme="signal"] [style*="background: rgb(148, 163, 184)"], html[data-theme="signal"] [style*="background:#94a3b8" i], html[data-theme="signal"] [style*="background: #94a3b8" i] { background: #64748b !important; color: #fff !important; }
+
+/* ---- Signal dashboard hubs ---- */
+.sh-hd{margin:18px 2px 4px;font:600 10px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;color:#8f8171;text-transform:uppercase}
+.sh-hub{position:relative;display:grid;grid-template-columns:104px 1fr;gap:6px;padding:12px 0 6px;align-items:center}
+.sh-hub.sh-r{grid-template-columns:1fr 104px}
+.sh-hub.sh-r .sh-gcol{order:2}
+.sh-gcol{display:flex;justify-content:center;align-self:stretch}
+.sh-gstick{position:sticky;top:76px;align-self:flex-start;display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:8px}
+.sh-globe{width:96px;height:96px;border-radius:50%}
+.sh-glab{font:600 9px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.16em;text-transform:uppercase;color:#d19f77;text-align:center}
+.sh-cards{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sh-tile{position:relative;display:flex;align-items:center;gap:9px;padding:8px 12px;min-height:44px;text-decoration:none;color:#f6e8d6;
+  background:linear-gradient(100deg,rgba(255,236,210,.10),rgba(255,236,210,.02));
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  box-shadow:inset 0 0 0 1px rgba(200,149,108,.35);opacity:0;transform:translateX(24px);
+  transition:opacity .5s cubic-bezier(.23,1,.32,1) var(--d,0ms),transform .5s cubic-bezier(.23,1,.32,1) var(--d,0ms)}
+.sh-r .sh-tile{transform:translateX(-24px)}
+.sh-in .sh-tile{opacity:1;transform:none}
+.sh-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,236,210,.28) 50%,transparent 70%);transform:translateX(-120%);pointer-events:none}
+.sh-in .sh-tile::after{animation:sh-sweep 1.1s .15s ease-out 1}
+@keyframes sh-sweep{to{transform:translateX(120%)}}
+.sh-tile:active{transform:scale(.975)!important}
+.sh-ix{font:700 9px ui-monospace,Menlo,monospace;color:var(--c);letter-spacing:.1em;width:16px;flex:none}
+.sh-tx{display:flex;flex-direction:column;min-width:0;gap:1px;flex:1}
+.sh-tx b{font-size:13px;font-weight:700;color:#f6e8d6;letter-spacing:-.2px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.sh-tx span{font-size:10.5px;color:#a99a88;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-dt{width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 8px 2px var(--c);flex:none}
+.sh-tag{font-style:normal;font-size:8.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#14110f;background:var(--c);padding:1px 5px;border-radius:100px}
+.sh-badge{font-style:normal;font-size:10px;font-weight:800;color:#fff;background:#d24b4b;padding:1px 6px;border-radius:100px}
+.sh-new{animation:sh-pulse 2.2s ease-in-out infinite}
+@keyframes sh-pulse{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 7px var(--c))}}
+.sh-ln{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.sh-ln path{fill:none;stroke:#d19f77;stroke-opacity:.6;stroke-width:1;stroke-dasharray:var(--l);stroke-dashoffset:var(--l);transition:stroke-dashoffset .9s cubic-bezier(.23,1,.32,1)}
+.sh-in .sh-ln path{stroke-dashoffset:0}
+.sh-ln circle{fill:#ffe3c2;opacity:0;transition:opacity .4s .6s}
+.sh-in .sh-ln circle{opacity:1}
+.sh-acct{display:flex;gap:6px;padding:8px 0 28px}
+.sh-acct a{flex:1;text-align:center;padding:10px 4px;color:#e0b48a;font-size:12px;font-weight:700;text-decoration:none;background:rgba(255,255,255,.04);
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));box-shadow:inset 0 0 0 1px rgba(200,149,108,.35)}
+@media (prefers-reduced-motion:reduce){.sh-tile{opacity:1!important;transform:none!important}.sh-ln path{stroke-dashoffset:0!important}.sh-ln circle{opacity:1!important}.sh-new{animation:none}}

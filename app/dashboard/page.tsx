@@ -24,6 +24,8 @@ import { MomentsAnnouncementModal } from '../components/MomentsAnnouncementModal
 import { MOMENTS_LIVE } from '../lib/momentsFlags';
 import { PushAnnouncementModal } from '../components/PushAnnouncementModal';
 import { PUSH_ANNOUNCE_LIVE } from '../lib/pushFlags';
+import { SignalHubs } from '../components/SignalHubs';
+import { getTheme, THEME_EVENT, type Theme } from '../lib/theme';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { FeatureInfoAnnouncement } from '../components/FeatureInfoAnnouncement';
 
@@ -51,6 +53,13 @@ export default function Dashboard() {
   const [showCottageAnnouncement, setShowCottageAnnouncement] = useState(false);
   const [showMomentsAnnouncement, setShowMomentsAnnouncement] = useState(false);
   const [showPushAnnouncement, setShowPushAnnouncement] = useState(false);
+  const [theme, setThemeState] = useState<Theme>('default');
+  useEffect(() => {
+    const sync = () => setThemeState(getTheme());
+    sync();
+    window.addEventListener(THEME_EVENT, sync);
+    return () => window.removeEventListener(THEME_EVENT, sync);
+  }, []);
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
   const { unread } = useUnreadCounts(user?.id);
@@ -578,6 +587,34 @@ export default function Dashboard() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
             gap: 10,
           };
+
+          if (theme === 'signal') {
+            const byHref = (h: string) => explore.find((e) => e.href === h);
+            const SHORT: Record<string, string> = {
+              '/wave': 'Scrolling video feed', '/moments': 'Photos from the community', '/currents': 'Text drops and embeds',
+              '/spotlight': 'Portfolio work', '/discover': 'Find people by craft and city', '/messages': 'Chats, groups, and rooms',
+              '/projects': 'Team workspaces and tasks', '/collab': 'Post or apply to briefs', '/meetups': 'In person, near you',
+              '/businesses': 'Discover local brands', '/brand-deals': 'Paid creator briefs', '/home-goods': 'Buy and sell locally',
+            };
+            const COLOR: Record<string, string> = { wave: '#38bdf8', current: '#818cf8', business: '#a78bfa', market: '#4ade80', personal: '#d19f77', account: '#d19f77' };
+            const mk = (hrefs: string[]) => hrefs
+              .map(byHref)
+              .filter((a): a is NonNullable<typeof a> => !!a)
+              .map((a) => ({
+                label: a.label, short: SHORT[a.href] ?? a.desc, href: a.href, color: COLOR[a.tone],
+                pulse: a.pulse, badge: a.href === '/messages' ? unread.total : undefined,
+              }));
+            return (
+              <SignalHubs
+                hubs={[
+                  { title: 'Watch + share', items: mk(['/wave', '/moments', '/currents', '/spotlight']) },
+                  { title: 'Connect + create', items: mk(['/discover', '/messages', '/projects', '/collab', '/meetups']) },
+                  { title: 'Business + market', items: mk(['/businesses', '/brand-deals', '/home-goods']) },
+                ]}
+                account={account.map((a) => ({ label: a.label, href: a.href }))}
+              />
+            );
+          }
 
           return (
             <>
