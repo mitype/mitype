@@ -27,6 +27,8 @@ import { isActingAsOfficial, switchToOfficial, switchBackFromOfficial, clearOffi
 import { toast } from '../lib/toast';
 import { PushNotificationsToggle } from './PushNotificationsToggle';
 import { FeedbackToggle } from './FeedbackToggle';
+import { ThemeToggle } from './ThemeToggle';
+import { getTheme, setTheme } from '../lib/theme';
 import { disablePush } from '../lib/pushNotifications';
 
 interface Props {
@@ -102,6 +104,8 @@ export function SiteNav({
         .maybeSingle();
       if (!cancelled) {
         setIsAdmin(!!data?.is_admin);
+        // The new design preview is admin-only for now. Anyone else goes back to the normal look.
+        if (!data?.is_admin && getTheme() === 'signal') setTheme('default');
         setCanSeeReferrals(!!data?.is_cmo || !!data?.is_referrer);
       }
     })();
@@ -113,14 +117,13 @@ export function SiteNav({
   const borderColor = accent === 'purple'
     ? 'rgba(139,92,246,0.18)'
     : 'rgba(200,149,108,0.15)';
-  const bgColor = accent === 'purple'
-    ? 'rgba(246,243,251,0.95)'
-    : 'rgba(250,246,240,0.95)';
+  const bgColor = accent === 'purple' ? 'var(--sig-nav-bg-purple)' : 'var(--sig-nav-bg)';
 
   const wantsBell = (showBell ?? true) && !!userId;
 
   async function handleSignOut() {
     clearOfficialReturn();
+    setTheme('default');
     // Stop this phone receiving the signed-out member's notifications.
     await disablePush(userId ?? undefined);
     await supabase.auth.signOut();
@@ -132,13 +135,9 @@ export function SiteNav({
   // purple on business pages) tinted background, accent-colored text,
   // no emojis. Tight, professional, scannable. The unread badge for
   // Messages still tucks into the right edge.
-  const pillBg = accent === 'purple'
-    ? 'rgba(139,92,246,0.08)'
-    : 'rgba(200,149,108,0.08)';
-  const pillBorder = accent === 'purple'
-    ? 'rgba(139,92,246,0.18)'
-    : 'rgba(200,149,108,0.2)';
-  const pillText = accent === 'purple' ? 'var(--brand-business-deep)' : '#6b4f33';
+  const pillBg = accent === 'purple' ? 'var(--sig-pill-bg-purple)' : 'var(--sig-pill-bg)';
+  const pillBorder = accent === 'purple' ? 'var(--sig-pill-border-purple)' : 'var(--sig-pill-border)';
+  const pillText = accent === 'purple' ? 'var(--brand-business-deep)' : 'var(--sig-pill-text)';
 
   function NavLink({
     href, label, badge, accent,
@@ -292,7 +291,7 @@ export function SiteNav({
                 height: 9,
                 background: accentColor,
                 borderRadius: '50%',
-                border: '2px solid white',
+                border: '2px solid var(--sig-card-solid)',
                 boxSizing: 'content-box',
               }} />
             )}
@@ -353,6 +352,9 @@ export function SiteNav({
             >
               {switching ? 'Opening...' : 'Official Mitype profile'}
             </button>
+          )}
+          {isAdmin && (
+            <ThemeToggle pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
           )}
           {actingOfficial && (
             <button

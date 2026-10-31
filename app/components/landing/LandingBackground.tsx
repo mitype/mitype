@@ -4,11 +4,11 @@
 // scroll. Pauses when the tab is hidden and stays still for members who
 // ask their device to reduce motion.
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 
 interface Pt { x: number; y: number; vx: number; vy: number; r: number; hot: boolean; ay: number }
 
-export function LandingBackground() {
+export function LandingBackground({ appStyle }: { appStyle?: CSSProperties } = {}) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -114,5 +114,7 @@ export function LandingBackground() {
     };
   }, []);
 
-  return <canvas ref={ref} className="lp-bg" aria-hidden="true" />;
+  return appStyle
+    ? <canvas ref={ref} style={appStyle} aria-hidden="true" />
+    : <canvas ref={ref} className="lp-bg" aria-hidden="true" />;
 }

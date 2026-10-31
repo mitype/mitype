@@ -243,3 +243,146 @@ body {
     object-fit: contain !important;
   }
 }
+
+/* ======================================================================
+ * "Signal" theme (new futuristic design), phase 1.
+ *
+ * Off by default. It only applies when <html data-theme="signal"> is set,
+ * which for now only an admin can do from the menu (preview switch).
+ * It works by swapping the same brand color variables the pages already
+ * use, so layouts and behavior never change, only colors.
+ * ====================================================================== */
+html[data-theme="signal"] {
+  color-scheme: dark;
+
+  /* surfaces: graphite, light to deep */
+  --brand-personal-bg-cream:      #171513;
+  --brand-personal-bg-cream-deep: #1d1b18;
+  --brand-personal-bg-peach:      #24201c;
+  --brand-personal-bg-peach-warm: #28231e;
+  --brand-personal-bg-pale:       #2b2621;
+
+  /* text: cream, strongest to softest */
+  --brand-text-primary:           #f6e8d6;
+  --brand-personal-text-dark:     #f6e8d6;
+  --brand-personal-text-head:     #ecdcc6;
+  --brand-personal-text-deep:     #e4d3bb;
+  --brand-personal-text-mid:      #c9b8a2;
+  --brand-personal-text-amber:    #dcbf93;
+  --brand-personal-text-light:    #a99a88;
+  --brand-personal-text-lighter:  #8f8171;
+
+  /* copper accents stay; slightly brighter for dark backgrounds */
+  --brand-personal:               #d19f77;
+  --brand-personal-light:         #f2cfa8;
+  --brand-personal-deep:          #e0b48a;
+  --brand-personal-soft:          #4a3a2c;
+  --brand-personal-disabled:      #6e5a48;
+
+  /* business (purple) */
+  --brand-business:               #a78bfa;
+  --brand-business-light:         #c4b5fd;
+  --brand-business-deep:          #d8ccff;
+  --brand-business-deepest:       #ede9fe;
+  --brand-business-text-mid:      #bdb2d6;
+  --brand-business-bg-pale:       #221d2e;
+  --brand-business-bg-lavender:   #2a2240;
+
+  /* market (green) */
+  --brand-market:                 #6ee7a1;
+  --brand-market-light:           #86efac;
+  --brand-market-deep:            #bbf7d0;
+  --brand-market-success:         #4ade80;
+  --brand-market-text-mid:        #a7d4b8;
+  --brand-market-bg-pale:         #16221b;
+  --brand-market-bg-mint:         #1a2c22;
+
+  /* danger */
+  --brand-danger-text:            #f0a0a0;
+  --brand-danger-bg:              #2e1c1c;
+  --brand-danger-border:          rgba(240,130,130,0.35);
+
+  /* universal */
+  --brand-surface-white:          #221f1b;
+  --brand-surface-glass:          rgba(34,31,27,0.85);
+  --brand-overlay-soft:           rgba(255,255,255,0.07);
+
+  /* Signal-only helpers for new components */
+  --sig-card:        linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015));
+  --sig-card-solid:  #221f1b;
+  --sig-line:        rgba(200,149,108,0.24);
+  --sig-nav-bg:      rgba(14,13,12,0.82);
+  --sig-pill-bg:     rgba(200,149,108,0.1);
+  --sig-pill-border: rgba(200,149,108,0.28);
+  --sig-pill-text:   #f0dcc2;
+  --sig-glow:        0 8px 28px rgba(200,149,108,0.22);
+}
+
+html[data-theme="signal"] body {
+  background: linear-gradient(180deg, #0e0d0c 0%, #1b1917 40%, #2a2724 100%) fixed;
+  color: #f6e8d6;
+}
+
+/* Page wrappers paint their own cream backgrounds. In the new theme they
+ * go see-through so the shared dark gradient and the animated background
+ * behind them show. Pages that need their own full-bleed color (video,
+ * photo carousels) are handled per page. */
+html[data-theme="signal"] main {
+  background: transparent !important;
+}
+
+/* Light-only defaults that pages do not set themselves */
+html[data-theme="signal"] input,
+html[data-theme="signal"] textarea,
+html[data-theme="signal"] select {
+  color-scheme: dark;
+}
+html[data-theme="signal"] ::placeholder {
+  color: rgba(246,232,214,0.45);
+}
+
+/* Default (cream) values for the new helper tokens so components can use
+ * them safely in both themes. */
+:root {
+  --sig-card:        #ffffff;
+  --sig-card-solid:  #ffffff;
+  --sig-line:        rgba(200,149,108,0.2);
+  --sig-nav-bg:      rgba(250,246,240,0.95);
+  --sig-pill-bg:     rgba(200,149,108,0.08);
+  --sig-pill-border: rgba(200,149,108,0.2);
+  --sig-pill-text:   #6b4f33;
+  --sig-glow:        0 6px 20px rgba(200,149,108,0.18);
+}
+
+:root {
+  --sig-nav-bg-purple:     rgba(246,243,251,0.95);
+  --sig-pill-bg-purple:    rgba(139,92,246,0.08);
+  --sig-pill-border-purple:rgba(139,92,246,0.18);
+}
+html[data-theme="signal"] {
+  --sig-nav-bg-purple:     rgba(14,13,12,0.82);
+  --sig-pill-bg-purple:    rgba(167,139,250,0.12);
+  --sig-pill-border-purple:rgba(167,139,250,0.3);
+}
+
+/* Signal theme: dark glass for the shared liquidGlass() helper. The body
+ * layers are nearly opaque so the diagonal shine border only shows as a
+ * thin edge, not through the whole surface. */
+html[data-theme="signal"] {
+  --lg-body-lite-warm:  linear-gradient(135deg, rgba(86,64,46,0.96) 0%, rgba(66,49,36,0.96) 50%, rgba(80,59,43,0.96) 100%);
+  --lg-body-lite-clear: linear-gradient(135deg, rgba(40,36,32,0.94) 0%, rgba(31,28,25,0.94) 50%, rgba(38,34,30,0.94) 100%);
+  --lg-body-full-warm:  linear-gradient(135deg, rgba(86,64,46,0.92) 0%, rgba(66,49,36,0.92) 50%, rgba(80,59,43,0.92) 100%);
+  --lg-body-full-clear: linear-gradient(135deg, rgba(40,36,32,0.88) 0%, rgba(31,28,25,0.88) 50%, rgba(38,34,30,0.88) 100%);
+  --lg-mid-warm:        rgba(200,149,108,0.30);
+  --lg-mid-clear:       rgba(200,149,108,0.16);
+  --lg-shine:           rgba(242,207,168,0.55);
+  --lg-shine-soft:      rgba(242,207,168,0.16);
+  --lg-inset-hi:        inset 1px 1px 4px rgba(255,235,210,0.08);
+  --lg-inset-lo-warm:   inset -2px -2px 6px rgba(0,0,0,0.25);
+  --lg-inset-lo-clear:  inset -2px -2px 6px rgba(0,0,0,0.25);
+  --lg-glow-warm:       0 6px 22px rgba(200,149,108,0.22);
+  --lg-glow-warm-hover: 0 10px 32px rgba(242,207,168,0.34);
+  --lg-glow-clear:      0 4px 18px rgba(0,0,0,0.35);
+  --lg-glow-clear-hover:0 10px 28px rgba(0,0,0,0.5);
+  --lg-text-shadow:     none;
+}

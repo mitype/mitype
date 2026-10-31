@@ -8,6 +8,7 @@ import { PresenceTracker } from "./components/PresenceTracker";
 import { SwipeBackProvider } from "./components/SwipeBackProvider";
 import { PageTransition } from "./components/PageTransition";
 import { GoldenHour } from "./components/GoldenHour";
+import { SignalBackdrop } from "./components/SignalBackdrop";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
@@ -50,8 +51,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Applies the saved design theme before first paint so there is no flash. Off unless an admin turned the preview on. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "try{if(localStorage.getItem('mitype-theme')==='signal')document.documentElement.setAttribute('data-theme','signal')}catch(e){}",
+          }}
+        />
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -74,6 +81,7 @@ export default function RootLayout({
         <NewMessageToastListener />
         <PresenceTracker />
         <GoldenHour />
+        <SignalBackdrop />
       </body>
     </html>
   );

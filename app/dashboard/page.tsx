@@ -598,8 +598,8 @@ export default function Dashboard() {
 
         {/* Profile summary */}
         <div style={{
-          background: 'white',
-          border: '1px solid rgba(200,149,108,0.2)',
+          background: 'var(--sig-card)',
+          border: '1px solid var(--sig-line)',
           borderRadius: 24,
           padding: '32px',
         }}>

@@ -45,28 +45,30 @@ export function liquidGlass(opts: Opts = {}): CSSProperties {
   // Body tint — the padding-box layer. In 'lite' mode we crank the
   // opacity up so the tile still reads as a distinct glass-like
   // surface without needing an expensive backdrop-filter blur.
+  // Every color below reads a --lg-* variable and falls back to the
+  // original value, so the normal look is unchanged. The new "Signal"
+  // theme (globals.css) overrides the variables to get dark glass.
   const body = variant === 'lite'
     ? (tone === 'warm'
-        ? 'linear-gradient(135deg, rgba(255,244,228,0.92) 0%, rgba(255,232,208,0.86) 50%, rgba(255,244,228,0.90) 100%)'
-        : 'linear-gradient(135deg, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.78) 50%, rgba(255,255,255,0.88) 100%)')
+        ? 'var(--lg-body-lite-warm, linear-gradient(135deg, rgba(255,244,228,0.92) 0%, rgba(255,232,208,0.86) 50%, rgba(255,244,228,0.90) 100%))'
+        : 'var(--lg-body-lite-clear, linear-gradient(135deg, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.78) 50%, rgba(255,255,255,0.88) 100%))')
     : (tone === 'warm'
-        ? 'linear-gradient(135deg, rgba(255,240,220,0.45) 0%, rgba(255,225,200,0.20) 50%, rgba(255,240,220,0.40) 100%)'
-        : 'linear-gradient(135deg, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.35) 100%)');
+        ? 'var(--lg-body-full-warm, linear-gradient(135deg, rgba(255,240,220,0.45) 0%, rgba(255,225,200,0.20) 50%, rgba(255,240,220,0.40) 100%))'
+        : 'var(--lg-body-full-clear, linear-gradient(135deg, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.35) 100%))');
 
-  // Diagonal shine border — bright white at 0% (top-left corner) and
-  // 100% (bottom-right corner), nearly transparent through the middle.
-  // Warm variant tints the mid stops with bronze, clear leaves them neutral.
+  // Diagonal shine border — bright at 0% (top-left corner) and 100%
+  // (bottom-right corner), nearly transparent through the middle.
   const midTint = tone === 'warm'
-    ? 'rgba(200,149,108,0.20)'
-    : 'rgba(120,120,130,0.12)';
+    ? 'var(--lg-mid-warm, rgba(200,149,108,0.20))'
+    : 'var(--lg-mid-clear, rgba(120,120,130,0.12))';
   const border =
-    `linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.15) 25%, ${midTint} 50%, rgba(255,255,255,0.15) 75%, rgba(255,255,255,0.95) 100%)`;
+    `linear-gradient(135deg, var(--lg-shine, rgba(255,255,255,0.95)) 0%, var(--lg-shine-soft, rgba(255,255,255,0.15)) 25%, ${midTint} 50%, var(--lg-shine-soft, rgba(255,255,255,0.15)) 75%, var(--lg-shine, rgba(255,255,255,0.95)) 100%)`;
 
   // Outer soft shadow tuned per tone so warm CTAs "glow" bronze and
   // clear CTAs cast a neutral drop shadow.
   const outerGlow = tone === 'warm'
-    ? (hover ? '0 12px 32px rgba(200,149,108,0.30)' : '0 6px 22px rgba(200,149,108,0.20)')
-    : (hover ? '0 10px 28px rgba(0,0,0,0.14)'        : '0 4px 18px rgba(0,0,0,0.08)');
+    ? (hover ? 'var(--lg-glow-warm-hover, 0 12px 32px rgba(200,149,108,0.30))' : 'var(--lg-glow-warm, 0 6px 22px rgba(200,149,108,0.20))')
+    : (hover ? 'var(--lg-glow-clear-hover, 0 10px 28px rgba(0,0,0,0.14))'        : 'var(--lg-glow-clear, 0 4px 18px rgba(0,0,0,0.08))');
 
   const base: CSSProperties = {
     position: 'relative',
@@ -78,16 +80,16 @@ export function liquidGlass(opts: Opts = {}): CSSProperties {
     borderRadius: radius,
     boxShadow: [
       // Inset top-left glow — mirrors the top-left shine on the border.
-      'inset 2px 2px 6px rgba(255,255,255,0.35)',
+      'var(--lg-inset-hi, inset 2px 2px 6px rgba(255,255,255,0.35))',
       // Inset bottom-right shadow — mirrors the bottom-right curve.
       tone === 'warm'
-        ? 'inset -2px -2px 6px rgba(120,80,40,0.10)'
-        : 'inset -2px -2px 6px rgba(40,40,50,0.10)',
+        ? 'var(--lg-inset-lo-warm, inset -2px -2px 6px rgba(120,80,40,0.10))'
+        : 'var(--lg-inset-lo-clear, inset -2px -2px 6px rgba(40,40,50,0.10))',
       outerGlow,
     ].join(', '),
     transform: hover ? 'translateY(-1px) scale(1.02)' : 'none',
     transition: 'transform 0.18s ease, box-shadow 0.18s ease',
-    textShadow: '0 1px 0 rgba(255,255,255,0.5)',
+    textShadow: 'var(--lg-text-shadow, 0 1px 0 rgba(255,255,255,0.5))',
   };
 
   // Full variant adds the expensive backdrop-filter for true glass;
