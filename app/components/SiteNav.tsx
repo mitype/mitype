@@ -28,7 +28,6 @@ import { toast } from '../lib/toast';
 import { PushNotificationsToggle } from './PushNotificationsToggle';
 import { FeedbackToggle } from './FeedbackToggle';
 import { ThemeToggle } from './ThemeToggle';
-import { getTheme, setTheme } from '../lib/theme';
 import { disablePush } from '../lib/pushNotifications';
 
 interface Props {
@@ -104,8 +103,6 @@ export function SiteNav({
         .maybeSingle();
       if (!cancelled) {
         setIsAdmin(!!data?.is_admin);
-        // The new design preview is admin-only for now. Anyone else goes back to the normal look.
-        if (!data?.is_admin && getTheme() === 'signal') setTheme('default');
         setCanSeeReferrals(!!data?.is_cmo || !!data?.is_referrer);
       }
     })();
@@ -123,7 +120,6 @@ export function SiteNav({
 
   async function handleSignOut() {
     clearOfficialReturn();
-    setTheme('default');
     // Stop this phone receiving the signed-out member's notifications.
     await disablePush(userId ?? undefined);
     await supabase.auth.signOut();
@@ -355,7 +351,7 @@ export function SiteNav({
               {switching ? 'Opening...' : 'Official Mitype profile'}
             </button>
           )}
-          {isAdmin && (
+          {(
             <ThemeToggle pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
           )}
           {actingOfficial && (

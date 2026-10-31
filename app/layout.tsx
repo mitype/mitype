@@ -1,3 +1,4 @@
+import { SIGNAL_DEFAULT_ON } from './lib/theme';
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "./lib/toast";
@@ -53,10 +54,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Applies the saved design theme before first paint so there is no flash. Off unless an admin turned the preview on. */}
+        {/* Applies the saved design theme before first paint so there is no flash. Follows the member's choice, else SIGNAL_DEFAULT_ON. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: "try{if(localStorage.getItem('mitype-theme')==='signal')document.documentElement.setAttribute('data-theme','signal')}catch(e){}",
+            __html: `try{var t=localStorage.getItem('mitype-theme');if(t==='signal'||(t!=='classic'&&${SIGNAL_DEFAULT_ON}))document.documentElement.setAttribute('data-theme','signal')}catch(e){}`,
           }}
         />
         <link rel="manifest" href="/manifest.json" />

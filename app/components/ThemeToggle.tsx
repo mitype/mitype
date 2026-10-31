@@ -1,5 +1,5 @@
 'use client';
-// Admin-only switch in the burger menu to preview the new "Signal" design.
+// Burger-menu switch: new Signal design or the classic look.
 
 import { useState } from 'react';
 import { getTheme, setTheme } from '../lib/theme';
@@ -23,7 +23,7 @@ export function ThemeToggle({ pillBg, pillBorder, pillText }: Props) {
         cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
       }}
     >
-      {on ? 'New design preview: On' : 'New design preview: Off'}
+      {on ? 'Design: New (tap for Classic)' : 'Design: Classic (tap for New)'}
     </button>
   );
 }
