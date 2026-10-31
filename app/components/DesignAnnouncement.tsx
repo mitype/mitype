@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { getTheme, setTheme, THEME_KEY } from '../lib/theme';
 
-const SEEN_KEY = 'mitype-design-announced';
+const SEEN_KEY = 'mitype-design-announced-v2';
 
 export function DesignAnnouncement() {
   const pathname = usePathname();
