@@ -483,7 +483,7 @@ export default function Dashboard() {
             return (
               <Link
                 href={a.href}
-                className={isPulsing ? `mitype-pulse-${a.tone}` : undefined}
+                className={isPulsing ? `sig-tile mitype-pulse-${a.tone}` : 'sig-tile'}
                 style={{
                   ...glass,
                   // Pulsing state overrides the glass border with the
@@ -597,7 +597,7 @@ export default function Dashboard() {
         })()}
 
         {/* Profile summary */}
-        <div style={{
+        <div className="sig-tile" style={{
           background: 'var(--sig-card)',
           border: '1px solid var(--sig-line)',
           borderRadius: 24,
