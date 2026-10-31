@@ -905,3 +905,24 @@ html[data-theme="signal"] .sig-aurora {
   html[data-theme="signal"] main, html[data-theme="signal"] main > *, html[data-theme="signal"] .sig-aurora { animation: none; }
   html[data-theme="signal"] button:active:not(:disabled), html[data-theme="signal"] a:active { transform: none !important; }
 }
+
+/* Signal theme: white-text pills/buttons on brand "-light" gradients turn pale
+   once the light tokens brighten. Pin them to deeper fills so lettering stays readable. */
+html[data-theme="signal"] [style*="-personal-light))"][style*="color: white" i],
+html[data-theme="signal"] [style*="-personal-light))"][style*="color:white" i],
+html[data-theme="signal"] [style*="-personal-light))"][style*="color: rgb(255, 255, 255)"] {
+  background: linear-gradient(135deg, #a8744a, #7d5232) !important;
+  color: #fff !important;
+}
+html[data-theme="signal"] [style*="-business-light))"][style*="color: white" i],
+html[data-theme="signal"] [style*="-business-light))"][style*="color:white" i],
+html[data-theme="signal"] [style*="-business-light))"][style*="color: rgb(255, 255, 255)"] {
+  background: linear-gradient(135deg, #7c5cd6, #5b3fb0) !important;
+  color: #fff !important;
+}
+html[data-theme="signal"] [style*="-market-light))"][style*="color: white" i],
+html[data-theme="signal"] [style*="-market-light))"][style*="color:white" i],
+html[data-theme="signal"] [style*="-market-light))"][style*="color: rgb(255, 255, 255)"] {
+  background: linear-gradient(135deg, #1f9d55, #15703c) !important;
+  color: #fff !important;
+}
