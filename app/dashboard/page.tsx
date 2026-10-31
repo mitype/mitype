@@ -592,7 +592,7 @@ export default function Dashboard() {
             const byHref = (h: string) => explore.find((e) => e.href === h);
             const SHORT: Record<string, string> = {
               '/wave': 'Scrolling video feed', '/moments': 'Photos from the community', '/currents': 'Text drops and embeds',
-              '/spotlight': 'Portfolio work', '/discover': 'Find people by craft and city', '/messages': 'Chats, groups, and rooms',
+              '/spotlight': 'Portfolio work', '/discover': 'Find people by craft and city', '/messages': 'Chats, groups, rooms, and mini games',
               '/projects': 'Team workspaces and tasks', '/collab': 'Post or apply to briefs', '/meetups': 'In person, near you',
               '/businesses': 'Discover local brands', '/brand-deals': 'Paid creator briefs', '/home-goods': 'Buy and sell locally',
             };
