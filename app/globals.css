@@ -965,3 +965,11 @@ html[data-theme="signal"] .sig-tile::before { display: none !important; }
 @media (hover: hover) and (pointer: fine) {
   html[data-theme="signal"] .sig-tile:hover { border-color: rgba(242,207,168,0.55) !important; }
 }
+
+/* Signal theme: leftover dark accent text (warnings, errors) lifted for dark surfaces. */
+html[data-theme="signal"] [style*="color: rgb(146, 64, 14)"], html[data-theme="signal"] [style*="color:#92400e" i] { color: #f0b36a !important; }
+html[data-theme="signal"] [style*="color: rgb(204, 0, 0)"], html[data-theme="signal"] [style*="color:#cc0000" i], html[data-theme="signal"] [style*="color: #cc0000" i] { color: #ff8a80 !important; }
+html[data-theme="signal"] [style*="color: rgb(180, 35, 24)"], html[data-theme="signal"] [style*="color: #b42318" i] { color: #ff8a80 !important; }
+html[data-theme="signal"] [style*="color: rgb(91, 74, 64)"] { color: #c9b8a2 !important; }
+html[data-theme="signal"] [style*="color: rgb(122, 90, 54)"], html[data-theme="signal"] [style*="color: rgb(138, 94, 46)"] { color: #dcbf93 !important; }
+html[data-theme="signal"] [style*="color: rgb(185, 28, 28)"] { color: #ff8a80 !important; }
