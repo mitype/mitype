@@ -973,3 +973,6 @@ html[data-theme="signal"] [style*="color: rgb(180, 35, 24)"], html[data-theme="s
 html[data-theme="signal"] [style*="color: rgb(91, 74, 64)"] { color: #c9b8a2 !important; }
 html[data-theme="signal"] [style*="color: rgb(122, 90, 54)"], html[data-theme="signal"] [style*="color: rgb(138, 94, 46)"] { color: #dcbf93 !important; }
 html[data-theme="signal"] [style*="color: rgb(185, 28, 28)"] { color: #ff8a80 !important; }
+
+/* Tiles hold their own inner chips/buttons: keep those legible on the dark tile. */
+html[data-theme="signal"] .sig-tile [style*="color: rgb(255, 255, 255)"][style*="background"] { color: #fff !important; }

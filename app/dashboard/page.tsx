@@ -349,6 +349,7 @@ export default function Dashboard() {
         {/* Share-with-friends invite — opens the multi-platform share panel. */}
         <button
           type="button"
+          className="sig-tile"
           onClick={() => setShareOpen(true)}
           style={{
             // Full glass — this is the single hero CTA on the dashboard,

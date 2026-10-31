@@ -20,6 +20,7 @@ export function WeeklyPromptCard() {
 
   return (
     <div
+      className="sig-tile"
       style={{
         background:
           'linear-gradient(135deg, rgba(245,236,255,0.7) 0%, rgba(255,248,236,0.85) 100%)',

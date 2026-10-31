@@ -52,7 +52,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
   // Loading shimmer — same vibe as the rest of the dashboard.
   if (loading) {
     return (
-      <div style={cardShellStyle}>
+      <div className="sig-tile" style={cardShellStyle}>
         <p style={eyebrowStyle}>✨ Daily Spark</p>
         <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 14, margin: 0 }}>
           Picking today's spark…
@@ -64,7 +64,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
   // No eligible candidates — friendly empty state, not an error.
   if (!spark) {
     return (
-      <div style={cardShellStyle}>
+      <div className="sig-tile" style={cardShellStyle}>
         <p style={eyebrowStyle}>✨ Daily Spark</p>
         <p style={{ color: 'var(--brand-text-primary)', fontWeight: 700, fontSize: 16, margin: '0 0 6px' }}>
           No spark today.
@@ -81,7 +81,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
   // User dismissed today's pick — collapsed state.
   if (dismissed) {
     return (
-      <div style={cardShellStyle}>
+      <div className="sig-tile" style={cardShellStyle}>
         <p style={eyebrowStyle}>✨ Daily Spark</p>
         <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 13, margin: 0, lineHeight: 1.5 }}>
           Skipped for today. A new spark drops tomorrow.
@@ -168,7 +168,7 @@ export function DailySparkCard({ userId }: DailySparkCardProps) {
   }
 
   return (
-    <div style={cardShellStyle}>
+    <div className="sig-tile" style={cardShellStyle}>
       <div
         style={{
           display: 'flex',
