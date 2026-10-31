@@ -803,9 +803,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    padding: '3px 10px',
-                    background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
-                    color: 'white',
+                    padding: '4px 10px 4px',
+                    background: 'linear-gradient(135deg, #a8744a, #7d5232)',
+                    color: '#ffffff',
                     borderRadius: 100,
                     fontSize: 10,
                     fontWeight: 800,
@@ -829,9 +829,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    padding: '3px 10px',
-                    background: 'linear-gradient(135deg, var(--brand-personal), var(--brand-personal-light))',
-                    color: 'white',
+                    padding: '4px 10px 4px',
+                    background: 'linear-gradient(135deg, #a8744a, #7d5232)',
+                    color: '#ffffff',
                     borderRadius: 100,
                     fontSize: 10,
                     fontWeight: 800,
@@ -893,17 +893,18 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 8,
+                justifyContent: 'center',
+                gap: 10,
                 background: 'rgba(200,149,108,0.08)',
                 border: '1px solid rgba(200,149,108,0.2)',
                 borderRadius: 100,
-                padding: '6px 14px',
+                padding: '8px 16px',
                 marginBottom: 12,
-                flexWrap: 'wrap',
                 maxWidth: '100%',
+                lineHeight: 1.25,
               }}>
                 <div style={{ width: 8, height: 8, background: 'var(--brand-personal)', borderRadius: '50%', flexShrink: 0 }} />
-                <span style={{ color: 'var(--brand-personal-text-head)', fontSize: 13, fontWeight: 600 }}>{profile.creative_status}</span>
+                <span style={{ color: 'var(--brand-personal-text-head)', fontSize: 13, fontWeight: 600, minWidth: 0, overflowWrap: 'anywhere' }}>{profile.creative_status}</span>
                 {(() => {
                   const projectHref = safeUrl(profile.latest_project_url);
                   if (!projectHref) return null;
@@ -918,7 +919,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                         fontWeight: 800,
                         textDecoration: 'none',
                         borderLeft: '1px solid rgba(200,149,108,0.4)',
-                        paddingLeft: 8,
+                        paddingLeft: 10,
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
                       }}
                     >
                       View project →
