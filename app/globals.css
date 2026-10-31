@@ -976,3 +976,21 @@ html[data-theme="signal"] [style*="color: rgb(185, 28, 28)"] { color: #ff8a80 !i
 
 /* Tiles hold their own inner chips/buttons: keep those legible on the dark tile. */
 html[data-theme="signal"] .sig-tile [style*="color: rgb(255, 255, 255)"][style*="background"] { color: #fff !important; }
+
+/* Signal theme: solid brand fills carrying white/cream text -> deeper fills (contrast >= 4.5). */
+html[data-theme="signal"] [style*="background: var(--brand-personal)"][style*="color: white" i],
+html[data-theme="signal"] [style*="background: var(--brand-personal)"][style*="color: rgb(255, 255, 255)"],
+html[data-theme="signal"] [style*="background-color: var(--brand-personal)"][style*="color: white" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-personal"][style*="color: var(--brand-text-primary)"][style*="font-weight: 800"],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-personal"][style*="color: white" i] {
+  background: linear-gradient(135deg, #a8744a, #7d5232) !important; color: #fff !important;
+}
+html[data-theme="signal"] [style*="background: var(--brand-business)"][style*="color: white" i],
+html[data-theme="signal"] [style*="background: var(--brand-business)"][style*="color: rgb(255, 255, 255)"],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-business"][style*="color: white" i] {
+  background: linear-gradient(135deg, #7c5cd6, #5b3fb0) !important; color: #fff !important;
+}
+html[data-theme="signal"] [style*="background: var(--brand-market)"][style*="color: white" i] {
+  background: linear-gradient(135deg, #1f9d55, #15703c) !important; color: #fff !important;
+}
+html[data-theme="signal"] [style*="background: rgb(148, 163, 184)"], html[data-theme="signal"] [style*="background:#94a3b8" i], html[data-theme="signal"] [style*="background: #94a3b8" i] { background: #64748b !important; color: #fff !important; }
