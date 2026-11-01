@@ -136,9 +136,11 @@ function HubBlock({ hub, index }: { hub: Hub; index: number }) {
       const gy = gc.top + gc.height / 2 - hr.top;
       sv.innerHTML = '';
       el.querySelectorAll('.sh-tile').forEach((t) => {
-        const r = t.getBoundingClientRect();
-        const x = right ? r.right - hr.left : r.left - hr.left;
-        const y = r.top + r.height / 2 - hr.top;
+        // offset* ignores the slide-in transform, so lines land on the tile's
+        // resting edge. End 7px outside the edge so the dot never covers the number.
+        const tile = t as HTMLElement;
+        const x = right ? tile.offsetLeft + tile.offsetWidth + 7 : tile.offsetLeft - 7;
+        const y = tile.offsetTop + tile.offsetHeight / 2;
         const mx = (gx + x) / 2;
         const path = document.createElementNS(NS, 'path');
         path.setAttribute('d', `M${gx} ${gy} C${mx} ${gy} ${mx} ${y} ${x} ${y}`);
