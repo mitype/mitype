@@ -137,9 +137,9 @@ function HubBlock({ hub, index }: { hub: Hub; index: number }) {
       sv.innerHTML = '';
       el.querySelectorAll('.sh-tile').forEach((t) => {
         // offset* ignores the slide-in transform, so lines land on the tile's
-        // resting edge. End 7px outside the edge so the dot never covers the number.
+        // resting edge. End 5px inside the edge: on the card, but in front of the number.
         const tile = t as HTMLElement;
-        const x = right ? tile.offsetLeft + tile.offsetWidth + 7 : tile.offsetLeft - 7;
+        const x = right ? tile.offsetLeft + tile.offsetWidth - 5 : tile.offsetLeft + 5;
         const y = tile.offsetTop + tile.offsetHeight / 2;
         const mx = (gx + x) / 2;
         const path = document.createElementNS(NS, 'path');
