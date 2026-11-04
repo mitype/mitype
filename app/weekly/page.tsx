@@ -5,6 +5,7 @@
 // upvote each other's. The active prompt is derived from the week key
 // (no admin tooling). Subscription-gated, same as /discover and /spotlight.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -78,7 +79,7 @@ export default function WeeklyPromptPage() {
         .eq('user_id', authUser.id)
         .maybeSingle();
       if (cancelled) return;
-      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const isSubscribed = hasActiveAccess(sub?.status);
       if (!isSubscribed) {
         router.push('/subscription');
         return;

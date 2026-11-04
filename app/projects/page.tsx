@@ -1,6 +1,7 @@
 'use client';
 // /projects — List of shared project rooms the user is part of.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useState } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -35,7 +36,7 @@ export default function ProjectsPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

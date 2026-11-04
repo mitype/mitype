@@ -1,6 +1,7 @@
 'use client';
 // /collab/[id] — Collab brief detail + apply flow.
 
+import { hasActiveAccess } from '../../lib/access';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -56,7 +57,7 @@ export default function CollabBriefDetailPage({ params }: { params: Promise<{ id
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

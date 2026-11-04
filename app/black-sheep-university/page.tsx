@@ -9,6 +9,7 @@
 // Hard paywall gate matches every other gated page on the site: no
 // active/trialing subscription -> bounced to /subscription.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -109,7 +110,7 @@ export default function BlackSheepUniversityPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

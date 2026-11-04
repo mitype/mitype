@@ -1,4 +1,5 @@
 'use client';
+import { hasActiveAccess } from '../lib/access';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
@@ -36,7 +37,7 @@ export default function LoginPage() {
           supabase.from('subscriptions').select('status').eq('user_id', uid).maybeSingle(),
           supabase.from('profiles').select('user_id').eq('user_id', uid).maybeSingle(),
         ]);
-        const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+        const subscribed = hasActiveAccess(sub?.status);
         if (prof && !subscribed) dest = '/edit-profile';
       }
     } catch {

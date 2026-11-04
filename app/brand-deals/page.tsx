@@ -9,6 +9,7 @@
 // side against the loaded page since Phase 1 is unlikely to have more
 // briefs than fit comfortably in a single query.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useMemo, useState } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -108,7 +109,7 @@ export default function BrandDealsPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

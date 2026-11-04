@@ -1,6 +1,7 @@
 'use client';
 // /meetups/[id] — Meetup detail + RSVP button.
 
+import { hasActiveAccess } from '../../lib/access';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -47,7 +48,7 @@ export default function MeetupDetailPage({ params }: { params: Promise<{ id: str
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

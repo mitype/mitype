@@ -7,6 +7,7 @@
 // personally referred (enforced by an RLS policy on subscriptions);
 // no other user's status is visible.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -71,7 +72,7 @@ export default function MiReferralsPage() {
 
       setRows((refProfiles ?? []).map((p: any) => {
         const status = subMap.get(p.user_id) ?? null;
-        const isSub = status === 'active' || status === 'trialing';
+        const isSub = hasActiveAccess(status);
         return {
           user_id: p.user_id,
           username: p.username ?? 'unknown',

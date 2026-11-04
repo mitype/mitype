@@ -9,6 +9,7 @@
 // Filters: category chips, "near me" toggle (uses the city/state on
 // the viewer's profile), search by text.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useMemo, useState } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import Link from 'next/link';
@@ -53,7 +54,7 @@ export default function HomeGoodsBrowsePage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

@@ -8,6 +8,7 @@
 // personal /profile/[username], and a Message button that opens the
 // messaging center with the owner.
 
+import { hasActiveAccess } from '../../lib/access';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -76,7 +77,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ user
         .select('status')
         .eq('user_id', u.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

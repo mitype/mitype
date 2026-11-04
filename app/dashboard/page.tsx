@@ -1,4 +1,5 @@
 'use client';
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useRouter } from 'next/navigation';
@@ -97,7 +98,7 @@ export default function Dashboard() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

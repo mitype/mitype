@@ -7,6 +7,7 @@
 // embedded list of `business_events` rows. Logo uploads land in the
 // `business-logos` Supabase Storage bucket.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -74,7 +75,7 @@ export default function EditBusinessProfilePage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const isSubscribed = hasActiveAccess(sub?.status);
       if (!isSubscribed) {
         router.push('/subscription');
         return;

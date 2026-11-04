@@ -1,4 +1,5 @@
 'use client';
+import { hasActiveAccess } from '../lib/access';
 import { useState, useEffect } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -199,7 +200,7 @@ export default function EditProfilePage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       // Unsubscribed members may edit their profile (photo etc.); Save
       // then sends them on to the paywall.
       setIsSubscribed(subscribed);

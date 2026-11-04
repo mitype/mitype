@@ -5,6 +5,7 @@
 // active subscription (handled by RLS + composer gate). Renders against
 // the dark ocean background with the per-session vortex intro.
 
+import { hasActiveAccess } from '../lib/access';
 import { useCallback, useEffect, useState } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -103,7 +104,7 @@ export default function CurrentsFeedPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

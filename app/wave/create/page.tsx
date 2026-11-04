@@ -13,6 +13,7 @@
 // All processing happens client-side. No external services, no FFmpeg
 // install on Vercel — just standard browser APIs.
 
+import { hasActiveAccess } from '../../lib/access';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -91,7 +92,7 @@ export default function WaveCreatePage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const isSubscribed = hasActiveAccess(sub?.status);
       if (!isSubscribed) {
         router.push('/subscription');
         return;

@@ -2,6 +2,7 @@
 // /collab — Browse open creator-to-creator collab briefs.
 // Same visual language as /brand-deals; subscribers can browse and apply.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useMemo, useState } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -65,7 +66,7 @@ export default function CollabBoardPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

@@ -1,6 +1,7 @@
 'use client';
 // /home-goods/mine — the seller's own listings (active + sold + hidden).
 
+import { hasActiveAccess } from '../../lib/access';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -27,7 +28,7 @@ export default function MyListingsPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const ok = sub?.status === 'active' || sub?.status === 'trialing';
+      const ok = hasActiveAccess(sub?.status);
       if (!ok) {
         router.push('/subscription');
         return;

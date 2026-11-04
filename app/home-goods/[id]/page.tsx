@@ -7,6 +7,7 @@
 // messaging requires a subscription so we route free users to
 // /subscription when they tap that button.
 
+import { hasActiveAccess } from '../../lib/access';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -72,7 +73,7 @@ export default function ListingDetailPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

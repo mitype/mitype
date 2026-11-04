@@ -5,6 +5,7 @@
 // Also gates on the one-time safety acknowledgement (we show the
 // safety modal here too in case the user lands directly via deep link).
 
+import { hasActiveAccess } from '../../lib/access';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
@@ -56,7 +57,7 @@ export default function CreateListingPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const ok = sub?.status === 'active' || sub?.status === 'trialing';
+      const ok = hasActiveAccess(sub?.status);
       if (!ok) {
         router.push('/subscription');
         return;

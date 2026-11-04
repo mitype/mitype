@@ -4,6 +4,7 @@
 // Subscription-gated. Only the seller can land here (RLS would block
 // the update anyway, but we redirect early for a clean UX).
 
+import { hasActiveAccess } from '../../../lib/access';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '../../../lib/supabaseClient';
@@ -55,7 +56,7 @@ export default function EditListingPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const ok = sub?.status === 'active' || sub?.status === 'trialing';
+      const ok = hasActiveAccess(sub?.status);
       if (!ok) {
         router.push('/subscription');
         return;

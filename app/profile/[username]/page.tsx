@@ -1,4 +1,5 @@
 'use client';
+import { hasActiveAccess } from '../../lib/access';
 import React, { useState, useEffect, useRef } from 'react';
 import { FeatureInfoButton } from '../../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -129,7 +130,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             .select('status')
             .eq('user_id', user.id)
             .maybeSingle();
-          const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+          const subscribed = hasActiveAccess(sub?.status);
           if (!subscribed) {
             router.push('/subscription');
             return;

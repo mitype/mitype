@@ -10,6 +10,7 @@
 // Browse routes (/home-goods, business listings on /discover) stay
 // public so visitors can see what they'd get and decide to subscribe.
 
+import { hasActiveAccess } from './access';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from './supabaseClient';
@@ -41,7 +42,7 @@ export function useSubscriptionGate(opts?: Options): GateState {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const isSubscribed = hasActiveAccess(sub?.status);
       if (cancelled) return;
       if (!isSubscribed) {
         setState('free');

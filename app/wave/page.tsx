@@ -8,6 +8,7 @@
 // Mobile-first; on desktop the player is centered with phone-shaped
 // constraints for a TikTok-like experience.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -206,7 +207,7 @@ export default function WavePage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const isSubscribed = hasActiveAccess(sub?.status);
       if (!isSubscribed) {
         router.push('/subscription');
         return;

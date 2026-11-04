@@ -6,6 +6,7 @@
 //
 // No schema changes — reads `profiles.portfolio_links` (JSONB) directly.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useMemo, useState } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -93,7 +94,7 @@ export default function SpotlightPage() {
         .maybeSingle();
       if (cancelled) return;
 
-      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const isSubscribed = hasActiveAccess(sub?.status);
       if (!isSubscribed) {
         router.push('/subscription');
         return;

@@ -4,6 +4,7 @@
 // Same ocean treatment as the feed. Parent at the top, composer in the
 // middle (prefilled with @parentAuthor), threaded replies below.
 
+import { hasActiveAccess } from '../../lib/access';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
@@ -106,7 +107,7 @@ export default function CurrentDetailPage() {
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

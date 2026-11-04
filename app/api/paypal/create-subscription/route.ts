@@ -9,6 +9,7 @@
 // pending status so we have a paper trail even if the user bails
 // before approving.
 
+import { hasActiveAccess } from '../../../lib/access';
 import { NextRequest, NextResponse } from 'next/server';
 import { paypalRequest, getPayPalPlanId } from '../../../lib/paypalClient';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
       .select('status, is_comped')
       .eq('user_id', userId)
       .maybeSingle();
-    if (existing?.is_comped || existing?.status === 'active' || existing?.status === 'trialing') {
+    if (existing?.is_comped || hasActiveAccess(existing?.status)) {
       return NextResponse.json(
         { error: 'Your account already has full access.' },
         { status: 400 }

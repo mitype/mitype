@@ -1,4 +1,5 @@
 'use client';
+import { hasActiveAccess } from '../lib/access';
 import { useState, useEffect } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -108,7 +109,7 @@ export default function DiscoverPage() {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      const isSubscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const isSubscribed = hasActiveAccess(sub?.status);
       if (!isSubscribed) {
         router.push('/subscription');
         return;

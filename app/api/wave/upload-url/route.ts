@@ -4,6 +4,7 @@
 // directly to Supabase Storage without proxying through our server.
 // Enforces the 3-video-per-24h post limit BEFORE issuing the URL.
 
+import { hasActiveAccess } from '../../../lib/access';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 import { getAuthedUser } from '../../../lib/waveAuth';
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
       console.error('[wave/upload-url] subscription check error:', subErr);
       return NextResponse.json({ error: 'Could not verify subscription' }, { status: 500 });
     }
-    const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+    const subscribed = hasActiveAccess(sub?.status);
     if (!subscribed) {
       return NextResponse.json({ error: 'Subscription required' }, { status: 403 });
     }

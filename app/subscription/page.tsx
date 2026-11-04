@@ -1,4 +1,5 @@
 'use client';
+import { hasActiveAccess } from '../lib/access';
 import { useState, useEffect } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -59,7 +60,7 @@ export default function SubscriptionPage() {
     setSubscription({ ...(subscription ?? {}), status: 'active' });
   }
 
-  const isActive = subscription?.status === 'active' || subscription?.status === 'trialing';
+  const isActive = hasActiveAccess(subscription?.status);
 
   if (loading) return (
     <main style={{

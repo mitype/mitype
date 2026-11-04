@@ -10,6 +10,7 @@
 // Access: active or trialing subscribers only (enforced here and by RLS).
 // While MOMENTS_LIVE is false only admins can open this page.
 
+import { hasActiveAccess } from '../lib/access';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -114,7 +115,7 @@ export default function MomentsPage() {
         supabase.from('profiles').select('is_admin').eq('user_id', user.id).maybeSingle(),
       ]);
       if (cancelled) return;
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       const admin = !!me?.is_admin;
       if (!subscribed) { router.replace('/subscription'); return; }
       if (!MOMENTS_LIVE && !admin) { router.replace('/dashboard'); return; }

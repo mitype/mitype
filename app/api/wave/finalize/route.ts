@@ -5,6 +5,7 @@
 // metadata. This is the only path that creates videos — there's no
 // way to insert into wave_videos without going through here.
 
+import { hasActiveAccess } from '../../../lib/access';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 import { getAuthedUser } from '../../../lib/waveAuth';
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
       console.error('[wave/finalize] subscription check error:', subErr);
       return NextResponse.json({ error: 'Could not verify subscription' }, { status: 500 });
     }
-    const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+    const subscribed = hasActiveAccess(sub?.status);
     if (!subscribed) {
       return NextResponse.json({ error: 'Subscription required' }, { status: 403 });
     }

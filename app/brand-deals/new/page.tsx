@@ -6,6 +6,7 @@
 // brief. Failing either check redirects to /subscription or
 // /edit-business-profile with a friendly toast.
 
+import { hasActiveAccess } from '../../lib/access';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
@@ -99,7 +100,7 @@ export default function NewBrandDealPage() {
         supabase.from('business_profiles').select('id, city, state').eq('user_id', user.id).maybeSingle(),
       ]);
       const status = subRes.data?.status;
-      const isSubscribed = status === 'active' || status === 'trialing';
+      const isSubscribed = hasActiveAccess(status);
 
       if (!bizRes.data?.id) {
         toast.error('Set up a business profile before posting a brand deal.');

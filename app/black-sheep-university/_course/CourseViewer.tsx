@@ -15,6 +15,7 @@
 //     the lesson body, so a screenshot is traceable.
 //   - Content is only rendered through this gated page.
 
+import { hasActiveAccess } from '../../lib/access';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
@@ -65,7 +66,7 @@ export function CourseViewer({ title, badge, badgeBg, modules, lessonExtras, cou
         .select('status')
         .eq('user_id', user.id)
         .maybeSingle();
-      const subscribed = sub?.status === 'active' || sub?.status === 'trialing';
+      const subscribed = hasActiveAccess(sub?.status);
       if (!subscribed) {
         router.push('/subscription');
         return;

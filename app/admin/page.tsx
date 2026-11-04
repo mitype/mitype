@@ -16,6 +16,7 @@
 //   for tens of thousands of users; if we ever cross that we'll
 //   paginate.
 
+import { hasActiveAccess } from '../lib/access';
 import { useEffect, useMemo, useState } from 'react';
 import { FeatureInfoButton } from '../components/FeatureInfoButton';
 import { useRouter } from 'next/navigation';
@@ -87,7 +88,7 @@ export default function AdminPage() {
 
       const rows: UserRow[] = (profRes.data ?? []).map((p: any) => {
         const status = subMap.get(p.user_id) ?? null;
-        const isSub = status === 'active' || status === 'trialing';
+        const isSub = hasActiveAccess(status);
         return {
           user_id: p.user_id,
           username: p.username ?? 'unknown',
