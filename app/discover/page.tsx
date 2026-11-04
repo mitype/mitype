@@ -1318,7 +1318,7 @@ export default function DiscoverPage() {
               Discover
             </h1>
             <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 16 }}>
-              {filteredProfiles.length} creative{filteredProfiles.length !== 1 ? 's' : ''}. Sorted by compatibility
+              Sorted by compatibility
             </p>
           </div>
 
