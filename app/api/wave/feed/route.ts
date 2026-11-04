@@ -225,7 +225,16 @@ export async function GET(req: NextRequest) {
     });
 
     // Cursor for next page = the oldest created_at in this batch.
-    const nextCursor = page.length === PAGE_SIZE ? page[page.length - 1].created_at : null;
+    // The page is sorted by rank, not by date, so the last item is not
+    // the oldest. Using the true oldest date stops the next request from
+    // returning videos that were already shown.
+    const nextCursor =
+      page.length === PAGE_SIZE
+        ? page.reduce(
+            (oldest: string, v: { created_at: string }) => (v.created_at < oldest ? v.created_at : oldest),
+            page[0].created_at
+          )
+        : null;
 
     return NextResponse.json({ items, nextCursor });
   } catch (err: any) {

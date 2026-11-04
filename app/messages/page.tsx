@@ -577,12 +577,24 @@ export default function MessagesPage() {
   }
 
   async function loadMessages(convoId: string) {
-    const { data } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('conversation_id', convoId)
-      .order('created_at', { ascending: true });
-    setMessages(data ?? []);
+    // Supabase returns at most 1,000 rows per request, so read the chat
+    // in pages until everything is loaded. Without this a very long chat
+    // would silently drop its newest messages.
+    const PAGE = 1000;
+    const data: Array<Record<string, unknown>> = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data: chunk, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', convoId)
+        .order('created_at', { ascending: true })
+        .order('id', { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error || !chunk) break;
+      data.push(...chunk);
+      if (chunk.length < PAGE) break;
+    }
+    setMessages(data);
     // Mark any of the partner's messages we haven't read yet as read.
     // RLS only lets a non-sender flip these, so this is safe to fire-and-forget.
     if (data && data.length > 0) {

@@ -150,16 +150,26 @@ export default function DiscoverPage() {
         .select('target_user_id')
         .eq('user_id', user.id);
 
-      const swiped = matches?.map((m: any) => m.target_user_id) ?? [];
+      const swiped = new Set<string>(matches?.map((m: any) => m.target_user_id) ?? []);
 
       // Fetch all profiles except own
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .neq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      const allProfiles = profileData ?? [];
+      // Supabase returns at most 1,000 rows per request, so read in pages
+      // until everyone is loaded; otherwise newer members past the first
+      // 1,000 would silently never appear.
+      const PROFILE_PAGE = 1000;
+      const allProfiles: Array<{ user_id: string } & Record<string, unknown>> = [];
+      for (let from = 0; ; from += PROFILE_PAGE) {
+        const { data: chunk, error: chunkErr } = await supabase
+          .from('profiles')
+          .select('*')
+          .neq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .order('user_id', { ascending: true })
+          .range(from, from + PROFILE_PAGE - 1);
+        if (chunkErr || !chunk) break;
+        allProfiles.push(...chunk);
+        if (chunk.length < PROFILE_PAGE) break;
+      }
 
       // Get spotlight profiles from ALL profiles (including swiped)
       const spotlight = getSpotlightProfiles(allProfiles);
@@ -167,7 +177,7 @@ export default function DiscoverPage() {
 
       // Filter out swiped for main grid
       const filtered = allProfiles.filter(
-        (p: any) => !swiped.includes(p.user_id)
+        (p: any) => !swiped.has(p.user_id)
       );
 
       // Fetch the fresh-wave signal FIRST so we can fold it into the
