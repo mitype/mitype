@@ -22,6 +22,7 @@ const FEATURES: LandingFeature[] = [
     logo: '/black-sheep-university/logo.png',
     tone: 'personal',
     title: 'Black Sheep University',
+    rank: 6,
     wide: true,
     blurb: 'Masterclass training to help you succeed on other platforms.',
     body: 'Black Sheep University is professional creator training included with your membership. Each masterclass is built to help creators become successful on the other networks they use, with structured modules and lessons you can work through at your own pace. New masterclasses are added over time.',
@@ -35,6 +36,7 @@ const FEATURES: LandingFeature[] = [
   {
     tone: 'personal',
     title: 'Filter By What Matters',
+    rank: 8,
     blurb: 'Search by category, city, distance, and ZIP.',
     body: 'Find a guitarist in your neighborhood, a chef across town, or a photographer in the next state over. Filter Discover by category, ZIP, city, or distance, and toggle a "near me" view that respects how far you actually want to travel.',
   },
@@ -47,6 +49,7 @@ const FEATURES: LandingFeature[] = [
   {
     tone: 'personal',
     title: 'Safe & Private',
+    rank: 7,
     blurb: 'Your email and personal details stay yours.',
     body: 'We never expose your email, phone number, or location beyond what you choose to display. Block and report are one tap away on every profile and every video.',
   },
@@ -61,6 +64,7 @@ const FEATURES: LandingFeature[] = [
   {
     tone: 'personal',
     title: 'The Wave Feed',
+    rank: 1,
     wide: true,
     blurb: 'Short, 60-second videos from your community.',
     body: 'Post a 60-second clip of what you are working on. The Wave Feed surfaces fresh videos from creators you are compatible with, ranked by craft overlap. Likes, undo skips, and double-tap-to-like are built in.',
@@ -68,6 +72,7 @@ const FEATURES: LandingFeature[] = [
   {
     tone: 'personal',
     title: 'MI Moments',
+    rank: 2,
     blurb: 'A full screen photo carousel. Double tap to like.',
     body: 'MI Moments is a full screen photo carousel for members. Photos from the whole Mitype community spin past on a 3D carousel, mixed together, and every photo is shown before any repeat. Swipe to move through photos, double tap to like, and tap a name to visit that profile.',
     bullets: [
@@ -91,12 +96,14 @@ const FEATURES: LandingFeature[] = [
   {
     tone: 'personal',
     title: 'Daily Spark',
+    rank: 3,
     blurb: 'One hand-picked profile per day, with an opener.',
     body: 'Every morning Mitype picks one creator we think you should meet and writes a personalized icebreaker based on their profile prompts. Edit the opener, send it, or skip. Your call.',
   },
   {
     tone: 'business',
     title: 'Small Business profiles',
+    rank: 5,
     wide: true,
     blurb: 'Run a shop, online or local.',
     body: 'Mitype gives small businesses a clean home: logo, services, hours, contact buttons, social links, and events. Local discovery + word-of-mouth recommendations make sure the right people find you.',
@@ -125,6 +132,7 @@ const FEATURES: LandingFeature[] = [
   {
     tone: 'personal',
     title: 'Messages, Games & Voice',
+    rank: 4,
     wide: true,
     blurb: '14 mini-games, Story Builder, voice notes, photos.',
     body: 'Mitype messaging is a real chat, not a stripped-down DM box. Send voice notes, share photos, and challenge a friend to one of 14 built-in games (Chess, Battleship, Pictionary, Word Duel, Trivia Battle, Hangman, and more). The collaborative Story Builder lets you co-write a story and export it as a shareable image.',

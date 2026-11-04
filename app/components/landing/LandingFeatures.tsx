@@ -14,6 +14,8 @@ export interface LandingFeature {
   tone: 'personal' | 'business' | 'market';
   /** Make the card span two columns on desktop. */
   wide?: boolean;
+  /** Headline card shown up front. Lower number = earlier. Others sit behind "See all features". */
+  rank?: number;
 }
 
 const TONE: Record<LandingFeature['tone'], { color: string; tag: string }> = {
@@ -22,8 +24,12 @@ const TONE: Record<LandingFeature['tone'], { color: string; tag: string }> = {
   market: { color: '#6ee7a1', tag: 'Mi Home Goods' },
 };
 
-export function LandingFeatures({ features }: { features: LandingFeature[] }) {
+export function LandingFeatures({ features: all }: { features: LandingFeature[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const primary = all.filter((f) => f.rank !== undefined).sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
+  const rest = all.filter((f) => f.rank === undefined);
+  const features = showAll ? [...primary, ...rest] : primary;
 
   useEffect(() => {
     if (openIndex === null) return;
@@ -48,7 +54,7 @@ export function LandingFeatures({ features }: { features: LandingFeature[] }) {
           <button
             key={f.title}
             type="button"
-            className={`lp-tile lp-rv${f.wide ? ' lp-wide' : ''}`}
+            className={`lp-tile${i < primary.length ? ' lp-rv' : ''}${f.wide ? ' lp-wide' : ''}`}
             style={{ ['--tone' as string]: TONE[f.tone].color, ['--i' as string]: i % 4 }}
             onClick={() => setOpenIndex(i)}
             aria-label={`Learn more about ${f.title}`}
@@ -67,6 +73,19 @@ export function LandingFeatures({ features }: { features: LandingFeature[] }) {
           </button>
         ))}
       </div>
+
+      {rest.length > 0 && (
+        <div className="lp-more">
+          <button
+            type="button"
+            className="lp-btn lp-gh"
+            aria-expanded={showAll}
+            onClick={() => setShowAll((v) => !v)}
+          >
+            {showAll ? 'Show fewer features' : `See all ${all.length} features`}
+          </button>
+        </div>
+      )}
 
       {open && (
         <div
