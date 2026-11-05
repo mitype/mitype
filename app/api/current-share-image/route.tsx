@@ -39,12 +39,32 @@ const DIMS: Record<Format, { w: number; h: number }> = {
   square: { w: 1080, h: 1080 },
 };
 
+// Only our own storage may supply the avatar image. Without this check the
+// route would fetch any web address a visitor typed into the link.
+const SUPABASE_HOST = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').hostname;
+  } catch {
+    return 'xjwttqlmpkldgyikgiut.supabase.co';
+  }
+})();
+function safeAvatarUrl(raw: string): string {
+  try {
+    const u = new URL(raw);
+    return u.protocol === 'https:' && u.hostname === SUPABASE_HOST && u.pathname.startsWith('/storage/v1/')
+      ? raw
+      : '';
+  } catch {
+    return '';
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const rawUsername = searchParams.get('u') || 'mitype';
   const username = rawUsername.replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, 30);
   const rawAvatar = searchParams.get('a') || '';
-  const avatarUrl = /^https?:\/\//.test(rawAvatar) ? rawAvatar : '';
+  const avatarUrl = safeAvatarUrl(rawAvatar);
   const body = (searchParams.get('b') || '').slice(0, 500);
   const fmtRaw = (searchParams.get('format') || 'story') as Format;
   const format: Format = (['story', 'post', 'square'] as const).includes(fmtRaw) ? fmtRaw : 'story';

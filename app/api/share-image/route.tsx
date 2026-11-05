@@ -24,6 +24,26 @@ const BRAND_TEXT_DARK     = '#1a1208';
 const BRAND_TEXT_MID      = '#8a7560';
 const BRAND_TEXT_HEAD     = '#6b5744';
 
+// Only our own storage may supply the avatar image. Without this check the
+// route would fetch any web address a visitor typed into the link.
+const SUPABASE_HOST = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').hostname;
+  } catch {
+    return 'xjwttqlmpkldgyikgiut.supabase.co';
+  }
+})();
+function safeAvatarUrl(raw: string): string {
+  try {
+    const u = new URL(raw);
+    return u.protocol === 'https:' && u.hostname === SUPABASE_HOST && u.pathname.startsWith('/storage/v1/')
+      ? raw
+      : '';
+  } catch {
+    return '';
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const rawUsername = searchParams.get('u') || 'mitype';
@@ -33,7 +53,7 @@ export async function GET(req: NextRequest) {
   const rawAvatar = searchParams.get('a') || '';
   // Defensive: only accept http(s) urls so we don't try to render a
   // data: blob or a relative path.
-  const avatarUrl = /^https?:\/\//.test(rawAvatar) ? rawAvatar : '';
+  const avatarUrl = safeAvatarUrl(rawAvatar);
 
   return new ImageResponse(
     (
