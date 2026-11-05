@@ -222,12 +222,6 @@ export default function WhyMitypePage() {
             probably someone on Mitype in your type of people.
           </p>
 
-          <div className="wm-note">
-            Editor&apos;s note (owner to complete): add real, verifiable proof here as it becomes
-            available, such as member count, notable members, press mentions, or approved member
-            quotes. Only publish numbers and quotes that are accurate and that you have permission to
-            use.
-          </div>
 
           <h2>Frequently asked questions</h2>
           {FAQ.map((f) => (
