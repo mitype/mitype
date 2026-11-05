@@ -92,12 +92,16 @@ export async function POST(req: NextRequest) {
         // Subscription is active or just got updated. Fetch the
         // authoritative state from PayPal.
         let nextBilling: string | null = null;
+        // Prefer PayPal's current status over the one inside the event, so a
+        // late or out-of-order event can never overwrite a newer state.
+        let freshStatus: string | null = null;
         try {
           const sub = await paypalRequest<{
             status: string;
             billing_info?: { next_billing_time?: string };
           }>('GET', `/v1/billing/subscriptions/${encodeURIComponent(subscriptionId)}`);
           nextBilling = toIsoOrNull(sub.billing_info?.next_billing_time);
+          freshStatus = sub.status ? sub.status.toLowerCase() : null;
         } catch (err) {
           console.error(
             '[paypal-webhook] failed to refetch subscription:',
@@ -105,7 +109,8 @@ export async function POST(req: NextRequest) {
           );
         }
 
-        const status = (resource.status ?? '').toLowerCase() || 'active';
+        const status =
+          freshStatus || (resource.status ?? '').toLowerCase() || 'active';
 
         const { error } = await updateBySubscriptionId(subscriptionId, {
           status,
@@ -140,6 +145,8 @@ export async function POST(req: NextRequest) {
         });
         if (error) {
           console.error('[paypal-webhook] renewal update failed:', error);
+          // Ask PayPal to resend this event so the change is not lost.
+          return NextResponse.json({ error: 'Database error' }, { status: 500 });
         }
         break;
       }
@@ -150,6 +157,8 @@ export async function POST(req: NextRequest) {
         });
         if (error) {
           console.error('[paypal-webhook] payment_failed update failed:', error);
+          // Ask PayPal to resend this event so the change is not lost.
+          return NextResponse.json({ error: 'Database error' }, { status: 500 });
         }
         break;
       }
@@ -160,6 +169,8 @@ export async function POST(req: NextRequest) {
         });
         if (error) {
           console.error('[paypal-webhook] suspended update failed:', error);
+          // Ask PayPal to resend this event so the change is not lost.
+          return NextResponse.json({ error: 'Database error' }, { status: 500 });
         }
         break;
       }
@@ -171,6 +182,8 @@ export async function POST(req: NextRequest) {
         });
         if (error) {
           console.error('[paypal-webhook] canceled/expired update failed:', error);
+          // Ask PayPal to resend this event so the change is not lost.
+          return NextResponse.json({ error: 'Database error' }, { status: 500 });
         }
         break;
       }

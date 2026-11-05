@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
     // Pre-create / update the subscriptions row so we have somewhere
     // to land the user-id ↔ subscription-id mapping immediately.
     const supabaseAdmin = getSupabaseAdmin();
-    await supabaseAdmin
+    const { error: upsertErr } = await supabaseAdmin
       .from('subscriptions')
       .upsert(
         {
@@ -113,6 +113,11 @@ export async function POST(req: NextRequest) {
         },
         { onConflict: 'user_id' }
       );
+    // Logged only: the approval step saves this link again, so signup
+    // still works. This makes a failed save visible in the logs.
+    if (upsertErr) {
+      console.error('[paypal/create-subscription] could not save pending row:', upsertErr);
+    }
 
     return NextResponse.json({
       subscriptionId: subscription.id,
