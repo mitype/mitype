@@ -113,3 +113,13 @@ test('profile completeness: a photo is the only requirement', () => {
   assert.equal(scoreProfileCompleteness({ photos: [{ url: 'b.png' }] }).percent, 100);
   assert.equal(scoreProfileCompleteness({ avatar_url: '  ' }).percent, 0);
 });
+
+import { timeAgo } from '../app/messages/helpers.ts';
+
+test('messages timeAgo: buckets into just now, minutes, hours, days', () => {
+  const ago = (ms) => new Date(Date.now() - ms).toISOString();
+  assert.equal(timeAgo(ago(5_000)), 'just now');
+  assert.equal(timeAgo(ago(5 * 60_000)), '5m ago');
+  assert.equal(timeAgo(ago(3 * 3_600_000)), '3h ago');
+  assert.equal(timeAgo(ago(2 * 86_400_000)), '2d ago');
+});

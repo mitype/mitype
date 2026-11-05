@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
 import { SiteNav } from '../../components/SiteNav';
+import { Avatar } from '../../components/Avatar';
 import { toast } from '../../lib/toast';
 import { liquidGlass } from '../../lib/liquidGlass';
 
@@ -130,7 +131,7 @@ export default function CollabBriefDetailPage({ params }: { params: Promise<{ id
         {brief.poster && (
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
             <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', background: 'var(--brand-personal-bg-pale)', flexShrink: 0 }}>
-              {brief.poster.avatar_url && <img src={brief.poster.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+              {brief.poster.avatar_url && <Avatar src={brief.poster.avatar_url} alt="" width={44} sizes="44px" />}
             </div>
             <div>
               <p style={{ fontSize: 12, color: 'var(--brand-personal-text-light)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>Posted by</p>

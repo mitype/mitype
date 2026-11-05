@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
 import { SiteNav } from '../../components/SiteNav';
+import { Avatar } from '../../components/Avatar';
 import { toast } from '../../lib/toast';
 import { liquidGlass } from '../../lib/liquidGlass';
 
@@ -113,7 +114,7 @@ export default function ProjectRoomPage({ params }: { params: Promise<{ id: stri
             <Link key={p.user_id} href={`/profile/${p.username}`}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 4px', background: 'white', border: '1px solid rgba(200,149,108,0.25)', borderRadius: 100, textDecoration: 'none', color: 'var(--brand-text-primary)', fontSize: 13, fontWeight: 700 }}>
               <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--brand-personal-bg-pale)', overflow: 'hidden', display: 'inline-block' }}>
-                {p.avatar_url && <img src={p.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                {p.avatar_url && <Avatar src={p.avatar_url} alt="" width={22} sizes="22px" />}
               </span>
               @{p.username}
             </Link>
