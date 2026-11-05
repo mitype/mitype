@@ -13,7 +13,6 @@ import { DiscoverSkeleton } from '../components/Skeleton';
 import { OnlineDot } from '../components/OnlineDot';
 import { sanitizeText } from '../lib/sanitize';
 import { liquidGlass } from '../lib/liquidGlass';
-import { calculateAge } from '../lib/age';
 import { usePresence } from '../lib/usePresence';
 import { ALL_CATEGORIES } from '../lib/categories';
 import { BackButton } from '../components/BackButton';
@@ -160,7 +159,7 @@ export default function DiscoverPage() {
       const allProfiles: Array<{ user_id: string } & Record<string, unknown>> = [];
       for (let from = 0; ; from += PROFILE_PAGE) {
         const { data: chunk, error: chunkErr } = await supabase
-          .from('profiles')
+          .from('profiles_directory')
           .select('*')
           .neq('user_id', user.id)
           .order('created_at', { ascending: false })
@@ -667,7 +666,7 @@ export default function DiscoverPage() {
                         >
                           @{profile.username}
                           {(() => {
-                            const age = calculateAge(profile.date_of_birth);
+                            const age: number | null = typeof profile.age_years === 'number' ? profile.age_years : null;
                             return age !== null ? (
                               <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600 }}> · {age}</span>
                             ) : null;
@@ -1762,7 +1761,7 @@ export default function DiscoverPage() {
                     >
                       @{profile.username}
                       {(() => {
-                        const age = calculateAge(profile.date_of_birth);
+                        const age: number | null = typeof profile.age_years === 'number' ? profile.age_years : null;
                         return age !== null ? (
                           <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600 }}> · {age}</span>
                         ) : null;

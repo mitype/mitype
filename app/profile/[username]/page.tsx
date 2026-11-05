@@ -15,7 +15,6 @@ import { toast } from '../../lib/toast';
 import { liquidGlass } from '../../lib/liquidGlass';
 import { sanitizeText, safeUrl } from '../../lib/sanitize';
 import { normalizePrompts, type ProfilePrompt } from '../../lib/profilePrompts';
-import { calculateAge } from '../../lib/age';
 import { normalizePhotos, type ProfilePhoto } from '../../lib/photos';
 import { PhotoGallery } from '../../components/PhotoGallery';
 import { OnlineDot } from '../../components/OnlineDot';
@@ -63,7 +62,7 @@ type PublicProfile = {
   profile_prompts?: ProfilePrompt[] | null;
   creative_status?: string | null;
   latest_project_url?: string | null;
-  date_of_birth?: string | null;
+  age_years?: number | null;
   photos?: ProfilePhoto[] | null;
   last_active_at?: string | null;
   is_admin?: boolean | null;
@@ -145,8 +144,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           if (myProfile?.categories) setMyCategories(myProfile.categories);
         }
 
+        // Signed-in members read the directory (includes age). Signed-out
+        // visitors only get the public subset, never private fields.
         const { data: profileData } = await supabase
-          .from('profiles')
+          .from(user ? 'profiles_directory' : 'profiles_public')
           .select('*')
           .eq('username', username.toLowerCase())
           .maybeSingle();
@@ -785,7 +786,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               <span>
                 @{profile.username}
                 {(() => {
-                  const age = calculateAge(profile.date_of_birth);
+                  const age = typeof profile.age_years === 'number' ? profile.age_years : null;
                   if (age === null) return null;
                   return (
                     <span style={{ color: 'var(--brand-personal-text-light)', fontWeight: 600, fontSize: 22, marginLeft: 10 }}>

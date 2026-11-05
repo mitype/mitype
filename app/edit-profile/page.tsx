@@ -207,10 +207,12 @@ export default function EditProfilePage() {
       setUser(user);
 
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('profiles_directory')
         .select('*')
         .eq('user_id', user.id)
         .single();
+      // Birth date is private: only its owner can read it, via this call.
+      const { data: myDob } = await supabase.rpc('get_my_date_of_birth');
 
       if (profile) {
         setUsername(profile.username || '');
@@ -245,7 +247,7 @@ export default function EditProfilePage() {
         setWebsiteUrl(profile.website_url || '');
         setCreativeStatus(profile.creative_status || '');
         setLatestProjectUrl(profile.latest_project_url || '');
-        setDateOfBirth(profile.date_of_birth || '');
+        setDateOfBirth((typeof myDob === 'string' ? myDob : '') || '');
         setSelectedCategories(profile.categories || []);
         setAvatarUrl(profile.avatar_url || '');
         setPhotos(normalizePhotos(profile.photos));
@@ -374,7 +376,6 @@ export default function EditProfilePage() {
       website_url: websiteUrl.trim(),
       creative_status: creativeStatus.trim(),
       latest_project_url: latestProjectUrl.trim() || null,
-      date_of_birth: dateOfBirth || null,
       avatar_url: primaryAvatar,
       photos,
       portfolio_links: portfolioLinks.filter((p) => p.url.trim()),
@@ -388,6 +389,19 @@ export default function EditProfilePage() {
 
     if (error) {
       toast.error(error.message);
+      setSaving(false);
+      return;
+    }
+
+    // Birth date is saved on its own: it is a private column that only its
+    // owner may change, and keeping it out of the bulk save above means the
+    // database never needs to read it back.
+    const { error: dobError } = await supabase
+      .from('profiles')
+      .update({ date_of_birth: dateOfBirth || null })
+      .eq('user_id', user.id);
+    if (dobError) {
+      toast.error(dobError.message);
       setSaving(false);
       return;
     }

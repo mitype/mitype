@@ -76,7 +76,7 @@ export default function Dashboard() {
 
       // Check if profile exists
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('profiles_directory')
         .select('*')
         .eq('user_id', user.id)
         .single();
