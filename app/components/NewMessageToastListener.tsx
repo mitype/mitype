@@ -8,7 +8,7 @@
 // conversations they're actually a participant of — we do not double-check
 // participation here.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../lib/toast';
@@ -25,6 +25,13 @@ interface MessageRow {
 export function NewMessageToastListener() {
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const pathname = usePathname();
+  // Kept in a ref so navigating between pages does not tear down and
+  // rebuild the realtime subscription (which could miss messages that
+  // arrive during the switch).
+  const pathnameRef = useRef(pathname);
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   // Resolve user id and watch auth state.
   useEffect(() => {
@@ -54,7 +61,7 @@ export function NewMessageToastListener() {
           // Skip own sends.
           if (!row || row.sender_id === userId) return;
           // Already viewing messages: they see it live, just a soft chime.
-          if (pathname?.startsWith('/messages')) { feedback.message(); return; }
+          if (pathnameRef.current?.startsWith('/messages')) { feedback.message(); return; }
 
           // Resolve sender username for the toast.
           const { data: sender } = await supabase
@@ -90,7 +97,7 @@ export function NewMessageToastListener() {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [userId, pathname]);
+  }, [userId]);
 
   return null;
 }

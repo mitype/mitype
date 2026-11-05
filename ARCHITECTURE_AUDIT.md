@@ -74,3 +74,12 @@ Scope: ~67,500 lines in `app/`, 50 pages, 17 API routes, 56 SQL migrations. Meth
 ## 8. Things deliberately NOT touched without tests first
 
 Payments (PayPal routes/webhook), sign-in, subscription rules, RLS policies, and Realtime chat/games. These get changed only after Phase 0 coverage exists.
+
+## 9. Status log
+
+Done and verified live: logic tests (`npm test`), shared access rule (`app/lib/access.ts`), 1,000-row fixes for chats and Discover, Wave feed cursor fix, shared unread-count poll plus database function (`supabase-unread-counts-rpc.sql`), removal of 5 unused files, first split of the Messages page (helpers, icebreakers, attachment bubble, message menu).
+
+Deferred on purpose:
+- **Discover server-side paging.** Today Discover downloads every profile and ranks in the browser. Fine at current size. Revisit when membership approaches roughly 1,000 to 2,000 members: move ranking into a SQL function that returns one page at a time, and verify the new order matches the current ranking (`app/lib/discoverRanking.ts`) with tests before switching.
+- Splitting the interior of the Messages, Wave and Discover pages into smaller components (higher risk, do one slice at a time with a live check).
+- Replacing remaining `<img>` tags that use storage folders next/image is not configured for.

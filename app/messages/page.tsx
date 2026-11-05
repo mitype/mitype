@@ -377,11 +377,44 @@ export default function MessagesPage() {
           setMessages((prev) => prev.map((m) => (m.id === updated.id ? { ...m, ...updated } : m)));
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        // After a dropped connection comes back, fetch anything we missed.
+        if (status === 'SUBSCRIBED') {
+          if (hasSubscribedOnce) void catchUp();
+          hasSubscribedOnce = true;
+        }
+      });
 
     channelRef.current = channel;
 
+    // Live updates cannot be replayed once a phone sleeps or goes offline,
+    // so when the tab becomes visible again (or the network returns) load
+    // any messages newer than the latest one we have and merge them in.
+    let hasSubscribedOnce = false;
+    async function catchUp() {
+      const { data } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', convoId)
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (!data || data.length === 0) return;
+      setMessages((prev) => {
+        const known = new Set(prev.map((m) => m.id));
+        const missing = data.filter((m) => !known.has(m.id)).reverse();
+        if (missing.length === 0) return prev;
+        return [...prev, ...missing];
+      });
+    }
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void catchUp();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('online', onVisible);
+
     return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('online', onVisible);
       Object.values(typingTimersRef.current).forEach(clearTimeout);
       typingTimersRef.current = {};
       setTypingUserIds(new Set());
@@ -549,7 +582,7 @@ export default function MessagesPage() {
   }
 
   async function sendMessage() {
-    if (!newMessage.trim() || !selectedConvo || !user) return;
+    if (sending || !newMessage.trim() || !selectedConvo || !user) return;
 
     if (selectedConvo.status === 'pending') {
       const myMessages = messages.filter((m) => m.sender_id === user.id);
@@ -571,7 +604,7 @@ export default function MessagesPage() {
       .single();
 
     if (!error && data) {
-      setMessages((prev) => [...prev, data]);
+      setMessages((prev) => (prev.some((m) => m.id === data.id) ? prev : [...prev, data]));
       setNewMessage('');
       setShowIcebreakers(false);
     }
@@ -604,7 +637,7 @@ export default function MessagesPage() {
       .single();
 
     if (!error && data) {
-      setMessages((prev) => [...prev, data]);
+      setMessages((prev) => (prev.some((m) => m.id === data.id) ? prev : [...prev, data]));
     } else if (error) {
       toast.error("Couldn't send. Try again.");
     }
@@ -688,7 +721,7 @@ export default function MessagesPage() {
         .single();
 
       if (!error && data) {
-        setMessages((prev) => [...prev, data]);
+        setMessages((prev) => (prev.some((m) => m.id === data.id) ? prev : [...prev, data]));
       } else if (error) {
         console.error('[messages] insert error:', error);
         toast.error("Couldn't send. Try again.");

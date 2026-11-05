@@ -115,6 +115,19 @@ export async function POST(req: NextRequest) {
       if (b && b.user_id === user.id) safeLinkedBusinessId = b.id;
     }
 
+    // If this exact upload was already saved (for example the first response
+    // was lost and the app retried), return that video instead of posting a
+    // duplicate.
+    const { data: already } = await supabaseAdmin
+      .from('wave_videos')
+      .select('id, expires_at')
+      .eq('user_id', user.id)
+      .eq('storage_path', storagePath)
+      .maybeSingle();
+    if (already) {
+      return NextResponse.json({ success: true, videoId: already.id, expiresAt: already.expires_at });
+    }
+
     // Create the video row. expires_at defaults to now + 24h via the schema.
     const { data: video, error: insertErr } = await supabaseAdmin
       .from('wave_videos')
