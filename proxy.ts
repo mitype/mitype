@@ -6,7 +6,7 @@ import type { NextRequest } from 'next/server';
 // social link previews, Stripe/PayPal webhooks and Vercel crons are not
 // matched, so nothing user-facing is affected.
 const AI_BOTS =
-  /GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-Web|anthropic-ai|Claude-User|Claude-SearchBot|CCBot|Google-Extended|GoogleOther|PerplexityBot|Perplexity-User|Bytespider|Amazonbot|Applebot-Extended|cohere-ai|cohere-training-data-crawler|Diffbot|FacebookBot|meta-externalagent|meta-externalfetcher|ImagesiftBot|Omgili|omgilibot|Timpibot|VelenPublicWebCrawler|Scrapy|YouBot|Ai2Bot|AI2Bot|DuckAssistBot|MistralAI-User|PetalBot|SemrushBot|AhrefsBot|MJ12bot|DataForSeoBot|img2dataset/i;
+  /GPTBot|ClaudeBot|Claude-Web|anthropic-ai|CCBot|Google-Extended|GoogleOther|Bytespider|Amazonbot|Applebot-Extended|cohere-ai|cohere-training-data-crawler|Diffbot|FacebookBot|meta-externalagent|meta-externalfetcher|ImagesiftBot|Omgili|omgilibot|Timpibot|VelenPublicWebCrawler|Scrapy|YouBot|Ai2Bot|AI2Bot|MistralAI-User|PetalBot|SemrushBot|AhrefsBot|MJ12bot|DataForSeoBot|img2dataset/i;
 
 // Best effort per-IP limiter for /api routes. Memory is per server
 // instance, so it will not catch a distributed attack (use the Vercel

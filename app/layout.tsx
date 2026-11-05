@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   description:
     "Connect with people who share your world.",
   manifest: "/manifest.json",
+  applicationName: "Mitype",
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }
+      : undefined,
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

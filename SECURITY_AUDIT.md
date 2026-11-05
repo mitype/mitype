@@ -6,7 +6,7 @@ Method: read all API routes, auth helpers, RLS/SQL migrations and config; then c
 
 | # | Finding | Severity | Status |
 |---|---------|----------|--------|
-| 1 | Anyone, signed in or not, can download every member's full profile including date of birth, ZIP, travel dates and flags | **High** | Fix designed, needs your decision (below) |
+| 1 | Anyone, signed in or not, can download every member's full profile including date of birth, ZIP, travel dates and flags | **High** | **Fixed and verified live** (see status below) |
 | 2 | Members can set `is_referrer` on themselves | Medium | Fixed in `supabase-security-hardening.sql` |
 | 3 | Share-image routes fetch any web address given in the link | Medium-Low | Fixed in code |
 | 4 | `is_subscribed()` and `prune_rate_limit_log()` callable by signed-out visitors | Low | Fixed in `supabase-security-hardening.sql` |
@@ -63,3 +63,11 @@ Signed-out callers can list files in the `avatars`, `business-logos`, `pet-photo
 - **Monitoring:** alert on repeated 401/403 from the webhook and cron routes, and on spikes in profile reads.
 - **Backups:** confirm Supabase point-in-time recovery is on.
 - **Dependency checks:** run `npm audit` regularly and turn on GitHub Dependabot alerts.
+
+## Status: finding 1 fixed (verified live)
+
+Outsider test after the fix: signed-out requests for `date_of_birth`, `zip_code`, `is_admin` or all columns now return "permission denied"; only the public fields (username, bio, avatar, categories, city, state, links) are readable. A signed-in member can no longer read anyone's exact birth date (403); they read ages from `profiles_directory` and their own birth date through `get_my_date_of_birth()`. Discover, profiles, Edit Profile (including saving), Dashboard and Messages were re-checked in a signed-in session with no failed requests.
+
+Maintenance rule: after adding any column to `profiles`, run `SELECT public.lock_profile_columns(); SELECT public.refresh_profile_privacy();` or the app cannot read the new column.
+
+Remaining by design: signed-in members can still read other members' ZIP, travel dates, last-active time and internal flags (needed for the ZIP filter and presence). Possible next step: replace ZIP with a coarser location bucket and move admin/referral flags to a private table.

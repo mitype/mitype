@@ -9,7 +9,7 @@
 import type { MetadataRoute } from 'next';
 import { getSupabaseAdmin } from './lib/supabaseAdmin';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://mitypeapp.com';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://www.mitypeapp.com';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -17,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static marketing + legal pages.
   const staticUrls: MetadataRoute.Sitemap = [
     { url: `${BASE_URL}/`,              lastModified: now, changeFrequency: 'weekly',  priority: 1.0 },
+    { url: `${BASE_URL}/why-mitype`,    lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${BASE_URL}/login`,         lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${BASE_URL}/signup`,        lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE_URL}/legal/contact`, lastModified: now, changeFrequency: 'yearly',  priority: 0.3 },

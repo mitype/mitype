@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import './landing.css';
 import { OddcastPill } from './components/OddcastPill';
 import { RefBadge } from './components/RefBadge';
@@ -7,6 +8,43 @@ import { LandingFeatures, type LandingFeature } from './components/landing/Landi
 import { LandingBackground } from './components/landing/LandingBackground';
 import { HeroOrb } from './components/landing/HeroOrb';
 import { LandingEffects, ScrollHint } from './components/landing/LandingEffects';
+
+export const metadata: Metadata = {
+  title: 'Mitype: The Social Media That Networks | Find Creators, Makers & Small Businesses',
+  description:
+    'Mitype connects creative professionals, makers, hobbyists and small businesses by craft, city and distance. Short video, consent-first messaging, a community marketplace and real privacy.',
+  keywords: ['Mitype', 'social network for creators', 'find creators near me', 'creative networking app', 'small business social network', 'collaborate with artists', 'creator community'],
+  alternates: { canonical: 'https://www.mitypeapp.com' },
+};
+
+const LANDING_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://www.mitypeapp.com/#org',
+      name: 'Mitype',
+      url: 'https://www.mitypeapp.com',
+      logo: 'https://www.mitypeapp.com/icon-512.png',
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://www.mitypeapp.com/#website',
+      url: 'https://www.mitypeapp.com',
+      name: 'Mitype',
+      publisher: { '@id': 'https://www.mitypeapp.com/#org' },
+    },
+    {
+      '@type': 'WebApplication',
+      name: 'Mitype',
+      url: 'https://www.mitypeapp.com',
+      applicationCategory: 'SocialNetworkingApplication',
+      operatingSystem: 'Web, iOS, Android',
+      description: 'The social media that networks. Find creators, makers and small businesses by craft, city and distance.',
+      offers: { '@type': 'Offer', price: '5.00', priceCurrency: 'USD' },
+    },
+  ],
+};
 
 // Full feature roster shown in the "Built different. On purpose." grid.
 // Each card is clickable and opens a modal with the long-form pitch.
@@ -246,6 +284,7 @@ const PRICING_ITEMS: string[] = [
 export default function HomePage() {
   return (
     <main className="lp-root">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(LANDING_LD) }} />
       <LandingBackground />
       <LandingEffects />
 
@@ -280,7 +319,7 @@ export default function HomePage() {
               <Link href="/login" className="lp-btn lp-gh">Sign In</Link>
             </div>
             <p className="lp-proof lp-rv" style={{ ['--i' as string]: 4 }}>
-              Thousands of creatives already collaborating
+              Creators, makers and small businesses collaborating
             </p>
           </div>
           <HeroOrb />
@@ -384,6 +423,7 @@ export default function HomePage() {
       <footer className="lp-footer">
         <div className="lp-logo">mitype</div>
         <nav aria-label="Footer">
+          <Link href="/why-mitype">Why Mitype</Link>
           <Link href="/legal/privacy">Privacy Policy</Link>
           <Link href="/legal/terms">Terms of Service</Link>
           <Link href="/legal/contact">Contact &amp; Support</Link>

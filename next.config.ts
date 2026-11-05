@@ -35,8 +35,8 @@ const securityHeaders = [
   },
   // Don't expose the X-Powered-By: Next.js header that advertises the stack.
   { key: "X-DNS-Prefetch-Control", value: "on" },
-  // Ask AI systems not to use page content or images for training.
-  { key: "X-Robots-Tag", value: "noai, noimageai" },
+  // (Training is blocked via robots.txt and proxy.ts per crawler. A blanket
+  // "noai" header was removed so AI search engines can cite Mitype.)
   // Safe subset of a Content-Security-Policy: blocks framing, plugin
   // embeds, <base> tag hijacking and form posts to other sites. Script
   // and style sources are left open so PayPal, Sentry and Next.js keep
