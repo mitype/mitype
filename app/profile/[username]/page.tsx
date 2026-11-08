@@ -805,21 +805,21 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    padding: '4px 10px 4px',
+                    padding: '3px 8px',
                     background: 'linear-gradient(135deg, #a8744a, #7d5232)',
                     color: '#ffffff',
                     WebkitTextFillColor: '#ffffff',
                     borderRadius: 100,
-                    fontSize: 10,
+                    fontSize: 9,
                     fontWeight: 800,
-                    letterSpacing: '1.4px',
+                    letterSpacing: '1px',
                     textTransform: 'uppercase',
                     lineHeight: 1,
                     boxShadow: '0 2px 8px rgba(200,149,108,0.35)',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  Administrator
+                  Admin
                 </span>
               )}
               {/* Small "CMO" tag — Chief Marketing Officer role.
