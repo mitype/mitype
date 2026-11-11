@@ -17,6 +17,8 @@ interface Vitals {
   members: number;
   new24h: number;
   new7d: number;
+  active: number;
+  trialing: number;
   referred: number;
   referrers: number;
 }
@@ -237,6 +239,7 @@ export default function CommandCenter() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [v, setV] = useState<Vitals | null>(null);
+  const [showVitals, setShowVitals] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [updated, setUpdated] = useState<Date | null>(null);
   const [err, setErr] = useState('');
@@ -340,23 +343,40 @@ export default function CommandCenter() {
     setProducts((list) => list.filter((x) => x.id !== p.id));
   }
 
+  // Member numbers are only fetched when the Mitype numbers panel is opened.
   async function load() {
-    const profRes = await supabase.from('profiles').select('user_id, created_at, referred_by, is_referrer');
+    const [profRes, subRes] = await Promise.all([
+      supabase.from('profiles').select('user_id, created_at, referred_by, is_referrer'),
+      supabase.from('subscriptions').select('user_id, status'),
+    ]);
     if (profRes.error) {
       setErr('Could not load member data.');
       return;
     }
     const profs = (profRes.data ?? []) as { user_id: string; created_at: string; referred_by: string | null; is_referrer: boolean | null }[];
+    const subs = (subRes.data ?? []) as { user_id: string; status: string | null }[];
     const t = Date.now();
     setV({
       members: profs.length,
       new24h: profs.filter((p) => t - new Date(p.created_at).getTime() < 864e5).length,
       new7d: profs.filter((p) => t - new Date(p.created_at).getTime() < 7 * 864e5).length,
+      active: subs.filter((s) => s.status === 'active').length,
+      trialing: subs.filter((s) => s.status === 'trialing').length,
       referred: profs.filter((p) => p.referred_by).length,
       referrers: profs.filter((p) => p.is_referrer).length,
     });
     setUpdated(new Date());
     setErr('');
+  }
+
+  function toggleVitals() {
+    if (showVitals) {
+      setShowVitals(false);
+      setV(null);
+      return;
+    }
+    setShowVitals(true);
+    load();
   }
 
   useEffect(() => {
@@ -372,14 +392,11 @@ export default function CommandCenter() {
         return;
       }
       setReady(true);
-      load();
       loadProducts();
     })();
     const clock = setInterval(() => setNow(new Date()), 1000);
-    const refresh = setInterval(load, 5 * 60 * 1000);
     return () => {
       clearInterval(clock);
-      clearInterval(refresh);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -392,13 +409,6 @@ export default function CommandCenter() {
   const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
   const brief: string[] = [];
-  if (v) {
-    brief.push(
-      v.new24h > 0
-        ? `${v.new24h} new member${v.new24h === 1 ? '' : 's'} joined in the last 24 hours.`
-        : 'No new members in the last 24 hours.'
-    );
-  }
   brief.push('Both Timeline books are live on Amazon and linked as a series.');
   brief.push('Instagram has 5,071 followers and TikTok about 3K. Most views come from people who do not follow you yet, so new posts reach new audiences.');
   const waiting = IDEAS.filter((i) => !decisions[i.id]).length;
@@ -466,16 +476,27 @@ export default function CommandCenter() {
 
       <div className="cc-grid">
         <section className="cc-col" aria-label="Mitype vitals">
-          <div className="cc-mono">Vitals</div>
+          <div className="cc-mono">Mitype</div>
+          <button type="button" className={`cc-btn${showVitals ? ' on' : ''}`} onClick={toggleVitals} aria-expanded={showVitals}>
+            {showVitals ? 'Hide Mitype numbers' : 'Show Mitype numbers'}
+          </button>
           {err ? <div className="cc-card">{err}</div> : null}
-          <div className="cc-row">
-            <Stat label="Members" value={v?.members ?? '...'} hint={v ? `+${v.new7d} this week` : undefined} />
-            <Stat label="New today" value={v?.new24h ?? '...'} />
-          </div>
-          <Stat label="Referred" value={v?.referred ?? '...'} hint={v ? `${v.referrers} referrers` : undefined} />
-          <div className="cc-hint">
-            {updated ? `Updated ${updated.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}, refreshes every 5 minutes` : 'Loading'}
-          </div>
+          {showVitals ? (
+            <>
+              <div className="cc-row">
+                <Stat label="Users" value={v?.members ?? '...'} hint={v ? `+${v.new7d} this week` : undefined} />
+                <Stat label="New today" value={v?.new24h ?? '...'} />
+              </div>
+              <div className="cc-row">
+                <Stat label="Subscribers" value={v ? v.active : '...'} hint="paid" />
+                <Stat label="In trial" value={v ? v.trialing : '...'} />
+              </div>
+              <Stat label="Referred" value={v?.referred ?? '...'} hint={v ? `${v.referrers} referrers` : undefined} />
+              <div className="cc-hint">
+                {updated ? `Updated ${updated.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : 'Loading'}
+              </div>
+            </>
+          ) : null}
 
           <div className="cc-mono" style={{ marginTop: 6 }}>Social reach · as of {SOCIALS_AS_OF}</div>
           {SOCIALS.map((s) => (
