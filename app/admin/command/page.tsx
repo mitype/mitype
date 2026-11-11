@@ -61,52 +61,23 @@ const BOOKS = [
   { title: 'The Timeline: 90s', status: 'Live', note: 'Book 2 of The Timeline', href: 'https://www.amazon.com/dp/B0HR8SMDH6' },
 ];
 
-// Units sold, read from KDP Reports (Orders, processed). KDP lists a paperback only after
-// Amazon processes the order, a few days after it is placed. No earnings are shown here.
-const SALES_AS_OF = 'Nov 11';
-const BOOK_SALES = [
-  { title: 'The Timeline: 80s', units: 0 },
-  { title: 'The Timeline: 90s', units: 0 },
-];
+// All business content (social numbers, sales, ideas, tasks, links) is stored in the
+// admin-only database table dashboard_content and loaded after the admin check passes.
+// None of it is written into this page's code, so it is never sent to other visitors.
+interface Content {
+  salesAsOf: string;
+  bookSales: { title: string; units: number }[];
+  socialsAsOf: string;
+  socials: { name: string; big: string; unit: string; lines: string[] }[];
+  ideas: { id: string; title: string; why: string }[];
+  tasks: string[];
+  links: { label: string; href: string }[];
+  briefing: string[];
+}
 
-// Snapshot read from each account on Nov 11. Refreshed when Claude re-reads the accounts.
-const SOCIALS_AS_OF = 'Nov 11';
-const SOCIALS = [
-  { name: 'Instagram', big: '5,071', unit: 'followers', lines: ['32.1K views, last 30 days', '825 interactions', '159 profile visits, 4 link taps'] },
-  { name: 'TikTok', big: '3K', unit: 'followers', lines: ['14.7K video views, last 7 days', '386 likes, 35 comments, 13 shares', '90 profile views'] },
-  { name: 'Facebook', big: '1.2K', unit: 'views from Instagram, 30 days', lines: ['Page insights not read yet'] },
-  { name: 'YouTube', big: '--', unit: 'not connected yet', lines: ['Studio blocks my reader, needs a different method'] },
-  { name: 'TuneCore', big: '--', unit: 'streams only, no earnings shown', lines: ['Not connected yet'] },
-];
-
-// Ideas for growth. Nothing is posted or changed until you press Approve and then ask Claude to run it.
-const IDEAS = [
-  { id: 'ig-link', title: 'Put both Timeline books in your Instagram bio link', why: '4 link taps in 30 days. A link to the series page gives those taps somewhere to sell.' },
-  { id: 'tt-shop', title: 'Check TikTok Shop for books and Christmas products', why: 'TikTok Studio lists Monetization tools. Shop and affiliate access depend on follower and region rules.' },
-  { id: 'amz-assoc', title: 'Join Amazon Associates for commission links', why: 'Earn commission on products you feature, including your own Amazon books and gift picks.' },
-  { id: 'reel-set', title: 'Post a two-book Timeline reel (80s and 90s)', why: 'Reels drive 64% of your Instagram views and 97% come from non-followers.' },
-  { id: 'xmas-shop', title: 'Add Christmas finds to your Mitype shop with photos and links', why: 'Seasonal demand peaks soon. Use the product uploader below.' },
-];
-
-const TASKS = [
-  'Post the launch posts for both Timeline books',
-  'Stage 4 videos as drafts on TikTok, Instagram, Facebook',
-  'Photograph the Christmas products and add them below',
-  'Connect YouTube and X to the dashboard',
-];
-
-const LINKS = [
-  { label: 'KDP Bookshelf', href: 'https://kdp.amazon.com/en_US/bookshelf' },
-  { label: 'KDP Reports', href: 'https://kdpreports.amazon.com/dashboard' },
-  { label: 'Author Central', href: 'https://author.amazon.com/home' },
-  { label: 'Firefly', href: 'https://firefly.adobe.com/generate/image' },
-  { label: 'TikTok Studio', href: 'https://www.tiktok.com/tiktokstudio' },
-  { label: 'Instagram', href: 'https://www.instagram.com/accounts/insights/' },
-  { label: 'YouTube Studio', href: 'https://studio.youtube.com' },
-  { label: 'Amazon series page', href: 'https://kdp.amazon.com/en_US/bookshelf' },
-  { label: 'Admin', href: '/admin' },
-  { label: 'Moments', href: '/moments' },
-];
+const EMPTY_CONTENT: Content = {
+  salesAsOf: '', bookSales: [], socialsAsOf: '', socials: [], ideas: [], tasks: [], links: [], briefing: [],
+};
 
 const PALETTE: [number, number, number][] = [
   [255, 176, 96], // amber
@@ -249,6 +220,7 @@ export default function CommandCenter() {
   const [v, setV] = useState<Vitals | null>(null);
   const [showVitals, setShowVitals] = useState(false);
   const [showSales, setShowSales] = useState(false);
+  const [content, setContent] = useState<Content>(EMPTY_CONTENT);
   const [now, setNow] = useState(() => new Date());
   const [updated, setUpdated] = useState<Date | null>(null);
   const [err, setErr] = useState('');
@@ -269,6 +241,11 @@ export default function CommandCenter() {
     const next = { ...decisions, [id]: d };
     setDecisions(next);
     try { localStorage.setItem('cc-decisions', JSON.stringify(next)); } catch { /* optional */ }
+  }
+
+  async function loadContent() {
+    const { data } = await supabase.from('dashboard_content').select('content').eq('id', 'main').maybeSingle();
+    if (data?.content) setContent({ ...EMPTY_CONTENT, ...(data.content as Partial<Content>) });
   }
 
   async function loadProducts() {
@@ -402,6 +379,7 @@ export default function CommandCenter() {
       }
       setReady(true);
       loadProducts();
+      loadContent();
     })();
     const clock = setInterval(() => setNow(new Date()), 1000);
     return () => {
@@ -418,9 +396,8 @@ export default function CommandCenter() {
   const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
   const brief: string[] = [];
-  brief.push('Both Timeline books are live on Amazon and linked as a series.');
-  brief.push('Instagram has 5,071 followers and TikTok about 3K. Most views come from people who do not follow you yet, so new posts reach new audiences.');
-  const waiting = IDEAS.filter((i) => !decisions[i.id]).length;
+  content.briefing.forEach((line) => brief.push(line));
+  const waiting = content.ideas.filter((i) => !decisions[i.id]).length;
   if (waiting > 0) brief.push(`${waiting} growth idea${waiting === 1 ? ' is' : 's are'} waiting for your yes or no.`);
   if (products.length > 0) brief.push(`${products.length} product photo${products.length === 1 ? ' is' : 's are'} in the shop queue.`);
 
@@ -507,8 +484,8 @@ export default function CommandCenter() {
             </>
           ) : null}
 
-          <div className="cc-mono" style={{ marginTop: 6 }}>Social reach · as of {SOCIALS_AS_OF}</div>
-          {SOCIALS.map((s) => (
+          <div className="cc-mono" style={{ marginTop: 6 }}>Social reach · as of {content.socialsAsOf}</div>
+          {content.socials.map((s) => (
             <div key={s.name} className="cc-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
                 <div className="cc-label">{s.name}</div>
@@ -551,28 +528,28 @@ export default function CommandCenter() {
           </button>
           {showSales ? (
             <div className="cc-card">
-              {BOOK_SALES.map((b) => (
+              {content.bookSales.map((b) => (
                 <div key={b.title} className="cc-book">
                   <div style={{ fontSize: 15 }}>{b.title}</div>
                   <div className="cc-num" style={{ fontSize: 24 }}>{b.units}</div>
                 </div>
               ))}
               <div className="cc-hint" style={{ marginTop: 6 }}>
-                Units sold as of {SALES_AS_OF}. Paperback sales appear a few days after the order is placed.
+                Units sold as of {content.salesAsOf}. Paperback sales appear a few days after the order is placed.
               </div>
             </div>
           ) : null}
 
           <div className="cc-mono">Open tasks</div>
           <div className="cc-card">
-            {TASKS.map((t) => (
+            {content.tasks.map((t) => (
               <div key={t} className="cc-task">{t}</div>
             ))}
           </div>
 
           <div className="cc-mono">Quick access</div>
           <div className="cc-links">
-            {LINKS.map((l) =>
+            {content.links.map((l) =>
               l.href.startsWith('/') ? (
                 <Link key={l.label} href={l.href} className="cc-link">{l.label}</Link>
               ) : (
@@ -587,7 +564,7 @@ export default function CommandCenter() {
         <section className="cc-card" aria-label="Growth ideas">
           <div className="cc-label" style={{ marginBottom: 4 }}>Growth ideas · your yes or no</div>
           <div className="cc-hint" style={{ marginBottom: 6 }}>Approving only marks it as a go. Nothing is posted or changed until you ask Claude to run it.</div>
-          {IDEAS.map((i) => {
+          {content.ideas.map((i) => {
             const d = decisions[i.id];
             return (
               <div key={i.id} className="cc-task">
