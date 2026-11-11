@@ -23,21 +23,24 @@ interface Vitals {
 
 interface Product {
   id: string;
-  img: string;
+  path: string;
+  img: string; // short-lived signed link to the private photo
   name: string;
   store: string;
   link: string;
 }
 
-// Shrinks a photo so it can be kept in the browser.
-async function shrink(file: File): Promise<string> {
+// Shrinks a photo before upload (keeps it well under the 5 MB limit).
+async function shrink(file: File): Promise<Blob> {
   const bmp = await createImageBitmap(file);
-  const scale = Math.min(1, 640 / Math.max(bmp.width, bmp.height));
+  const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
   const c = document.createElement('canvas');
   c.width = Math.round(bmp.width * scale);
   c.height = Math.round(bmp.height * scale);
   c.getContext('2d')?.drawImage(bmp, 0, 0, c.width, c.height);
-  return c.toDataURL('image/jpeg', 0.8);
+  return new Promise((resolve, reject) =>
+    c.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not read that photo.'))), 'image/jpeg', 0.85)
+  );
 }
 
 // Edit these as the business changes.
@@ -236,13 +239,8 @@ export default function CommandCenter() {
       return {};
     }
   });
-  const [products, setProducts] = useState<Product[]>(() => {
-    try {
-      return typeof window === 'undefined' ? [] : JSON.parse(localStorage.getItem('cc-products') || '[]');
-    } catch {
-      return [];
-    }
-  });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [shopMsg, setShopMsg] = useState('');
   const [busy, setBusy] = useState(false);
 
   function decide(id: string, d: 'yes' | 'no') {
@@ -251,28 +249,78 @@ export default function CommandCenter() {
     try { localStorage.setItem('cc-decisions', JSON.stringify(next)); } catch { /* optional */ }
   }
 
-  function saveProducts(list: Product[]) {
-    setProducts(list);
-    try { localStorage.setItem('cc-products', JSON.stringify(list)); } catch { setErr('Photo storage is full. Remove a product.'); }
+  async function loadProducts() {
+    const { data, error } = await supabase
+      .from('dashboard_products')
+      .select('id, image_path, name, store, link')
+      .order('created_at', { ascending: false });
+    if (error) {
+      setShopMsg('Product storage is not set up yet. Run supabase-dashboard-products.sql in Supabase.');
+      return;
+    }
+    const rows = (data ?? []) as { id: string; image_path: string; name: string; store: string; link: string }[];
+    const signed = rows.length
+      ? await supabase.storage.from('dashboard-products').createSignedUrls(rows.map((r) => r.image_path), 3600)
+      : { data: [] as { path: string | null; signedUrl: string }[] };
+    const urlByPath = new Map((signed.data ?? []).map((s) => [s.path ?? '', s.signedUrl]));
+    setProducts(
+      rows.map((r) => ({ id: r.id, path: r.image_path, img: urlByPath.get(r.image_path) ?? '', name: r.name, store: r.store, link: r.link }))
+    );
+    setShopMsg('');
   }
 
   async function addPhotos(files: FileList | null) {
     if (!files || files.length === 0) return;
     setBusy(true);
+    setShopMsg('');
     try {
-      const added: Product[] = [];
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
       for (const f of Array.from(files)) {
         if (!f.type.startsWith('image/')) continue;
-        added.push({ id: `${Date.now()}-${added.length}`, img: await shrink(f), name: '', store: '', link: '' });
+        const blob = await shrink(f);
+        const path = `${user.id}/${crypto.randomUUID()}.jpg`;
+        const up = await supabase.storage.from('dashboard-products').upload(path, blob, { contentType: 'image/jpeg' });
+        if (up.error) {
+          setShopMsg('Upload failed. Run supabase-dashboard-products.sql in Supabase if you have not yet.');
+          return;
+        }
+        const ins = await supabase.from('dashboard_products').insert({ user_id: user.id, image_path: path });
+        if (ins.error) {
+          await supabase.storage.from('dashboard-products').remove([path]);
+          setShopMsg('Could not save the product.');
+          return;
+        }
       }
-      saveProducts([...added, ...products]);
+      await loadProducts();
+    } catch {
+      setShopMsg('Could not add that photo.');
     } finally {
       setBusy(false);
     }
   }
 
+  // Typing updates the screen; leaving the field saves it.
   function editProduct(id: string, patch: Partial<Product>) {
-    saveProducts(products.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+    setProducts((list) => list.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  }
+
+  async function saveProduct(p: Product) {
+    const { error } = await supabase
+      .from('dashboard_products')
+      .update({ name: p.name, store: p.store, link: p.link })
+      .eq('id', p.id);
+    if (error) setShopMsg('Could not save your changes.');
+  }
+
+  async function removeProduct(p: Product) {
+    await supabase.storage.from('dashboard-products').remove([p.path]);
+    const { error } = await supabase.from('dashboard_products').delete().eq('id', p.id);
+    if (error) {
+      setShopMsg('Could not remove that product.');
+      return;
+    }
+    setProducts((list) => list.filter((x) => x.id !== p.id));
   }
 
   async function load() {
@@ -308,6 +356,7 @@ export default function CommandCenter() {
       }
       setReady(true);
       load();
+      loadProducts();
     })();
     const clock = setInterval(() => setNow(new Date()), 1000);
     const refresh = setInterval(load, 5 * 60 * 1000);
@@ -502,14 +551,15 @@ export default function CommandCenter() {
               <div key={p.id} className="cc-prod">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.img} alt={p.name || 'Product photo'} />
-                <input placeholder="Item name" value={p.name} onChange={(e) => editProduct(p.id, { name: e.target.value })} />
-                <input placeholder="Store (Target, Costco)" value={p.store} onChange={(e) => editProduct(p.id, { store: e.target.value })} />
-                <input placeholder="Link (optional)" value={p.link} onChange={(e) => editProduct(p.id, { link: e.target.value })} />
-                <button type="button" className="cc-btn" onClick={() => saveProducts(products.filter((x) => x.id !== p.id))}>Remove</button>
+                <input placeholder="Item name" value={p.name} onChange={(e) => editProduct(p.id, { name: e.target.value })} onBlur={() => saveProduct(p)} />
+                <input placeholder="Store (Target, Costco)" value={p.store} onChange={(e) => editProduct(p.id, { store: e.target.value })} onBlur={() => saveProduct(p)} />
+                <input placeholder="Link (optional)" value={p.link} onChange={(e) => editProduct(p.id, { link: e.target.value })} onBlur={() => saveProduct(p)} />
+                <button type="button" className="cc-btn" onClick={() => removeProduct(p)}>Remove</button>
               </div>
             ))}
           </div>
-          {products.length === 0 ? <div className="cc-hint" style={{ marginTop: 10 }}>No products yet.</div> : null}
+          {shopMsg ? <div className="cc-hint" style={{ marginTop: 10, color: '#f2a0b5' }}>{shopMsg}</div> : null}
+          {products.length === 0 && !shopMsg ? <div className="cc-hint" style={{ marginTop: 10 }}>No products yet.</div> : null}
         </section>
       </div>
 
