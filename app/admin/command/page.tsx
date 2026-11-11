@@ -28,7 +28,17 @@ interface Product {
   name: string;
   store: string;
   link: string;
+  status: 'needs_link' | 'no_commission' | 'ready' | 'posted';
+  commission: string;
+  shopmy_link: string;
 }
+
+const STATUS_LABEL: Record<Product['status'], string> = {
+  needs_link: 'Needs link',
+  no_commission: 'No commission, skipped',
+  ready: 'Ready for your yes or no',
+  posted: 'Posted on ShopMy',
+};
 
 // Shrinks a photo before upload (keeps it well under the 5 MB limit).
 async function shrink(file: File): Promise<Blob> {
@@ -252,19 +262,26 @@ export default function CommandCenter() {
   async function loadProducts() {
     const { data, error } = await supabase
       .from('dashboard_products')
-      .select('id, image_path, name, store, link')
+      .select('id, image_path, name, store, link, status, commission, shopmy_link')
       .order('created_at', { ascending: false });
     if (error) {
       setShopMsg('Product storage is not set up yet. Run supabase-dashboard-products.sql in Supabase.');
       return;
     }
-    const rows = (data ?? []) as { id: string; image_path: string; name: string; store: string; link: string }[];
+    const rows = (data ?? []) as {
+      id: string; image_path: string; name: string; store: string; link: string;
+      status: Product['status']; commission: string; shopmy_link: string;
+    }[];
     const signed = rows.length
       ? await supabase.storage.from('dashboard-products').createSignedUrls(rows.map((r) => r.image_path), 3600)
       : { data: [] as { path: string | null; signedUrl: string }[] };
     const urlByPath = new Map((signed.data ?? []).map((s) => [s.path ?? '', s.signedUrl]));
     setProducts(
-      rows.map((r) => ({ id: r.id, path: r.image_path, img: urlByPath.get(r.image_path) ?? '', name: r.name, store: r.store, link: r.link }))
+      rows.map((r) => ({
+        id: r.id, path: r.image_path, img: urlByPath.get(r.image_path) ?? '',
+        name: r.name, store: r.store, link: r.link,
+        status: r.status, commission: r.commission, shopmy_link: r.shopmy_link,
+      }))
     );
     setShopMsg('');
   }
@@ -540,8 +557,10 @@ export default function CommandCenter() {
         </section>
 
         <section className="cc-card" aria-label="Product uploader">
-          <div className="cc-label" style={{ marginBottom: 4 }}>Shop products</div>
-          <div className="cc-hint" style={{ marginBottom: 10 }}>Add photos of your Christmas finds. Name the item, the store, and paste the affiliate or product link if you have one.</div>
+          <div className="cc-label" style={{ marginBottom: 4 }}>ShopMy products</div>
+          <div className="cc-hint" style={{ marginBottom: 10 }}>
+            Upload a photo and note the store. Then tell Claude to process your products. Claude finds the product page, checks the commission on ShopMy, skips anything that does not pay, and shows you each one for a yes or no before it is posted.
+          </div>
           <label className="cc-btn on" style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}>
             {busy ? 'Adding...' : 'Upload photos'}
             <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={(e) => { addPhotos(e.target.files); e.target.value = ''; }} />
@@ -554,6 +573,10 @@ export default function CommandCenter() {
                 <input placeholder="Item name" value={p.name} onChange={(e) => editProduct(p.id, { name: e.target.value })} onBlur={() => saveProduct(p)} />
                 <input placeholder="Store (Target, Costco)" value={p.store} onChange={(e) => editProduct(p.id, { store: e.target.value })} onBlur={() => saveProduct(p)} />
                 <input placeholder="Link (optional)" value={p.link} onChange={(e) => editProduct(p.id, { link: e.target.value })} onBlur={() => saveProduct(p)} />
+                <div className="cc-hint">
+                  {STATUS_LABEL[p.status]}
+                  {p.commission ? ` · ${p.commission} commission` : ''}
+                </div>
                 <button type="button" className="cc-btn" onClick={() => removeProduct(p)}>Remove</button>
               </div>
             ))}

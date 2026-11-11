@@ -23,6 +23,13 @@ CREATE TABLE IF NOT EXISTS public.dashboard_products (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ShopMy workflow columns (safe to run on an existing table).
+ALTER TABLE public.dashboard_products
+  ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'needs_link'
+    CHECK (status IN ('needs_link', 'no_commission', 'ready', 'posted')),
+  ADD COLUMN IF NOT EXISTS commission TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS shopmy_link TEXT NOT NULL DEFAULT '';
+
 ALTER TABLE public.dashboard_products ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS dashboard_products_admin_all ON public.dashboard_products;
