@@ -205,6 +205,17 @@ export default function AdminPage() {
           {openingOfficial ? 'Opening...' : 'Open official Mitype profile'}
         </button>
 
+        <Link
+          href="/admin/command"
+          style={{
+            display: 'inline-block', marginLeft: 10, marginBottom: 24, padding: '12px 22px', borderRadius: 100,
+            border: '1px solid rgba(200,149,108,0.35)', background: '#1a0f0b', color: '#ffd9bd',
+            fontSize: 14, fontWeight: 800, textDecoration: 'none',
+          }}
+        >
+          Command center
+        </Link>
+
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
           {(['all', 'subscribed', 'unsubscribed', 'founders50', 'referrals'] as const).map((t) => {
