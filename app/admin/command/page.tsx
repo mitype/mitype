@@ -61,6 +61,14 @@ const BOOKS = [
   { title: 'The Timeline: 90s', status: 'Live', note: 'Book 2 of The Timeline', href: 'https://www.amazon.com/dp/B0HR8SMDH6' },
 ];
 
+// Units sold, read from KDP Reports (Orders, processed). KDP lists a paperback only after
+// Amazon processes the order, a few days after it is placed. No earnings are shown here.
+const SALES_AS_OF = 'Nov 11';
+const BOOK_SALES = [
+  { title: 'The Timeline: 80s', units: 0 },
+  { title: 'The Timeline: 90s', units: 0 },
+];
+
 // Snapshot read from each account on Nov 11. Refreshed when Claude re-reads the accounts.
 const SOCIALS_AS_OF = 'Nov 11';
 const SOCIALS = [
@@ -240,6 +248,7 @@ export default function CommandCenter() {
   const [ready, setReady] = useState(false);
   const [v, setV] = useState<Vitals | null>(null);
   const [showVitals, setShowVitals] = useState(false);
+  const [showSales, setShowSales] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [updated, setUpdated] = useState<Date | null>(null);
   const [err, setErr] = useState('');
@@ -536,6 +545,23 @@ export default function CommandCenter() {
               </a>
             ))}
           </div>
+
+          <button type="button" className={`cc-btn${showSales ? ' on' : ''}`} onClick={() => setShowSales((s) => !s)} aria-expanded={showSales}>
+            {showSales ? 'Hide book sales' : 'Show book sales'}
+          </button>
+          {showSales ? (
+            <div className="cc-card">
+              {BOOK_SALES.map((b) => (
+                <div key={b.title} className="cc-book">
+                  <div style={{ fontSize: 15 }}>{b.title}</div>
+                  <div className="cc-num" style={{ fontSize: 24 }}>{b.units}</div>
+                </div>
+              ))}
+              <div className="cc-hint" style={{ marginTop: 6 }}>
+                Units sold as of {SALES_AS_OF}. Paperback sales appear a few days after the order is placed.
+              </div>
+            </div>
+          ) : null}
 
           <div className="cc-mono">Open tasks</div>
           <div className="cc-card">
