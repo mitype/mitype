@@ -1,4 +1,6 @@
 'use client';
+import { ProfileBanner } from '../../components/ProfileBanner';
+import { bannerSources } from '../../lib/banners';
 import { hasActiveAccess } from '../../lib/access';
 import React, { useState, useEffect, useRef } from 'react';
 import { FeatureInfoButton } from '../../components/FeatureInfoButton';
@@ -64,6 +66,7 @@ type PublicProfile = {
   latest_project_url?: string | null;
   age_years?: number | null;
   photos?: ProfilePhoto[] | null;
+  banner_url?: string | null;
   last_active_at?: string | null;
   is_admin?: boolean | null;
   is_cmo?: boolean | null;
@@ -577,12 +580,16 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           boxShadow: '0 20px 60px rgba(0,0,0,0.06)', marginBottom: 24,
           position: 'relative',
         }}>
-          <div style={{
-            height: 100,
-            background: 'linear-gradient(135deg, #e8d5c4 0%, var(--brand-personal) 100%)',
-            borderTopLeftRadius: 32,
-            borderTopRightRadius: 32,
-          }} />
+          {profile.banner_url && bannerSources(profile.banner_url) ? (
+            <ProfileBanner value={profile.banner_url} fadeTo="#ffffff" radius={32} />
+          ) : (
+            <div style={{
+              height: 100,
+              background: 'linear-gradient(135deg, #e8d5c4 0%, var(--brand-personal) 100%)',
+              borderTopLeftRadius: 32,
+              borderTopRightRadius: 32,
+            }} />
+          )}
 
           {/* Pet dog tags — hang from the top-right of the bronze banner.
               Chain starts AT the top edge of the card (topOffsetPx=0)

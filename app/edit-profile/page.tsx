@@ -9,6 +9,8 @@ import { Coachmark } from '../components/Coachmark';
 import { BackButton } from '../components/BackButton';
 import { SiteNav } from '../components/SiteNav';
 import { PhotoManager } from '../components/PhotoManager';
+import { BannerPicker } from '../components/BannerPicker';
+import { deleteUploadedBanner } from '../lib/banners';
 import { PetEditor } from '../components/PetEditor';
 import { BusinessRecommendationsEditor } from '../components/BusinessRecommendationsEditor';
 import { FeatureTutorial } from '../components/FeatureTutorial';
@@ -173,6 +175,8 @@ export default function EditProfilePage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [photos, setPhotos] = useState<ProfilePhoto[]>([]);
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  const [savedBannerUrl, setSavedBannerUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [portfolioLinks, setPortfolioLinks] = useState<PortfolioLink[]>([]);
@@ -251,6 +255,8 @@ export default function EditProfilePage() {
         setSelectedCategories(profile.categories || []);
         setAvatarUrl(profile.avatar_url || '');
         setPhotos(normalizePhotos(profile.photos));
+        setBannerUrl(profile.banner_url || null);
+        setSavedBannerUrl(profile.banner_url || null);
         setPortfolioLinks(profile.portfolio_links || []);
         setProfilePrompts(normalizePrompts(profile.profile_prompts));
         setAvailableForWork(!!profile.available_for_work);
@@ -378,6 +384,8 @@ export default function EditProfilePage() {
       latest_project_url: latestProjectUrl.trim() || null,
       avatar_url: primaryAvatar,
       photos,
+      // Only sent when changed, so saving other fields never depends on it.
+      ...(bannerUrl !== savedBannerUrl ? { banner_url: bannerUrl } : {}),
       portfolio_links: portfolioLinks.filter((p) => p.url.trim()),
       profile_prompts: profilePrompts
         .filter((p) => p.prompt.trim() && p.answer.trim())
@@ -404,6 +412,10 @@ export default function EditProfilePage() {
       toast.error(dobError.message);
       setSaving(false);
       return;
+    }
+
+    if (savedBannerUrl && savedBannerUrl !== bannerUrl) {
+      void deleteUploadedBanner(savedBannerUrl);
     }
 
     toast.success('Profile saved!');
@@ -454,6 +466,11 @@ export default function EditProfilePage() {
         </p>
 
         <form onSubmit={handleSave}>
+
+          {/* Banner */}
+          {user && (
+            <BannerPicker userId={user.id} value={bannerUrl} onChange={setBannerUrl} />
+          )}
 
           {/* Photos */}
           {user && (
