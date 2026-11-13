@@ -478,12 +478,12 @@ function PetCardModal({
           <div style={{
             marginTop: 14,
             padding: '14px 16px',
-            background: 'white',
-            border: '1px solid rgba(200,149,108,0.25)',
+            background: 'rgba(200,149,108,0.14)',
+            border: '1px solid rgba(200,149,108,0.35)',
             borderRadius: 16,
             fontSize: 14,
             lineHeight: 1.55,
-            color: '#3a2e1c',
+            color: 'var(--brand-text-primary)',
             fontStyle: 'italic',
           }}>
             &ldquo;{pet.bio}&rdquo;
@@ -522,7 +522,7 @@ function Field({ icon, label, value }: { icon: string; label: string; value: str
     <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '8px 0' }}>
       <span style={{ fontSize: 18 }}>{icon}</span>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: '#a08a6a', textTransform: 'uppercase', letterSpacing: '1px' }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--brand-personal-text-amber)', textTransform: 'uppercase', letterSpacing: '1px' }}>
           {label}
         </div>
         <div style={{ fontSize: 14, color: 'var(--brand-text-primary)', marginTop: 2 }}>
@@ -576,10 +576,10 @@ export { TAG_COLORS };
 
 const navBtn: React.CSSProperties = {
   padding: '8px 14px',
-  background: 'white',
-  border: '1px solid rgba(200,149,108,0.35)',
+  background: 'rgba(200,149,108,0.16)',
+  border: '1px solid rgba(200,149,108,0.45)',
   borderRadius: 100,
-  color: '#8a6240',
+  color: 'var(--brand-text-primary)',
   fontSize: 13,
   fontWeight: 700,
   cursor: 'pointer',
