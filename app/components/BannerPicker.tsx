@@ -119,10 +119,10 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 }}
       onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()}
-        style={{ background: 'white', borderRadius: 24, width: '100%', maxWidth: 760, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #eee' }}>
-          <strong style={{ fontSize: 17 }}>{title}</strong>
-          <button type="button" onClick={onClose} aria-label="Close" style={{ border: 'none', background: 'none', fontSize: 22, cursor: 'pointer' }}>×</button>
+        style={{ background: '#221d19', color: '#f3e6d8', border: '1px solid rgba(200,149,108,0.35)', borderRadius: 24, width: '100%', maxWidth: 760, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid rgba(200,149,108,0.25)' }}>
+          <strong style={{ fontSize: 17, color: '#f3e6d8' }}>{title}</strong>
+          <button type="button" onClick={onClose} aria-label="Close" style={{ border: 'none', background: 'none', fontSize: 26, cursor: 'pointer', color: '#f3e6d8' }}>×</button>
         </div>
         <div style={{ overflowY: 'auto', padding: 20 }}>{children}</div>
       </div>
@@ -138,7 +138,7 @@ function LibraryModal({ current, onPick, onClose }: { current: string | null; on
   const list = cat === 'All' ? BANNER_LIBRARY : BANNER_LIBRARY.filter((b) => b.category === cat);
   const chip = (active: boolean): React.CSSProperties => ({
     padding: '6px 12px', borderRadius: 100, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
-    border: '1px solid rgba(200,149,108,0.4)', background: active ? 'var(--brand-personal)' : 'white', color: active ? 'white' : '#6b5846',
+    border: '1px solid rgba(200,149,108,0.4)', background: active ? '#c8956c' : '#2f2823', color: active ? '#1a1410' : '#f3e6d8',
   });
   return (
     <Modal title="Choose a banner" onClose={onClose}>
@@ -152,10 +152,10 @@ function LibraryModal({ current, onPick, onClose }: { current: string | null; on
           const active = current === `lib:${b.id}`;
           return (
             <button key={b.id} type="button" onClick={() => onPick(b.id)}
-              style={{ padding: 0, border: active ? '3px solid var(--brand-personal)' : '3px solid transparent', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', background: 'none', textAlign: 'left' }}>
+              style={{ padding: 0, border: active ? '3px solid #c8956c' : '3px solid transparent', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', background: 'none', textAlign: 'left' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/banners/800/${b.id}.webp`} alt={b.name} loading="lazy" style={{ display: 'block', width: '100%', aspectRatio: '21 / 9', objectFit: 'cover' }} />
-              <div style={{ fontSize: 12, fontWeight: 600, padding: '6px 8px', color: '#4a3a2a' }}>{b.name}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, padding: '6px 8px', color: '#f3e6d8' }}>{b.name}</div>
             </button>
           );
         })}
@@ -275,11 +275,11 @@ function CropModal({ file, busy, onCancel, onSave }: {
 
   return (
     <Modal title="Position your banner" onClose={onCancel}>
-      <p style={{ fontSize: 13, color: '#6b5846', marginTop: 0 }}>
+      <p style={{ fontSize: 13, color: '#d9c7b4', marginTop: 0 }}>
         Drag to position. Use the slider to zoom. This is how it will look, including the fade into your profile.
       </p>
       <div ref={frameRef} onPointerDown={onDown}
-        style={{ position: 'relative', width: '100%', aspectRatio: `${BANNER_RATIO}`, overflow: 'hidden', borderRadius: 16, background: 'white', touchAction: 'none', cursor: 'grab' }}>
+        style={{ position: 'relative', width: '100%', aspectRatio: `${BANNER_RATIO}`, overflow: 'hidden', borderRadius: 16, background: '#221d19', touchAction: 'none', cursor: 'grab' }}>
         {bmp && url && (
           <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', WebkitMaskImage: bannerMask(), maskImage: bannerMask() }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -291,15 +291,15 @@ function CropModal({ file, busy, onCancel, onSave }: {
       <input type="range" min={1} max={4} step={0.01} value={zoom} onChange={(e) => changeZoom(parseFloat(e.target.value))}
         aria-label="Zoom" style={{ width: '100%', marginTop: 16 }} />
       {small && (
-        <p style={{ fontSize: 12, color: '#a0651f', background: '#fff6e8', padding: '8px 12px', borderRadius: 10 }}>
+        <p style={{ fontSize: 12, color: '#f0c48a', background: '#3a2c1c', padding: '8px 12px', borderRadius: 10 }}>
           This crop is on the small side and may look slightly soft on large screens. A wider photo (at least {GOOD_WIDTH}px) looks best.
         </p>
       )}
       <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 12 }}>
         <button type="button" onClick={onCancel} disabled={busy}
-          style={{ padding: '10px 18px', borderRadius: 100, border: '1px solid #ddd', background: 'white', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+          style={{ padding: '10px 18px', borderRadius: 100, border: '1px solid rgba(200,149,108,0.5)', background: '#2f2823', color: '#f3e6d8', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
         <button type="button" onClick={save} disabled={busy || !bmp}
-          style={{ padding: '10px 22px', borderRadius: 100, border: 'none', background: 'var(--brand-personal)', color: 'white', fontWeight: 700, cursor: 'pointer', opacity: busy || !bmp ? 0.6 : 1 }}>
+          style={{ padding: '10px 22px', borderRadius: 100, border: 'none', background: '#c8956c', color: '#1a1410', fontWeight: 700, cursor: 'pointer', opacity: busy || !bmp ? 0.6 : 1 }}>
           {busy ? 'Uploading…' : 'Use this banner'}
         </button>
       </div>
