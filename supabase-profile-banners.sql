@@ -14,6 +14,10 @@
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS banner_url TEXT;
 
+-- One-time announcement stamp (the dashboard shows the new-feature modal once).
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS banner_announced_at TIMESTAMPTZ;
+
 -- Only allow the two known shapes, and keep it short.
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_banner_url_check;
 ALTER TABLE public.profiles

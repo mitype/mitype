@@ -82,4 +82,6 @@ export const BANNER_LIBRARY: { id: string; name: string; category: string }[] = 
   { id: "paris-seine-rooftops", name: "Paris Seine Rooftops", category: "Europe" },
   { id: "north-carolina-blue-ridge", name: "North Carolina Blue Ridge", category: "US States and Cities" },
   { id: "utah-zion-canyon", name: "Utah Zion Canyon", category: "US States and Cities" },
+  { id: "san-diego-skyline", name: "San Diego Skyline", category: "US States and Cities" },
+  { id: "mexico-chichen-itza", name: "Mexico Chichen Itza", category: "Latin America" },
 ];

@@ -22,7 +22,8 @@ import { BlackSheepUniversityAnnouncementModal } from '../components/BlackSheepU
 import { AmazonMasterclassAnnouncementModal } from '../components/AmazonMasterclassAnnouncementModal';
 import { CottageBakeryAnnouncementModal } from '../components/CottageBakeryAnnouncementModal';
 import { MomentsAnnouncementModal } from '../components/MomentsAnnouncementModal';
-import { MOMENTS_LIVE } from '../lib/momentsFlags';
+import { BannerAnnouncementModal } from '../components/BannerAnnouncementModal';
+import { MOMENTS_LIVE, BANNERS_LIVE } from '../lib/momentsFlags';
 import { PushAnnouncementModal } from '../components/PushAnnouncementModal';
 import { PUSH_ANNOUNCE_LIVE } from '../lib/pushFlags';
 import { SignalHubs } from '../components/SignalHubs';
@@ -53,6 +54,7 @@ export default function Dashboard() {
   const [showAmazonAnnouncement, setShowAmazonAnnouncement] = useState(false);
   const [showCottageAnnouncement, setShowCottageAnnouncement] = useState(false);
   const [showMomentsAnnouncement, setShowMomentsAnnouncement] = useState(false);
+  const [showBannerAnnouncement, setShowBannerAnnouncement] = useState(false);
   const [showPushAnnouncement, setShowPushAnnouncement] = useState(false);
   const [theme, setThemeState] = useState<Theme>('default');
   useEffect(() => {
@@ -146,6 +148,10 @@ export default function Dashboard() {
         // MI Moments launch, same one-time pattern. Only after the
         // release flag is switched on.
         setShowMomentsAnnouncement(true);
+      } else if (BANNERS_LIVE && 'banner_announced_at' in profile && !profile.banner_announced_at) {
+        // Profile banners launch, same one-time pattern. Skipped until the
+        // banner SQL has run (the column is missing before that).
+        setShowBannerAnnouncement(true);
       } else if (PUSH_ANNOUNCE_LIVE && !profile.push_announced_at) {
         // Phone notifications announcement, same one-time pattern.
         setShowPushAnnouncement(true);
@@ -699,6 +705,12 @@ export default function Dashboard() {
         <PushAnnouncementModal
           userId={user.id}
           onDismiss={() => setShowPushAnnouncement(false)}
+        />
+      )}
+      {!showBsuAnnouncement && !showAmazonAnnouncement && !showCottageAnnouncement && !showMomentsAnnouncement && showBannerAnnouncement && user?.id && (
+        <BannerAnnouncementModal
+          userId={user.id}
+          onDismiss={() => setShowBannerAnnouncement(false)}
         />
       )}
       {!showBsuAnnouncement && !showAmazonAnnouncement && !showCottageAnnouncement && showMomentsAnnouncement && user?.id && (
