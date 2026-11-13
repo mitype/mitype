@@ -47,16 +47,19 @@ export async function deleteUploadedBanner(value: string | null | undefined) {
   }
 }
 
-/** Smooth fade from transparent to the card color (smoothstep curve). */
-export function bannerFadeGradient(color = '#ffffff'): string {
+/**
+ * Smooth fade-out mask (smoothstep curve): opaque at the top, fully
+ * transparent at the bottom. Applied to the photo itself so whatever color
+ * the card is (light or dark theme) shows through and "fades into" the photo.
+ */
+export function bannerMask(): string {
+  const start = 0.3; // fade begins 30% down the banner
+  const n = 14;
   const stops: string[] = [];
-  const start = 0.35; // fade begins 35% down the banner
-  const n = 12;
   for (let i = 0; i <= n; i++) {
     const t = i / n;
     const s = t * t * (3 - 2 * t);
-    const pos = start + t * (1 - start);
-    stops.push(`color-mix(in srgb, ${color} ${(s * 100).toFixed(1)}%, transparent) ${(pos * 100).toFixed(1)}%`);
+    stops.push(`rgba(0,0,0,${(1 - s).toFixed(3)}) ${((start + t * (1 - start)) * 100).toFixed(1)}%`);
   }
-  return `linear-gradient(to bottom, transparent 0%, ${stops.join(', ')})`;
+  return `linear-gradient(to bottom, rgba(0,0,0,1) 0%, ${stops.join(', ')})`;
 }

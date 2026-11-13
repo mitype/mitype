@@ -581,7 +581,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           position: 'relative',
         }}>
           {profile.banner_url && bannerSources(profile.banner_url) ? (
-            <ProfileBanner value={profile.banner_url} fadeTo="#ffffff" radius={32} />
+            <ProfileBanner value={profile.banner_url} radius={32} />
           ) : (
             <div style={{
               height: 100,

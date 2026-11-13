@@ -9,9 +9,8 @@ import { createPortal } from 'react-dom';
 import { toast } from '../lib/toast';
 import { safeUpload } from '../lib/safeUpload';
 import { BANNER_LIBRARY } from '../lib/bannerLibrary';
-import { BANNER_RATIO, BANNER_WIDTHS } from '../lib/banners';
+import { BANNER_RATIO, BANNER_WIDTHS, bannerMask } from '../lib/banners';
 import { ProfileBanner } from './ProfileBanner';
-import { bannerFadeGradient } from '../lib/banners';
 
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 const MIN_WIDTH = 800;
@@ -280,13 +279,14 @@ function CropModal({ file, busy, onCancel, onSave }: {
         Drag to position. Use the slider to zoom. This is how it will look, including the fade into your profile.
       </p>
       <div ref={frameRef} onPointerDown={onDown}
-        style={{ position: 'relative', width: '100%', aspectRatio: `${BANNER_RATIO}`, overflow: 'hidden', borderRadius: 16, background: '#eee', touchAction: 'none', cursor: 'grab' }}>
+        style={{ position: 'relative', width: '100%', aspectRatio: `${BANNER_RATIO}`, overflow: 'hidden', borderRadius: 16, background: 'white', touchAction: 'none', cursor: 'grab' }}>
         {bmp && url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt="" draggable={false}
-            style={{ position: 'absolute', left: pos.x, top: pos.y, width: dispW, height: dispH, maxWidth: 'none', userSelect: 'none', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', WebkitMaskImage: bannerMask(), maskImage: bannerMask() }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={url} alt="" draggable={false}
+              style={{ position: 'absolute', left: pos.x, top: pos.y, width: dispW, height: dispH, maxWidth: 'none', userSelect: 'none', pointerEvents: 'none' }} />
+          </div>
         )}
-        <div aria-hidden style={{ position: 'absolute', inset: 0, background: bannerFadeGradient('#ffffff'), pointerEvents: 'none' }} />
       </div>
       <input type="range" min={1} max={4} step={0.01} value={zoom} onChange={(e) => changeZoom(parseFloat(e.target.value))}
         aria-label="Zoom" style={{ width: '100%', marginTop: 16 }} />
