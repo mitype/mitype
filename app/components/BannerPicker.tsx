@@ -87,7 +87,7 @@ export function BannerPicker({
           <button type="button" style={btn} onClick={() => inputRef.current?.click()} disabled={uploading}>
             {uploading ? 'Uploading…' : 'Upload your own'}
           </button>
-          {value && <button type="button" style={{ ...btn, color: '#b04a4a' }} onClick={() => onChange(null)}>Remove</button>}
+          {value && <button type="button" style={{ ...btn, color: 'var(--brand-danger-text)' }} onClick={() => onChange(null)}>Remove</button>}
         </div>
       </div>
       <input ref={inputRef} type="file" accept="image/*" onChange={pickFile} style={{ display: 'none' }} />

@@ -217,7 +217,7 @@ export default function SpotlightPage() {
                   borderRadius: 100,
                   border: `1px solid ${active ? t.color : 'rgba(200,149,108,0.2)'}`,
                   background: active ? t.color : 'white',
-                  color: active ? 'white' : disabled ? '#c9bfb4' : 'var(--brand-text-primary)',
+                  color: active ? '#14110f' : disabled ? '#c9bfb4' : 'var(--brand-text-primary)',
                   fontSize: 13,
                   fontWeight: 700,
                   cursor: disabled ? 'not-allowed' : 'pointer',

@@ -1034,3 +1034,108 @@ html[data-theme="signal"] [style*="background: rgb(148, 163, 184)"], html[data-t
 .sh-acct a{flex:1;text-align:center;padding:10px 4px;color:#e0b48a;font-size:12px;font-weight:700;text-decoration:none;background:rgba(255,255,255,.04);
   clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));box-shadow:inset 0 0 0 1px rgba(200,149,108,.35)}
 @media (prefers-reduced-motion:reduce){.sh-tile{opacity:1!important;transform:none!important}.sh-ln path{stroke-dashoffset:0!important}.sh-ln circle{opacity:1!important}.sh-new{animation:none}}
+
+/* ---- Signal theme audit: remaps for dark text in BOTH serialized forms ----
+ * Server-rendered inline styles have no spaces (color:#hex); client-rendered ones read
+ * back as `color: rgb(...)`. The older rules only matched one form, so text could stay
+ * dark on dark. Every rule below covers both. */
+html[data-theme="signal"] [style*=";color:#5b4a40" i],
+html[data-theme="signal"] [style^="color:#5b4a40" i],
+html[data-theme="signal"] [style*=" color: rgb(91, 74, 64)" i],
+html[data-theme="signal"] [style^="color: rgb(91, 74, 64)" i],
+html[data-theme="signal"] [style*=" color: #5b4a40" i]
+{ color: #c9b8a2 !important; }
+html[data-theme="signal"] [style*=";color:#7a5a36" i],
+html[data-theme="signal"] [style^="color:#7a5a36" i],
+html[data-theme="signal"] [style*=" color: rgb(122, 90, 54)" i],
+html[data-theme="signal"] [style^="color: rgb(122, 90, 54)" i],
+html[data-theme="signal"] [style*=" color: #7a5a36" i],
+html[data-theme="signal"] [style*=";color:#8a5e2e" i],
+html[data-theme="signal"] [style^="color:#8a5e2e" i],
+html[data-theme="signal"] [style*=" color: rgb(138, 94, 46)" i],
+html[data-theme="signal"] [style^="color: rgb(138, 94, 46)" i],
+html[data-theme="signal"] [style*=" color: #8a5e2e" i],
+html[data-theme="signal"] [style*=";color:#3a2e1c" i],
+html[data-theme="signal"] [style^="color:#3a2e1c" i],
+html[data-theme="signal"] [style*=" color: rgb(58, 46, 28)" i],
+html[data-theme="signal"] [style^="color: rgb(58, 46, 28)" i],
+html[data-theme="signal"] [style*=" color: #3a2e1c" i]
+{ color: #dcbf93 !important; }
+html[data-theme="signal"] [style*=";color:#b91c1c" i],
+html[data-theme="signal"] [style^="color:#b91c1c" i],
+html[data-theme="signal"] [style*=" color: rgb(185, 28, 28)" i],
+html[data-theme="signal"] [style^="color: rgb(185, 28, 28)" i],
+html[data-theme="signal"] [style*=" color: #b91c1c" i],
+html[data-theme="signal"] [style*=";color:#b42318" i],
+html[data-theme="signal"] [style^="color:#b42318" i],
+html[data-theme="signal"] [style*=" color: rgb(180, 35, 24)" i],
+html[data-theme="signal"] [style^="color: rgb(180, 35, 24)" i],
+html[data-theme="signal"] [style*=" color: #b42318" i],
+html[data-theme="signal"] [style*=";color:#b04a4a" i],
+html[data-theme="signal"] [style^="color:#b04a4a" i],
+html[data-theme="signal"] [style*=" color: rgb(176, 74, 74)" i],
+html[data-theme="signal"] [style^="color: rgb(176, 74, 74)" i],
+html[data-theme="signal"] [style*=" color: #b04a4a" i],
+html[data-theme="signal"] [style*=";color:#cc0000" i],
+html[data-theme="signal"] [style^="color:#cc0000" i],
+html[data-theme="signal"] [style*=" color: rgb(204, 0, 0)" i],
+html[data-theme="signal"] [style^="color: rgb(204, 0, 0)" i],
+html[data-theme="signal"] [style*=" color: #cc0000" i]
+{ color: #ff8a80 !important; }
+html[data-theme="signal"] [style*=";color:#92400e" i],
+html[data-theme="signal"] [style^="color:#92400e" i],
+html[data-theme="signal"] [style*=" color: rgb(146, 64, 14)" i],
+html[data-theme="signal"] [style^="color: rgb(146, 64, 14)" i],
+html[data-theme="signal"] [style*=" color: #92400e" i],
+html[data-theme="signal"] [style*=";color:#b45309" i],
+html[data-theme="signal"] [style^="color:#b45309" i],
+html[data-theme="signal"] [style*=" color: rgb(180, 83, 9)" i],
+html[data-theme="signal"] [style^="color: rgb(180, 83, 9)" i],
+html[data-theme="signal"] [style*=" color: #b45309" i]
+{ color: #f0b36a !important; }
+html[data-theme="signal"] [style*=";color:#15803d" i],
+html[data-theme="signal"] [style^="color:#15803d" i],
+html[data-theme="signal"] [style*=" color: rgb(21, 128, 61)" i],
+html[data-theme="signal"] [style^="color: rgb(21, 128, 61)" i],
+html[data-theme="signal"] [style*=" color: #15803d" i]
+{ color: #6ee7a1 !important; }
+html[data-theme="signal"] [style*=";color:#6d28d9" i],
+html[data-theme="signal"] [style^="color:#6d28d9" i],
+html[data-theme="signal"] [style*=" color: rgb(109, 40, 217)" i],
+html[data-theme="signal"] [style^="color: rgb(109, 40, 217)" i],
+html[data-theme="signal"] [style*=" color: #6d28d9" i]
+{ color: #c4b5fd !important; }
+html[data-theme="signal"] [style*="background:var(--brand-personal)"][style*="color:white" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-personal"][style*="color:white" i],
+html[data-theme="signal"] [style*="background:var(--brand-personal)"][style*="color:rgb(255,255,255)" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-personal"][style*="color:rgb(255,255,255)" i],
+html[data-theme="signal"] [style*="background:var(--brand-personal)"][style*="color:#fff" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-personal"][style*="color:#fff" i],
+html[data-theme="signal"] [style*="background:var(--brand-personal)"][style*="color:#ffffff" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-personal"][style*="color:#ffffff" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-personal"][style*="color: white" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-personal"][style*="color: rgb(255, 255, 255)"]
+{ background: linear-gradient(135deg, #a8744a, #7d5232) !important; color: #fff !important; }
+html[data-theme="signal"] [style*="background:var(--brand-business)"][style*="color:white" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-business"][style*="color:white" i],
+html[data-theme="signal"] [style*="background:var(--brand-business)"][style*="color:rgb(255,255,255)" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-business"][style*="color:rgb(255,255,255)" i],
+html[data-theme="signal"] [style*="background:var(--brand-business)"][style*="color:#fff" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-business"][style*="color:#fff" i],
+html[data-theme="signal"] [style*="background:var(--brand-business)"][style*="color:#ffffff" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-business"][style*="color:#ffffff" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-business"][style*="color: white" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-business"][style*="color: rgb(255, 255, 255)"]
+{ background: linear-gradient(135deg, #7c5cd6, #5b3fb0) !important; color: #fff !important; }
+html[data-theme="signal"] [style*="background:var(--brand-market)"][style*="color:white" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-market"][style*="color:white" i],
+html[data-theme="signal"] [style*="background:var(--brand-market)"][style*="color:rgb(255,255,255)" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-market"][style*="color:rgb(255,255,255)" i],
+html[data-theme="signal"] [style*="background:var(--brand-market)"][style*="color:#fff" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-market"][style*="color:#fff" i],
+html[data-theme="signal"] [style*="background:var(--brand-market)"][style*="color:#ffffff" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-market"][style*="color:#ffffff" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-market"][style*="color: white" i],
+html[data-theme="signal"] [style*="linear-gradient"][style*="var(--brand-market"][style*="color: rgb(255, 255, 255)"],
+html[data-theme="signal"] [style*="background: var(--brand-market)"][style*="color: rgb(255, 255, 255)"]
+{ background: linear-gradient(135deg, #1f9d55, #15703c) !important; color: #fff !important; }
