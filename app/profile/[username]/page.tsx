@@ -561,7 +561,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           <div style={{ display: 'flex', gap: 12 }}>
             <Link href="/login" style={{ color: 'var(--brand-personal-text-mid)', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>Sign In</Link>
             <Link href="/signup" style={{ background: 'var(--brand-personal)', color: 'white', textDecoration: 'none', fontSize: 14, fontWeight: 700, padding: '8px 20px', borderRadius: 100 }}>
-              Join Free
+              Join Mitype
             </Link>
           </div>
         </nav>
@@ -1284,9 +1284,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         {!currentUser && (
           <div style={{ background: 'white', border: '1px solid rgba(200,149,108,0.2)', borderRadius: 24, padding: '40px', textAlign: 'center' }}>
             <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand-text-primary)', marginBottom: 8 }}>Connect with @{profile.username}</h2>
-            <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 15, marginBottom: 24 }}>Join Mitype free to see compatibility score and send a message!</p>
+            <p style={{ color: 'var(--brand-personal-text-light)', fontSize: 15, marginBottom: 24 }}>Join Mitype to see your compatibility score and send a message.</p>
             <Link href="/signup" style={{ display: 'inline-block', padding: '14px 36px', background: 'var(--brand-personal)', color: 'white', borderRadius: 100, textDecoration: 'none', fontSize: 15, fontWeight: 700 }}>
-              Join Free
+              Join Mitype
             </Link>
           </div>
         )}
