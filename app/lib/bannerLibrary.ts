@@ -84,4 +84,5 @@ export const BANNER_LIBRARY: { id: string; name: string; category: string }[] = 
   { id: "utah-zion-canyon", name: "Utah Zion Canyon", category: "US States and Cities" },
   { id: "san-diego-skyline", name: "San Diego Skyline", category: "US States and Cities" },
   { id: "mexico-chichen-itza", name: "Mexico Chichen Itza", category: "Latin America" },
+  { id: "ohio-cleveland-skyline", name: "Ohio Cleveland Skyline", category: "US States and Cities" },
 ];
