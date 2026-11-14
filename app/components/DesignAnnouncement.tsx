@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { getTheme, setTheme, THEME_KEY } from '../lib/theme';
+import { hasActiveAccess } from '../lib/access';
 
 const SEEN_KEY = 'mitype-design-announced-v2';
 
@@ -24,9 +25,19 @@ export function DesignAnnouncement() {
       }
     } catch { return; }
     let cancelled = false;
-    supabase.auth.getSession().then(({ data }) => {
-      if (!cancelled && data.session && getTheme() === 'signal') setShow(true);
-    });
+    // Announcements are for subscribers with a profile only. Signed-in
+    // visitors without one (for example someone who just followed a
+    // referral link) never see this.
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      const uid = data.session?.user.id;
+      if (!uid || getTheme() !== 'signal') return;
+      const [{ data: sub }, { data: prof }] = await Promise.all([
+        supabase.from('subscriptions').select('status').eq('user_id', uid).maybeSingle(),
+        supabase.from('profiles').select('user_id').eq('user_id', uid).maybeSingle(),
+      ]);
+      if (!cancelled && prof && hasActiveAccess(sub?.status)) setShow(true);
+    })();
     return () => { cancelled = true; };
   }, [pathname]);
 
