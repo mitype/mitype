@@ -85,4 +85,8 @@ export const BANNER_LIBRARY: { id: string; name: string; category: string }[] = 
   { id: "san-diego-skyline", name: "San Diego Skyline", category: "US States and Cities" },
   { id: "mexico-chichen-itza", name: "Mexico Chichen Itza", category: "Latin America" },
   { id: "ohio-cleveland-skyline", name: "Ohio Cleveland Skyline", category: "US States and Cities" },
+  { id: "ohio-columbus-skyline", name: "Ohio Columbus Skyline", category: "US States and Cities" },
+  { id: "ohio-cincinnati-skyline", name: "Ohio Cincinnati Skyline", category: "US States and Cities" },
+  { id: "sacramento-skyline", name: "Sacramento Skyline", category: "US States and Cities" },
+  { id: "new-orleans-french-quarter", name: "New Orleans French Quarter", category: "US States and Cities" },
 ];
