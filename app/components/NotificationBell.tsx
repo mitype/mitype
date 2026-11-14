@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
+import { hasActiveAccess } from '../lib/access';
 
 interface NotificationRow {
   id: string;
@@ -52,7 +53,20 @@ export function NotificationBell({ userId, tone = 'bronze' }: {
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(30);
-    setItems((data ?? []) as NotificationRow[]);
+    let rows = (data ?? []) as NotificationRow[];
+    // Feature announcements are for subscribers only. The database also
+    // blocks them, this keeps any old ones out of view as a second guard.
+    if (rows.some((n) => /(announce|announcement)$/.test(n.type))) {
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (!hasActiveAccess(sub?.status)) {
+        rows = rows.filter((n) => !/(announce|announcement)$/.test(n.type));
+      }
+    }
+    setItems(rows);
   }
 
   async function markAllRead() {
