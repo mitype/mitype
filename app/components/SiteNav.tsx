@@ -330,6 +330,7 @@ export function SiteNav({
           <NavLink href="/home-goods" label="Mi Home Goods"    accent="var(--brand-market)" />
           <NavLink href="/black-sheep-university" label="Black Sheep University" accent="var(--brand-personal-deep)" />
           <NavLink href="/edit-profile" label="Edit Profile" />
+          <NavLink href="/top-friends" label="Top Friends" />
           <NavLink href="/info" label="Information Center" />
           {/* Admin link — only rendered when the signed-in user has
               is_admin === true on their profile row. Invisible to

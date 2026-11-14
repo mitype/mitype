@@ -23,6 +23,7 @@ import { OnlineDot } from '../../components/OnlineDot';
 import { usePresence } from '../../lib/usePresence';
 import { SiteNav } from '../../components/SiteNav';
 import { PositivityScore } from '../../components/PositivityScore';
+import { TopFriends } from '../../components/TopFriends';
 
 const PORTFOLIO_ICONS: Record<string, string> = {
   music:    '🎵',
@@ -1063,6 +1064,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
 
         {/* Photo Gallery */}
         <PhotoGallery photos={galleryPhotos} altPrefix={profile.username} />
+
+        {/* Top Friends — up to 6 approved friends as circle photos. */}
+        <TopFriends profileUserId={profile.user_id} isOwnProfile={isOwnProfile} />
 
         {/* Positivity Score — anonymous peer rating. 8 stars, 0.5 fill
             per vote. Tap once to send a positivity vote. Replaces the
