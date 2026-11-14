@@ -118,6 +118,7 @@ export const FEATURE_DESCRIPTIONS: Record<string, FeatureDescription> = {
       'Your public profile is what everyone else on Mitype sees when they tap your name. It shows your photos, bio, categories, city, prompts, portfolio links, endorsements from other members, your Positivity Score, and your most recent Wave videos.',
       'If you have opted in as available for work or coffee chats, small green pills appear next to your username so people know you are open to hear from them.',
       'Your Positivity Score is an 8 star meter built from anonymous votes by people who have interacted with you. It rewards you for being a good community member.',
+      'Between your photos and your Positivity Score you can show up to six Top Friends. They appear as round photos with usernames and only show once they approve your request.',
     ],
   },
   homeGoods: {
@@ -167,6 +168,47 @@ export const FEATURE_DESCRIPTIONS: Record<string, FeatureDescription> = {
       'Phone notifications let Mitype alert you when other members interact with you, even when the app is closed. They are free and you can turn them off any time.',
       'To turn them on, open the menu and switch on Phone notifications, then allow notifications when your phone asks.',
       'On an iPhone, first add Mitype to your Home Screen: tap the Share button in Safari, choose Add to Home Screen, then open Mitype from the new icon. On Android it works right from your browser.',
+    ],
+  },
+  topFriends: {
+    key: 'topFriends',
+    title: 'Top Friends',
+    paragraphs: [
+      'Top Friends lets you show up to six of your closest friends on your profile. Each friend appears as a round photo with their username, in a block just above your Positivity Score. Tap any friend to open their profile.',
+      'Nobody can be listed without saying yes. When you add someone, they get a Top Friends request in their notifications. If they approve, they appear on your profile. If they deny, you get a notification letting you know the request was denied, and you are free to try again later.',
+      'Top Friends is a members only feature, so both people need an active subscription.',
+    ],
+    bullets: [
+      'To add a friend: open the menu, tap Top Friends, search a username, and tap Send request.',
+      'To answer a request: open the notification or the Top Friends page and tap Approve or Deny.',
+      'To change the order: use the up and down arrows next to each friend. The first friend shows first on your profile.',
+      'To remove someone: tap Remove next to their name. A pending request can be cancelled with Cancel.',
+      'If you are listed on someone\'s profile and want off, open the Top Friends page and tap Remove me. They are told a spot opened up.',
+      'You can have six spots in total. Requests that are still waiting count toward the six.',
+    ],
+  },
+  profileBanners: {
+    key: 'profileBanners',
+    title: 'Profile banners',
+    paragraphs: [
+      'A profile banner is a wide photo across the top of your profile. Your profile color fades smoothly into it, so it looks right on any theme.',
+      'Choose from the library, which has more than 80 high quality banners from city skylines and countries to mountains, beaches and night skies, or upload your own. When you upload, drag to position and zoom, and the banner stays sharp on phones, tablets and desktops. Photos at least 1600 pixels wide look best, and anything under 800 pixels wide is not accepted.',
+      'Want a place that is not in the library yet? Send a direct message to the official Mitype profile with your suggestion and it can be added to the catalog.',
+    ],
+    bullets: [
+      'Go to Edit Profile and find Profile banner at the top.',
+      'Tap Choose from library, pick a category, then pick a banner. Or tap Upload your own to use your own photo.',
+      'Tap Save at the bottom of Edit Profile to publish it.',
+      'You can change or remove your banner any time.',
+    ],
+  },
+  positivityScore: {
+    key: 'positivityScore',
+    title: 'Positivity Score',
+    paragraphs: [
+      'The Positivity Score is an 8 star meter on every profile. Other members can give you a positivity vote, and each vote fills half a star. Sixteen votes fill the whole bar.',
+      'Votes are anonymous. Nobody, including you, can see who voted. You can vote once per member by tapping the stars on their profile, and you cannot vote for yourself.',
+      'When a member reaches sixteen votes their profile reads Voted highly positive.',
     ],
   },
   spotlight: {

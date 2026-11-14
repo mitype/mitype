@@ -17,6 +17,7 @@ import { FEATURE_DESCRIPTIONS, type FeatureDescription } from '../lib/featureDes
 // after, what you keep doing.
 const GROUPS: Array<{ label: string; keys: Array<keyof typeof FEATURE_DESCRIPTIONS> }> = [
   { label: 'Start here',            keys: ['dashboard', 'editProfile', 'profile', 'discover', 'notifications'] },
+  { label: 'Make your profile yours', keys: ['profileBanners', 'topFriends', 'positivityScore'] },
   { label: 'Create and share',      keys: ['wave', 'moments', 'currents', 'spotlight'] },
   { label: 'Connect and message',   keys: ['messages', 'rooms'] },
   { label: 'Network your creativity', keys: ['collab', 'meetups', 'projects'] },
@@ -27,6 +28,7 @@ const GROUPS: Array<{ label: string; keys: Array<keyof typeof FEATURE_DESCRIPTIO
 ];
 
 const TONES: Partial<Record<keyof typeof FEATURE_DESCRIPTIONS, string>> = {
+  topFriends: '#c8956c',
   wave: '#38bdf8',
   moments: '#a07a4d',
   currents: '#1e3a8a',

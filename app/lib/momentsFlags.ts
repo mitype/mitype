@@ -6,3 +6,6 @@ export const MOMENTS_LIVE = true;
 
 // Release switch for the profile banner announcement modal.
 export const BANNERS_LIVE = true;
+
+// Release switch for the Top Friends announcement modal.
+export const TOP_FRIENDS_LIVE = true;

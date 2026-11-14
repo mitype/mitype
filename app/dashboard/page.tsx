@@ -23,7 +23,8 @@ import { AmazonMasterclassAnnouncementModal } from '../components/AmazonMastercl
 import { CottageBakeryAnnouncementModal } from '../components/CottageBakeryAnnouncementModal';
 import { MomentsAnnouncementModal } from '../components/MomentsAnnouncementModal';
 import { BannerAnnouncementModal } from '../components/BannerAnnouncementModal';
-import { MOMENTS_LIVE, BANNERS_LIVE } from '../lib/momentsFlags';
+import { MOMENTS_LIVE, BANNERS_LIVE, TOP_FRIENDS_LIVE } from '../lib/momentsFlags';
+import { TopFriendsAnnouncementModal } from '../components/TopFriendsAnnouncementModal';
 import { PushAnnouncementModal } from '../components/PushAnnouncementModal';
 import { PUSH_ANNOUNCE_LIVE } from '../lib/pushFlags';
 import { SignalHubs } from '../components/SignalHubs';
@@ -55,6 +56,7 @@ export default function Dashboard() {
   const [showCottageAnnouncement, setShowCottageAnnouncement] = useState(false);
   const [showMomentsAnnouncement, setShowMomentsAnnouncement] = useState(false);
   const [showBannerAnnouncement, setShowBannerAnnouncement] = useState(false);
+  const [showTopFriendsAnnouncement, setShowTopFriendsAnnouncement] = useState(false);
   const [showPushAnnouncement, setShowPushAnnouncement] = useState(false);
   const [theme, setThemeState] = useState<Theme>('default');
   useEffect(() => {
@@ -152,6 +154,10 @@ export default function Dashboard() {
         // Profile banners launch, same one-time pattern. Skipped until the
         // banner SQL has run (the column is missing before that).
         setShowBannerAnnouncement(true);
+      } else if (TOP_FRIENDS_LIVE && 'top_friends_announced_at' in profile && !profile.top_friends_announced_at) {
+        // Top Friends launch, same one-time pattern. Skipped until the
+        // Top Friends announcement SQL has run (the column is missing before that).
+        setShowTopFriendsAnnouncement(true);
       } else if (PUSH_ANNOUNCE_LIVE && !profile.push_announced_at) {
         // Phone notifications announcement, same one-time pattern.
         setShowPushAnnouncement(true);
@@ -705,6 +711,12 @@ export default function Dashboard() {
         <PushAnnouncementModal
           userId={user.id}
           onDismiss={() => setShowPushAnnouncement(false)}
+        />
+      )}
+      {!showBsuAnnouncement && !showAmazonAnnouncement && !showCottageAnnouncement && !showMomentsAnnouncement && !showBannerAnnouncement && showTopFriendsAnnouncement && user?.id && (
+        <TopFriendsAnnouncementModal
+          userId={user.id}
+          onDismiss={() => setShowTopFriendsAnnouncement(false)}
         />
       )}
       {!showBsuAnnouncement && !showAmazonAnnouncement && !showCottageAnnouncement && !showMomentsAnnouncement && showBannerAnnouncement && user?.id && (
