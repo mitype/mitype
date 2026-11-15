@@ -2,7 +2,7 @@
 // /top-friends — manage your Top Friends (up to 6), answer requests from
 // others, and leave a list you were added to. Subscribers only.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
@@ -25,8 +25,15 @@ export default function TopFriendsPage() {
   const [listedOn, setListedOn] = useState<Row[]>([]); // approved, I am the friend
   const [people, setPeople] = useState<Record<string, Person>>({});
   const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
   const [q, setQ] = useState('');
   const [results, setResults] = useState<Person[]>([]);
+  // Two-tap confirmation for anything that removes or denies, plus a short
+  // lock after the layout changes so a late or double tap can never land on
+  // a button that just moved under the finger.
+  const [confirmKey, setConfirmKey] = useState<string | null>(null);
+  const lockUntil = useRef(0);
+  const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async (uid: string) => {
     const { data } = await supabase
@@ -60,9 +67,26 @@ export default function TopFriendsPage() {
       if (!hasActiveAccess(sub?.status)) { router.replace('/subscription'); return; }
       setUserId(user.id);
       await load(user.id);
+      lockUntil.current = Date.now() + 600;
       setReady(true);
     })();
   }, [router, load]);
+
+  // Keep requests fresh. If the page is already open when a notification is
+  // tapped (or the app comes back to the foreground), new requests appear
+  // without a manual refresh.
+  useEffect(() => {
+    if (!userId) return;
+    const refresh = () => { if (!document.hidden && !busyRef.current) void load(userId); };
+    const t = setInterval(refresh, 15000);
+    document.addEventListener('visibilitychange', refresh);
+    window.addEventListener('focus', refresh);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener('visibilitychange', refresh);
+      window.removeEventListener('focus', refresh);
+    };
+  }, [userId, load]);
 
   // Username search (prefix match, signed-in members only).
   useEffect(() => {
@@ -82,8 +106,10 @@ export default function TopFriendsPage() {
   }, [q, userId]);
 
   async function run(fn: () => Promise<{ error: any }>, okMsg: string) {
-    if (busy || !userId) return;
+    if (busy || !userId || Date.now() < lockUntil.current) return;
     setBusy(true);
+    busyRef.current = true;
+    setConfirmKey(null);
     try {
       const { error } = await fn();
       if (error) { toast.error(error.message ?? 'Something went wrong.'); return; }
@@ -92,8 +118,19 @@ export default function TopFriendsPage() {
     } catch (e: any) {
       toast.error(e?.message ?? 'Something went wrong.');
     } finally {
+      busyRef.current = false;
+      lockUntil.current = Date.now() + 900; // ignore stray taps while the list reshuffles
       setBusy(false);
     }
+  }
+
+  // First tap arms the button ("Tap again to confirm"), second tap runs it.
+  function confirmThen(key: string, fn: () => void) {
+    if (Date.now() < lockUntil.current) return;
+    if (confirmKey === key) { fn(); return; }
+    setConfirmKey(key);
+    if (confirmTimer.current) clearTimeout(confirmTimer.current);
+    confirmTimer.current = setTimeout(() => setConfirmKey(null), 4000);
   }
 
   const sendRequest = (p: Person) =>
@@ -150,7 +187,7 @@ export default function TopFriendsPage() {
                   <PersonLink p={p} />
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button type="button" disabled={busy} onClick={() => respond(r, true)} style={primaryBtn}>Approve</button>
-                    <button type="button" disabled={busy} onClick={() => respond(r, false)} style={ghostBtn}>Deny</button>
+                    <button type="button" disabled={busy} onClick={() => confirmThen(`deny:${r.id}`, () => respond(r, false))} style={confirmKey === `deny:${r.id}` ? dangerBtn : ghostBtn}>{confirmKey === `deny:${r.id}` ? 'Tap again to deny' : 'Deny'}</button>
                   </div>
                 </div>
               );
@@ -170,8 +207,8 @@ export default function TopFriendsPage() {
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <button type="button" aria-label="Move up" disabled={busy || i === 0} onClick={() => move(i, -1)} style={iconBtn}>↑</button>
                   <button type="button" aria-label="Move down" disabled={busy || i === mine.length - 1} onClick={() => move(i, 1)} style={iconBtn}>↓</button>
-                  <button type="button" disabled={busy} onClick={() => remove(r, r.status === 'pending' ? 'Request cancelled.' : 'Removed.')} style={ghostBtn}>
-                    {r.status === 'pending' ? 'Cancel' : 'Remove'}
+                  <button type="button" disabled={busy} onClick={() => confirmThen(`rm:${r.id}`, () => remove(r, r.status === 'pending' ? 'Request cancelled.' : 'Removed.'))} style={confirmKey === `rm:${r.id}` ? dangerBtn : ghostBtn}>
+                    {confirmKey === `rm:${r.id}` ? 'Tap again' : r.status === 'pending' ? 'Cancel' : 'Remove'}
                   </button>
                 </div>
               </div>
@@ -206,8 +243,8 @@ export default function TopFriendsPage() {
             {listedOn.map((r) => (
               <div key={r.id} style={rowStyle}>
                 <PersonLink p={person(r.owner_id)} />
-                <button type="button" disabled={busy} onClick={() => remove(r, 'You were removed from their Top Friends.')} style={ghostBtn}>
-                  Remove me
+                <button type="button" disabled={busy} onClick={() => confirmThen(`me:${r.id}`, () => remove(r, 'You were removed from their Top Friends.'))} style={confirmKey === `me:${r.id}` ? dangerBtn : ghostBtn}>
+                  {confirmKey === `me:${r.id}` ? 'Tap again to remove me' : 'Remove me'}
                 </button>
               </div>
             ))}
@@ -243,7 +280,7 @@ const card: React.CSSProperties = {
 };
 const rowStyle: React.CSSProperties = {
   display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-  padding: '10px 0', borderTop: '1px solid rgba(0,0,0,0.05)', flexWrap: 'wrap',
+  padding: '12px 0', borderTop: '1px solid rgba(0,0,0,0.05)', flexWrap: 'wrap', rowGap: 12,
 };
 const hint: React.CSSProperties = { margin: '8px 0 0', fontSize: 12, color: 'var(--brand-personal-text-mid)', lineHeight: 1.45 };
 const primaryBtn: React.CSSProperties = {
@@ -253,6 +290,10 @@ const primaryBtn: React.CSSProperties = {
 const ghostBtn: React.CSSProperties = {
   padding: '8px 14px', borderRadius: 100, border: '1px solid rgba(200,149,108,0.5)', background: 'transparent',
   color: 'var(--brand-personal-text-mid)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+};
+const dangerBtn: React.CSSProperties = {
+  padding: '8px 14px', borderRadius: 100, border: '1px solid #c0392b', background: 'rgba(192,57,43,0.15)',
+  color: '#e8796b', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
 };
 const iconBtn: React.CSSProperties = {
   width: 32, height: 32, borderRadius: '50%', border: '1px solid rgba(200,149,108,0.5)', background: 'transparent',
