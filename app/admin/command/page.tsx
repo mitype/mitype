@@ -59,6 +59,7 @@ async function shrink(file: File): Promise<Blob> {
 const BOOKS = [
   { title: 'The Timeline: 80s', status: 'Live', note: 'Book 1 of The Timeline', href: 'https://www.amazon.com/dp/B0HR4JBL32' },
   { title: 'The Timeline: 90s', status: 'Live', note: 'Book 2 of The Timeline', href: 'https://www.amazon.com/dp/B0HR8SMDH6' },
+  { title: 'The Timeline: 2000s', status: 'Live', note: 'Book 3 of The Timeline', href: 'https://www.amazon.com/dp/B0HRQX9W4N' },
 ];
 
 // All business content (social numbers, sales, ideas, tasks, links) is stored in the
