@@ -9,6 +9,7 @@ import { BackButton } from '../components/BackButton';
 import { SiteNav } from '../components/SiteNav';
 import { PayPalCheckout } from '../components/PayPalCheckout';
 import { Founders50Toggle } from '../components/Founders50Toggle';
+import { CancelSubscriptionRequest } from '../components/CancelSubscriptionRequest';
 
 // PayPal is the only active payment provider. The Stripe + Braintree
 // checkout paths that used to live here were removed once PayPal went
@@ -128,6 +129,8 @@ export default function SubscriptionPage() {
                 removedForLapse={foundersRemoved}
               />
             )}
+
+            {user && <CancelSubscriptionRequest userId={user.id} />}
           </div>
         ) : (
           <div>
