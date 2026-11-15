@@ -28,6 +28,7 @@ export default function TopFriendsPage() {
   const busyRef = useRef(false);
   const [q, setQ] = useState('');
   const [results, setResults] = useState<Person[]>([]);
+  const [connections, setConnections] = useState<Person[]>([]); // people I already message
   // Two-tap confirmation for anything that removes or denies, plus a short
   // lock after the layout changes so a late or double tap can never land on
   // a button that just moved under the finger.
@@ -41,6 +42,32 @@ export default function TopFriendsPage() {
       .select('id, owner_id, friend_id, status, slot')
       .or(`owner_id.eq.${uid},friend_id.eq.${uid}`)
       .order('slot', { ascending: true });
+    // People the member already messages (approved one-on-one conversations).
+    try {
+      const { data: dms } = await supabase
+        .from('conversations')
+        .select('participant_ids')
+        .contains('participant_ids', [uid])
+        .eq('kind', 'dm')
+        .eq('status', 'approved');
+      const otherIds = Array.from(new Set(
+        (dms ?? []).flatMap((c: any) => (c.participant_ids ?? []) as string[]).filter((i) => i !== uid),
+      ));
+      if (otherIds.length > 0) {
+        const { data: cp } = await supabase
+          .from('profiles_directory')
+          .select('user_id, username, avatar_url')
+          .in('user_id', otherIds);
+        setConnections(((cp ?? []) as any[])
+          .map((p) => ({ user_id: p.user_id, username: p.username as string, avatar_url: p.avatar_url ?? null }))
+          .filter((p) => p.username)
+          .sort((a, b) => a.username.localeCompare(b.username)));
+      } else {
+        setConnections([]);
+      }
+    } catch {
+      setConnections([]);
+    }
     const rows = (data ?? []) as Row[];
     setMine(rows.filter((r) => r.owner_id === uid));
     setIncoming(rows.filter((r) => r.friend_id === uid && r.status === 'pending'));
@@ -159,6 +186,7 @@ export default function TopFriendsPage() {
 
   const person = (id: string) => people[id];
   const takenIds = new Set(mine.map((r) => r.friend_id));
+  const pickable = connections.filter((c) => !takenIds.has(c.user_id));
 
   return (
     <main style={{
@@ -225,14 +253,36 @@ export default function TopFriendsPage() {
                 autoComplete="off"
                 style={inputStyle}
               />
-              {results.map((p) => (
-                <div key={p.user_id} style={rowStyle}>
-                  <PersonLink p={p} />
-                  {takenIds.has(p.user_id)
-                    ? <span style={{ fontSize: 12, color: 'var(--brand-personal-text-light)', fontWeight: 700 }}>Already added</span>
-                    : <button type="button" disabled={busy} onClick={() => sendRequest(p)} style={primaryBtn}>Send request</button>}
+              {q.trim().replace(/^@/, '').length >= 2 ? (
+                results.map((p) => (
+                  <div key={p.user_id} style={rowStyle}>
+                    <PersonLink p={p} />
+                    {takenIds.has(p.user_id)
+                      ? <span style={{ fontSize: 12, color: 'var(--brand-personal-text-light)', fontWeight: 700 }}>Already added</span>
+                      : <button type="button" disabled={busy} onClick={() => sendRequest(p)} style={primaryBtn}>Send request</button>}
+                  </div>
+                ))
+              ) : (
+                <div style={{ marginTop: 18 }}>
+                  <p style={eyebrow}>People you message</p>
+                  {pickable.length === 0 ? (
+                    <p style={hint}>
+                      {connections.length === 0
+                        ? 'Once you have accepted conversations, the people you message will show up here to pick from.'
+                        : 'Everyone you message is already on your list.'}
+                    </p>
+                  ) : (
+                    <div style={{ maxHeight: 340, overflowY: 'auto' }}>
+                      {pickable.map((p) => (
+                        <div key={p.user_id} style={rowStyle}>
+                          <PersonLink p={p} />
+                          <button type="button" disabled={busy} onClick={() => sendRequest(p)} style={primaryBtn}>Send request</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              ))}
+              )}
             </div>
           )}
         </section>
