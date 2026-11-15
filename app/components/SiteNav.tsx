@@ -16,7 +16,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { BackButton } from './BackButton';
 import { NotificationBell } from './NotificationBell';
 import { UnreadBadge } from './UnreadBadge';
@@ -189,6 +189,38 @@ export function SiteNav({
     );
   }
 
+  // Collapsible menu groups. Keys are group ids; a group opens automatically
+  // when the current page lives inside it.
+  const pathname = usePathname() ?? '';
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  function renderGroup(key: string, label: string, prefixes: string[], children: React.ReactNode) {
+    const containsCurrent = prefixes.some((p) => pathname === p || pathname.startsWith(p + '/'));
+    const isOpen = openGroups[key] ?? containsCurrent;
+    return (
+      <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <button
+          type="button"
+          onClick={() => setOpenGroups((m) => ({ ...m, [key]: !isOpen }))}
+          aria-expanded={isOpen}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '13px 20px', color: pillText, fontSize: 15, fontWeight: 800,
+            borderRadius: 100, background: 'transparent', border: `1px solid ${pillBorder}`,
+            letterSpacing: '0.1px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+          }}
+        >
+          <span>{label}</span>
+          <span aria-hidden="true" style={{ fontSize: 13, transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>▾</span>
+        </button>
+        {isOpen && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 14 }}>
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <nav
       style={{
@@ -308,36 +340,58 @@ export function SiteNav({
           margin: '0 auto',
           width: '100%',
         }}>
+          {/* Always visible: the things people use every visit. */}
           <NavLink href="/dashboard"    label="Dashboard" />
           <NavLink href="/discover"     label="Discover" />
-          <NavLink href="/spotlight"    label="Spotlight" />
-          <NavLink href="/weekly"       label="Weekly" />
           <NavLink href="/messages"     label="Messages" badge={unread.total} />
+          <NavLink href="/spotlight"    label="Spotlight" />
 
-          {/* Feature pills — same shape as the regular nav items, just
-              with a tiny colored accent stripe on the left. Mirrors the
-              dashboard quick-action design language. */}
-          {(MOMENTS_LIVE || isAdmin) && (
-            <NavLink href="/moments" label="MI Moments" accent="var(--brand-personal)" />
-          )}
-          <NavLink href="/wave"       label="The Wave Feed"    accent="#38bdf8" />
-          <NavLink href="/currents"   label="The Current"      accent="#1e3a8a" />
-          <NavLink href="/businesses" label="Small Businesses" accent="var(--brand-business)" />
-          <NavLink href="/brand-deals" label="Brand Deals"     accent="var(--brand-business)" />
-          <NavLink href="/collab"      label="Collab Board"    accent="var(--brand-personal)" />
-          <NavLink href="/meetups"     label="Local Meetups"   accent="var(--brand-market)" />
-          <NavLink href="/projects"    label="Project Rooms"   accent="var(--brand-personal)" />
-          <NavLink href="/home-goods" label="Mi Home Goods"    accent="var(--brand-market)" />
-          <NavLink href="/black-sheep-university" label="Black Sheep University" accent="var(--brand-personal-deep)" />
-          <NavLink href="/edit-profile" label="Edit Profile" />
-          <NavLink href="/top-friends" label="Top Friends" />
-          <NavLink href="/info" label="Information Center" />
-          {/* Admin link — only rendered when the signed-in user has
-              is_admin === true on their profile row. Invisible to
-              everyone else, so the option doesn't exist for them. */}
-          {isAdmin && (
-            <NavLink href="/admin" label="Admin" accent="var(--brand-personal)" />
-          )}
+          {/* Everything else lives in tappable groups so the menu stays short.
+              The group holding the page you are on opens by itself. */}
+          {renderGroup('create', 'Create & Share', ['/moments', '/wave', '/currents', '/weekly'], (
+            <>
+              {(MOMENTS_LIVE || isAdmin) && (
+                <NavLink href="/moments" label="MI Moments" accent="var(--brand-personal)" />
+              )}
+              <NavLink href="/wave"     label="The Wave Feed" accent="#38bdf8" />
+              <NavLink href="/currents" label="The Current"   accent="#1e3a8a" />
+              <NavLink href="/weekly"   label="Weekly" />
+            </>
+          ))}
+          {renderGroup('opps', 'Opportunities', ['/brand-deals', '/collab', '/businesses', '/business'], (
+            <>
+              <NavLink href="/brand-deals" label="Brand Deals"      accent="var(--brand-business)" />
+              <NavLink href="/collab"      label="Collab Board"     accent="var(--brand-personal)" />
+              <NavLink href="/businesses"  label="Small Businesses" accent="var(--brand-business)" />
+            </>
+          ))}
+          {renderGroup('community', 'Community', ['/meetups', '/projects'], (
+            <>
+              <NavLink href="/meetups"  label="Local Meetups" accent="var(--brand-market)" />
+              <NavLink href="/projects" label="Project Rooms" accent="var(--brand-personal)" />
+            </>
+          ))}
+          {renderGroup('learn', 'Learn & Shop', ['/black-sheep-university', '/home-goods'], (
+            <>
+              <NavLink href="/black-sheep-university" label="Black Sheep University" accent="var(--brand-personal-deep)" />
+              <NavLink href="/home-goods" label="Mi Home Goods" accent="var(--brand-market)" />
+            </>
+          ))}
+          {renderGroup('me', 'My Profile', ['/edit-profile', '/top-friends', '/info', '/mi-referrals'], (
+            <>
+              <NavLink href="/edit-profile" label="Edit Profile" />
+              <NavLink href="/top-friends"  label="Top Friends" />
+              <NavLink href="/info"         label="Information Center" />
+              {/* Mi Referrals shows only for referral roles. */}
+              {canSeeReferrals && (
+                <NavLink href="/mi-referrals" label="Mi Referrals" accent="var(--brand-personal)" />
+              )}
+            </>
+          ))}
+          {/* Admin tools: only rendered for staff (is_admin on their profile). */}
+          {isAdmin && renderGroup('admin', 'Admin', ['/admin'], (
+            <>
+              <NavLink href="/admin" label="Admin" accent="var(--brand-personal)" />
           {isAdmin && (
             <button
               type="button"
@@ -352,9 +406,8 @@ export function SiteNav({
               {switching ? 'Opening...' : 'Official Mitype profile'}
             </button>
           )}
-          {(
-            <ThemeToggle pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
-          )}
+            </>
+          ))}
           {actingOfficial && (
             <button
               type="button"
@@ -369,17 +422,15 @@ export function SiteNav({
               {switching ? 'Switching...' : 'Switch back to my account'}
             </button>
           )}
-          {/* Mi Referrals — leaderboard of users this account personally
-              brought to the platform. Visible to CMOs and plain
-              referrers; invisible to everyone else. */}
-          {canSeeReferrals && (
-            <NavLink href="/mi-referrals" label="Mi Referrals" accent="var(--brand-personal)" />
-          )}
-          {userId && (
+          {userId && renderGroup('settings', 'Settings', [], (
             <>
-            <PushNotificationsToggle userId={userId} pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
-            <FeedbackToggle pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
+              <PushNotificationsToggle userId={userId} pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
+              <ThemeToggle pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
+              <FeedbackToggle pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
             </>
+          ))}
+          {!userId && (
+            <ThemeToggle pillBg={pillBg} pillBorder={pillBorder} pillText={pillText} />
           )}
           {!hideSignOut && userId && (
             <button
