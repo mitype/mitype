@@ -80,7 +80,7 @@ const UNDO_SKIP_WINDOW_MS = 5000;
 // `src` to avoid accumulating decoded video buffers in memory.
 const WINDOW_RADIUS = 2;
 // Treat a video as "expiring soon" when this much (or less) time remains.
-const EXPIRING_SOON_MS = 60 * 60 * 1000;
+const EXPIRING_SOON_MS = 24 * 60 * 60 * 1000;
 
 export default function WavePage() {
   const router = useRouter();
@@ -785,6 +785,8 @@ export default function WavePage() {
     if (ms <= 0) return 'expiring';
     const hours = Math.floor(ms / (1000 * 60 * 60));
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    if (hours >= 48) return `${Math.floor(hours / 24)}d left`;
+    if (hours >= 24) return `1d ${hours - 24}h`;
     if (hours > 0) return `${hours}h ${minutes}m`;
     return `${minutes}m`;
   }
@@ -1621,7 +1623,7 @@ export default function WavePage() {
                       <div style={{ fontSize: 11, marginTop: 2, fontWeight: 400 }}>
                         Posted {minutesSincePost(item, nowMs)} min ago. Videos can only
                         be deleted within 1 hour of posting. This video will
-                        auto-expire 24 hours after posting.
+                        auto-expire 30 days after posting.
                       </div>
                     </div>
                   )
@@ -1993,7 +1995,7 @@ export default function WavePage() {
           {
             icon: '⏱️',
             title: 'Expiring soon',
-            body: 'Every Wave video lives 24 hours. When less than an hour remains, the timer badge pulses red and the video glows red around the edge. Catch it before it disappears.',
+            body: 'Every Wave video lives 30 days. When less than a day remains, the timer badge pulses red and the video glows red around the edge. Catch it before it disappears.',
           },
           {
             icon: '🌊',

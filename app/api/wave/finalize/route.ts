@@ -128,11 +128,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, videoId: already.id, expiresAt: already.expires_at });
     }
 
-    // Create the video row. expires_at defaults to now + 24h via the schema.
+    // Create the video row. Videos live 30 days (set here explicitly so it
+    // does not depend on the column default).
     const { data: video, error: insertErr } = await supabaseAdmin
       .from('wave_videos')
       .insert({
         user_id: user.id,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         storage_path: storagePath,
         caption: caption?.slice(0, MAX_CAPTION_CHARS) ?? null,
         category: category ?? null,

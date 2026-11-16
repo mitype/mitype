@@ -13,7 +13,7 @@ interface Props {
 const SLIDES: Array<{ title: string; body: string; icon: string }> = [
   {
     title: 'Welcome to The Wave',
-    body: "Swipe up to see what creators are sharing right now. Every video disappears after 24 hours. So what you see is fresh.",
+    body: "Swipe up to see what creators are sharing right now. Every video disappears after 30 days.",
     icon: '🌊',
   },
   {
