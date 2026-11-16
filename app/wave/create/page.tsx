@@ -25,6 +25,31 @@ import { ALL_CATEGORIES } from '../../lib/categories';
 
 const MAX_DURATION = 60;
 const MAX_SIZE_MB = 500;
+// Largest original file uploaded as-is (the storage plan caps one file at 50 MB).
+const PASS_THROUGH_MAX_MB = 45;
+
+// True when the file looks like a normal H.264 video with AAC (or no) audio,
+// which every phone and browser can play. Reads only the start and end of the
+// file, where the format details live. HEVC/AV1/VP9 files return false and
+// go through the converter instead.
+async function looksLikeH264(file: File): Promise<boolean> {
+  try {
+    const head = 2 * 1024 * 1024;
+    const tail = 6 * 1024 * 1024;
+    const parts: string[] = [];
+    const dec = new TextDecoder('latin1');
+    parts.push(dec.decode(await file.slice(0, Math.min(head, file.size)).arrayBuffer()));
+    if (file.size > head) {
+      parts.push(dec.decode(await file.slice(Math.max(head, file.size - tail)).arrayBuffer()));
+    }
+    const s = parts.join('');
+    if (!s.includes('avc1')) return false;
+    if (s.includes('hvc1') || s.includes('hev1') || s.includes('av01') || s.includes('vp09')) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
 const MAX_CAPTION = 80;
 
 interface FilterOption {
@@ -331,7 +356,7 @@ export default function WaveCreatePage() {
     // Cap output dimensions for sane file size.
     const srcW = v.videoWidth || dims.w;
     const srcH = v.videoHeight || dims.h;
-    const maxDim = 1280;
+    const maxDim = 1920;
     const scale = Math.min(1, maxDim / Math.max(srcW, srcH));
     const outW = Math.round(srcW * scale);
     const outH = Math.round(srcH * scale);
@@ -401,8 +426,8 @@ export default function WaveCreatePage() {
     let recorder: MediaRecorder;
     try {
       recorder = mimeType
-        ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3_500_000 })
-        : new MediaRecorder(stream, { videoBitsPerSecond: 3_500_000 });
+        ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5_000_000, audioBitsPerSecond: 128_000 })
+        : new MediaRecorder(stream, { videoBitsPerSecond: 5_000_000, audioBitsPerSecond: 128_000 });
     } catch {
       // Absolute fallback: no options at all. Rare but real on some
       // older Androids where videoBitsPerSecond itself fails.
@@ -422,8 +447,24 @@ export default function WaveCreatePage() {
       v.onseeked = () => resolve();
     });
 
-    recorder.start(250);
+    // Start playing FIRST and begin recording only once the first frame is
+    // really on screen, so the picture and the sound start together. (Starting
+    // the recorder before playback began shifted the audio against the video.)
     await v.play();
+    await new Promise<void>((resolve) => {
+      const vf = v as HTMLVideoElement & {
+        requestVideoFrameCallback?: (cb: () => void) => number;
+      };
+      if (typeof vf.requestVideoFrameCallback === 'function') vf.requestVideoFrameCallback(() => resolve());
+      else requestAnimationFrame(() => resolve());
+    });
+    try {
+      ctx.filter = filter.cssFilter;
+      ctx.drawImage(v, 0, 0, outW, outH);
+      ctx.filter = 'none';
+      drawOverlays(ctx, outW, outH, caption.trim());
+    } catch { /* first frame draw is best effort */ }
+    recorder.start(250);
 
     // Render loop: draw each video frame onto the canvas with filter +
     // overlays applied, until we hit the trim end.
@@ -486,18 +527,37 @@ export default function WaveCreatePage() {
       return;
     }
 
+    // Clean upload: when nothing needs to be baked into the picture (no
+    // trim, caption or filter) and the file is already a normal H.264 video
+    // that is small enough, upload the ORIGINAL file untouched. Re-encoding
+    // on the phone is what shifted the audio, so skipping it keeps the
+    // sound perfectly in sync and the quality exactly as recorded. The
+    // feed draws the Mitype watermark on these videos instead.
+    const untouched =
+      !caption.trim() &&
+      filter.key === 'none' &&
+      trimStart < 0.05 &&
+      trimEnd >= sourceDuration - 0.1 &&
+      sourceDuration <= MAX_DURATION + 0.5 &&
+      file.size <= PASS_THROUGH_MAX_MB * 1024 * 1024 &&
+      (await looksLikeH264(file));
+
     setStep('processing');
     setProgress(0);
-    setProgressLabel('Editing video…');
+    setProgressLabel(untouched ? 'Getting ready…' : 'Editing video…');
 
     let processed: { blob: Blob; ext: string };
-    try {
-      processed = await processVideo();
-    } catch (err: any) {
-      console.error('[wave/create] process error:', err);
-      toast.error(err.message ?? 'Could not process video');
-      setStep('edit');
-      return;
+    if (untouched) {
+      processed = { blob: file, ext: 'mp4' };
+    } else {
+      try {
+        processed = await processVideo();
+      } catch (err: any) {
+        console.error('[wave/create] process error:', err);
+        toast.error(err.message ?? 'Could not process video');
+        setStep('edit');
+        return;
+      }
     }
 
     setStep('uploading');
@@ -531,7 +591,9 @@ export default function WaveCreatePage() {
       //      valid MP4.
       const rawType = processed.blob.type || '';
       const stripped = rawType.split(';')[0].trim().toLowerCase();
-      const cleanType = stripped.startsWith('video/') ? stripped : 'video/mp4';
+      // An untouched H.264 phone video (often a .mov) is stored as plain
+      // video/mp4 so every browser plays it.
+      const cleanType = untouched || !stripped.startsWith('video/') ? 'video/mp4' : stripped;
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', urlJson.uploadUrl);
@@ -559,6 +621,7 @@ export default function WaveCreatePage() {
           height: dims.h,
           linkedListingId: link.kind === 'listing' ? link.id : null,
           linkedBusinessId: link.kind === 'business' ? link.id : null,
+          watermarkBaked: !untouched,
         }),
       });
       const finalJson = await finalRes.json();

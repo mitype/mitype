@@ -25,6 +25,8 @@ interface WaveItem {
   id: string;
   videoUrl: string;
   caption: string | null;
+  /** True when the Mitype watermark is already part of the video file. */
+  watermarkBaked?: boolean;
   category: string | null;
   durationSeconds: number | null;
   createdAt: string;
@@ -1222,8 +1224,27 @@ export default function WavePage() {
               </button>
             )}
 
-            {/* The Mitype watermark is baked into every video when it is
-                posted, so it is not drawn again here (it showed twice). */}
+            {/* The watermark is baked into edited videos. Videos uploaded
+                untouched (original file, perfect sound sync) get it drawn
+                here instead, so it never shows twice. */}
+            {item.watermarkBaked === false && (
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  top: 'max(124px, calc(env(safe-area-inset-top) + 108px))',
+                  left: 18,
+                  fontSize: 15,
+                  fontWeight: 900,
+                  color: 'rgba(255,255,255,0.85)',
+                  letterSpacing: '-0.3px',
+                  textShadow: '0 1px 3px rgba(0,0,0,0.55)',
+                  pointerEvents: 'none',
+                }}
+              >
+                mitype
+              </div>
+            )}
 
             {/* Compatibility badge — top-left */}
             {item.compatibility > 0 && (

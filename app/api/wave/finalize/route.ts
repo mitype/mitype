@@ -52,7 +52,9 @@ export async function POST(req: NextRequest) {
       height,
       linkedListingId,
       linkedBusinessId,
+      watermarkBaked,
     } = body as {
+      watermarkBaked?: boolean;
       storagePath?: string;
       caption?: string;
       category?: string;
@@ -135,6 +137,8 @@ export async function POST(req: NextRequest) {
       .insert({
         user_id: user.id,
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        // false = original file uploaded untouched; the feed draws the watermark.
+        watermark_baked: watermarkBaked !== false,
         storage_path: storagePath,
         caption: caption?.slice(0, MAX_CAPTION_CHARS) ?? null,
         category: category ?? null,

@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
     // post sitting in the same feed, and helps when the feed is still small.
     let query = supabaseAdmin
       .from('wave_videos')
-      .select('id, user_id, storage_path, caption, category, duration_seconds, width, height, created_at, expires_at, like_count, view_count, linked_listing_id, linked_business_id')
+      .select('id, user_id, storage_path, caption, category, duration_seconds, width, height, created_at, expires_at, like_count, view_count, linked_listing_id, linked_business_id, watermark_baked')
       .eq('is_removed', false)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
@@ -189,6 +189,7 @@ export async function GET(req: NextRequest) {
         id: v.id,
         videoUrl: pub.publicUrl,
         caption: v.caption,
+        watermarkBaked: v.watermark_baked !== false,
         category: v.category,
         durationSeconds: v.duration_seconds,
         createdAt: v.created_at,
