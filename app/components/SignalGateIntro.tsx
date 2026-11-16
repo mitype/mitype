@@ -65,7 +65,8 @@ export function SignalGateIntro({ kind, onDone, durationMs = 2200 }: Props) {
     // Soft water whoosh (best effort; browsers may block audio).
     let audioCtx: AudioContext | null = null;
     try {
-      const Ctor = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const w = window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext };
+      const Ctor = w.AudioContext || w.webkitAudioContext;
       if (Ctor) {
         audioCtx = new Ctor() as AudioContext;
         const ac = audioCtx;
@@ -210,7 +211,6 @@ export function SignalGateIntro({ kind, onDone, durationMs = 2200 }: Props) {
       clearTimeout(safety);
       audioCtx?.close().catch(() => {});
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind, durationMs]);
 
   if (!shown) return null;
