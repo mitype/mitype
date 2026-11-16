@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { SiteNav } from '../components/SiteNav';
 import { OceanBackground } from '../components/OceanBackground';
-import { VortexIntro } from '../components/VortexIntro';
+import { SignalGateIntro } from '../components/SignalGateIntro';
 import { CurrentCard, type CurrentRecord } from '../components/CurrentCard';
 import { CurrentComposer } from '../components/CurrentComposer';
 import { CurrentTutorial } from '../components/CurrentTutorial';
@@ -129,7 +129,7 @@ export default function CurrentsFeedPage() {
       }}
     >
       <OceanBackground />
-      <VortexIntro onDone={() => setVortexDone(true)} />
+      <SignalGateIntro kind="currents" onDone={() => setVortexDone(true)} />
 
       <SiteNav userId={viewerId ?? undefined} showBack backFallbackHref="/dashboard" />
 

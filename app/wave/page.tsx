@@ -16,7 +16,7 @@ import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { WaveTutorial } from '../components/WaveTutorial';
 import { FeatureTutorial } from '../components/FeatureTutorial';
-import { WaveIntro } from '../components/WaveIntro';
+import { SignalGateIntro } from '../components/SignalGateIntro';
 import { toast } from '../lib/toast';
 import { markSeen } from '../lib/lastSeen';
 import { feedback } from '../lib/feedback';
@@ -808,10 +808,9 @@ export default function WavePage() {
         overflow: 'hidden',
       }}
     >
-      {/* Wave intro animation — full-screen ocean wave sweeping right
-          to left, plays every time the user opens the Wave Feed (same
-          treatment as the vortex on The Current). */}
-      <WaveIntro />
+      {/* Signal Gate opener: an ocean-blue lattice ripples out from the
+          spot the member tapped, then an iris opens onto the feed. */}
+      <SignalGateIntro kind="wave" />
 
       {/* Top bar */}
       <div

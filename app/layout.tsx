@@ -11,6 +11,7 @@ import { PageTransition } from "./components/PageTransition";
 import { GoldenHour } from "./components/GoldenHour";
 import { SignalBackdrop } from "./components/SignalBackdrop";
 import { DesignAnnouncement } from "./components/DesignAnnouncement";
+import { GateOriginTracker } from "./components/GateOriginTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.mitypeapp.com"),
@@ -92,6 +93,7 @@ export default function RootLayout({
         <GoldenHour />
         <SignalBackdrop />
         <DesignAnnouncement />
+        <GateOriginTracker />
       </body>
     </html>
   );
