@@ -855,8 +855,33 @@ export default function EditProfilePage() {
               }}
             />
             <p style={{ color: 'var(--brand-personal-text-lighter)', fontSize: 12, marginTop: 6 }}>
-              Used to show your age. You must be 18+.
+              {dateOfBirth
+                ? 'Used to show your age. You must be 18+.'
+                : 'Optional. Add it to show your age on your profile. You must be 18+.'}
             </p>
+            {dateOfBirth && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDateOfBirth('');
+                  toast.success('Birthday removed. Save your profile to apply it.');
+                }}
+                style={{
+                  marginTop: 8,
+                  background: 'none',
+                  border: 'none',
+                  padding: '6px 0',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: 'var(--brand-personal)',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Remove my birthday
+              </button>
+            )}
           </div>
 
           {/* ZIP Code */}
