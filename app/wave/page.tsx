@@ -133,6 +133,11 @@ export default function WavePage() {
   // Index of the currently-visible video in `items`. Drives the memory
   // windowing logic that releases `src` for distant videos.
   const [activeIndex, setActiveIndex] = useState(0);
+  // How each video fills the screen ('cover' = edge to edge for portrait,
+  // 'contain' = whole frame for wide/square). Set once the video's size is known.
+  const [fitById, setFitById] = useState<Record<string, 'cover' | 'contain'>>({});
+  // Latest sound setting, readable from the player callbacks.
+  const soundRef = useRef(false);
   // Floating hearts spawned by double-tap-to-like; auto-cleared after
   // their CSS animation finishes.
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
@@ -310,7 +315,7 @@ export default function WavePage() {
     if (!containerRef.current || items.length === 0) return;
 
     async function playWithSoundFallback(el: HTMLVideoElement) {
-      el.muted = !soundEnabled;
+      el.muted = !soundRef.current;
       try {
         await el.play();
       } catch {
@@ -381,6 +386,34 @@ export default function WavePage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, soundEnabled, cursor, hasMore]);
+
+  // Keep every video's real mute state in step with the sound setting.
+  // React's `muted` prop does not update the DOM property after the first
+  // render, so a device that remembered "sound on" could show the speaker
+  // icon while the video stayed silent until the toggle was tapped twice.
+  useEffect(() => {
+    soundRef.current = soundEnabled;
+    videoRefs.current.forEach((el) => { el.muted = !soundEnabled; });
+    if (soundEnabled && activeId) {
+      const el = videoRefs.current.get(activeId);
+      if (el && el.paused && pausedId !== activeId) el.play().catch(() => {});
+    }
+  }, [soundEnabled, activeId, pausedId]);
+
+  // Browsers only allow sound after a tap. If sound is on but the playing
+  // video was started silent, the first touch anywhere unmutes it.
+  useEffect(() => {
+    function unlock() {
+      if (!soundRef.current || !activeId) return;
+      const el = videoRefs.current.get(activeId);
+      if (el && el.muted) {
+        el.muted = false;
+        el.play().catch(() => {});
+      }
+    }
+    document.addEventListener('pointerdown', unlock, { passive: true });
+    return () => document.removeEventListener('pointerdown', unlock);
+  }, [activeId]);
 
   // Auto-pause the active video when the user backgrounds the app /
   // switches tabs, and resume on return (unless they manually paused).
@@ -799,7 +832,7 @@ export default function WavePage() {
       // pop two pages off the history stack on one swipe.
       data-no-swipe-back="true"
       style={{
-        height: '100vh',
+        height: '100dvh',
         width: '100vw',
         background: '#0a0604',
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
@@ -1064,18 +1097,22 @@ export default function WavePage() {
               // and gracefully retries muted if the browser blocks
               // unmuted autoplay.
               muted={!soundEnabled}
-              preload="metadata"
+              // The playing video and the next one buffer fully so the swipe
+              // is instant; the rest only load metadata.
+              preload={index === activeIndex || index === activeIndex + 1 ? 'auto' : 'metadata'}
+              onLoadedMetadata={(e) => {
+                const v = e.currentTarget;
+                if (!v.videoWidth || !v.videoHeight) return;
+                const fit = v.videoWidth / v.videoHeight <= 0.85 ? 'cover' : 'contain';
+                setFitById((prev) => (prev[item.id] === fit ? prev : { ...prev, [item.id]: fit }));
+              }}
               style={{
                 width: '100%',
                 height: '100%',
-                // `contain` (was `cover`) keeps the ENTIRE video frame in view,
-                // including the caption pill the editor bakes into the bottom
-                // of the frame. `cover` cropped the top/bottom on iPhone screens
-                // that aren't exactly 9:16 (all current iPhones + most Androids),
-                // which hid the caption users had typed in. The tradeoff is soft
-                // black letterbox bars on off-ratio videos — a fair trade for
-                // never hiding user content.
-                objectFit: 'contain',
+                // Portrait videos (phone recordings) fill the whole screen,
+                // edge to edge, with no black bars. Wide or square videos are
+                // shown whole instead so nothing important is cropped.
+                objectFit: fitById[item.id] ?? 'cover',
                 background: '#000',
                 cursor: 'pointer',
               }}
@@ -1185,26 +1222,8 @@ export default function WavePage() {
               </button>
             )}
 
-            {/* Mitype watermark — CSS overlay so the brand is always
-                visible in the player, regardless of how the video is
-                cropped (the baked-in watermark gets clipped on
-                landscape videos shown in a portrait viewport). */}
-            <div
-              aria-hidden="true"
-              style={{
-                position: 'absolute',
-                top: 'max(120px, calc(env(safe-area-inset-top) + 105px))',
-                right: 16,
-                fontSize: 14,
-                fontWeight: 900,
-                color: 'rgba(255,255,255,0.85)',
-                letterSpacing: '-0.3px',
-                textShadow: '0 1px 3px rgba(0,0,0,0.55)',
-                pointerEvents: 'none',
-              }}
-            >
-              mitype
-            </div>
+            {/* The Mitype watermark is baked into every video when it is
+                posted, so it is not drawn again here (it showed twice). */}
 
             {/* Compatibility badge — top-left */}
             {item.compatibility > 0 && (
