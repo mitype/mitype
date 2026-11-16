@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
       .from('wave_videos')
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
+      .eq('is_removed', false)
       .gte('created_at', since);
 
     if (countErr) {

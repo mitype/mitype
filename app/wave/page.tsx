@@ -720,13 +720,11 @@ export default function WavePage() {
     return Boolean(user && item.creator && item.creator.userId === user.id);
   }
 
-  // Whether the viewer is the creator of a given video AND it's still
-  // inside the 1-hour delete window. Drives the "Delete video" option
-  // in the More menu.
-  function canDelete(item: WaveItem, nowMs: number): boolean {
-    if (!isOwnVideo(item)) return false;
-    const ageMs = nowMs - new Date(item.createdAt).getTime();
-    return ageMs <= 60 * 60 * 1000;
+  // Creators can delete their own videos at any time. Drives the
+  // "Delete video" option in the More menu.
+  function canDelete(item: WaveItem, _nowMs: number): boolean {
+    void _nowMs;
+    return isOwnVideo(item);
   }
 
   // Human-readable "X minutes ago" type string used to explain why

@@ -18,7 +18,6 @@ import { getAuthedUser } from '../../../lib/waveAuth';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const DELETE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const BUCKET = 'wave-videos';
 
 export async function POST(req: NextRequest) {
@@ -61,18 +60,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    const ageMs = Date.now() - new Date(video.created_at).getTime();
-    if (ageMs > DELETE_WINDOW_MS) {
-      return NextResponse.json(
-        {
-          error:
-            'This video is more than an hour old. It can no longer be deleted. It will auto-expire 30 days after posting.',
-        },
-        { status: 403 }
-      );
-    }
+    // Creators can delete their own video at any time. Deleted videos stop
+    // counting toward the daily post limit, so a replacement can go up.
 
-    // Soft-delete the row (preserves the 24h post-count for rate limiting)
+    // Soft-delete the row
     const { error: updateErr } = await supabaseAdmin
       .from('wave_videos')
       .update({ is_removed: true })
